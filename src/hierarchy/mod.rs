@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::*;
 
+use crate::PrefabMarker;
+
 use super::selected::*;
 
 pub struct SpaceHierarchyPlugin {
@@ -30,7 +32,7 @@ impl Plugin for SpaceHierarchyPlugin {
 fn show_hierarchy(
     mut commands : Commands,
     mut contexts : EguiContexts,
-    query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>)>,
+    query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     mut selected : ResMut<SelectedEntities>
 ) {
     let mut all : Vec<_> = query.iter().collect();
@@ -44,7 +46,7 @@ fn show_hierarchy(
         }
         ui.vertical_centered(|ui| {
             if ui.button("----- + -----").clicked() {
-                commands.spawn_empty();
+                commands.spawn_empty().insert(PrefabMarker);
             }
         });
     });
@@ -53,7 +55,7 @@ fn show_hierarchy(
 fn draw_entity(
     commands : &mut Commands, 
     ui: &mut egui::Ui,
-    query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>)>,
+    query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     entity: Entity,
     selected : &mut SelectedEntities
 ) {
@@ -76,7 +78,7 @@ fn draw_entity(
                     commands.entity(entity).add_child(new_id);
                 }
                 if ui.button("Delete").clicked() {
-                    commands.entity(entity).despawn();
+                    commands.entity(entity).despawn_recursive();
                     selected.list.remove(&entity);
                     ui.close_menu();
                 }

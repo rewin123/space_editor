@@ -21,7 +21,7 @@ fn setup(
         mesh: meshes.add(shape::Plane::from_size(5.0).into()),
         material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
         ..default()
-    }).insert(Name::new("Plane"));
+    }).insert(Name::new("Plane")).insert(PrefabMarker);
     // cube
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
@@ -35,8 +35,8 @@ fn setup(
             material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
             transform: Transform::from_xyz(0.0, 0.0, 3.0),
             ..default()
-        }).insert(Name::new("Cube child"));
-    }).insert(Name::new("Cube parent"));
+        }).insert(Name::new("Cube child")).insert(PrefabMarker);
+    }).insert(Name::new("Cube parent")).insert(PrefabMarker);
     // light
     commands.spawn(PointLightBundle {
         point_light: PointLight {

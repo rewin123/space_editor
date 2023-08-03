@@ -10,6 +10,7 @@ pub struct SpaceEditorPlugin {
 
 }
 
+
 impl Default for SpaceEditorPlugin {
     fn default() -> Self {
         Self {
@@ -25,3 +26,8 @@ impl Plugin for SpaceEditorPlugin {
         app.add_plugins(hierarchy::SpaceHierarchyPlugin::default());
     }
 }
+
+
+//editor shows only entities with this marker
+#[derive(Component)]
+pub struct PrefabMarker;
