@@ -3,6 +3,7 @@ pub mod selected;
 pub mod inspector;
 pub mod asset_insector;
 pub mod prefab;
+pub mod top_menu;
 
 use bevy::prelude::*;
 
@@ -24,6 +25,7 @@ impl Plugin for SpaceEditorPlugin {
         app.add_plugins(bevy_egui::EguiPlugin);
         app.add_plugins(selected::SelectedPlugin);
         app.add_plugins(hierarchy::SpaceHierarchyPlugin::default());
+        app.add_plugins(top_menu::TopMenuPlugin);
     }
 }
 

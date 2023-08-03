@@ -40,7 +40,6 @@ impl EditorRegistry {
         self.spawn_components.insert(
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>()
-            
         );
     }
 
@@ -73,6 +72,7 @@ pub trait EditorRegistryExt {
 impl EditorRegistryExt for App {
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration>(&mut self) {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
+        self.register_type::<T>();
     }
 
     fn editor_custom_reflect<T, F>(&mut self, reflect_fun : F )

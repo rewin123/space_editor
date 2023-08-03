@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct ScenePrefab {
     pub path : String,
     pub scene : String

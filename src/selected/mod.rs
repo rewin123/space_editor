@@ -22,10 +22,10 @@ impl Plugin for SelectedPlugin {
 
 fn stupid_wireframe_update(
     mut cmds : Commands,
-    mut query : Query<(Entity, &Wireframe)>,
+    query : Query<(Entity, &Wireframe)>,
     selected : Res<SelectedEntities>
 ) {
-    for (e, w) in query.iter() {
+    for (e, _) in query.iter() {
         if !selected.list.contains(&e) {
             cmds.entity(e).remove::<Wireframe>();
         }

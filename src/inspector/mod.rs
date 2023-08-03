@@ -77,7 +77,7 @@ fn execute_inspect_command(
     state.commands.clear();
 }
 
-fn inspect(
+pub fn inspect(
     world : &mut World
 ) {
 
