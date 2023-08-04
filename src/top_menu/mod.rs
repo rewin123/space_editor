@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_egui::*;
 
-use crate::{prefab::{save_load::{SaveState, SaveConfig}, PrefabPlugin}, inspector};
+use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, inspector};
 
 
 pub struct TopMenuPlugin;

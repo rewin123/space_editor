@@ -1,6 +1,7 @@
 pub mod component;
 pub mod spawn_system;
-pub mod save_load;
+pub mod save;
+pub mod load;
 
 use bevy::prelude::*;
 use bevy_egui::*;
@@ -8,7 +9,7 @@ use bevy_scene_hook::HookPlugin;
 
 use crate::{asset_insector::AssetDetectorPlugin, inspector::{InspectorPlugin, registration::EditorRegistryExt}};
 
-use self::{spawn_system::spawn_scene, component::{ScenePrefab, PrefabAutoChild}, save_load::{SaveState, SaveConfig, SaveLoadPrefabPlugin}};
+use self::{spawn_system::spawn_scene, component::{ScenePrefab, PrefabAutoChild}, save::{SaveState, SaveConfig, SaveLoadPrefabPlugin}};
 
 pub struct PrefabPlugin;
 

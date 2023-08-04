@@ -91,7 +91,7 @@ pub fn serialize_prefab(
             .spawn(async move {
                 // Write the scene RON data to file
                 let path = config.path;
-                File::create(format!("assets/{path}"))
+                File::create(format!("assets/{path}.prefab"))
                     .and_then(|mut file| file.write(str.as_bytes()))
                     .expect("Error while writing scene to file");
 
@@ -105,6 +105,8 @@ pub fn serialize_prefab(
     world.resource_mut::<NextState<SaveState>>().set(SaveState::Idle);
 
 }
+
+
 
 fn load_prefab(
     mut commands : Commands,
