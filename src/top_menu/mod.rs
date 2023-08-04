@@ -33,6 +33,10 @@ fn top_menu(
             if ui.button("Save").clicked() {
                 save_state.set(SaveState::Save);
             }
+
+            if ui.button("Load").clicked() {
+                
+            }
         });
     });
 }

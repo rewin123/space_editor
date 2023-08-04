@@ -7,6 +7,11 @@ use crate::{inspector::registration::{EditorRegistry, EditorRegistryExt}, Prefab
 #[reflect(Component)]
 pub struct ChildrenPrefab(Vec<Entity>);
 
+#[derive(Component, Default)]
+struct PrefabLoader {
+    pub path : String
+}
+
 impl ChildrenPrefab {
     pub fn from_children(children : &Children) -> Self {
         Self(children.to_vec())
@@ -98,5 +103,13 @@ pub fn serialize_prefab(
     }
 
     world.resource_mut::<NextState<SaveState>>().set(SaveState::Idle);
+
+}
+
+fn load_prefab(
+    mut commands : Commands,
+    query : Query<(Entity, &PrefabLoader)>,
+    asset_server : Res<AssetServer>
+) {
 
 }
