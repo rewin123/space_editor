@@ -30,7 +30,7 @@ impl Plugin for SpaceHierarchyPlugin {
 
 
 fn show_hierarchy(
-    mut commands : Commands,
+    mut commands : Commands, 
     mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     mut selected : ResMut<SelectedEntities>
@@ -82,8 +82,9 @@ fn draw_entity(
         let label = ui.selectable_label(is_selected, entity_name)
             .context_menu(|ui| {
                 if ui.button("Add child").clicked() {
-                    let new_id = commands.spawn_empty().id();
+                    let new_id = commands.spawn_empty().insert(PrefabMarker).id();
                     commands.entity(entity).add_child(new_id);
+                    ui.close_menu();
                 }
                 if ui.button("Delete").clicked() {
                     commands.entity(entity).despawn_recursive();

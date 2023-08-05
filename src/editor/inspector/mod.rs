@@ -190,7 +190,7 @@ pub fn inspect(
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = parent.get::<GlobalTransform>() {
                             if let Some(global) = ecell.get::<GlobalTransform>() {
-                                if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo")
+                                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
                                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                                     .view_matrix(view_matrix.to_cols_array_2d())
                                     .model_matrix(global.compute_matrix().to_cols_array_2d())
