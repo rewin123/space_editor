@@ -94,10 +94,10 @@ pub fn inspect(
     let mut components_id = vec![];
     let mut types_id = vec![];
 
-    let mut cam_query = world.query::<(&Projection, &GlobalTransform)>();
     let cam_proj;
     let cam_pos;
     {
+        let mut cam_query = world.query::<(&Projection, &GlobalTransform)>();
         let (proj, pos) = cam_query.single(world);
         cam_proj = proj.clone();
         cam_pos = pos.clone();
@@ -156,6 +156,10 @@ pub fn inspect(
                                 for idx in 0..components_id.len() {
                                     let c_id = components_id[idx];
                                     let t_id = types_id[idx];
+
+                                    if editor_registry.silent.contains(&t_id) {
+                                        continue;
+                                    }
                                     
                                     let name = registry.get(t_id).unwrap().short_name();
                                     ui.selectable_value(

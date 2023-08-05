@@ -21,6 +21,10 @@ pub fn ui_for_reflect(
             (custom_reflect.reflect)(ui, value, hash, name, set_changed, world);
             return;
         }
+
+        if editor.silent.contains(&value.type_id())  {
+            return; //type was marked to skip showing in inspector
+        }
     }
 
     //default reflect path
