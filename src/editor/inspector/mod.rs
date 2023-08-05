@@ -14,7 +14,7 @@ use egui_gizmo::*;
 
 use crate::editor_registry::{EditorRegistryExt, EditorRegistry};
 
-use super::selected::{SelectedPlugin, SelectedEntities};
+use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, update_pan_orbit, PanOrbitEnabled, ui_camera_block};
 use ui_reflect::*;
 use registration::*;
 
@@ -35,7 +35,7 @@ impl Plugin for InspectorPlugin {
         app.editor_custom_reflect(refl_impl::reflect_name);
         app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
-        app.add_systems(Update, (inspect, execute_inspect_command).chain());
+        app.add_systems(Update, (inspect, execute_inspect_command).chain().after(reset_pan_orbit_state).before(ui_camera_block));
         app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
     }
 }
@@ -96,6 +96,7 @@ pub fn inspect(
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
     let registry = all_registry.read();
+    let mut disable_pan_orbit = false;
     let ctx_e;
     {
         let mut ctx_query = world.query_filtered::<Entity, (With<EguiContext>, With<Window>)>();
@@ -247,6 +248,7 @@ pub fn inspect(
                                     transform.set_changed();
                                     
                                 }
+                                disable_pan_orbit = true;
                                 continue;
                             }
                         }
@@ -264,6 +266,7 @@ pub fn inspect(
                         scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                     };
                     transform.set_changed();
+                    disable_pan_orbit = true;
                 }
                 
             }
@@ -272,6 +275,10 @@ pub fn inspect(
         state.commands = commands;
     }
     
+
+    if disable_pan_orbit {
+        world.resource_mut::<PanOrbitEnabled>().0 = false;
+    }
 }
 
 fn add_global_transform(

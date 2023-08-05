@@ -3,7 +3,7 @@ use bevy_egui::*;
 
 use crate::{PrefabMarker, prelude::EditorRegistry};
 
-use super::selected::*;
+use super::{selected::*, ui_camera_block};
 
 #[derive(Event)]
 struct CloneEvent {
@@ -29,7 +29,7 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_systems(Update, show_hierarchy);
+        app.add_systems(Update, show_hierarchy.before(ui_camera_block));
         app.add_systems(Update, clone_enitites.after(show_hierarchy));
         app.add_event::<CloneEvent>();
     }

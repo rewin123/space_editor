@@ -3,6 +3,8 @@ use std::path::Path;
 use bevy::prelude::*;
 use bevy_egui::*;
 
+use super::ui_camera_block;
+
 pub struct EditorAsset {
     pub path: String,
     pub ext: String,
@@ -19,7 +21,7 @@ impl Plugin for AssetDetectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DetectedAssets>();
 
-        app.add_systems(Startup, detect_assets);
+        app.add_systems(Startup, detect_assets.before(ui_camera_block));
     }
 }
 
