@@ -37,7 +37,7 @@ impl Plugin for PrefabPlugin {
 }
 
 
-fn add_global_transform(
+pub fn add_global_transform(
     mut commands : Commands,
     mut query : Query<(Entity, &mut Transform), (With<Transform>, Without<GlobalTransform>)>
 ) {

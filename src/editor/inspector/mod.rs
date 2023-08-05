@@ -36,7 +36,6 @@ impl Plugin for InspectorPlugin {
         app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain().after(reset_pan_orbit_state).before(ui_camera_block));
-        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
     }
 }
 
@@ -68,7 +67,8 @@ impl Default for InspectState {
 
 
 enum InspectCommand {
-    AddComponent(Entity, TypeId)
+    AddComponent(Entity, TypeId),
+    RemoveComponent(Entity, TypeId)
 }
 
 fn execute_inspect_command(
@@ -81,6 +81,9 @@ fn execute_inspect_command(
             InspectCommand::AddComponent(e, id) => {
                 info!("inspector adding component {:?} to entity {:?}", id, e);
                 commands.entity(*e).add(registration.get_spawn_command(id));
+            },
+            InspectCommand::RemoveComponent(e, id) => {
+                registration.remove_by_id(&mut commands.entity(*e), id);
             },
         }
     }
@@ -157,13 +160,17 @@ pub fn inspect(
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.list.iter() {
                     if let Some(e) = cell.get_entity(*e) {
-                        let name;
+                        let mut name;
                         if let Some(name_struct) = e.get::<Name>() {
-                            name = name_struct.as_str().to_string()
-                        } else {
+                            name = name_struct.as_str().to_string();
+                            if name == "" {
+                                name = format!("{:?} (empty name)", e.id());
+                            }
+                         } else {
                             name = format!("{:?}", e.id());
                         }
                         ui.heading(&name);
+                        ui.label("Components:");
                         for idx in 0..components_id.len() {
                             let c_id = components_id[idx];
                             let t_id = types_id[idx];
@@ -180,6 +187,7 @@ pub fn inspect(
                             }
                         }
 
+                        ui.separator();
                         //add component
                         let selected_name;
                         if let Some(selected_id) = state.create_component_type {
@@ -211,6 +219,13 @@ pub fn inspect(
                                 info!("adding component {:?}", c_id);
                                 let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
                                 commands.push(InspectCommand::AddComponent(e.id(), id));
+                            }
+                        }
+                        if ui.button("Delete component").clicked() {
+                            if let Some(c_id) = state.create_component_type {
+                                info!("removing component {:?}", c_id);
+                                let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                                commands.push(InspectCommand::RemoveComponent(e.id(), id));
                             }
                         }
                         
@@ -278,42 +293,5 @@ pub fn inspect(
 
     if disable_pan_orbit {
         world.resource_mut::<PanOrbitEnabled>().0 = false;
-    }
-}
-
-fn add_global_transform(
-    mut commands : Commands,
-    mut query : Query<(Entity, &mut Transform), (With<Transform>, Without<GlobalTransform>)>
-) {
-    for (e, mut tr) in query.iter_mut() {
-        commands.entity(e).insert(GlobalTransform::default());
-        tr.set_changed();
-    }
-}
-
-fn remove_global_transform(
-    mut commands : Commands,
-    query : Query<Entity, (Without<Transform>, With<GlobalTransform>)>
-) {
-    for e in query.iter() {
-        commands.entity(e).remove::<GlobalTransform>();
-    }
-}
-
-fn add_computed_visiblity(
-    mut commands : Commands,
-    query : Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>
-) {
-    for e in query.iter() {
-        commands.entity(e).insert(ComputedVisibility::default());
-    }
-}
-
-fn remove_computed_visiblity(
-    mut commands : Commands,
-    query : Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>
-) {
-    for e in query.iter() {
-        commands.entity(e).remove::<ComputedVisibility>();
     }
 }

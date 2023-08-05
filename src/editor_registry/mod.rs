@@ -24,6 +24,21 @@ impl Plugin for EditorRegistryPlugin {
 }
 
 #[derive(Clone)]
+pub struct RemoveComponent {
+    func : Arc<dyn Fn(&mut EntityCommands) + Send + Sync>
+}
+
+impl RemoveComponent {
+    pub fn new<T : Clone + Component>() -> Self {
+        Self {
+            func : Arc::new(move |cmds| {
+                cmds.remove::<T>();
+            })
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct CloneComponent {
     func : Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>
 }
@@ -68,6 +83,7 @@ pub struct EditorRegistry {
     pub spawn_components : HashMap<TypeId, AddDefaultComponent>,
     pub custom_reflect : HashMap<TypeId, CustomReflect>,
     pub clone_components : Vec<CloneComponent>,
+    pub remove_components : HashMap<TypeId, RemoveComponent>,
     pub silent : HashSet<TypeId> //skip in inspector ui
 }
 
@@ -81,6 +97,10 @@ impl EditorRegistry {
         self.clone_components.push(
             CloneComponent::new::<T>()
         );
+        self.remove_components.insert(
+            T::get_type_registration().type_id(),
+            RemoveComponent::new::<T>()
+        );
     }
 
     pub fn silent_register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
@@ -93,6 +113,10 @@ impl EditorRegistry {
             CloneComponent::new::<T>()
         );
         self.silent.insert(T::get_type_registration().type_id());
+        self.remove_components.insert(
+            T::get_type_registration().type_id(),
+            RemoveComponent::new::<T>()
+        );
     }
 
     pub fn only_clone_register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
@@ -103,6 +127,12 @@ impl EditorRegistry {
 
     pub fn get_spawn_command(&self, id : &TypeId) -> AddDefaultComponent {
         self.spawn_components.get(id).unwrap().clone()
+    }
+
+    pub fn remove_by_id(&self, cmds : &mut EntityCommands, id : &TypeId) {
+        if let Some(rem) = self.remove_components.get(id) {
+            (rem.func)(cmds);
+        }
     }
 
     pub fn clone_entity_flat(&self, cmds : &mut EntityCommands, src : &EntityRef) {

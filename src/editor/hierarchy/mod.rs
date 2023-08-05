@@ -1,12 +1,12 @@
 use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{PrefabMarker, prelude::EditorRegistry};
+use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform};
 
 use super::{selected::*, ui_camera_block};
 
 #[derive(Event)]
-struct CloneEvent {
+pub struct CloneEvent {
     id : Entity
 }
 
@@ -30,13 +30,13 @@ impl Plugin for SpaceHierarchyPlugin {
         }
 
         app.add_systems(Update, show_hierarchy.before(ui_camera_block));
-        app.add_systems(Update, clone_enitites.after(show_hierarchy));
+        app.add_systems(Update, clone_enitites.after(show_hierarchy).before(add_global_transform).before(inspect));
         app.add_event::<CloneEvent>();
     }
 }
 
 
-fn show_hierarchy(
+pub fn show_hierarchy(
     mut commands : Commands, 
     mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
