@@ -14,6 +14,15 @@ pub struct PrefabBundle {
     computed_visiblity : ComputedVisibility
 }
 
+impl PrefabBundle {
+    pub fn new(path : &str) -> Self {
+        Self {
+            loader : PrefabLoader { path: path.to_string() },
+            ..default()
+        }
+    }
+}
+
 pub struct LoadPlugin;
 
 #[derive(Component)]
@@ -21,9 +30,9 @@ pub struct PrefabAutoChild;
 
 impl Plugin for LoadPlugin {
     fn build(&self, app: &mut App) {
+        app.editor_registry::<PrefabLoader>();
         app.add_systems(Update, load_prefab);
 
-        app.editor_registry::<PrefabLoader>();
     }
 }
 
@@ -32,6 +41,7 @@ impl Plugin for LoadPlugin {
 pub struct PrefabLoader {
     pub path : String
 }
+
 
 
 

@@ -1,20 +1,24 @@
-use space_editor::prelude::*;
+use bevy_panorbit_camera::PanOrbitCameraPlugin;
+use space_editor::prelude::{*, load::{PrefabLoader, PrefabBundle}};
 use bevy::prelude::*;
 
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
-        .add_plugins(SpaceEditorPlugin::default())
+        .add_plugins(PrefabPlugin)
+        .add_plugins(PanOrbitCameraPlugin)
         .add_systems(Startup, setup)
         .run();
 }
 
 fn setup(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets : Res<AssetServer>
 ) {
-    
+    // prefab loaded by adding PrefabLoader component to any entity (it will be parent of prefab) or with prefab bundle
+    commands.spawn(PrefabBundle::new("tile.scn.ron"))
+        .insert(Name::new("Prefab"));
+   
     // light
     commands.spawn(PointLightBundle {
         point_light: PointLight {
