@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 #[derive(Component, Reflect)]
 #[reflect(Component)]
-pub struct ScenePrefab {
+pub struct GltfPrefab {
     pub path : String,
     pub scene : String
 }
 
-impl Default for ScenePrefab {
+impl Default for GltfPrefab {
     fn default() -> Self {
         Self { 
             scene: "Scene0".to_string(),
@@ -17,4 +17,4 @@ impl Default for ScenePrefab {
 }
 
 #[derive(Component, Reflect, Default)]
-pub struct PrefabAutoChild;
+pub struct ScaneAutoChild;

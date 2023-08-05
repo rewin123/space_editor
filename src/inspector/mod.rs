@@ -33,11 +33,13 @@ impl Plugin for InspectorPlugin {
 
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
+        app.editor_registry::<Visibility>();
 
         app.editor_custom_reflect(refl_impl::reflect_name);
         app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain());
+        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
     }
 }
 
@@ -205,4 +207,40 @@ pub fn inspect(
         state.commands = commands;
     }
     
+}
+
+fn add_global_transform(
+    mut commands : Commands,
+    query : Query<Entity, (With<Transform>, Without<GlobalTransform>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).insert(GlobalTransform::default());
+    }
+}
+
+fn remove_global_transform(
+    mut commands : Commands,
+    query : Query<Entity, (Without<Transform>, With<GlobalTransform>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).remove::<GlobalTransform>();
+    }
+}
+
+fn add_computed_visiblity(
+    mut commands : Commands,
+    query : Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).insert(ComputedVisibility::default());
+    }
+}
+
+fn remove_computed_visiblity(
+    mut commands : Commands,
+    query : Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).remove::<ComputedVisibility>();
+    }
 }

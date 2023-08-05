@@ -18,9 +18,9 @@ impl ChildrenPrefab {
     }
 }
 
-pub struct SaveLoadPrefabPlugin;
+pub struct SavePrefabPlugin;
 
-impl Plugin for SaveLoadPrefabPlugin {
+impl Plugin for SavePrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
 
@@ -91,7 +91,7 @@ pub fn serialize_prefab(
             .spawn(async move {
                 // Write the scene RON data to file
                 let path = config.path;
-                File::create(format!("assets/{path}.prefab"))
+                File::create(format!("assets/{path}.scn.ron"))
                     .and_then(|mut file| file.write(str.as_bytes()))
                     .expect("Error while writing scene to file");
 

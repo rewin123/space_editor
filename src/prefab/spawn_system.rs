@@ -5,8 +5,8 @@ use super::component::*;
 
 pub fn spawn_scene(
     mut commands : Commands,
-    prefabs : Query<(Entity, &ScenePrefab, Option<&Children>), Changed<ScenePrefab>>,
-    auto_childs : Query<&PrefabAutoChild>,
+    prefabs : Query<(Entity, &GltfPrefab, Option<&Children>), Changed<GltfPrefab>>,
+    auto_childs : Query<&ScaneAutoChild>,
     asset_server : Res<AssetServer>
 ) {
     for (e, prefab, children) in prefabs.iter() {
@@ -24,10 +24,10 @@ pub fn spawn_scene(
                 scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)), 
                 ..default() },
                 hook : SceneHook::new(|e, cmd| {
-                    cmd.insert(PrefabAutoChild);
+                    cmd.insert(ScaneAutoChild);
                 })
              })
-             .insert(PrefabAutoChild)
+             .insert(ScaneAutoChild)
             .id();
         commands.entity(e).add_child(id);
         commands.entity(e).
