@@ -21,9 +21,7 @@ impl Plugin for PrefabPlugin {
             app.add_plugins(HookPlugin);
         }
         
-        if app.is_plugin_added::<InspectorPlugin>() {
-            app.editor_registry::<GltfPrefab>();
-        }
+        app.editor_registry::<GltfPrefab>();
 
         app.add_systems(Update, spawn_scene);
 
