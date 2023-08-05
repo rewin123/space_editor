@@ -5,9 +5,9 @@
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: -0.18811965,
-            y: -0.00000047683716,
-            z: 0.14265442,
+            x: 0.2858343,
+            y: -0.0000009536743,
+            z: -0.11665726,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -17,12 +17,68 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "asteroid_1.glb",
           scene: "Scene0",
         ),
         "space_editor::prefab::save::ChildrenPrefab": ([
-          34359738370,
+          42949672968,
+        ]),
+      },
+    ),
+    12884901905: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 5.0849686,
+            y: 0.0000052452087,
+            z: -2.4100552,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::PrefabMarker": (),
+        "space_editor::prefab::component::GltfPrefab": (
+          path: "asteroid_3.glb",
+          scene: "Scene0",
+        ),
+        "space_editor::prefab::save::ChildrenPrefab": ([
+          19,
+          18,
+          4294967322,
+        ]),
+      },
+    ),
+    17179869191: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -1.6366072,
+            y: 0.000004529953,
+            z: -3.926467,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::PrefabMarker": (),
+        "space_editor::prefab::component::GltfPrefab": (
+          path: "asteroid_2.glb",
+          scene: "Scene0",
+        ),
+        "space_editor::prefab::save::ChildrenPrefab": ([
+          9,
+          4294967309,
         ]),
       },
     ),

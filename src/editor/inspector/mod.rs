@@ -3,7 +3,7 @@ pub mod registration;
 pub mod refl_impl;
 pub mod gizmo;
 
-use std::any::TypeId;
+use std::{any::TypeId, fmt::format};
 
 use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::{ReflectFromPtr, TypeInfo, DynamicEnum, DynamicVariant, DynamicTuple, DynamicStruct}, ptr::PtrMut, app::AppLabel, render::camera::CameraProjection};
 use bevy_egui::*;
@@ -49,10 +49,21 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
     (ptr, move || mut_untyped.set_changed())
 }
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 struct InspectState {
     create_component_type : Option<ComponentId>,
-    commands : Vec<InspectCommand>
+    commands : Vec<InspectCommand>,
+    gizmo_mode : GizmoMode
+}
+
+impl Default for InspectState {
+    fn default() -> Self {
+        Self {
+            create_component_type : None,
+            commands : vec![],
+            gizmo_mode : GizmoMode::Translate
+        }
+    }
 }
 
 
@@ -117,6 +128,31 @@ pub fn inspect(
         let mut ctx = cell.get_entity(ctx_e).unwrap().get_mut::<EguiContext>().unwrap();
         let mut commands : Vec<InspectCommand> = vec![];
         egui::SidePanel::right("Inspector").show(ctx.get_mut(), |ui| {
+
+
+            egui::ComboBox::new("gizmo_mode", "Gizmo mode").selected_text(format!("{:?}", &state.gizmo_mode))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(
+                        &mut state.gizmo_mode, GizmoMode::Translate, format!("{:?}", GizmoMode::Translate));
+                    ui.selectable_value(
+                        &mut state.gizmo_mode, GizmoMode::Rotate, format!("{:?}", GizmoMode::Rotate));
+                    ui.selectable_value(
+                        &mut state.gizmo_mode, GizmoMode::Scale, format!("{:?}", GizmoMode::Scale));
+                });
+
+            ui.label("Press T, R, F to select Translate/Rotate/Scale mode");
+            if ui.input(|i| i.key_pressed(egui::Key::T)) {
+                state.gizmo_mode = GizmoMode::Translate;
+            }
+            if ui.input(|i| i.key_pressed(egui::Key::R)) {
+                state.gizmo_mode = GizmoMode::Rotate;
+            }
+            if ui.input(|i| i.key_pressed(egui::Key::F)) {
+                state.gizmo_mode = GizmoMode::Scale;
+            }
+
+            ui.separator();
+
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.list.iter() {
                     if let Some(e) = cell.get_entity(*e) {
@@ -198,7 +234,7 @@ pub fn inspect(
                                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                                     .view_matrix(view_matrix.to_cols_array_2d())
                                     .model_matrix(global.compute_matrix().to_cols_array_2d())
-                                    .mode(egui_gizmo::GizmoMode::Translate)
+                                    .mode(state.gizmo_mode.clone())
                                     .interact(ui) {
                                     
                                     let new_transform = Transform {
@@ -220,7 +256,7 @@ pub fn inspect(
                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                     .view_matrix(view_matrix.to_cols_array_2d())
                     .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                    .mode(egui_gizmo::GizmoMode::Translate)
+                    .mode(state.gizmo_mode.clone())
                     .interact(ui) {
                     *transform = Transform {
                         translation: Vec3::from(<[f32; 3]>::from(result.translation)),

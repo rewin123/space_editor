@@ -47,6 +47,10 @@ fn show_hierarchy(
     all.sort_by_key(|a| a.0);
     egui::SidePanel::left("Scene hierarchy")
             .show(contexts.ctx_mut(), |ui| {
+        ui.label("Press Delete/X to despawn selected entities");
+        ui.separator();
+        ui.label(egui::RichText::new("Hiearachy"));
+
         for (entity, _, _, parent) in all.iter() {
             if parent.is_none() {
                 draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events);
@@ -56,12 +60,14 @@ fn show_hierarchy(
             if ui.button("----- + -----").clicked() {
                 commands.spawn_empty().insert(PrefabMarker);
             }
-            if ui.button("Clear").clicked() {
+            if ui.button("Clear all").clicked() {
                 for (entity, _, _, parent) in all.iter() {
                     commands.entity(*entity).despawn_recursive();
                     selected.list.clear();
                 }
             }
+
+            
         });
     });
 }
@@ -104,6 +110,14 @@ fn draw_entity(
                 }
             });
 
+        if is_selected {
+            if ui.input(|i| i.key_pressed(egui::Key::Delete))
+                || ui.input(|i| i.key_pressed(egui::Key::X)) {
+                commands.entity(entity).despawn_recursive();
+                selected.list.remove(&entity);
+            }
+        }
+
         if label.clicked() {
             if !is_selected {
                 if !ui.input(|i| i.modifiers.shift) {
@@ -114,6 +128,8 @@ fn draw_entity(
                 selected.list.remove(&entity);
             }
         }
+
+
         
         if let Some(children) = children {
             for child in children.iter() {
