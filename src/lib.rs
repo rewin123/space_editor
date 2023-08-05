@@ -1,5 +1,4 @@
 pub mod editor;
-pub mod asset_insector;
 pub mod prefab;
 pub mod editor_registry;
 

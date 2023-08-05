@@ -4,11 +4,7 @@ use bevy::prelude::*;
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
-        .add_plugins(bevy_egui::EguiPlugin)
-        .add_plugins(SpaceHierarchyPlugin::default())
-        .add_plugins(InspectorPlugin)
-        .add_plugins(PrefabPlugin)
-        .add_plugins(BotMenuPlugin)
+        .add_plugins(SpaceEditorPlugin::default())
         .add_systems(Startup, setup)
         .run();
 }

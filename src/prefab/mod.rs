@@ -6,7 +6,7 @@ pub mod load;
 use bevy::prelude::*;
 use bevy_scene_hook::HookPlugin;
 
-use crate::{asset_insector::AssetDetectorPlugin, editor::prelude::InspectorPlugin, editor_registry::EditorRegistryExt};
+use crate::{editor::prelude::InspectorPlugin, editor_registry::EditorRegistryExt};
 
 use component::*;
 use spawn_system::*;
@@ -17,9 +17,6 @@ pub struct PrefabPlugin;
 
 impl Plugin for PrefabPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<AssetDetectorPlugin>() {
-            app.add_plugins(AssetDetectorPlugin);
-        }
         if !app.is_plugin_added::<HookPlugin>() {
             app.add_plugins(HookPlugin);
         }
