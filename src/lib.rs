@@ -39,5 +39,6 @@ impl Plugin for SpaceEditorPlugin {
 
 
 //editor shows only entities with this marker
-#[derive(Component)]
+#[derive(Component, Default, Clone, Reflect)]
+#[reflect(Component)]
 pub struct PrefabMarker;

@@ -3,7 +3,7 @@ use std::{any::TypeId, default, fs::File, io::Write};
 
 use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 
-#[derive(Reflect, Default, Component)]
+#[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component)]
 pub struct ChildrenPrefab(Vec<Entity>);
 

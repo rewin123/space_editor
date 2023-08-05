@@ -1,9 +1,14 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
-use crate::PrefabMarker;
+use crate::{PrefabMarker, prelude::EditorRegistry};
 
 use super::selected::*;
+
+#[derive(Event)]
+struct CloneEvent {
+    id : Entity
+}
 
 pub struct SpaceHierarchyPlugin {
 
@@ -25,6 +30,8 @@ impl Plugin for SpaceHierarchyPlugin {
         }
 
         app.add_systems(Update, show_hierarchy);
+        app.add_systems(Update, clone_enitites.after(show_hierarchy));
+        app.add_event::<CloneEvent>();
     }
 }
 
@@ -33,7 +40,8 @@ fn show_hierarchy(
     mut commands : Commands, 
     mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
-    mut selected : ResMut<SelectedEntities>
+    mut selected : ResMut<SelectedEntities>,
+    mut clone_events : EventWriter<CloneEvent>
 ) {
     let mut all : Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
@@ -41,7 +49,7 @@ fn show_hierarchy(
             .show(contexts.ctx_mut(), |ui| {
         for (entity, _, _, parent) in all.iter() {
             if parent.is_none() {
-                draw_entity(&mut commands, ui, &query, *entity, &mut selected);
+                draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events);
             }
         }
         ui.vertical_centered(|ui| {
@@ -55,8 +63,6 @@ fn show_hierarchy(
                 }
             }
         });
-
-
     });
 }
 
@@ -65,7 +71,8 @@ fn draw_entity(
     ui: &mut egui::Ui,
     query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     entity: Entity,
-    selected : &mut SelectedEntities
+    selected : &mut SelectedEntities,
+    clone_events : &mut EventWriter<CloneEvent>
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -91,6 +98,10 @@ fn draw_entity(
                     selected.list.remove(&entity);
                     ui.close_menu();
                 }
+                if ui.button("Clone").clicked() {
+                    clone_events.send(CloneEvent { id: entity });
+                    ui.close_menu();
+                }
             });
 
         if label.clicked() {
@@ -106,8 +117,55 @@ fn draw_entity(
         
         if let Some(children) = children {
             for child in children.iter() {
-                draw_entity(commands, ui, query, *child, selected);
+                draw_entity(commands, ui, query, *child, selected, clone_events);
             }
         }
     });
+}
+
+struct CloneStep {
+    src_id : Entity,
+    dst_id : Entity,
+    parent : Option<Entity>
+}
+
+fn clone_enitites(
+    mut commands : Commands,
+    query : Query<EntityRef>,
+    mut events : EventReader<CloneEvent>,
+    mut editor_registry : Res<EditorRegistry>
+) {
+    for event in events.into_iter() {
+
+        let mut queue = vec![(event.id, commands.spawn_empty().id())];
+        let mut map = HashMap::new();
+
+        while queue.len() > 0 {
+            let (src_id, dst_id) = queue.pop().unwrap();
+            map.insert(src_id, dst_id);
+            if let Ok(entity) = query.get(src_id) {
+
+                let mut cmds = commands.entity(dst_id);
+
+                editor_registry.clone_entity_flat(&mut cmds, &entity);
+
+                if let Some(parent) = entity.get::<Parent>() {
+                    if let Some(new_parent) = map.get(&parent.get()) {
+                        commands.entity(*new_parent).add_child(dst_id);
+                    } else {
+                        commands.entity(parent.get()).add_child(dst_id);
+                    }
+                }
+
+                if let Some(children) = entity.get::<Children>() {
+                    for id in children {
+                        queue.push((*id, commands.spawn_empty().id()));
+                    }
+                }
+            }
+        }
+
+        
+    }
+    events.clear();
 }

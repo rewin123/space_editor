@@ -1,8 +1,10 @@
 use std::{marker::PhantomData, sync::Arc, any::Any};
 
-use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration}, ecs::{system::EntityCommand, component::ComponentId, world::unsafe_world_cell::UnsafeWorldCell}, utils::HashMap};
+use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration}, ecs::{system::{EntityCommand, EntityCommands}, component::ComponentId, world::unsafe_world_cell::UnsafeWorldCell}, utils::HashMap};
 use bevy_egui::egui;
 use std::any::TypeId;
+
+use crate::PrefabMarker;
 
 pub struct EditorRegistryPlugin;
 
@@ -14,6 +16,23 @@ impl Plugin for EditorRegistryPlugin {
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
         app.editor_registry::<Visibility>();
+        app.editor_registry::<PrefabMarker>();
+    }
+}
+
+pub struct CloneComponent {
+    func : Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>
+}
+
+impl CloneComponent {
+    pub fn new<T : Clone + Component>() -> Self {
+        Self {
+            func : Arc::new(move |cmds, src| {
+                if let Some(c) = src.get::<T>() {
+                    cmds.insert(c.clone());
+                }
+            })
+        }
     }
 }
 
@@ -43,20 +62,30 @@ impl AddDefaultComponent {
 pub struct EditorRegistry {
     pub registry : TypeRegistry,
     pub spawn_components : HashMap<TypeId, AddDefaultComponent>,
-    pub custom_reflect : HashMap<TypeId, CustomReflect>
+    pub custom_reflect : HashMap<TypeId, CustomReflect>,
+    pub clone_components : Vec<CloneComponent>
 }
 
 impl EditorRegistry {
-    pub fn register<T : Component + Default + Send + 'static + GetTypeRegistration>(&mut self) {
+    pub fn register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.registry.write().register::<T>();
         self.spawn_components.insert(
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>()
         );
+        self.clone_components.push(
+            CloneComponent::new::<T>()
+        );
     }
 
     pub fn get_spawn_command(&self, id : &TypeId) -> AddDefaultComponent {
         self.spawn_components.get(id).unwrap().clone()
+    }
+
+    pub fn clone_entity_flat(&self, cmds : &mut EntityCommands, src : &EntityRef) {
+        for t in &self.clone_components {
+            (t.func)(cmds, src);
+        }
     }
 }
 
@@ -70,7 +99,7 @@ pub struct CustomReflect {
 }
 
 pub trait EditorRegistryExt {
-    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration>(&mut self);
+    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
 
     fn editor_custom_reflect<T, F>(&mut self, reflect_fun : F)
         where T : 'static + Reflect + GetTypeRegistration, F : Fn(&mut egui::Ui,
@@ -82,7 +111,7 @@ pub trait EditorRegistryExt {
 }
 
 impl EditorRegistryExt for App {
-    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration>(&mut self) {
+    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
         self.register_type::<T>();
     }

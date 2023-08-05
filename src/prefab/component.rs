@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct GltfPrefab {
     pub path : String,
