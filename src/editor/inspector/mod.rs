@@ -186,6 +186,30 @@ pub fn inspect(
                 let Some(mut transform) = ecell.get_mut::<Transform>() else {
                     continue;
                 };
+                if let Some(parent) = ecell.get::<Parent>() {
+                    if let Some(parent) = cell.get_entity(parent.get()) {
+                        if let Some(parent_global) = parent.get::<GlobalTransform>() {
+                            if let Some(global) = ecell.get::<GlobalTransform>() {
+                                if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo")
+                                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
+                                    .view_matrix(view_matrix.to_cols_array_2d())
+                                    .model_matrix(global.compute_matrix().to_cols_array_2d())
+                                    .mode(egui_gizmo::GizmoMode::Translate)
+                                    .interact(ui) {
+                                    
+                                    let new_transform = Transform {
+                                        translation: Vec3::from(<[f32; 3]>::from(result.translation)),
+                                        rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
+                                        scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                                    };
+                                    let new_transform = GlobalTransform::from(new_transform);
+                                    *transform = new_transform.reparented_to(&parent_global);
+                                }
+                                continue;
+                            }
+                        }
+                    }
+                }
                 if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo")
                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                     .view_matrix(view_matrix.to_cols_array_2d())
@@ -198,6 +222,7 @@ pub fn inspect(
                         scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                     };
                 }
+                
             }
         });
 
