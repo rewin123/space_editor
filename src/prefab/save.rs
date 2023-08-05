@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool};
 use std::{any::TypeId, default, fs::File, io::Write};
 
-use crate::{inspector::registration::{EditorRegistry, EditorRegistryExt}, PrefabMarker};
+use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 
 #[derive(Reflect, Default, Component)]
 #[reflect(Component)]

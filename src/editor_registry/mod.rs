@@ -4,6 +4,18 @@ use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration}, ecs::{syste
 use bevy_egui::egui;
 use std::any::TypeId;
 
+pub struct EditorRegistryPlugin;
+
+impl Plugin for EditorRegistryPlugin {
+    fn build(&self, app: &mut App) {
+        
+        app.init_resource::<EditorRegistry>();
+
+        app.editor_registry::<Transform>();
+        app.editor_registry::<Name>();
+        app.editor_registry::<Visibility>();
+    }
+}
 
 #[derive(Clone)]
 pub struct AddDefaultComponent {

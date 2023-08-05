@@ -3,7 +3,7 @@ use std::any::TypeId;
 use bevy::{prelude::*, ecs::{entity::EntityMap, reflect::ReflectMapEntities}, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, inspector, PrefabMarker};
+use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker};
 
 #[derive(Resource, Default, Clone)]
 struct EditorLoader {
@@ -20,7 +20,7 @@ impl Plugin for BotMenuPlugin {
         }
         app.init_resource::<EditorLoader>();
 
-        app.add_systems(Update, bot_menu.after(inspector::inspect));
+        app.add_systems(Update, bot_menu.after(super::inspector::inspect));
         app.add_systems(Update, load_listener.after(bot_menu));
     }
 }

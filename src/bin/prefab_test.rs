@@ -1,4 +1,4 @@
-use space_editor::{*, hierarchy::SpaceHierarchyPlugin, inspector::InspectorPlugin, prefab::PrefabPlugin, bot_menu::BotMenuPlugin};
+use space_editor::prelude::*;
 use bevy::prelude::*;
 
 fn main() {

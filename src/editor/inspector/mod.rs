@@ -12,7 +12,9 @@ use bevy::prelude::*;
 use bevy_egui::*;
 use egui_gizmo::*;
 
-use crate::{selected::{SelectedPlugin, SelectedEntities}, asset_insector::AssetDetectorPlugin};
+use crate::editor_registry::{EditorRegistryExt, EditorRegistry};
+
+use super::selected::{SelectedPlugin, SelectedEntities};
 use ui_reflect::*;
 use registration::*;
 
@@ -29,11 +31,6 @@ impl Plugin for InspectorPlugin {
         }
 
         app.init_resource::<InspectState>();
-        app.init_resource::<EditorRegistry>();
-
-        app.editor_registry::<Transform>();
-        app.editor_registry::<Name>();
-        app.editor_registry::<Visibility>();
 
         app.editor_custom_reflect(refl_impl::reflect_name);
         app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);

@@ -1,7 +1,8 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_scene_hook::SceneHook;
 
-use crate::inspector::registration::EditorRegistryExt;
+use crate::editor_registry::EditorRegistryExt;
+
 
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {

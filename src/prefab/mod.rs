@@ -6,7 +6,7 @@ pub mod load;
 use bevy::prelude::*;
 use bevy_scene_hook::HookPlugin;
 
-use crate::{asset_insector::AssetDetectorPlugin, inspector::{InspectorPlugin, registration::EditorRegistryExt}};
+use crate::{asset_insector::AssetDetectorPlugin, editor::prelude::InspectorPlugin, editor_registry::EditorRegistryExt};
 
 use component::*;
 use spawn_system::*;

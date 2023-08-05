@@ -2,7 +2,8 @@
 use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, world::unsafe_world_cell::UnsafeWorldCell}, reflect::{ReflectFromPtr, TypeInfo, DynamicEnum, DynamicVariant, DynamicTuple, DynamicStruct}, ptr::PtrMut};
 use bevy_egui::*;
 
-use super::registration::EditorRegistry;
+use crate::editor_registry::EditorRegistry;
+
 
 
 pub fn ui_for_reflect(
