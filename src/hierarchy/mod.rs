@@ -48,7 +48,15 @@ fn show_hierarchy(
             if ui.button("----- + -----").clicked() {
                 commands.spawn_empty().insert(PrefabMarker);
             }
+            if ui.button("Clear").clicked() {
+                for (entity, _, _, parent) in all.iter() {
+                    commands.entity(*entity).despawn_recursive();
+                    selected.list.clear();
+                }
+            }
         });
+
+
     });
 }
 

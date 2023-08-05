@@ -10,9 +10,9 @@ struct EditorLoader {
     pub scene : Option<Handle<DynamicScene>>
 }
 
-pub struct TopMenuPlugin;
+pub struct BotMenuPlugin;
 
-impl Plugin for TopMenuPlugin {
+impl Plugin for BotMenuPlugin {
     fn build(&self, app: &mut App) {
 
         if !app.is_plugin_added::<PrefabPlugin>() {
@@ -20,12 +20,12 @@ impl Plugin for TopMenuPlugin {
         }
         app.init_resource::<EditorLoader>();
 
-        app.add_systems(Update, top_menu.after(inspector::inspect));
-        app.add_systems(Update, load_listener.after(top_menu));
+        app.add_systems(Update, bot_menu.after(inspector::inspect));
+        app.add_systems(Update, load_listener.after(bot_menu));
     }
 }
 
-fn top_menu(
+fn bot_menu(
     mut commands : Commands,
     mut ctxs : EguiContexts,
     mut save_confg : ResMut<SaveConfig>,
@@ -34,7 +34,7 @@ fn top_menu(
     mut load_server : ResMut<EditorLoader>
 ) {
     let ctx = ctxs.ctx_mut();
-    egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+    egui::TopBottomPanel::bottom("bot_panel").show(ctx, |ui| {
         ui.horizontal(|ui| {
 
             ui.label("Save path:");

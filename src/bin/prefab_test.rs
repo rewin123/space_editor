@@ -1,4 +1,4 @@
-use space_editor::{*, hierarchy::SpaceHierarchyPlugin, inspector::InspectorPlugin, prefab::PrefabPlugin, top_menu::TopMenuPlugin};
+use space_editor::{*, hierarchy::SpaceHierarchyPlugin, inspector::InspectorPlugin, prefab::PrefabPlugin, bot_menu::BotMenuPlugin};
 use bevy::prelude::*;
 
 fn main() {
@@ -8,7 +8,7 @@ fn main() {
         .add_plugins(SpaceHierarchyPlugin::default())
         .add_plugins(InspectorPlugin)
         .add_plugins(PrefabPlugin)
-        .add_plugins(TopMenuPlugin)
+        .add_plugins(BotMenuPlugin)
         .add_systems(Startup, setup)
         .run();
 }
