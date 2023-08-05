@@ -208,13 +208,15 @@ pub fn inspect(
                                     };
                                     let new_transform = GlobalTransform::from(new_transform);
                                     *transform = new_transform.reparented_to(&parent_global);
+                                    transform.set_changed();
+                                    
                                 }
                                 continue;
                             }
                         }
                     }
                 }
-                if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo")
+                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                     .view_matrix(view_matrix.to_cols_array_2d())
                     .model_matrix(transform.compute_matrix().to_cols_array_2d())
@@ -225,6 +227,7 @@ pub fn inspect(
                         rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
                         scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                     };
+                    transform.set_changed();
                 }
                 
             }
@@ -237,10 +240,11 @@ pub fn inspect(
 
 fn add_global_transform(
     mut commands : Commands,
-    query : Query<Entity, (With<Transform>, Without<GlobalTransform>)>
+    mut query : Query<(Entity, &mut Transform), (With<Transform>, Without<GlobalTransform>)>
 ) {
-    for e in query.iter() {
+    for (e, mut tr) in query.iter_mut() {
         commands.entity(e).insert(GlobalTransform::default());
+        tr.set_changed();
     }
 }
 

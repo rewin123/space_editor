@@ -146,13 +146,13 @@ impl EditorRegistryExt for App {
                 name : &str,
                 set_changed : &mut dyn FnMut(),
                 world : &mut UnsafeWorldCell| {
-            unsafe {
+            // unsafe {
                 if let Some(t) = r.downcast_mut::<T>() {
                     reflect_fun(ui, t, hash, name, set_changed, world);
                 } else {
                     ui.label(format!("Error to custom reflect"));
                 }
-            }
+            // }
         });
         
         let custom = CustomReflect {
