@@ -5,9 +5,9 @@
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+            x: -0.18811965,
+            y: -0.00000047683716,
+            z: 0.14265442,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -16,7 +16,8 @@
             z: 1.0,
           ),
         ),
-        "space_editor::prefab::component::ScenePrefab": (
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::GltfPrefab": (
           path: "asteroid_1.glb",
           scene: "Scene0",
         ),
