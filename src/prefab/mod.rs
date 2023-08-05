@@ -39,10 +39,20 @@ impl Plugin for PrefabPlugin {
 
 pub fn add_global_transform(
     mut commands : Commands,
-    mut query : Query<(Entity, &mut Transform), (With<Transform>, Without<GlobalTransform>)>
+    mut query : Query<(Entity, &mut Transform, Option<&Parent>), (With<Transform>, Without<GlobalTransform>)>,
+    mut globals : Query<&GlobalTransform>
 ) {
-    for (e, mut tr) in query.iter_mut() {
-        commands.entity(e).insert(GlobalTransform::default());
+    for (e, mut tr, parent) in query.iter_mut() {
+        if let Some(parent) = parent {
+            if let Ok(parent_global) = globals.get(parent.get()) {
+                commands.entity(e).insert(parent_global.mul_transform(tr.clone()));
+            } else {
+                commands.entity(e).insert(GlobalTransform::from(*tr));
+            }
+        } else {
+            commands.entity(e).insert(GlobalTransform::from(*tr));
+
+        }
         tr.set_changed();
     }
 }

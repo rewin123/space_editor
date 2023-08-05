@@ -155,7 +155,7 @@ pub fn ui_for_enum(
         let new_variant = DynamicEnum::new(next_name, variant);
         value.apply(&new_variant);
     }
-    ui.label(&format!("Enum: {}", selected_name));
+    // ui.label(&format!("Enum: {}", selected_name));
     if value.field_len() > 0 {
         ui.indent(&format!("{}indent", hash), |ui| {
             for idx in 0..value.field_len() {

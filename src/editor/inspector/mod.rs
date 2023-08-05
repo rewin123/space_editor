@@ -12,7 +12,7 @@ use bevy::prelude::*;
 use bevy_egui::*;
 use egui_gizmo::*;
 
-use crate::editor_registry::{EditorRegistryExt, EditorRegistry};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, prefab::add_global_transform, prelude::show_hierarchy};
 
 use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, update_pan_orbit, PanOrbitEnabled, ui_camera_block};
 use ui_reflect::*;
@@ -35,7 +35,9 @@ impl Plugin for InspectorPlugin {
         app.editor_custom_reflect(refl_impl::reflect_name);
         app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
-        app.add_systems(Update, (inspect, execute_inspect_command).chain().after(reset_pan_orbit_state).before(ui_camera_block));
+        app.add_systems(Update, (inspect, execute_inspect_command).chain()
+            .after(reset_pan_orbit_state)
+            .before(ui_camera_block));
     }
 }
 

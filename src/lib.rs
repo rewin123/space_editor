@@ -5,7 +5,6 @@ pub mod editor_registry;
 use bevy::prelude::*;
 
 use editor::EditorPlugin;
-use editor_registry::EditorRegistryPlugin;
 use prefab::PrefabPlugin;
 
 pub mod prelude {
@@ -31,7 +30,6 @@ impl Default for SpaceEditorPlugin {
 
 impl Plugin for SpaceEditorPlugin {    
     fn build(&self, app: &mut App) {
-        app.add_plugins(EditorRegistryPlugin);
         app.add_plugins(PrefabPlugin);
         app.add_plugins(EditorPlugin);
     }

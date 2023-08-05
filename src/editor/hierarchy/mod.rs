@@ -30,7 +30,7 @@ impl Plugin for SpaceHierarchyPlugin {
         }
 
         app.add_systems(Update, show_hierarchy.before(ui_camera_block));
-        app.add_systems(Update, clone_enitites.after(show_hierarchy).before(add_global_transform).before(inspect));
+        app.add_systems(Update, clone_enitites.after(show_hierarchy));
         app.add_event::<CloneEvent>();
     }
 }
