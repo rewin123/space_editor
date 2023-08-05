@@ -18,7 +18,8 @@ impl Plugin for EditorRegistryPlugin {
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
         app.editor_registry::<Visibility>();
-        app.editor_silent_registry::<PrefabMarker>();
+        
+        app.editor_clone_registry::<PrefabMarker>();
     }
 }
 
@@ -94,6 +95,12 @@ impl EditorRegistry {
         self.silent.insert(T::get_type_registration().type_id());
     }
 
+    pub fn only_clone_register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
+        self.clone_components.push(
+            CloneComponent::new::<T>()
+        );
+    }
+
     pub fn get_spawn_command(&self, id : &TypeId) -> AddDefaultComponent {
         self.spawn_components.get(id).unwrap().clone()
     }
@@ -118,6 +125,7 @@ pub struct CustomReflect {
 pub trait EditorRegistryExt {
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
     fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
+    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
 
     fn editor_custom_reflect<T, F>(&mut self, reflect_fun : F)
         where T : 'static + Reflect + GetTypeRegistration, F : Fn(&mut egui::Ui,
@@ -131,6 +139,11 @@ pub trait EditorRegistryExt {
 impl EditorRegistryExt for App {
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
+        self.register_type::<T>();
+    }
+
+    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
+        self.world.resource_mut::<EditorRegistry>().only_clone_register::<T>();
         self.register_type::<T>();
     }
 

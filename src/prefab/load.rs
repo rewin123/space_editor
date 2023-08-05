@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_scene_hook::SceneHook;
 
-use crate::editor_registry::EditorRegistryExt;
+use crate::{editor_registry::EditorRegistryExt, PrefabMarker};
 
 
 #[derive(Default, Bundle)]
@@ -46,6 +46,9 @@ fn load_prefab(
             .insert(SceneHook::new(|e, cmd| {
                 if e.contains::<Transform>() {
                     cmd.insert(Visibility::default());
+                }
+                if e.contains::<PrefabMarker>() {
+                    cmd.remove::<PrefabMarker>();
                 }
             }));
     }

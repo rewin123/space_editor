@@ -45,15 +45,14 @@ fn show_hierarchy(
 ) {
     let mut all : Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
+    let pointer_used = contexts.ctx_mut().is_using_pointer();
     egui::SidePanel::left("Scene hierarchy")
             .show(contexts.ctx_mut(), |ui| {
-        ui.label("Press Delete/X to despawn selected entities");
-        ui.separator();
         ui.label(egui::RichText::new("Hiearachy"));
 
         for (entity, _, _, parent) in all.iter() {
             if parent.is_none() {
-                draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events);
+                draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
             }
         }
         ui.vertical_centered(|ui| {
@@ -78,7 +77,8 @@ fn draw_entity(
     query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     entity: Entity,
     selected : &mut SelectedEntities,
-    clone_events : &mut EventWriter<CloneEvent>
+    clone_events : &mut EventWriter<CloneEvent>,
+    pointer_used : bool
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -108,15 +108,19 @@ fn draw_entity(
                     clone_events.send(CloneEvent { id: entity });
                     ui.close_menu();
                 }
+                if selected.list.len() > 0 && !selected.list.contains(&entity) {
+                    if ui.button("Attach to").clicked() {
+                        for e in selected.list.iter() {
+                            commands.entity(entity).add_child(*e);
+                        }
+                    }
+                }
+                if parent.is_some() {
+                    if ui.button("Detach").clicked() {
+                        commands.entity(entity).remove_parent();
+                    }
+                }
             });
-
-        if is_selected {
-            if ui.input(|i| i.key_pressed(egui::Key::Delete))
-                || ui.input(|i| i.key_pressed(egui::Key::X)) {
-                commands.entity(entity).despawn_recursive();
-                selected.list.remove(&entity);
-            }
-        }
 
         if label.clicked() {
             if !is_selected {
@@ -128,12 +132,10 @@ fn draw_entity(
                 selected.list.remove(&entity);
             }
         }
-
-
         
         if let Some(children) = children {
             for child in children.iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events);
+                draw_entity(commands, ui, query, *child, selected, clone_events, pointer_used);
             }
         }
     });
@@ -160,22 +162,23 @@ fn clone_enitites(
             let (src_id, dst_id) = queue.pop().unwrap();
             map.insert(src_id, dst_id);
             if let Ok(entity) = query.get(src_id) {
+                if entity.contains::<PrefabMarker>() {
+                    let mut cmds = commands.entity(dst_id);
 
-                let mut cmds = commands.entity(dst_id);
+                    editor_registry.clone_entity_flat(&mut cmds, &entity);
 
-                editor_registry.clone_entity_flat(&mut cmds, &entity);
-
-                if let Some(parent) = entity.get::<Parent>() {
-                    if let Some(new_parent) = map.get(&parent.get()) {
-                        commands.entity(*new_parent).add_child(dst_id);
-                    } else {
-                        commands.entity(parent.get()).add_child(dst_id);
+                    if let Some(parent) = entity.get::<Parent>() {
+                        if let Some(new_parent) = map.get(&parent.get()) {
+                            commands.entity(*new_parent).add_child(dst_id);
+                        } else {
+                            commands.entity(parent.get()).add_child(dst_id);
+                        }
                     }
-                }
 
-                if let Some(children) = entity.get::<Children>() {
-                    for id in children {
-                        queue.push((*id, commands.spawn_empty().id()));
+                    if let Some(children) = entity.get::<Children>() {
+                        for id in children {
+                            queue.push((*id, commands.spawn_empty().id()));
+                        }
                     }
                 }
             }
