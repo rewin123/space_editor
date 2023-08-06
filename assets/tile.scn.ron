@@ -17,7 +17,6 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "cube.glb",
           scene: "Scene0",
@@ -43,7 +42,6 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
@@ -70,7 +68,6 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
@@ -98,7 +95,6 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
@@ -126,7 +122,6 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::PrefabMarker": (),
         "space_editor::prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
