@@ -1,26 +1,31 @@
-# space_editor
- bevy prefab editor
+# space_editor: The Bevy Prefab Editor
+License: MIT 
 
+Welcome to space_editor, a Bevy Prefab Editor built for seamless integration into your game applications. Its design principle is straightforwardness - it's meant to be easy to use and highly customizable.
+
+Getting Started
+To run the editor, use the following command:
 > cargo run 
 
 
-For use prefab spawn system just add plugin to your app
+## Usage
+### Prefab spawn system
+To utilize the prefab spawn system, simply add the plugin to your application as follows:
 ```
 App::default()
     .add_plugins(DefaultPlugins)
     .add_plugins(PrefabPlugin)
 ```
 
-for spawn use PrefabBundle
+For spawning, use the PrefabBundle:
 ```
  commands.spawn(PrefabBundle::new("tile.scn.ron"))
         .insert(Name::new("Prefab"));
 ```
 
 
-Editor is build for implement to your game by adding plugin to your app
-
-Minimal example for editor:
+### Editor integration
+The editor is built for easy implementation into your game by adding a plugin to your app. Here's a minimal example of how to do this:
 
 ```
 fn main() {
@@ -55,13 +60,13 @@ fn setup(
 }
 ```
 
-Custom types can be added to editor and prefab editor with single line
+## Customization
+Custom types can be added to the editor gui and prefab editor with just a single line:
 
 ```
 app.editor_registry::<Name>();
 ```
-
-Also, representation of component in editor ui can be customized 
+The representation of components in the editor UI can also be customized:
 ```
 app.editor_custom_reflect(refl_impl::reflect_name);
 
@@ -84,3 +89,5 @@ pub fn reflect_name(
 }
 ```
 
+
+Prefab is just bevy scene serialized to ron. But it need spawn through PrefabBundle to activate custom logics (adding globaltransforms to object for example)
