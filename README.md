@@ -63,7 +63,7 @@ fn setup(
 ```
 
 ## Customization
-Custom types can be added to the editor gui and prefab editor with just a single line:
+Custom types can be added to the editor gui and prefab spawn system with just a single line:
 
 ```
 app.editor_registry::<Name>();
