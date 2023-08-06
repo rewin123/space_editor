@@ -5,16 +5,19 @@
 
 
 For use prefab spawn system just add plugin to your app
-
+```
 App::default()
     .add_plugins(DefaultPlugins)
     .add_plugins(PrefabPlugin)
+```
+
 
 
 Editor is build for implement to your game by adding plugin to your app
 
 Minimal example for editor:
 
+```
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
@@ -45,3 +48,5 @@ fn setup(
         ..default()
     }).insert(PanOrbitCamera::default());
 }
+```
+
