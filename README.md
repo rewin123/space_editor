@@ -94,7 +94,7 @@ pub fn reflect_name(
     });
 }
 ```
-
+(Code from src/editor/inspect/refl_impl.rs)
 
 ### Prefab
 A prefab is simply a Bevy scene serialized to a readable and editable RON format. However, it needs to be spawned through PrefabBundle to activate custom logic such as adding global transforms to an object.
