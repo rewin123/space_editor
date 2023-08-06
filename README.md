@@ -50,3 +50,32 @@ fn setup(
 }
 ```
 
+Custom types can be added to editor and prefab editor with single line
+
+```
+app.editor_registry::<Name>();
+```
+
+Also, representation of component in editor ui can be customized 
+```
+app.editor_custom_reflect(refl_impl::reflect_name);
+
+...............
+
+pub fn reflect_name(
+    ui :  &mut egui::Ui,
+    name : &mut Name,
+    hash : &str,
+    label : &str,
+    setup_updated : &mut dyn FnMut(),
+    world : &mut UnsafeWorldCell
+) {
+    ui.horizontal(|ui| {
+        name.mutate(|s| {
+            ui.label(label);
+            ui.add(egui::TextEdit::singleline(s));
+        });
+    });
+}
+```
+
