@@ -107,7 +107,6 @@ MIT - https://choosealicense.com/licenses/mit/
 
 ### Roadmap 🗺️
 
-Here are the key features we are working on for `space_editor`. We are excited to develop and enhance this tool based on user feedback and requirements.
 
 | Feature                          | Description                                                                                                              | Status    |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------|:---------:|
