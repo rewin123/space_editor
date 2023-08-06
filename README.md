@@ -1,6 +1,8 @@
 # space_editor: The Bevy Prefab Editor
 License: MIT 
 
+![sEditor screenshot](https://github.com/rewin123/space_editor/blob/main/showcase.png)
+
 Welcome to space_editor, a Bevy Prefab Editor built for seamless integration into your game applications. Its design principle is straightforwardness - it's meant to be easy to use and highly customizable.
 
 Getting Started
