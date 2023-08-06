@@ -90,4 +90,11 @@ pub fn reflect_name(
 ```
 
 
-Prefab is just bevy scene serialized to ron. But it need spawn through PrefabBundle to activate custom logics (adding globaltransforms to object for example)
+### Prefab
+A prefab is simply a Bevy scene serialized to a readable and editable RON format. However, it needs to be spawned through PrefabBundle to activate custom logic such as adding global transforms to an object.
+
+### Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+### License
+MIT - https://choosealicense.com/licenses/mit/
