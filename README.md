@@ -11,6 +11,11 @@ App::default()
     .add_plugins(PrefabPlugin)
 ```
 
+for spawn use PrefabBundle
+```
+ commands.spawn(PrefabBundle::new("tile.scn.ron"))
+        .insert(Name::new("Prefab"));
+```
 
 
 Editor is build for implement to your game by adding plugin to your app
