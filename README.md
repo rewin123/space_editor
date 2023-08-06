@@ -25,6 +25,8 @@ For spawning, use the PrefabBundle:
         .insert(Name::new("Prefab"));
 ```
 
+(More code at bin/spawn_prefab.rs)
+
 
 ### Editor integration
 The editor is built for easy implementation into your game by adding a plugin to your app. Here's a minimal example of how to do this:
@@ -61,6 +63,8 @@ fn setup(
     }).insert(PanOrbitCamera::default());
 }
 ```
+
+(Code from main.rs)
 
 ## Customization
 Custom types can be added to the editor gui and prefab spawn system with just a single line:
