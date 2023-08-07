@@ -8,6 +8,7 @@ pub mod hierarchy;
 pub mod selected;
 pub mod asset_insector;
 use bevy_egui::EguiContexts;
+use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{EditorState, EditorSet, prefab::save::SaveState};
@@ -28,7 +29,9 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
         
-        app.add_plugins(prelude::SpaceHierarchyPlugin::default())
+        app
+        .add_plugins(DefaultInspectorConfigPlugin)
+        .add_plugins(prelude::SpaceHierarchyPlugin::default())
         .add_plugins(prelude::InspectorPlugin)
         .add_plugins(prelude::BotMenuPlugin)
         .add_plugins(PanOrbitCameraPlugin);

@@ -100,6 +100,8 @@ pub fn inspect(
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
     let registry = all_registry.read();
+    let app_registry = world.resource::<AppTypeRegistry>().clone();
+    let world_registry = app_registry.read();
     let mut disable_pan_orbit = false;
     let ctx_e;
     {
@@ -183,7 +185,10 @@ pub fn inspect(
         
                                     let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
         
-                                    ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
+                                    ui.push_id(format!("{}-{}", &name, &registration.short_name()), |ui| {
+                                        bevy_inspector_egui::reflect_inspector::ui_for_value(value, ui, &world_registry);
+                                    });
+                                    // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
                             }
                         }
