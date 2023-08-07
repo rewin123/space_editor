@@ -119,7 +119,7 @@ MIT - https://choosealicense.com/licenses/mit/
 | Separate Editor Registration     | Ability to select types which will be shown, saved, and loaded in the editor.                                            | ✅ Done    |
 | Customizable UI                  | Feature to customize the inspector UI as per user preference.                                                            | ✅ Done    |
 | Asset Inspector                  | Viewer for all project assets to easily drag and drop for adding.                                                        | ❌ Planned |
-| Play/Editor States               | Ability to add state to run the game in the editor window, save the prefab at play state start, and reload after end.    | ❌ Planned |
+| Play/Editor States               | Ability to add state to run the game in the editor window, save the prefab at play state start, and reload after end.    | ✅ Done |
 | Player Start Component           | A component to load a prefab only in Play state.                                                                         | ❌ Planned |
 | Search and Add Assets            | Support for searching existing assets by typing the name in a field.                                                     | ❌ Planned |
 | Edit Nested Prefabs              | If a prefab opened in the editor contains another prefab, allow changes to internal state and apply to all prefabs.      | ❌ Planned |
