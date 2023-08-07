@@ -3,10 +3,10 @@ use std::any::TypeId;
 use bevy::{prelude::*, ecs::{entity::EntityMap, reflect::ReflectMapEntities}, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy};
+use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy, EditorState, EditorSet};
 
 #[derive(Resource, Default, Clone)]
-struct EditorLoader {
+pub struct EditorLoader {
     pub scene : Option<Handle<DynamicScene>>
 }
 
@@ -20,9 +20,26 @@ impl Plugin for BotMenuPlugin {
         }
         app.init_resource::<EditorLoader>();
 
-        app.add_systems(Update, bot_menu.after(super::inspector::inspect).after(show_hierarchy));
-        app.add_systems(Update, load_listener.after(bot_menu));
+        app.add_systems(Update, bot_menu
+            .after(super::inspector::inspect)
+            .after(show_hierarchy)
+            .in_set(EditorSet::Editor));
+        app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));
+        app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
     }
+}
+
+fn bot_menu_game(
+    mut ctxs : EguiContexts,
+    mut state : ResMut<NextState<EditorState>>
+) {
+    egui::TopBottomPanel::bottom("bot_panel").show(ctxs.ctx_mut(), |ui| {
+        ui.vertical_centered(|ui| {
+            if ui.button("⏸").clicked() {
+                state.set(EditorState::Editor);
+            }
+        });
+    });
 }
 
 fn bot_menu(
@@ -31,7 +48,8 @@ fn bot_menu(
     mut save_confg : ResMut<SaveConfig>,
     mut save_state : ResMut<NextState<SaveState>>,
     mut assets : ResMut<AssetServer>,
-    mut load_server : ResMut<EditorLoader>
+    mut load_server : ResMut<EditorLoader>,
+    mut state : ResMut<NextState<EditorState>>
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot_panel").show(ctx, |ui| {
@@ -48,6 +66,10 @@ fn bot_menu(
                 load_server.scene = Some(
                     assets.load(format!("{}.scn.ron",save_confg.path))
                 );
+            }
+
+            if ui.button("▶").clicked() {
+                state.set(EditorState::GamePrepare);
             }
         });
     });
@@ -78,6 +100,12 @@ fn load_listener(
    
     let mut map = EntityMap::default();
     let mut scene_mappings: HashMap<TypeId, Vec<Entity>> = HashMap::default();
+
+    let  mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
+    let mark_to_delete : Vec<_> = query.iter(&world).collect();
+    for entity in mark_to_delete {
+        world.entity_mut(entity).despawn_recursive();
+    }
 
     for scene_entity in prefab.entities.iter() {
         let mut entity = map.get(scene_entity.entity).unwrap_or_else(

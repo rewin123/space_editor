@@ -6,7 +6,7 @@ pub mod load;
 use bevy::prelude::*;
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor::prelude::InspectorPlugin, editor_registry::EditorRegistryExt, prelude::{EditorRegistry, EditorRegistryPlugin}};
+use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet};
 
 use component::*;
 use spawn_system::*;
@@ -17,6 +17,9 @@ pub struct PrefabPlugin;
 
 impl Plugin for PrefabPlugin {
     fn build(&self, app: &mut App) {
+
+        app.add_state::<EditorState>();
+
         if !app.is_plugin_added::<HookPlugin>() {
             app.add_plugins(HookPlugin);
         }
@@ -24,6 +27,9 @@ impl Plugin for PrefabPlugin {
         if !app.is_plugin_added::<EditorRegistryPlugin>() {
             app.add_plugins(EditorRegistryPlugin);
         }
+
+        app.configure_set(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_set(Update, EditorSet::Editor.run_if(in_state(EditorState::Editor)));
         
         app.editor_registry::<GltfPrefab>();
 

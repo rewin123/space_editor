@@ -2,6 +2,8 @@ pub mod editor;
 pub mod prefab;
 pub mod editor_registry;
 
+use std::default;
+
 use bevy::prelude::*;
 
 use editor::EditorPlugin;
@@ -40,3 +42,18 @@ impl Plugin for SpaceEditorPlugin {
 #[derive(Component, Default, Clone, Reflect)]
 #[reflect(Component)]
 pub struct PrefabMarker;
+
+
+#[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
+pub enum EditorState {
+    Editor, // editor is showing
+    GamePrepare, //editor preparing to run game
+    #[default]
+    Game // playing game
+}
+
+#[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
+pub enum EditorSet {
+    Editor,
+    Game
+}

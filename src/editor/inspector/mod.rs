@@ -1,22 +1,18 @@
 pub mod ui_reflect;
-pub mod registration;
 pub mod refl_impl;
-pub mod gizmo;
 
-use std::{any::TypeId, fmt::format};
+use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::{ReflectFromPtr, TypeInfo, DynamicEnum, DynamicVariant, DynamicTuple, DynamicStruct}, ptr::PtrMut, app::AppLabel, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+
 use bevy_egui::*;
 
-use bevy::prelude::*;
-use bevy_egui::*;
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, prefab::add_global_transform, prelude::show_hierarchy};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
-use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, update_pan_orbit, PanOrbitEnabled, ui_camera_block};
+use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 use ui_reflect::*;
-use registration::*;
 
 #[derive(Component)]
 pub struct SkipInspector;
@@ -37,7 +33,8 @@ impl Plugin for InspectorPlugin {
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
-            .before(ui_camera_block));
+            .before(ui_camera_block)
+            .in_set(EditorSet::Editor));
     }
 }
 
@@ -96,7 +93,9 @@ pub fn inspect(
     world : &mut World
 ) {
 
-    let selected = world.resource::<SelectedEntities>().clone();
+    let selected = world.query_filtered::<Entity, With<Selected>>()
+        .iter(&world)
+        .collect::<Vec<_>>();
 
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
@@ -160,7 +159,7 @@ pub fn inspect(
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                for e in selected.list.iter() {
+                for e in selected.iter() {
                     if let Some(e) = cell.get_entity(*e) {
                         let mut name;
                         if let Some(name_struct) = e.get::<Name>() {
@@ -237,7 +236,7 @@ pub fn inspect(
 
             let view_matrix = Mat4::from(cam_pos.affine().inverse());
 
-            for e in &selected.list {
+            for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
