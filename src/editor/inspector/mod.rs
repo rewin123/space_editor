@@ -11,7 +11,7 @@ use egui_gizmo::*;
 
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
-use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
+use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 use ui_reflect::*;
 
 #[derive(Component)]
@@ -93,7 +93,9 @@ pub fn inspect(
     world : &mut World
 ) {
 
-    let selected = world.resource::<SelectedEntities>().clone();
+    let selected = world.query_filtered::<Entity, With<Selected>>()
+        .iter(&world)
+        .collect::<Vec<_>>();
 
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
@@ -157,7 +159,7 @@ pub fn inspect(
             ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                for e in selected.list.iter() {
+                for e in selected.iter() {
                     if let Some(e) = cell.get_entity(*e) {
                         let mut name;
                         if let Some(name_struct) = e.get::<Name>() {
@@ -234,7 +236,7 @@ pub fn inspect(
 
             let view_matrix = Mat4::from(cam_pos.affine().inverse());
 
-            for e in &selected.list {
+            for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };

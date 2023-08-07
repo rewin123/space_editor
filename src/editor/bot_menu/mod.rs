@@ -6,7 +6,7 @@ use bevy_egui::*;
 use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy, EditorState, EditorSet};
 
 #[derive(Resource, Default, Clone)]
-struct EditorLoader {
+pub struct EditorLoader {
     pub scene : Option<Handle<DynamicScene>>
 }
 
@@ -24,7 +24,7 @@ impl Plugin for BotMenuPlugin {
             .after(super::inspector::inspect)
             .after(show_hierarchy)
             .in_set(EditorSet::Editor));
-        app.add_systems(Update, load_listener.after(bot_menu).in_set(EditorSet::Editor));
+        app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));
         app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
     }
 }
@@ -100,6 +100,12 @@ fn load_listener(
    
     let mut map = EntityMap::default();
     let mut scene_mappings: HashMap<TypeId, Vec<Entity>> = HashMap::default();
+
+    let  mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
+    let mark_to_delete : Vec<_> = query.iter(&world).collect();
+    for entity in mark_to_delete {
+        world.entity_mut(entity).despawn_recursive();
+    }
 
     for scene_entity in prefab.entities.iter() {
         let mut entity = map.get(scene_entity.entity).unwrap_or_else(

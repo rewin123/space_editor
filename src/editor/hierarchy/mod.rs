@@ -40,7 +40,7 @@ pub fn show_hierarchy(
     mut commands : Commands, 
     mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
-    mut selected : ResMut<SelectedEntities>,
+    mut selected : Query<Entity, With<Selected>>,
     mut clone_events : EventWriter<CloneEvent>
 ) {
     let mut all : Vec<_> = query.iter().collect();
@@ -62,7 +62,6 @@ pub fn show_hierarchy(
             if ui.button("Clear all").clicked() {
                 for (entity, _, _, parent) in all.iter() {
                     commands.entity(*entity).despawn_recursive();
-                    selected.list.clear();
                 }
             }
 
@@ -76,7 +75,7 @@ fn draw_entity(
     ui: &mut egui::Ui,
     query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     entity: Entity,
-    selected : &mut SelectedEntities,
+    selected : &mut Query<Entity, With<Selected>>,
     clone_events : &mut EventWriter<CloneEvent>,
     pointer_used : bool
 ) {
@@ -90,7 +89,7 @@ fn draw_entity(
     );
 
     ui.indent(entity_name.clone(), |ui| {
-        let is_selected = selected.list.contains(&entity);
+        let is_selected = selected.contains(entity);
 
         let label = ui.selectable_label(is_selected, entity_name)
             .context_menu(|ui| {
@@ -101,17 +100,16 @@ fn draw_entity(
                 }
                 if ui.button("Delete").clicked() {
                     commands.entity(entity).despawn_recursive();
-                    selected.list.remove(&entity);
                     ui.close_menu();
                 }
                 if ui.button("Clone").clicked() {
                     clone_events.send(CloneEvent { id: entity });
                     ui.close_menu();
                 }
-                if selected.list.len() > 0 && !selected.list.contains(&entity) {
+                if !selected.is_empty() && !selected.contains(entity) {
                     if ui.button("Attach to").clicked() {
-                        for e in selected.list.iter() {
-                            commands.entity(entity).add_child(*e);
+                        for e in selected.iter() {
+                            commands.entity(entity).add_child(e);
                         }
                     }
                 }
@@ -125,11 +123,13 @@ fn draw_entity(
         if label.clicked() {
             if !is_selected {
                 if !ui.input(|i| i.modifiers.shift) {
-                    selected.list.clear();
+                    for e in selected.iter() {
+                        commands.entity(e).remove::<Selected>();
+                    }
                 }
-                selected.list.insert(entity);
+                commands.entity(entity).insert(Selected);
             } else {
-                selected.list.remove(&entity);
+                commands.entity(entity).remove::<Selected>();
             }
         }
         
