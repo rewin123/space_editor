@@ -2,6 +2,8 @@
 
 use bevy::{prelude::*, utils::HashSet, pbr::wireframe::{Wireframe, WireframePlugin}};
 
+use crate::EditorSet;
+
 #[derive(Resource, Default, Clone)]
 pub struct SelectedEntities {
     pub list : HashSet<Entity>
@@ -16,7 +18,7 @@ impl Plugin for SelectedPlugin {
         if !app.is_plugin_added::<WireframePlugin>() {
             app.add_plugins(WireframePlugin);
         }
-        app.add_systems(Update, stupid_wireframe_update);
+        app.add_systems(Update, stupid_wireframe_update.in_set(EditorSet::Editor));
     }
 }
 

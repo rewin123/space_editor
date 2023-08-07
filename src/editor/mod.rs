@@ -10,6 +10,8 @@ pub mod asset_insector;
 use bevy_egui::EguiContexts;
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
+use crate::{EditorState, EditorSet};
+
 pub mod prelude {
     pub use super::inspector::*;
     pub use super::bot_menu::*;
@@ -33,12 +35,25 @@ impl Plugin for EditorPlugin {
 
         app.insert_resource(PanOrbitEnabled(true));
 
-        app.add_systems(Update, reset_pan_orbit_state);
-        app.add_systems(Update, update_pan_orbit.after(reset_pan_orbit_state).before(PanOrbitCameraSystemSet));
-        app.add_systems(Update, ui_camera_block.after(reset_pan_orbit_state).before(update_pan_orbit));
+        app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
+
+        app.add_systems(Update, reset_pan_orbit_state
+            .in_set(EditorSet::Editor));
+        app.add_systems(Update, update_pan_orbit
+            .after(reset_pan_orbit_state)
+            .before(PanOrbitCameraSystemSet)
+            .in_set(EditorSet::Editor));
+        app.add_systems(Update, ui_camera_block.after(reset_pan_orbit_state).
+            before(update_pan_orbit)
+            .in_set(EditorSet::Editor));
     }
 }
 
+fn set_start_state(
+    mut state : ResMut<NextState<EditorState>>
+) {
+    state.set(EditorState::Editor);
+}
 
 #[derive(Resource, Default)]
 pub struct PanOrbitEnabled(pub bool);

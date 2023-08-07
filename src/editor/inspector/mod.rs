@@ -1,22 +1,18 @@
 pub mod ui_reflect;
-pub mod registration;
 pub mod refl_impl;
-pub mod gizmo;
 
-use std::{any::TypeId, fmt::format};
+use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::{ReflectFromPtr, TypeInfo, DynamicEnum, DynamicVariant, DynamicTuple, DynamicStruct}, ptr::PtrMut, app::AppLabel, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+
 use bevy_egui::*;
 
-use bevy::prelude::*;
-use bevy_egui::*;
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, prefab::add_global_transform, prelude::show_hierarchy};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
-use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, update_pan_orbit, PanOrbitEnabled, ui_camera_block};
+use super::{selected::{SelectedPlugin, SelectedEntities}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 use ui_reflect::*;
-use registration::*;
 
 #[derive(Component)]
 pub struct SkipInspector;
@@ -37,7 +33,8 @@ impl Plugin for InspectorPlugin {
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
-            .before(ui_camera_block));
+            .before(ui_camera_block)
+            .in_set(EditorSet::Editor));
     }
 }
 

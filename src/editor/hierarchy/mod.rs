@@ -1,7 +1,7 @@
 use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform};
+use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform, EditorSet};
 
 use super::{selected::*, ui_camera_block};
 
@@ -29,8 +29,8 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_systems(Update, show_hierarchy.before(ui_camera_block));
-        app.add_systems(Update, clone_enitites.after(show_hierarchy));
+        app.add_systems(Update, show_hierarchy.before(ui_camera_block).in_set(EditorSet::Editor));
+        app.add_systems(Update, clone_enitites.after(show_hierarchy).in_set(EditorSet::Editor));
         app.add_event::<CloneEvent>();
     }
 }
