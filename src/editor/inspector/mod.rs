@@ -2,11 +2,11 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::utils::HashMap;
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
 
 use bevy_egui::*;
 
+use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};

@@ -113,4 +113,7 @@ fn load_listener(
         );
     }
 
+    let mut map = EntityMap::default();
+    prefab.write_to_world(world, &mut map);
+
 }
