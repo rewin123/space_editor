@@ -3,6 +3,8 @@ use bevy_scene_hook::SceneHook;
 
 use crate::{editor_registry::EditorRegistryExt, PrefabMarker};
 
+use super::save::ChildrenPrefab;
+
 
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
@@ -36,6 +38,7 @@ impl Plugin for LoadPlugin {
         app.add_systems(Update, conflict_resolve
             .after(bevy_scene_hook::Systems::SceneHookRunner)
             .before(load_prefab));
+        app.add_systems(Update, auto_children);
 
     }
 }
@@ -96,5 +99,21 @@ fn conflict_resolve(
 ) {
     for e in query.iter() {
         commands.entity(e).remove::<PrefabMarker>();
+    }
+}
+
+fn auto_children(
+    mut commands : Commands,
+    query : Query<(Entity, &ChildrenPrefab)>,
+    existen_entity : Query<Entity>
+) {
+    for (e, children) in query.iter() {
+        let mut cmds = commands.entity(e);
+        for child in children.0.iter() {
+            if existen_entity.contains(*child) {
+                cmds.add_child(*child);
+            }
+        }
+        cmds.remove::<ChildrenPrefab>();
     }
 }

@@ -13,3 +13,4 @@ egui-gizmo = "0.11.0"
 bevy-scene-hook = "7"
 ron = "0.8.0"
 bevy_panorbit_camera = "0.7.0"
+bevy-inspector-egui = {version = "0.19.0", features = ["bevy_pbr", "highlight_changes"]}

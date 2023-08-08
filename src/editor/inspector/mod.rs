@@ -3,10 +3,11 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
 
 use bevy_egui::*;
 
+use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
@@ -159,6 +160,12 @@ pub fn inspect(
             }
 
             ui.separator();
+            let mut queue = CommandQueue::default();
+            let mut cx = bevy_inspector_egui::reflect_inspector::Context {
+                world: Some(cell.world_mut().into()),
+                queue: Some(&mut queue),
+            };
+            let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.iter() {
@@ -184,10 +191,16 @@ pub fn inspect(
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
         
                                     let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
-        
-                                    ui.push_id(format!("{}-{}", &name, &registration.short_name()), |ui| {
-                                        bevy_inspector_egui::reflect_inspector::ui_for_value(value, ui, &world_registry);
-                                    });
+
+                                    if !editor_registry.silent.contains(&registration.type_id()) {
+                                        ui.push_id(format!("{}-{}", &name, &registration.short_name()), |ui| {
+                                            ui.collapsing(registration.short_name(), |ui| {
+                                                if env.ui_for_reflect(value, ui) {
+                                                    set_changed();
+                                                }
+                                            });
+                                        });
+                                    }
                                     // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
                             }

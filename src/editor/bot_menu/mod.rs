@@ -80,7 +80,7 @@ fn load_listener(
 ) {
     let app_registry = world.resource::<AppTypeRegistry>().clone();
     let load_server = world.resource::<EditorLoader>().clone();
-    let prefab;
+    let mut prefab;
     {
         let assets = world.resource::<Assets<DynamicScene>>();
         if let Some(scene) = &load_server.scene {
@@ -96,10 +96,6 @@ fn load_listener(
         }
     }
     world.resource_mut::<EditorLoader>().scene = None;
-    let type_registry = app_registry.read();
-   
-    let mut map = EntityMap::default();
-    let mut scene_mappings: HashMap<TypeId, Vec<Entity>> = HashMap::default();
 
     let  mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
     let mark_to_delete : Vec<_> = query.iter(&world).collect();
@@ -107,42 +103,14 @@ fn load_listener(
         world.entity_mut(entity).despawn_recursive();
     }
 
-    for scene_entity in prefab.entities.iter() {
-        let mut entity = map.get(scene_entity.entity).unwrap_or_else(
-                || world.spawn_empty().id()
+    for entity in &mut prefab.entities {
+
+        entity.components.push(
+            Box::new(PrefabMarker)
         );
-
-        let mut entity_mut = world.entity_mut(entity);
-
-        // Apply/ add each component to the given entity.
-        for component in &scene_entity.components {
-            let Some(registration) = type_registry
-                .get_with_name(component.type_name()) else {
-                    error!("Cannot find component registration in editor prefab loader");
-                    return;
-                };
-            let Some(reflect_component) =
-                registration.data::<ReflectComponent>() else {
-                error!("Cannot reglect serialized component in editor prefab loader");
-                return;
-            };
-
-            // If this component references entities in the scene, track it
-            // so we can update it to the entity in the world.
-            if registration.data::<ReflectMapEntities>().is_some() {
-                scene_mappings
-                    .entry(registration.type_id())
-                    .or_insert(Vec::new())
-                    .push(entity);
-            }
-
-            // If the entity already has the given component attached,
-            // just apply the (possibly) new value, otherwise add the
-            // component to the entit
-            reflect_component.apply_or_insert(&mut entity_mut, &**component);
-
-            entity_mut.insert(PrefabMarker);
-        }
     }
+
+    let mut map = EntityMap::default();
+    prefab.write_to_world(world, &mut map);
 
 }

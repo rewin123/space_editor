@@ -82,7 +82,7 @@ fn clear_and_load_on_start(
     assets : Res<AssetServer>,
 ) {
     load_server.scene = Some(
-        assets.load(format!("{}.scn.ron",save_confg.path))
+        assets.load(format!("{}_recover.scn.ron",save_confg.path))
     );
 }
 
