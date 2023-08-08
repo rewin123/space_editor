@@ -193,7 +193,7 @@ pub fn inspect(
                                     let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
-                                        ui.push_id(format!("{}-{}", &name, &registration.short_name()), |ui| {
+                                        ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
                                             ui.collapsing(registration.short_name(), |ui| {
                                                 if env.ui_for_reflect(value, ui) {
                                                     set_changed();
