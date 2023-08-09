@@ -129,6 +129,7 @@ MIT - https://choosealicense.com/licenses/mit/
 | Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned |
 | Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ❌ Planned |
 | Multiple Select Support          | Feature to manipulate multiple objects simultaneously.                                                                   | ❌ Planned |
+| Tests                            | Useful tests for make crate stable                                                                                       | ❌ Planned |
 | Drink tea after                  |                                                                                                                          | ❌ Planned |
 
 Remember, Rome wasn't built in a day. And neither is `space_editor`. Your feedback and suggestions are always welcome.
