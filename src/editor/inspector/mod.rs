@@ -121,7 +121,6 @@ pub fn inspect(
         cam_proj = proj.clone();
         cam_pos = pos.clone();
     }
-
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
             components_id.push(c_id);
