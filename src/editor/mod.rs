@@ -78,6 +78,9 @@ fn clear_and_load_on_start(
     save_confg : Res<crate::prefab::save::SaveConfig>,
     assets : Res<AssetServer>,
 ) {
+    if save_confg.path.is_empty() {
+        return;
+    }
     load_server.scene = Some(
         assets.load(format!("{}.scn.ron",save_confg.path))
     );
