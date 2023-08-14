@@ -63,9 +63,12 @@ fn bot_menu(
             }
 
             if ui.button("Load").clicked() {
-                load_server.scene = Some(
-                    assets.load(format!("{}.scn.ron",save_confg.path))
-                );
+                if !save_confg.path.is_empty() {
+                    load_server.scene = Some(
+                        assets.load(format!("{}.scn.ron",save_confg.path))
+                    );
+                }
+                // TODO: else show notification with information
             }
 
             if ui.button("▶").clicked() {
@@ -109,8 +112,5 @@ fn load_listener(
             Box::new(PrefabMarker)
         );
     }
-
-    let mut map = EntityMap::default();
-    prefab.write_to_world(world, &mut map);
 
 }
