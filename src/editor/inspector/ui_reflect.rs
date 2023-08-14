@@ -138,19 +138,19 @@ pub fn ui_for_enum(
     };
     let mut next_name = selected_name.clone();
     egui::ComboBox::new(&hash, name)
-            .selected_text(&selected_name)
-            .show_ui(ui, |ui| {
-        for idx in 0..enum_info.variant_len() {
-            let name = enum_info.variant_at(idx).unwrap().name();
-            ui.selectable_value(&mut next_name, name.to_string(), name);
-        }
+        .selected_text(&selected_name)
+        .show_ui(ui, |ui| {
+            for idx in 0..enum_info.variant_len() {
+                let name = enum_info.variant_at(idx).unwrap().name();
+                ui.selectable_value(&mut next_name, name.to_string(), name);
+            }
     });
     if next_name != selected_name {
         let info = enum_info.variant(&next_name).unwrap();
         let variant = match info {
-            bevy::reflect::VariantInfo::Struct(s) => DynamicVariant::Struct(DynamicStruct::default()),
-            bevy::reflect::VariantInfo::Tuple(s) => DynamicVariant::Tuple(DynamicTuple::default()),
-            bevy::reflect::VariantInfo::Unit(s) => DynamicVariant::Unit,
+            bevy::reflect::VariantInfo::Struct(_s) => DynamicVariant::Struct(DynamicStruct::default()),
+            bevy::reflect::VariantInfo::Tuple(_s) => DynamicVariant::Tuple(DynamicTuple::default()),
+            bevy::reflect::VariantInfo::Unit(_s) => DynamicVariant::Unit,
         };
         let new_variant = DynamicEnum::new(next_name, variant);
         value.apply(&new_variant);
@@ -178,6 +178,7 @@ pub fn ui_for_tuple_struct(
     let hash = format!("{}{}", hash, value.type_name());
     if name != "" {
         egui::CollapsingHeader::new(format!("{}", name))
+            .id_source(format!("{hash}{name}"))
                 .show(ui, |ui| {
             if value.field_len() == 1 {
                 ui_for_reflect(ui, value.field_mut(0).unwrap(), format!("{}{}", hash, &format!("{}", 0)).as_str(), "", set_changed, world)
@@ -226,7 +227,7 @@ if value.represents::<f32>() {
     let val = value.downcast_mut::<String>().unwrap();   
     ui.horizontal(|ui| {
         ui.label(name);
-        ui.add(egui::TextEdit::singleline(val));
+        ui.add(egui::TextEdit::singleline(val).id(hash.into()));
     });
 } else {
     ui.label(format!("{} not reflected", name));
@@ -243,7 +244,8 @@ pub fn ui_for_struct(
         
     let hash = format!("{}{}", hash, value.type_name());
     if name != "" {
-        egui::CollapsingHeader::new(format!("{}", name))
+        egui::CollapsingHeader::new(format!("{name}"))
+            .id_source(format!("{hash}{name}"))
                 .show(ui, |ui| {
             for idx in 0..value.field_len() {
                 let mut name = "".to_string();
