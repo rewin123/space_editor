@@ -61,20 +61,29 @@ impl RigidBodyPrefab {
 
 fn force_rigidbody_type_change_in_editor(
     mut commands : Commands,
-    query : Query<(Entity, &RigidBodyPrefab)>
+    query : Query<(Entity, &RigidBodyPrefab, Option<&Transform>)>
 ) {
-    for (e, tp) in query.iter() {
+    for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
+        if let Some(tr) = transform {
+            commands.entity(e).insert(Position(tr.translation));
+            commands.entity(e).insert(Rotation(tr.rotation));
+        }
     }
 }
 
 
 fn rigidbody_type_change_in_editor(
     mut commands : Commands,
-    query : Query<(Entity, &RigidBodyPrefab), Changed<RigidBodyPrefab>>
+    query : Query<(Entity, &RigidBodyPrefab, Option<&Transform>), Changed<RigidBodyPrefab>>
 ) {
-    for (e, tp) in query.iter() {
+    for (e, tp , transform) in query.iter() {
+        info!("Rigidbody type changed in {:?}", e);
         commands.entity(e).remove::<RigidBody>().insert(tp.to_rigidbody_editor());
+        if let Some(tr) = transform {
+            commands.entity(e).insert(Position(tr.translation));
+            commands.entity(e).insert(Rotation(tr.rotation));
+        }
     }
 }
 
