@@ -2,7 +2,7 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection, utils::HashMap};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
 
 use bevy_egui::*;
 
@@ -12,6 +12,7 @@ use egui_gizmo::*;
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
+
 
 #[derive(Component)]
 pub struct SkipInspector;
@@ -26,9 +27,6 @@ impl Plugin for InspectorPlugin {
         }
 
         app.init_resource::<InspectState>();
-
-        app.editor_custom_reflect(refl_impl::reflect_name);
-        app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
@@ -108,10 +106,8 @@ pub fn inspect(
         ctx_e = ctx_query.get_single(&world).unwrap();
     }
 
-    let mut components_id = Vec::new();
-    let mut types_id = Vec::new();
-    let mut components_by_entity: HashMap<u32, Vec<ComponentId>> = HashMap::new();
-    let mut types_by_entity: HashMap<u32, Vec<TypeId>> = HashMap::new();
+    let mut components_id = vec![];
+    let mut types_id = vec![];
 
     let cam_proj;
     let cam_pos;
@@ -165,7 +161,6 @@ pub fn inspect(
                 queue: Some(&mut queue),
             };
             let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
-            
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.iter() {
@@ -181,23 +176,9 @@ pub fn inspect(
                         }
                         ui.heading(&name);
                         ui.label("Components:");
-                        let e_id = e.id().index();
                         for idx in 0..components_id.len() {
-                            let c_id = components_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .map(|v| *v)
-                                .unwrap_or(components_id[idx]);
-                            let t_id = types_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .map(|v| *v)
-                                .unwrap_or(types_id[idx]);
-                            // let ui = ui.make_persistent_id(
-                            //     format!("{e_id}_{}_{t_id:?}", c_id.index())
-                            // );
+                            let c_id = components_id[idx];
+                            let t_id = types_id[idx];
                             if let Some(data) = e.get_mut_by_id(c_id) {
                                 let registration = registry
                                     .get(t_id).unwrap();
@@ -209,64 +190,65 @@ pub fn inspect(
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
                                             ui.collapsing(registration.short_name(), |ui| {
-                                                if env.ui_for_reflect(value, ui) {
-                                                    set_changed();
-                                                }
+                                                ui.push_id(format!("content-{:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                                    if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                                                        set_changed();
+                                                    }
+                                                });
                                             });
-                                            // ui.label(registration.short_name());
-                                            // if env.ui_for_reflect(value, ui) {
-                                            //     set_changed();
-                                            // }
                                         });
                                     }
+                                    // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
                             }
                         }
 
                         ui.separator();
-                        //add component
-                        let selected_name;
-                        if let Some(selected_id) = state.create_component_type {
-                            let selected_info = cell.components().get_info(selected_id).unwrap();
-                            selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
-                        } else {
-                            selected_name = "Press to select".to_string();
-                        }
-                        let _combo = ui.push_id(e_id.to_string(), |ui| {
-                            egui::ComboBox::new(format!("inspect_select"), "New")
-                                .selected_text(&selected_name).show_ui(ui, |ui| {
-                                    for idx in 0..components_id.len() {
-                                        let c_id = components_id[idx];
-                                        let t_id = types_id[idx];
+                    }
+                }
 
-                                        if editor_registry.silent.contains(&t_id) {
-                                            continue;
-                                        }
-                                        
-                                        let name = registry.get(t_id).unwrap().short_name();
-                                        ui.selectable_value(
-                                            &mut state.create_component_type, 
-                                            Some(c_id),
-                                            name);
-                                    }
-                                })
-                        });
-                        if ui.button("Add component").clicked() {
-                            info!("adding component button clicked");
-                            if let Some(c_id) = state.create_component_type {
-                                info!("adding component {:?}", c_id);
-                                let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                                commands.push(InspectCommand::AddComponent(e.id(), id));
+                //add component
+                let selected_name;
+                if let Some(selected_id) = state.create_component_type {
+                    let selected_info = cell.components().get_info(selected_id).unwrap();
+                    selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
+                } else {
+                    selected_name = "Press to select".to_string();
+                }
+                let combo = egui::ComboBox::new(format!("inspect_select"), "New")
+                    .selected_text(&selected_name).show_ui(ui, |ui| {
+                        for idx in 0..components_id.len() {
+                            let c_id = components_id[idx];
+                            let t_id = types_id[idx];
+
+                            if editor_registry.silent.contains(&t_id) {
+                                continue;
                             }
+                            
+                            let name = registry.get(t_id).unwrap().short_name();
+                            ui.selectable_value(
+                                &mut state.create_component_type, 
+                                Some(c_id),
+                                name);
                         }
-                        if ui.button("Delete component").clicked() {
-                            if let Some(c_id) = state.create_component_type {
-                                info!("removing component {:?}", c_id);
-                                let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                                commands.push(InspectCommand::RemoveComponent(e.id(), id));
-                            }
+                    });
+                if ui.button("Add component").clicked() {
+                    info!("adding component button clicked");
+                    if let Some(c_id) = state.create_component_type {
+                        info!("adding component {:?}", c_id);
+                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                        for e in selected.iter() {
+                            commands.push(InspectCommand::AddComponent(*e, id));
                         }
-                        
+                    }
+                }
+                if ui.button("Delete component").clicked() {
+                    if let Some(c_id) = state.create_component_type {
+                        info!("removing component {:?}", c_id);
+                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                        for e in selected.iter() {
+                            commands.push(InspectCommand::RemoveComponent(*e, id));
+                        }
                     }
                 }
             });
