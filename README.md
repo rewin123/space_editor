@@ -60,7 +60,8 @@ fn setup(
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
-    }).insert(PanOrbitCamera::default());
+    }) .insert(RaycastPickCamera::default())
+    .insert(PanOrbitCamera::default());
 }
 ```
 
@@ -72,29 +73,7 @@ Custom types can be added to the editor gui and prefab spawn system with just a 
 ```
 app.editor_registry::<Name>();
 ```
-The representation of components in the editor UI can also be customized:
-```
-app.editor_custom_reflect(refl_impl::reflect_name);
-
-...............
-
-pub fn reflect_name(
-    ui :  &mut egui::Ui,
-    name : &mut Name,
-    hash : &str,
-    label : &str,
-    setup_updated : &mut dyn FnMut(),
-    world : &mut UnsafeWorldCell
-) {
-    ui.horizontal(|ui| {
-        name.mutate(|s| {
-            ui.label(label);
-            ui.add(egui::TextEdit::singleline(s));
-        });
-    });
-}
-```
-(Code from src/editor/inspect/refl_impl.rs)
+The representation of components in the editor UI can also be customized by bevy_inspector_egui library.
 
 ### Prefab
 A prefab is simply a Bevy scene serialized to a readable and editable RON format. However, it needs to be spawned through PrefabBundle to activate custom logic such as adding global transforms to an object.
@@ -110,27 +89,29 @@ MIT - https://choosealicense.com/licenses/mit/
 
 | Feature                          | Description                                                                                                              | Status    |
 |----------------------------------|--------------------------------------------------------------------------------------------------------------------------|:---------:|
-| Save/Load                        | Capability to load and save prefabs in the editor by name.                                                               | ✅ Done    |
-| Interact with Object             | Functionality to place, rotate, and scale objects using a gizmo.                                                         | ✅ Done    |
-| Component Inspector              | Functionality to view and modify component values.                                                                       | ✅ Done    |
-| Modify Components                | Ability to add or remove components through the GUI.                                                                     | ✅ Done    |
-| GLTF Loader                      | Support for loading GLTF in prefab.                                                                                      | ✅ Done    |
-| Prefab Loader                    | Support for loading another prefab within a prefab and hide any technical entities.                                      | ✅ Done    |
-| Separate Editor Registration     | Ability to select types which will be shown, saved, and loaded in the editor.                                            | ✅ Done    |
-| Customizable UI                  | Feature to customize the inspector UI as per user preference.                                                            | ✅ Done    |
-| Asset Inspector                  | Viewer for all project assets to easily drag and drop for adding.                                                        | ❌ Planned |
-| Play/Editor States               | Ability to add state to run the game in the editor window, save the prefab at play state start, and reload after end.    | ✅ Done |
-| Player Start Component           | A component to load a prefab only in Play state.                                                                         | ❌ Planned |
-| Search and Add Assets            | Support for searching existing assets by typing the name in a field.                                                     | ❌ Planned |
-| Edit Nested Prefabs              | If a prefab opened in the editor contains another prefab, allow changes to internal state and apply to all prefabs.      | ❌ Planned |
-| Individual Prefab Parameters     | Feature to change some parameters in a unique way, independent of other prefabs.                                         | ❌ Planned |
-| Mesh Component                   | Support for using primitives in the prefab editor.                                                                       | ❌ Planned |
-| Material Component               | Support for setting up material in prefab.                                                                               | ❌ Planned |
-| Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned |
-| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ❌ Planned |
-| Multiple Select Support          | Feature to manipulate multiple objects simultaneously.                                                                   | ❌ Planned |
-| Tests                            | Useful tests for make crate stable                                                                                       | ❌ Planned |
-| Drink tea after                  |                                                                                                                          | ❌ Planned |
+| Save/Load                        | Capability to load and save prefabs in the editor by name.                                                               | ✅ Done             |
+| Interact with Object             | Functionality to place, rotate, and scale objects using a gizmo.                                                         | ✅ Done             |
+| Component Inspector              | Functionality to view and modify component values.                                                                       | ✅ Done             |
+| Modify Components                | Ability to add or remove components through the GUI.                                                                     | ✅ Done             |
+| GLTF Loader                      | Support for loading GLTF in prefab.                                                                                      | ✅ Done             |
+| Prefab Loader                    | Support for loading another prefab within a prefab and hide any technical entities.                                      | ✅ Done             |
+| Separate Editor Registration     | Ability to select types which will be shown, saved, and loaded in the editor.                                            | ✅ Done             |
+| Customizable UI                  | Feature to customize the inspector UI as per user preference.                                                            | ✅ Done             |
+| Asset Inspector                  | Viewer for all project assets to easily drag and drop for adding.                                                        | ❌ Planned          |
+| Play/Editor States               | Ability to add state to run the game in the editor window, save the prefab at play state start, and reload after end.    | ✅ Done             |
+| Player Start Component           | A component to load a prefab only in Play state.                                                                         | ❌ Planned          |
+| Search and Add Assets            | Support for searching existing assets by typing the name in a field.                                                     | ❌ Planned          |
+| Edit Nested Prefabs              | If a prefab opened in the editor contains another prefab, allow changes to internal state and apply to all prefabs.      | ❌ Planned          |
+| Individual Prefab Parameters     | Feature to change some parameters in a unique way, independent of other prefabs.                                         | ❌ Planned          |
+| Mesh Component                   | Support for using primitives in the prefab editor.                                                                       | 🛠️ Work in progress |
+| Material Component               | Support for setting up material in prefab.                                                                               | 🛠️ Work in progress |
+| Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned          |
+| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ❌ Planned          |
+| bevy_mod_picking Support         | Support for mouse select and deselect of entities                                                                        | ✅ Done             |
+| bevy_inspector_egui Support      | Support for commonly used inspector library                                                                              | ✅ Done             |
+| Multiple Select Support          | Feature to manipulate multiple objects simultaneously.                                                                   | 🛠️ Work in progress |
+| Tests                            | Useful tests for make crate stable                                                                                       | ❌ Planned          |
+| Drink tea after                  |                                                                                                                          | ❌ Planned          |
 
 Remember, Rome wasn't built in a day. And neither is `space_editor`. Your feedback and suggestions are always welcome.
 
