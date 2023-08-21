@@ -1,4 +1,3 @@
-pub mod ui_reflect;
 pub mod refl_impl;
 
 use std::any::TypeId;
@@ -13,7 +12,6 @@ use egui_gizmo::*;
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
-use ui_reflect::*;
 
 #[derive(Component)]
 pub struct SkipInspector;
@@ -165,6 +163,7 @@ pub fn inspect(
                 queue: Some(&mut queue),
             };
             let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
+            
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.iter() {
@@ -193,14 +192,17 @@ pub fn inspect(
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
-                                            ui.collapsing(registration.short_name(), |ui| {
-                                                if env.ui_for_reflect(value, ui) {
-                                                    set_changed();
-                                                }
-                                            });
+                                            // ui.collapsing(registration.short_name(), |ui| {
+                                            //     if env.ui_for_reflect(value, ui) {
+                                            //         set_changed();
+                                            //     }
+                                            // });
+                                            ui.label(registration.short_name());
+                                            if env.ui_for_reflect(value, ui) {
+                                                set_changed();
+                                            }
                                         });
                                     }
-                                    // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
                             }
                         }
