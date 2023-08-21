@@ -2,7 +2,7 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection, utils::HashMap};
 
 use bevy_egui::*;
 
@@ -106,8 +106,10 @@ pub fn inspect(
         ctx_e = ctx_query.get_single(&world).unwrap();
     }
 
-    let mut components_id = vec![];
-    let mut types_id = vec![];
+    let mut components_id = Vec::new();
+    let mut types_id = Vec::new();
+    let mut components_by_entity: HashMap<u32, Vec<ComponentId>> = HashMap::new();
+    let mut types_by_entity: HashMap<u32, Vec<TypeId>> = HashMap::new();
 
     let cam_proj;
     let cam_pos;
@@ -176,9 +178,23 @@ pub fn inspect(
                         }
                         ui.heading(&name);
                         ui.label("Components:");
+                        let e_id = e.id().index();
                         for idx in 0..components_id.len() {
-                            let c_id = components_id[idx];
-                            let t_id = types_id[idx];
+                            let c_id = components_by_entity
+                                .entry(e_id)
+                                .or_insert(Vec::new())
+                                .get(idx)
+                                .map(|v| *v)
+                                .unwrap_or(components_id[idx]);
+                            let t_id = types_by_entity
+                                .entry(e_id)
+                                .or_insert(Vec::new())
+                                .get(idx)
+                                .map(|v| *v)
+                                .unwrap_or(types_id[idx]);
+                            // let ui = ui.make_persistent_id(
+                            //     format!("{e_id}_{}_{t_id:?}", c_id.index())
+                            // );
                             if let Some(data) = e.get_mut_by_id(c_id) {
                                 let registration = registry
                                     .get(t_id).unwrap();
