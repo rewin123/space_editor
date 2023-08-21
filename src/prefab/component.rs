@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct GltfPrefab {
@@ -91,14 +92,32 @@ impl SpherePrefab {
 }
 
 #[derive(Component, Reflect, Clone)]
+#[reflect(Default, Component)]
 pub struct MaterialPrefab {
-    pub color : Color
+    pub color : Color,
+    pub base_color_texture : String
 }
 
 impl Default for MaterialPrefab {
     fn default() -> Self {
         Self { 
-            color: Color::GRAY
+            color: Color::GRAY,
+            base_color_texture : "".to_string()
+        }
+    }
+}
+
+impl MaterialPrefab {
+    pub fn to_material(&self, asset_server : &AssetServer) -> StandardMaterial {
+        let base_color_texture = if self.base_color_texture.is_empty() {
+            None
+        } else {
+            Some(asset_server.load(&self.base_color_texture))
+        };
+        StandardMaterial {
+            base_color : self.color,
+            base_color_texture : base_color_texture,
+            ..Default::default()
         }
     }
 }

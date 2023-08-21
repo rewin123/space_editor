@@ -54,13 +54,11 @@ pub fn sync_mesh(
 pub fn sync_material(
     mut commands : Commands,
     query : Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
-    mut materials : ResMut<Assets<StandardMaterial>>
+    mut materials : ResMut<Assets<StandardMaterial>>,
+    asset_server : Res<AssetServer>
 ) {
     for (e, pref) in query.iter() {
-        let mat = materials.add(StandardMaterial {
-             base_color: pref.color, 
-            ..default()
-            });
+        let mat = materials.add(pref.to_material(&asset_server));
         commands.entity(e).insert(mat);
     }
 }
