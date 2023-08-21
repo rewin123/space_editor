@@ -107,6 +107,7 @@ MIT - https://choosealicense.com/licenses/mit/
 | Material Component               | Support for setting up material in prefab.                                                                               | 🛠️ Work in progress |
 | Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned          |
 | Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ❌ Planned          |
+| bevy_protoSupport                | Support for commonly used text-based prefab system                                                                       | ❌ Planned          |
 | bevy_mod_picking Support         | Support for mouse select and deselect of entities                                                                        | ✅ Done             |
 | bevy_inspector_egui Support      | Support for commonly used inspector library                                                                              | ✅ Done             |
 | Multiple Select Support          | Feature to manipulate multiple objects simultaneously.                                                                   | 🛠️ Work in progress |
