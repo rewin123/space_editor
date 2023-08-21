@@ -2,7 +2,7 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection, utils::HashMap};
 
 use bevy_egui::*;
 
@@ -208,15 +208,15 @@ pub fn inspect(
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
-                                            // ui.collapsing(registration.short_name(), |ui| {
-                                            //     if env.ui_for_reflect(value, ui) {
-                                            //         set_changed();
-                                            //     }
-                                            // });
-                                            ui.label(registration.short_name());
-                                            if env.ui_for_reflect(value, ui) {
-                                                set_changed();
-                                            }
+                                            ui.collapsing(registration.short_name(), |ui| {
+                                                if env.ui_for_reflect(value, ui) {
+                                                    set_changed();
+                                                }
+                                            });
+                                            // ui.label(registration.short_name());
+                                            // if env.ui_for_reflect(value, ui) {
+                                            //     set_changed();
+                                            // }
                                         });
                                     }
                                 }
