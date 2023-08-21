@@ -16,6 +16,7 @@ bevy_panorbit_camera = "0.7.0"
 bevy-inspector-egui = {version = "0.19.0", features = ["bevy_pbr", "highlight_changes"]}
 bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git", optional = true}
 bevy_xpbd_3d = {version = "0.2.0", default-features = false, features = ["3d", "f32"],  optional = true}
+bevy_mod_picking = "0.15.0"
 
 [features]
 f64 = ["dep:bevy_transform64", "bevy_xpbd_3d?/f64"]

@@ -10,6 +10,12 @@ use editor::EditorPlugin;
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
 
+pub mod ext {
+    pub use bevy_mod_picking::prelude::*;
+    pub use bevy_inspector_egui::prelude::*;
+    pub use bevy_egui::*;
+}
+
 pub mod prelude {
     pub use super::editor::prelude::*;
     pub use super::prefab::*;
