@@ -32,9 +32,25 @@ impl Plugin for PrefabPlugin {
         app.configure_set(Update, EditorSet::Editor.run_if(in_state(EditorState::Editor)));
         
         app.editor_registry::<GltfPrefab>();
+        app.editor_registry::<MaterialPrefab>();
+        app.editor_registry::<MeshPrimitivePrefab>();
+
+        app.editor_relation::<MeshPrimitivePrefab, Transform>();
+        app.editor_relation::<MeshPrimitivePrefab, Visibility>();
+        app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
+
+
+        app.register_type::<SpherePrefab>();
+        app.register_type::<BoxPrefab>();
+        
 
         app.add_systems(Update, spawn_scene);
         app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
+
+        app.add_systems(
+            Update,
+            (sync_mesh, sync_material)
+        );
 
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);

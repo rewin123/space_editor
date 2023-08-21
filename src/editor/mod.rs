@@ -8,9 +8,13 @@ pub mod hierarchy;
 pub mod selected;
 pub mod asset_insector;
 use bevy_egui::EguiContexts;
+use bevy_inspector_egui::DefaultInspectorConfigPlugin;
+use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::save::SaveState};
+use crate::{EditorState, EditorSet, prefab::save::SaveState, PrefabMarker};
+
+use self::prelude::Selected;
 
 pub mod prelude {
     pub use super::inspector::*;
@@ -28,10 +32,18 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
         
-        app.add_plugins(prelude::SpaceHierarchyPlugin::default())
+        app
+        .add_plugins(DefaultInspectorConfigPlugin)
+        .add_plugins(prelude::SpaceHierarchyPlugin::default())
         .add_plugins(prelude::InspectorPlugin)
         .add_plugins(prelude::BotMenuPlugin)
         .add_plugins(PanOrbitCameraPlugin);
+
+        if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
+            app.add_plugins(bevy_mod_picking::DefaultPickingPlugins.build()
+                .disable::<DebugPickingPlugin>()
+                .disable::<DefaultHighlightingPlugin>());
+        }
 
         app.insert_resource(PanOrbitEnabled(true));
 
@@ -52,6 +64,75 @@ impl Plugin for EditorPlugin {
         app.add_systems(OnEnter(SaveState::Idle), to_game_after_save.run_if(in_state(EditorState::GamePrepare)));
 
         app.add_systems(OnEnter(EditorState::Editor), clear_and_load_on_start);
+
+        app.add_systems(PostUpdate, 
+            (auto_add_picking, 
+                select_listener,
+                auto_add_picking_dummy)
+                .run_if(in_state(EditorState::Editor)));
+
+        app.add_event::<SelectEvent>();
+    }
+}
+
+#[derive(Event)]
+struct SelectEvent {
+    e : Entity,
+    event : ListenerInput<Pointer<Down>>
+}
+
+
+
+fn auto_add_picking(
+    mut commands : Commands,
+    query : Query<Entity, (With<PrefabMarker>, Without<Pickable>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).insert(PickableBundle::default())
+            .insert(RaycastPickTarget::default())
+            .insert(On::<Pointer<Down>>::send_event::<SelectEvent>());
+    }
+}
+
+fn auto_add_picking_dummy(
+    mut commands : Commands,
+    query : Query<Entity, (Without<PrefabMarker>, Without<Pickable>, With<Parent>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).insert(PickableBundle::default())
+            .insert(RaycastPickTarget::default());
+    }
+}
+
+fn select_listener(
+    mut commands : Commands,
+    query : Query<Entity, With<Selected>>,
+    mut events : EventReader<SelectEvent>,
+    mut ctxs : EguiContexts,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
+        return;
+    }
+    for event in events.iter() {
+        match event.event.button {
+            PointerButton::Primary => {
+                commands.entity(event.e).insert(Selected);
+                if !keyboard.pressed(KeyCode::ShiftLeft) {
+                    for e in query.iter() {
+                        commands.entity(e).remove::<Selected>();
+                    }
+                }
+            },
+            PointerButton::Secondary => {/*Show context menu?*/},
+            PointerButton::Middle => {},
+        }
+    }
+}
+
+impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
+    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
+        SelectEvent { e: value.listener(), event: value }
     }
 }
 
@@ -82,7 +163,7 @@ fn clear_and_load_on_start(
         return;
     }
     load_server.scene = Some(
-        assets.load(format!("{}.scn.ron",save_confg.path))
+        assets.load(format!("{}_recover.scn.ron",save_confg.path))
     );
 }
 

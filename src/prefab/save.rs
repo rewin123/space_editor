@@ -1,11 +1,11 @@
-use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool};
+use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 use std::{any::TypeId, default, fs::File, io::Write};
 
 use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 
 #[derive(Reflect, Default, Component, Clone)]
-#[reflect(Component)]
-pub struct ChildrenPrefab(Vec<Entity>);
+#[reflect(Component, MapEntities)]
+pub struct ChildrenPrefab(pub Vec<Entity>);
 
 #[derive(Component, Default)]
 struct PrefabLoader {
@@ -15,6 +15,12 @@ struct PrefabLoader {
 impl ChildrenPrefab {
     pub fn from_children(children : &Children) -> Self {
         Self(children.to_vec())
+    }
+}
+
+impl MapEntities for ChildrenPrefab {
+    fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
+        self.0 = self.0.iter().map(|e| entity_mapper.get_or_reserve(*e)).collect();
     }
 }
 

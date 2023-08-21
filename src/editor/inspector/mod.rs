@@ -1,19 +1,18 @@
-pub mod ui_reflect;
 pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::utils::HashMap;
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection, utils::HashMap};
 
 use bevy_egui::*;
 
+use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
 use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
-use ui_reflect::*;
+
 
 #[derive(Component)]
 pub struct SkipInspector;
@@ -28,9 +27,6 @@ impl Plugin for InspectorPlugin {
         }
 
         app.init_resource::<InspectState>();
-
-        app.editor_custom_reflect(refl_impl::reflect_name);
-        app.editor_custom_reflect::<String, _>(refl_impl::reflect_string);
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
@@ -101,6 +97,8 @@ pub fn inspect(
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
     let registry = all_registry.read();
+    let app_registry = world.resource::<AppTypeRegistry>().clone();
+    let world_registry = app_registry.read();
     let mut disable_pan_orbit = false;
     let ctx_e;
     {
@@ -121,7 +119,6 @@ pub fn inspect(
         cam_proj = proj.clone();
         cam_pos = pos.clone();
     }
-
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
             components_id.push(c_id);
@@ -160,6 +157,12 @@ pub fn inspect(
             }
 
             ui.separator();
+            let mut queue = CommandQueue::default();
+            let mut cx = bevy_inspector_egui::reflect_inspector::Context {
+                world: Some(cell.world_mut().into()),
+                queue: Some(&mut queue),
+            };
+            let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for e in selected.iter() {
@@ -199,63 +202,69 @@ pub fn inspect(
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
         
                                     let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
-        
-                                    ui_for_reflect(
-                                        ui,
-                                        value,
-                                        &format!("{name}{}", registration.short_name()),
-                                        registration.short_name(),
-                                        &mut set_changed,
-                                        &mut cell
-                                    );
+
+                                    if !editor_registry.silent.contains(&registration.type_id()) {
+                                        ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                            ui.collapsing(registration.short_name(), |ui| {
+                                                ui.push_id(format!("content-{:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                                    if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                                                        set_changed();
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    }
+                                    // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
                             }
                         }
 
                         ui.separator();
-                        //add component
-                        let selected_name;
-                        if let Some(selected_id) = state.create_component_type {
-                            let selected_info = cell.components().get_info(selected_id).unwrap();
-                            selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
-                        } else {
-                            selected_name = "Press to select".to_string();
-                        }
-                        let _combo = ui.push_id(e_id.to_string(), |ui| {
-                            egui::ComboBox::new(format!("inspect_select"), "New")
-                                .selected_text(&selected_name).show_ui(ui, |ui| {
-                                    for idx in 0..components_id.len() {
-                                        let c_id = components_id[idx];
-                                        let t_id = types_id[idx];
+                    }
+                }
 
-                                        if editor_registry.silent.contains(&t_id) {
-                                            continue;
-                                        }
-                                        
-                                        let name = registry.get(t_id).unwrap().short_name();
-                                        ui.selectable_value(
-                                            &mut state.create_component_type, 
-                                            Some(c_id),
-                                            name);
-                                    }
-                                })
-                        });
-                        if ui.button("Add component").clicked() {
-                            info!("adding component button clicked");
-                            if let Some(c_id) = state.create_component_type {
-                                info!("adding component {:?}", c_id);
-                                let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                                commands.push(InspectCommand::AddComponent(e.id(), id));
+                //add component
+                let selected_name;
+                if let Some(selected_id) = state.create_component_type {
+                    let selected_info = cell.components().get_info(selected_id).unwrap();
+                    selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
+                } else {
+                    selected_name = "Press to select".to_string();
+                }
+                let combo = egui::ComboBox::new(format!("inspect_select"), "New")
+                    .selected_text(&selected_name).show_ui(ui, |ui| {
+                        for idx in 0..components_id.len() {
+                            let c_id = components_id[idx];
+                            let t_id = types_id[idx];
+
+                            if editor_registry.silent.contains(&t_id) {
+                                continue;
                             }
+                            
+                            let name = registry.get(t_id).unwrap().short_name();
+                            ui.selectable_value(
+                                &mut state.create_component_type, 
+                                Some(c_id),
+                                name);
                         }
-                        if ui.button("Delete component").clicked() {
-                            if let Some(c_id) = state.create_component_type {
-                                info!("removing component {:?}", c_id);
-                                let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                                commands.push(InspectCommand::RemoveComponent(e.id(), id));
-                            }
+                    });
+                if ui.button("Add component").clicked() {
+                    info!("adding component button clicked");
+                    if let Some(c_id) = state.create_component_type {
+                        info!("adding component {:?}", c_id);
+                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                        for e in selected.iter() {
+                            commands.push(InspectCommand::AddComponent(*e, id));
                         }
-                        
+                    }
+                }
+                if ui.button("Delete component").clicked() {
+                    if let Some(c_id) = state.create_component_type {
+                        info!("removing component {:?}", c_id);
+                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                        for e in selected.iter() {
+                            commands.push(InspectCommand::RemoveComponent(*e, id));
+                        }
                     }
                 }
             });

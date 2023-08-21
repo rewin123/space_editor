@@ -1,3 +1,6 @@
+use std::f32::consts::PI;
+
+use bevy_mod_picking::prelude::RaycastPickCamera;
 use space_editor::prelude::*;
 use bevy::prelude::*;
 
@@ -15,19 +18,16 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     
-    // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 1500.0,
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+   // light
+    commands.spawn(DirectionalLightBundle {
+        directional_light : DirectionalLight { shadows_enabled: true, ..default() },
+        transform: Transform::from_xyz(4.0, 8.0, 4.0).with_rotation(Quat::from_rotation_x(-PI / 4.)),
         ..default()
     });
     // camera
     commands.spawn(Camera3dBundle {
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
-    }).insert(PanOrbitCamera::default());
+    }).insert(PanOrbitCamera::default())
+    .insert(RaycastPickCamera::default());
 }

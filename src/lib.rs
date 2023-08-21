@@ -2,12 +2,19 @@ pub mod editor;
 pub mod prefab;
 pub mod editor_registry;
 
-use std::default;
+pub mod optional;
 
 use bevy::prelude::*;
 
 use editor::EditorPlugin;
+use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
+
+pub mod ext {
+    pub use bevy_mod_picking::prelude::*;
+    pub use bevy_inspector_egui::prelude::*;
+    pub use bevy_egui::*;
+}
 
 pub mod prelude {
     pub use super::editor::prelude::*;
@@ -33,6 +40,7 @@ impl Default for SpaceEditorPlugin {
 impl Plugin for SpaceEditorPlugin {    
     fn build(&self, app: &mut App) {
         app.add_plugins(PrefabPlugin);
+        app.add_plugins(OptionalPlugin);
         app.add_plugins(EditorPlugin);
     }
 }
