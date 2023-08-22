@@ -294,9 +294,26 @@ pub fn inspect(
                                         rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
                                         scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                                     };
+                                    
+                                    if ui.input(|state| state.modifiers.shift) {
+                                        info!("Cooperative shift with");
+                                        let dpos = new_transform.translation - transform.translation;
+                                        for e2 in &selected {
+                                            if *e != *e2 {
+                                                 if let Some(ecell) = cell.get_entity(*e2) {
+                                                    if let Some(mut transform2) = ecell.get_mut::<Transform>() {
+                                                        transform2.translation += dpos;
+                                                        transform2.set_changed();
+                                                    }
+                                                 }
+                                            }
+                                        }
+                                    }
+
                                     let new_transform = GlobalTransform::from(new_transform);
                                     *transform = new_transform.reparented_to(&parent_global);
                                     transform.set_changed();
+
                                     
                                 }
                                 disable_pan_orbit = true;
@@ -311,6 +328,22 @@ pub fn inspect(
                     .model_matrix(transform.compute_matrix().to_cols_array_2d())
                     .mode(state.gizmo_mode.clone())
                     .interact(ui) {
+
+                    if ui.input(|state| state.modifiers.shift) {
+                        info!("Cooperative shift with");
+                        let dpos = result.translation - transform.translation;
+                        for e2 in &selected {
+                            if *e != *e2 {
+                                    if let Some(ecell) = cell.get_entity(*e2) {
+                                    if let Some(mut transform2) = ecell.get_mut::<Transform>() {
+                                        transform2.translation += dpos;
+                                        transform2.set_changed();
+                                    }
+                                    }
+                            }
+                        }
+                    }
+
                     *transform = Transform {
                         translation: Vec3::from(<[f32; 3]>::from(result.translation)),
                         rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
