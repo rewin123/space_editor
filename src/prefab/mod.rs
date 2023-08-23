@@ -42,6 +42,14 @@ impl Plugin for PrefabPlugin {
 
         app.register_type::<SpherePrefab>();
         app.register_type::<BoxPrefab>();
+        app.register_type::<QuadPrefab>();
+        app.register_type::<CapsulePrefab>();
+        app.register_type::<CirclePrefab>();
+        app.register_type::<CylinderPrefab>();
+        app.register_type::<IcospherePrefab>();
+        app.register_type::<PlanePrefab>();
+        app.register_type::<RegularPoligonPrefab>();
+        app.register_type::<TorusPrefab>();
         
 
         app.add_systems(Update, spawn_scene);
