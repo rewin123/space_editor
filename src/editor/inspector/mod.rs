@@ -271,7 +271,7 @@ pub fn inspect(
 
             let view_matrix = Mat4::from(cam_pos.affine().inverse());
 
-            if ui.input(|s| s.modifiers.shift) && state.gizmo_mode != GizmoMode::Scale {
+            if ui.input(|s| s.modifiers.shift) {
                 let mut mean_transform = Transform::IDENTITY;
                 for e in &selected {
                     let Some(ecell) = cell.get_entity(*e) else {
@@ -282,8 +282,20 @@ pub fn inspect(
                     };
                     let tr = global_transform.compute_transform();
                     mean_transform.translation += tr.translation;
+                    mean_transform.scale += tr.scale;
                 }
                 mean_transform.translation /= selected.len() as f32;
+                mean_transform.scale /= selected.len() as f32;
+
+                // for e in &selected {
+                //     let Some(ecell) = cell.get_entity(*e) else {
+                //         continue;
+                //     };
+                //     let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
+                //         continue;
+                //     };
+                //     mean_transform.scale = mean_transform.scale.max((global_transform.translation() - mean_transform.translation).abs());
+                // }
 
                 let mut global_mean = GlobalTransform::from(mean_transform);
 
