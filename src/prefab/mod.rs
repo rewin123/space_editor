@@ -39,6 +39,8 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
         app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
 
+        app.editor_auto_struct::<Handle<StandardMaterial>>();
+
 
         app.register_type::<SpherePrefab>();
         app.register_type::<BoxPrefab>();
