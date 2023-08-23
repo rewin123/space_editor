@@ -179,46 +179,56 @@ pub fn inspect(
                         ui.heading(&name);
                         ui.label("Components:");
                         let e_id = e.id().index();
-                        for idx in 0..components_id.len() {
-                            let c_id = components_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .map(|v| *v)
-                                .unwrap_or(components_id[idx]);
-                            let t_id = types_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .map(|v| *v)
-                                .unwrap_or(types_id[idx]);
-                            // let ui = ui.make_persistent_id(
-                            //     format!("{e_id}_{}_{t_id:?}", c_id.index())
-                            // );
-                            if let Some(data) = e.get_mut_by_id(c_id) {
-                                let registration = registry
-                                    .get(t_id).unwrap();
-                                if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
-                                    let (ptr, mut set_changed) = mut_untyped_split(data);
-        
-                                    let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
+                        egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
+                            for idx in 0..components_id.len() {
+                                let c_id = components_by_entity
+                                    .entry(e_id)
+                                    .or_insert(Vec::new())
+                                    .get(idx)
+                                    .map(|v| *v)
+                                    .unwrap_or(components_id[idx]);
+                                let t_id = types_by_entity
+                                    .entry(e_id)
+                                    .or_insert(Vec::new())
+                                    .get(idx)
+                                    .map(|v| *v)
+                                    .unwrap_or(types_id[idx]);
+                                
+                                if let Some(data) = e.get_mut_by_id(c_id) {
+                                    let registration = registry
+                                        .get(t_id).unwrap();
+                                    if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
+                                        let (ptr, mut set_changed) = mut_untyped_split(data);
+            
+                                        let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
+    
+                                        if !editor_registry.silent.contains(&registration.type_id()) {
+                                            ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                                ui.collapsing(registration.short_name(), |ui| {
+                                                    ui.push_id(format!("content-{:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                                        if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                                                            set_changed();
+                                                        }
+                                                    });
+                                                });
+                                            });
 
-                                    if !editor_registry.silent.contains(&registration.type_id()) {
-                                        ui.push_id(format!("{:?}-{}", &e.id(), &registration.short_name()), |ui| {
-                                            ui.collapsing(registration.short_name(), |ui| {
-                                                ui.push_id(format!("content-{:?}-{}", &e.id(), &registration.short_name()), |ui| {
-                                                    if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
-                                                        set_changed();
+                                            ui.push_id(format!("del component {:?}-{}", &e.id(), &registration.short_name()), |ui| {
+                                                //must be on top
+                                                ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
+                                                    if ui.button("X").clicked() {
+                                                        commands.push(InspectCommand::RemoveComponent(e.id(), t_id));
                                                     }
                                                 });
                                             });
-                                        });
+                                            ui.end_row();
+                                        }
                                     }
-                                    // ui_for_reflect(ui, value, &name, registration.short_name(),&mut set_changed, &mut cell);
                                 }
-                            }
-                        }
 
+                            }
+                        });
+                        
                         ui.separator();
                     }
                 }
@@ -258,19 +268,15 @@ pub fn inspect(
                         }
                     }
                 }
-                if ui.button("Delete component").clicked() {
-                    if let Some(c_id) = state.create_component_type {
-                        info!("removing component {:?}", c_id);
-                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                        for e in selected.iter() {
-                            commands.push(InspectCommand::RemoveComponent(*e, id));
-                        }
-                    }
-                }
             });
 
-            let view_matrix = Mat4::from(cam_pos.affine().inverse());
 
+
+            // GIZMO DRAW
+            // Draw gizmo per entity to individual move
+            // If SHIFT pressed draw "mean" gizmo to move all selected entities together
+
+            let view_matrix = Mat4::from(cam_pos.affine().inverse());
             if ui.input(|s| s.modifiers.shift) {
                 let mut mean_transform = Transform::IDENTITY;
                 for e in &selected {
@@ -286,16 +292,6 @@ pub fn inspect(
                 }
                 mean_transform.translation /= selected.len() as f32;
                 mean_transform.scale /= selected.len() as f32;
-
-                // for e in &selected {
-                //     let Some(ecell) = cell.get_entity(*e) else {
-                //         continue;
-                //     };
-                //     let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
-                //         continue;
-                //     };
-                //     mean_transform.scale = mean_transform.scale.max((global_transform.translation() - mean_transform.translation).abs());
-                // }
 
                 let mut global_mean = GlobalTransform::from(mean_transform);
 
