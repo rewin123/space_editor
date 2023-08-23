@@ -52,6 +52,11 @@ impl Plugin for PrefabPlugin {
             (sync_mesh, sync_material)
         );
 
+        app.add_systems(
+            Update,
+            (editor_remove_mesh).run_if(in_state(EditorState::Editor))
+        );
+
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);
 

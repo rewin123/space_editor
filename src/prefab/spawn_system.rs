@@ -62,3 +62,15 @@ pub fn sync_material(
         commands.entity(e).insert(mat);
     }
 }
+
+//remove mesh handle if prefab struct was removed in editor states
+pub fn editor_remove_mesh(
+    mut commands : Commands,
+    mut query : RemovedComponents<MeshPrimitivePrefab>,
+) {
+    for e in query.iter() {
+        if let Some(mut cmd) = commands.get_entity(e) {
+            cmd.remove::<Handle<Mesh>>();
+        }
+    }
+}
