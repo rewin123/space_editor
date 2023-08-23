@@ -215,7 +215,7 @@ pub fn inspect(
 
                                             ui.push_id(format!("del component {:?}-{}", &e.id(), &registration.short_name()), |ui| {
                                                 //must be on top
-                                                ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
+                                                ui.with_layout(egui::Layout::top_down(egui::Align::Min), |ui| {
                                                     if ui.button("X").clicked() {
                                                         commands.push(InspectCommand::RemoveComponent(e.id(), t_id));
                                                     }
