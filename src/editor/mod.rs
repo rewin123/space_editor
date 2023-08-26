@@ -206,7 +206,6 @@ pub fn change_camera_in_play(
         let (mut some_camera, _) = play_cameras.iter_mut().next().unwrap();
         cameras.single_mut().is_active = false;
         some_camera.is_active = true;
-        some_camera.target = RenderTarget::Window(Default::default());
     }
 }
 
