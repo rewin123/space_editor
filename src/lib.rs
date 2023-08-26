@@ -52,6 +52,10 @@ impl Plugin for SpaceEditorPlugin {
 #[reflect(Component)]
 pub struct PrefabMarker;
 
+#[derive(Component, Default, Clone, Reflect)]
+#[reflect(Component)]
+pub struct EditorCameraMarker;
+
 
 #[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
 pub enum EditorState {

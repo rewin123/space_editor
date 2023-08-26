@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy_mod_picking::prelude::RaycastPickCamera;
-use space_editor::prelude::*;
+use space_editor::{prelude::*, EditorCameraMarker};
 use bevy::prelude::*;
 
 fn main() {
@@ -29,5 +29,6 @@ fn setup(
         transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     }).insert(PanOrbitCamera::default())
-    .insert(RaycastPickCamera::default());
+    .insert(RaycastPickCamera::default())
+    .insert(EditorCameraMarker);
 }

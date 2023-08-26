@@ -3,10 +3,10 @@ pub mod spawn_system;
 pub mod save;
 pub mod load;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet};
+use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, EditorCameraMarker};
 
 use component::*;
 use spawn_system::*;
@@ -33,8 +33,8 @@ impl Plugin for PrefabPlugin {
         
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
-        app.editor_registry::<MeshPrimitivePrefab>();
 
+        app.editor_registry::<MeshPrimitivePrefab>();
         app.editor_relation::<MeshPrimitivePrefab, Transform>();
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
         app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
@@ -55,6 +55,25 @@ impl Plugin for PrefabPlugin {
         app.register_type::<Color>();
         app.register_type::<AlphaMode>();
         app.register_type::<ParallaxMappingMethod>();
+
+        //camera
+        app.editor_registry::<Camera>();
+        app.editor_registry::<Camera3d>();
+        app.editor_registry::<Projection>();
+        app.editor_registry::<CameraPlay>();
+
+        app.register_type::<Camera3dDepthTextureUsage>();
+
+
+        app.editor_relation::<Camera3d, Camera>();
+        app.editor_relation::<Camera, Projection>();
+        app.editor_relation::<Camera, VisibleEntities>();
+        app.editor_relation::<Camera, Frustum>();
+        app.editor_relation::<Camera, Transform>();
+        app.editor_relation::<Camera, Tonemapping>();
+        app.editor_relation::<Camera, DebandDither>();
+        app.editor_relation::<Camera, ColorGrading>();
+        app.add_systems(Update, camera_render_graph_creation);
         
 
         app.add_systems(Update, spawn_scene);
@@ -77,10 +96,30 @@ impl Plugin for PrefabPlugin {
 }
 
 
+fn draw_camera_gizmo(
+    mut gizom : Gizmos,
+    cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
+) {
+    for (transform, projection) in cameras.iter() {
+        let transform = transform.compute_transform();
+        let cuboid_transform = transform.with_scale(Vec3::new(2.0, 1.0, 1.0));
+        gizom.cuboid(cuboid_transform, Color::PINK);
+    }
+}
+
+fn camera_render_graph_creation(
+    mut commands : Commands,
+    query : Query<Entity, (With<Camera>, With<PrefabMarker>, Without<CameraRenderGraph>)>
+) {
+    for e in query.iter() {
+        commands.entity(e).insert( CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::NAME));
+    }
+}
+
 pub fn add_global_transform(
     mut commands : Commands,
     mut query : Query<(Entity, &mut Transform, Option<&Parent>), (With<Transform>, Without<GlobalTransform>)>,
-    mut globals : Query<&GlobalTransform>
+    globals : Query<&GlobalTransform>
 ) {
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
