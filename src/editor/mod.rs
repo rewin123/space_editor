@@ -74,6 +74,8 @@ impl Plugin for EditorPlugin {
                 auto_add_picking_dummy)
                 .run_if(in_state(EditorState::Editor)));
 
+        app.add_systems(Update, draw_camera_gizmo.run_if(in_state(EditorState::Editor)));
+
         app.add_event::<SelectEvent>();
     }
 }
@@ -219,5 +221,29 @@ pub fn change_camera_in_editor(
 
     for mut play_cam in play_cameras.iter_mut() {
         play_cam.is_active = false;
+    }
+}
+
+
+fn draw_camera_gizmo(
+    mut gizom : Gizmos,
+    cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
+) {
+    for (transform, projection) in cameras.iter() {
+        let transform = transform.compute_transform();
+        let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
+        gizom.cuboid(cuboid_transform, Color::PINK);
+
+        let scale = 1.5;
+        
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
+
+        let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
+        let rect_transform = transform.mul_transform(rect_transform);
+
+        gizom.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
     }
 }
