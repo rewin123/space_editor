@@ -9,7 +9,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
@@ -114,7 +114,7 @@ pub fn inspect(
     let cam_proj;
     let cam_pos;
     {
-        let mut cam_query = world.query::<(&Projection, &GlobalTransform)>();
+        let mut cam_query = world.query_filtered::<(&Projection, &GlobalTransform), With<EditorCameraMarker>>();
         let (proj, pos) = cam_query.single(world);
         cam_proj = proj.clone();
         cam_pos = pos.clone();

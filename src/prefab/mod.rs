@@ -3,7 +3,7 @@ pub mod spawn_system;
 pub mod save;
 pub mod load;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum}};
 use bevy_scene_hook::HookPlugin;
 
 use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet};
@@ -33,8 +33,8 @@ impl Plugin for PrefabPlugin {
         
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
-        app.editor_registry::<MeshPrimitivePrefab>();
 
+        app.editor_registry::<MeshPrimitivePrefab>();
         app.editor_relation::<MeshPrimitivePrefab, Transform>();
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
         app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
@@ -55,6 +55,26 @@ impl Plugin for PrefabPlugin {
         app.register_type::<Color>();
         app.register_type::<AlphaMode>();
         app.register_type::<ParallaxMappingMethod>();
+
+        //camera
+        app.editor_registry::<Camera>();
+        app.editor_registry::<Camera3d>();
+        app.editor_registry::<Projection>();
+        app.editor_registry::<CameraPlay>();
+
+        app.register_type::<CameraPlay>();
+
+        app.register_type::<Camera3dDepthTextureUsage>();
+
+        app.editor_relation::<Camera3d, Camera>();
+        app.editor_relation::<Camera3d, Projection>();
+        app.editor_relation::<Camera, Projection>();
+        app.editor_relation::<Camera, VisibleEntities>();
+        app.editor_relation::<Camera, Frustum>();
+        app.editor_relation::<Camera, Transform>();
+        app.editor_relation::<Camera, Tonemapping>();
+        app.editor_relation::<Camera, DebandDither>();
+        app.editor_relation::<Camera, ColorGrading>();
         
 
         app.add_systems(Update, spawn_scene);

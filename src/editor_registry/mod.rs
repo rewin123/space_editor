@@ -157,6 +157,7 @@ pub trait EditorRegistryExt {
 impl EditorRegistryExt for App {
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
+        self.world.init_component::<T>();
         self.register_type::<T>();
     }
 

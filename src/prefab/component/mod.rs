@@ -4,6 +4,9 @@ pub use shape::*;
 pub mod material;
 pub use material::*;
 
+pub mod camera;
+pub use camera::*;
+
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
 

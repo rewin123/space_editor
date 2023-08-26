@@ -7,7 +7,7 @@
           translation: (
             x: 0.0,
             y: 0.0,
-            z: 0.0,
+            z: -2.0022397,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -17,16 +17,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
-          w: 1.0,
-          h: 1.0,
-          d: 1.0,
-        )),
         "space_editor::prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
-            green: 0.0,
-            blue: 0.0,
+            green: 1.0,
+            blue: 1.0,
             alpha: 1.0,
           ),
           base_color_texture: "",
@@ -38,7 +33,7 @@
           ),
           emissive_texture: "",
           perceptual_roughness: 0.5,
-          metallic: 1.0,
+          metallic: 0.0,
           metallic_roughness_texture: "",
           reflectance: 0.5,
           normal_map_texture: "",
@@ -53,6 +48,49 @@
           parallax_depth_scale: 0.1,
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
+        ),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 1.0,
+          h: 1.0,
+          d: 1.0,
+        )),
+      },
+    ),
+    5: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::camera::camera::Camera": (
+          viewport: None,
+          order: 0,
+          is_active: false,
+          hdr: false,
+          msaa_writeback: true,
+        ),
+        "bevy_core_pipeline::core_3d::camera_3d::Camera3d": (
+          clear_color: Default,
+          depth_load_op: Clear(0.0),
+          depth_texture_usages: (16),
+        ),
+        "bevy_render::camera::projection::Projection": Perspective((
+          fov: 0.7853982,
+          aspect_ratio: 1.7777778,
+          near: 0.1,
+          far: 1000.0,
+        )),
+        "space_editor::prefab::component::camera::CameraPlay": (
+          some_test_val: 0.0,
         ),
       },
     ),

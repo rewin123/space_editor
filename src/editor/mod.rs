@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::camera::RenderTarget};
 
 pub mod inspector;
 pub mod bot_menu;
@@ -12,7 +12,7 @@ use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::save::SaveState, PrefabMarker};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker};
 
 use self::prelude::Selected;
 
@@ -63,7 +63,10 @@ impl Plugin for EditorPlugin {
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         app.add_systems(OnEnter(SaveState::Idle), to_game_after_save.run_if(in_state(EditorState::GamePrepare)));
 
-        app.add_systems(OnEnter(EditorState::Editor), clear_and_load_on_start);
+        app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
+
+        app.add_systems(OnEnter(EditorState::Editor), 
+            (clear_and_load_on_start, change_camera_in_editor));
 
         app.add_systems(PostUpdate, 
             (auto_add_picking, 
@@ -192,5 +195,30 @@ pub fn ui_camera_block(
 ) {
     if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
         *state = PanOrbitEnabled(false);
+    }
+}
+
+pub fn change_camera_in_play(
+    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>, Without<CameraPlay>)>,
+    mut play_cameras : Query<(&mut Camera, &CameraPlay), (Without<EditorCameraMarker>, With<CameraPlay>)>
+) {
+    if !play_cameras.is_empty() {
+        let (mut some_camera, _) = play_cameras.iter_mut().next().unwrap();
+        cameras.single_mut().is_active = false;
+        some_camera.is_active = true;
+        some_camera.target = RenderTarget::Window(Default::default());
+    }
+}
+
+pub fn change_camera_in_editor(
+    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>)>,
+    mut play_cameras : Query<&mut Camera, (Without<EditorCameraMarker>)>
+) {
+    for mut ecam in cameras.iter_mut() {
+        ecam.is_active = true;
+    }
+
+    for mut play_cam in play_cameras.iter_mut() {
+        play_cam.is_active = false;
     }
 }
