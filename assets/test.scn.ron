@@ -1,7 +1,7 @@
 (
   resources: {},
   entities: {
-    4294967297: (
+    4: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -17,44 +17,43 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::load::PrefabLoader": (
-          path: "tile.scn.ron",
-        ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
-          7,
-          6,
-          4294967299,
-          4294967298,
-          8,
-        ]),
-      },
-    ),
-    12884901917: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 1.0,
+          h: 1.0,
+          d: 1.0,
+        )),
+        "space_editor::prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
           ),
-          rotation: (0.0, 0.0, 0.0, 1.0),
-          scale: (
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
           ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 1.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
         ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::load::PrefabLoader": (
-          path: "tile.scn.ron",
-        ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
-          38,
-          37,
-          36,
-          35,
-          39,
-        ]),
       },
     ),
   },

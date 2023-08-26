@@ -39,9 +39,7 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
         app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
 
-        app.editor_auto_struct::<Handle<StandardMaterial>>();
-
-
+        //shape registration
         app.register_type::<SpherePrefab>();
         app.register_type::<BoxPrefab>();
         app.register_type::<QuadPrefab>();
@@ -52,6 +50,11 @@ impl Plugin for PrefabPlugin {
         app.register_type::<PlanePrefab>();
         app.register_type::<RegularPoligonPrefab>();
         app.register_type::<TorusPrefab>();
+
+        //material registration
+        app.register_type::<Color>();
+        app.register_type::<AlphaMode>();
+        app.register_type::<ParallaxMappingMethod>();
         
 
         app.add_systems(Update, spawn_scene);
