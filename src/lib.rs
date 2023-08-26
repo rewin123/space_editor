@@ -14,6 +14,7 @@ pub mod ext {
     pub use bevy_mod_picking::prelude::*;
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_egui::*;
+    pub use bevy::prelude::*;
 }
 
 pub mod prelude {

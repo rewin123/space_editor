@@ -1,26 +1,5 @@
-use bevy::prelude::*;
-use bevy_inspector_egui::prelude::*;
 
-
-#[derive(Component, Reflect, Clone)]
-#[reflect(Component)]
-pub struct GltfPrefab {
-    pub path : String,
-    pub scene : String
-}
-
-impl Default for GltfPrefab {
-    fn default() -> Self {
-        Self { 
-            scene: "Scene0".to_string(),
-            path : String::new()
-        }
-    }
-}
-
-#[derive(Component, Reflect, Default)]
-pub struct ScaneAutoChild;
-
+use crate::ext::*;
 
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
@@ -331,36 +310,5 @@ impl TorusPrefab {
         data.subdivisions_sides = self.subdivisions_sides;
         data.subdivisions_segments = self.subdivisions_segments;
         Mesh::from(data)
-    }
-}
-
-#[derive(Component, Reflect, Clone)]
-#[reflect(Default, Component)]
-pub struct MaterialPrefab {
-    pub color : Color,
-    pub base_color_texture : String
-}
-
-impl Default for MaterialPrefab {
-    fn default() -> Self {
-        Self { 
-            color: Color::GRAY,
-            base_color_texture : "".to_string()
-        }
-    }
-}
-
-impl MaterialPrefab {
-    pub fn to_material(&self, asset_server : &AssetServer) -> StandardMaterial {
-        let base_color_texture = if self.base_color_texture.is_empty() {
-            None
-        } else {
-            Some(asset_server.load(&self.base_color_texture))
-        };
-        StandardMaterial {
-            base_color : self.color,
-            base_color_texture : base_color_texture,
-            ..Default::default()
-        }
     }
 }

@@ -1,11 +1,11 @@
 use std::{marker::PhantomData, sync::Arc, any::Any};
 
-use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration}, ecs::{system::{EntityCommand, EntityCommands}, component::ComponentId, world::unsafe_world_cell::UnsafeWorldCell}, utils::{HashMap, HashSet}};
+use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration, TypePath}, ecs::{system::{EntityCommand, EntityCommands}, component::ComponentId, world::unsafe_world_cell::UnsafeWorldCell}, utils::{HashMap, HashSet}};
 use bevy_egui::egui;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use std::any::TypeId;
 
-use crate::PrefabMarker;
+use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}};
 
 pub struct EditorRegistryPlugin;
 
@@ -149,6 +149,9 @@ pub trait EditorRegistryExt {
 
     fn editor_relation<T, Relation>(&mut self)
         where T : Component, Relation : Component + Default;
+    
+    fn editor_auto_struct<T>(&mut self)
+        where  T : Component + Reflect + FromReflect + Default + Clone + 'static + GetTypeRegistration + TypePath;
 }
 
 impl EditorRegistryExt for App {
@@ -171,6 +174,37 @@ impl EditorRegistryExt for App {
         where T : Component, Relation : Component + Default {
         
         self.add_systems(Update, relation_system::<T, Relation>);
+    }
+
+    
+    fn editor_auto_struct<T>(&mut self)
+        where T : Component + Reflect + FromReflect + Default + Clone + 'static + GetTypeRegistration + TypePath {
+        self.editor_silent_registry::<AutoStruct<T>>();
+        self.editor_registry::<T>();
+
+        self.add_systems(OnEnter(SaveState::Save), generate_auto_structs::<T>);
+        self.add_systems(Update, despawn_auto_structs::<T>);
+    }
+}
+
+fn generate_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>(
+    mut commands : Commands,
+    query : Query<(Entity, &T)>,
+    assets : Res<AssetServer>
+) {
+    for (e, data) in query.iter() {
+        commands.entity(e).insert(AutoStruct::new(data, &assets));
+    }
+}
+
+fn despawn_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>(
+    mut commands : Commands,
+    query : Query<(Entity, &AutoStruct<T>)>,
+    assets : Res<AssetServer>
+) {
+    for (e, auto_data) in query.iter() {
+        let data = auto_data.get_data(&assets);
+        commands.entity(e).insert(data).remove::<AutoStruct<T>>();
     }
 }
 
