@@ -75,6 +75,13 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<Camera, ColorGrading>();
         app.add_systems(Update, camera_render_graph_creation);
         
+        app.editor_registry::<PlayerStart>();
+        app.editor_relation::<PlayerStart, Transform>();
+        app.editor_relation::<PlayerStart, GlobalTransform>();
+        app.editor_relation::<PlayerStart, Visibility>();
+        app.editor_relation::<PlayerStart, ComputedVisibility>();
+
+        app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
         app.add_systems(Update, spawn_scene);
         app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
