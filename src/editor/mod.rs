@@ -168,7 +168,7 @@ fn clear_and_load_on_start(
         return;
     }
     load_server.scene = Some(
-        assets.load(format!("{}_recover.scn.ron",save_confg.path))
+        assets.load(format!("{}.scn.ron",save_confg.path))
     );
 }
 
