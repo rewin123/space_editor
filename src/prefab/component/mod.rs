@@ -7,6 +7,9 @@ pub use material::*;
 pub mod camera;
 pub use camera::*;
 
+pub mod player_start;
+pub use player_start::*;
+
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
 

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
-use super::component::*;
+use super::{component::*, load::PrefabLoader};
 
 pub fn spawn_scene(
     mut commands : Commands,
@@ -74,3 +74,27 @@ pub fn editor_remove_mesh(
         }
     }
 }
+
+pub fn spawn_player_start(
+    mut commands : Commands,
+    query : Query<(Entity, &PlayerStart)>,
+    asset_server : Res<AssetServer>
+) {
+    for (e, prefab) in query.iter() {
+        info!("Spawning player start {:?} {}", e, &prefab.prefab);
+        let child = commands.spawn(DynamicSceneBundle {
+            scene : asset_server.load(format!("{}", &prefab.prefab)),
+            ..default()
+        }).id();
+        commands.entity(e).add_child(child);
+    }
+}
+
+// pub fn despawn_player_start(
+//     mut commands : Commands,
+//     query : Query<Entity, (With<PlayerStart>, With<Handle<Scene>>)>
+// ) {
+//     for e in query.iter() {
+
+//     }
+// }
