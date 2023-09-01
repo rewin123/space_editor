@@ -17,6 +17,7 @@ bevy-inspector-egui = {version = "0.19.0", features = ["bevy_pbr", "highlight_ch
 bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git", optional = true}
 bevy_xpbd_3d = {version = "0.2.0", default-features = false, features = ["3d", "f32"],  optional = true}
 bevy_mod_picking = "0.15.0"
+bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_infinite_grid", branch = "main" }
 
 [features]
 f64 = ["dep:bevy_transform64", "bevy_xpbd_3d?/f64"]
