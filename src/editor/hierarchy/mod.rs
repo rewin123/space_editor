@@ -3,12 +3,13 @@ use bevy_egui::*;
 
 use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform, EditorSet};
 
-use super::{selected::*, ui_camera_block};
+use super::{selected::*, ui_camera_block, ui_registration::*};
 
 #[derive(Event)]
 pub struct CloneEvent {
     id : Entity
 }
+
 
 pub struct SpaceHierarchyPlugin {
 
@@ -41,7 +42,8 @@ pub fn show_hierarchy(
     mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     mut selected : Query<Entity, With<Selected>>,
-    mut clone_events : EventWriter<CloneEvent>
+    mut clone_events : EventWriter<CloneEvent>,
+    ui_reg : Res<EditorUiReg>,
 ) {
     let mut all : Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
@@ -65,8 +67,19 @@ pub fn show_hierarchy(
                 }
             }
 
-            
+           
         });
+
+        ui.label("Spawn bundle");
+        for (cat_name, cat) in ui_reg.bundles.iter() {
+            ui.menu_button(cat_name, |ui| {
+                for (name, dyn_bundle) in cat {
+                    if ui.button(name).clicked() {
+                        let entity = dyn_bundle.spawn(&mut commands);
+                    }
+                }
+            });
+        }
     });
 }
 

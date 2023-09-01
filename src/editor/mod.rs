@@ -7,14 +7,18 @@ pub mod bot_menu;
 pub mod hierarchy;
 pub mod selected;
 pub mod asset_insector;
+pub mod ui_registration;
+
 use bevy_egui::EguiContexts;
 use bevy_inspector_egui::DefaultInspectorConfigPlugin;
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::{CameraPlay, MeshPrimitivePrefab}}, PrefabMarker, EditorCameraMarker};
 
 use self::prelude::Selected;
+
+use ui_registration::*;
 
 pub mod prelude {
     pub use super::inspector::*;
@@ -74,11 +78,17 @@ impl Plugin for EditorPlugin {
                 auto_add_picking_dummy)
                 .run_if(in_state(EditorState::Editor)));
 
-        app.add_systems(Update, draw_camera_gizmo.run_if(in_state(EditorState::Editor)));
+        app.add_systems(Update, (draw_camera_gizmo, disable_no_editor_cams).run_if(in_state(EditorState::Editor)));
 
         app.add_event::<SelectEvent>();
+
+        app.init_resource::<EditorUiReg>();
+
+        register_default_editor_bundles(app);
     }
 }
+
+
 
 #[derive(Event)]
 struct SelectEvent {
@@ -224,6 +234,13 @@ pub fn change_camera_in_editor(
     }
 }
 
+fn disable_no_editor_cams(
+    mut cameras : Query<(&mut Camera), (Without<EditorCameraMarker>)>,
+) {
+    for mut cam in cameras.iter_mut() {
+        cam.is_active = false;
+    }
+}
 
 fn draw_camera_gizmo(
     mut gizom : Gizmos,
