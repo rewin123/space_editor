@@ -23,6 +23,14 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<collider::ColliderPrefab>();
         app.editor_registry::<RigidBodyPrefab>();
 
+        app.editor_registry::<Mass>();
+        app.editor_registry::<Friction>();
+        app.editor_registry::<Restitution>();
+        app.editor_registry::<LinearDamping>();
+        app.editor_registry::<AngularDamping>();
+        app.editor_registry::<Inertia>();
+        app.editor_registry::<CenterOfMass>();
+
         app.add_systems(Update, collider::update_collider);
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)));
         app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)));
