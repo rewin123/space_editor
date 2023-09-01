@@ -11,7 +11,7 @@ pub mod ui_registration;
 
 use bevy_egui::EguiContexts;
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGrid};
-use bevy_inspector_egui::DefaultInspectorConfigPlugin;
+use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlugin};
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
@@ -90,6 +90,8 @@ impl Plugin for EditorPlugin {
         app.add_event::<SelectEvent>();
 
         app.init_resource::<EditorUiReg>();
+
+        app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 
         register_default_editor_bundles(app);
     }
