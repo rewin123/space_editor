@@ -1,54 +1,13 @@
 (
   resources: {},
   entities: {
-    4: (
+    6: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
             x: 0.0,
             y: 0.0,
-            z: 0.0,
-          ),
-          rotation: (-0.0070793615, -0.024491854, 0.40755698, 0.91282386),
-          scale: (
-            x: 0.9999978,
-            y: 0.99999845,
-            z: 0.9999991,
-          ),
-        ),
-        "bevy_core::name::Name": (
-          hash: 7552389555082742943,
-          name: "Camera3d",
-        ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "bevy_render::camera::camera::Camera": (
-          viewport: None,
-          order: 0,
-          is_active: false,
-          hdr: false,
-          msaa_writeback: true,
-        ),
-        "bevy_core_pipeline::core_3d::camera_3d::Camera3d": (
-          clear_color: Default,
-          depth_load_op: Clear(0.0),
-          depth_texture_usages: (16),
-        ),
-        "bevy_render::camera::projection::Projection": Perspective((
-          fov: 0.7853982,
-          aspect_ratio: 1.7777778,
-          near: 0.1,
-          far: 1000.0,
-        )),
-        "space_editor::prefab::component::camera::CameraPlay": (),
-      },
-    ),
-    5: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: 0.0,
-            y: 0.0,
-            z: -5.1009955,
+            z: 2.366342,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -58,8 +17,8 @@
           ),
         ),
         "bevy_core::name::Name": (
-          hash: 5698820908205139924,
-          name: "Cube",
+          hash: 17625992361154207206,
+          name: "Capsule",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_editor::prefab::component::material::MaterialPrefab": (
@@ -94,7 +53,110 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Cube(1.0),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Capsule((
+          r: 0.5,
+          rings: 0,
+        )),
+      },
+    ),
+    7: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0,
+            y: 0.0,
+            z: -3.4518986,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_core::name::Name": (
+          hash: 15516739453119123181,
+          name: "Box",
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 1.0,
+          h: 1.0,
+          d: 1.0,
+        )),
+      },
+    ),
+    8: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 7.0804234,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (0.0, 0.6705709, 0.0, 0.7418455),
+          scale: (
+            x: 0.9999986,
+            y: 1.0,
+            z: 0.9999986,
+          ),
+        ),
+        "bevy_core::name::Name": (
+          hash: 11765669286858495733,
+          name: "Camera3d",
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "bevy_render::camera::camera::Camera": (
+          viewport: None,
+          order: 0,
+          is_active: false,
+          hdr: false,
+          msaa_writeback: true,
+        ),
+        "bevy_core_pipeline::core_3d::camera_3d::Camera3d": (
+          clear_color: Default,
+          depth_load_op: Clear(0.0),
+          depth_texture_usages: (16),
+        ),
+        "bevy_render::camera::projection::Projection": Perspective((
+          fov: 0.7853982,
+          aspect_ratio: 1.7777778,
+          near: 0.1,
+          far: 1000.0,
+        )),
+        "space_editor::prefab::component::camera::CameraPlay": (),
       },
     ),
   },

@@ -23,15 +23,38 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<collider::ColliderPrefab>();
         app.editor_registry::<RigidBodyPrefab>();
 
+        app.editor_registry::<Mass>();
+        app.editor_registry::<Friction>();
+        app.editor_registry::<Restitution>();
+        app.editor_registry::<LinearDamping>();
+        app.editor_registry::<AngularDamping>();
+        app.editor_registry::<Inertia>();
+        app.editor_registry::<CenterOfMass>();
+        app.editor_registry::<LockedAxes>();
+        app.editor_registry::<GravityScale>();
+        app.editor_registry::<Sensor>();
+
         app.add_systems(Update, collider::update_collider);
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)));
         app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)));
         app.add_systems(OnEnter(EditorState::Editor), force_rigidbody_type_change_in_editor);
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(Update, 
-            editor_pos_change
+            (editor_pos_change, sync_position_spawn)
                 .after(crate::editor::inspector::inspect)
                 .run_if(in_state(EditorState::Editor)));
+
+        
+    }
+}
+
+fn sync_position_spawn(
+    mut commands : Commands,
+    query : Query<(Entity, &Transform), (Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>)>
+) {
+    for (e, mut tr) in query.iter() {
+        commands.entity(e).insert(Position(tr.translation));
+        commands.entity(e).insert(Rotation(tr.rotation));
     }
 }
 
@@ -89,10 +112,13 @@ fn rigidbody_type_change_in_editor(
 
 fn force_rigidbody_type_change(
     mut commands : Commands,
-    query : Query<(Entity, &RigidBodyPrefab)>
+    query : Query<(Entity, &RigidBodyPrefab, Option<&collider::ColliderPrefab>)>
 ) {
-    for (e, tp) in query.iter() {
+    for (e, tp, col) in query.iter() {
         commands.entity(e).remove::<RigidBody>().insert(tp.to_rigidbody());
+        if let Some(col) = col {
+            commands.entity(e).insert(col.to_collider());
+        }
     }
 }
 
@@ -101,6 +127,7 @@ fn rigidbody_type_change(
     query : Query<(Entity, &RigidBodyPrefab), Changed<RigidBodyPrefab>>
 ) {
     for (e, tp) in query.iter() {
+        commands.entity(e).remove::<RigidBody>();
         commands.entity(e).insert(tp.to_rigidbody());
     }
 }

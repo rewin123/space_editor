@@ -10,7 +10,8 @@ pub mod asset_insector;
 pub mod ui_registration;
 
 use bevy_egui::EguiContexts;
-use bevy_inspector_egui::DefaultInspectorConfigPlugin;
+use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGrid};
+use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlugin};
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
@@ -49,6 +50,10 @@ impl Plugin for EditorPlugin {
                 .disable::<DefaultHighlightingPlugin>());
         }
 
+        if !app.is_plugin_added::<bevy_infinite_grid::InfiniteGridPlugin>() {
+            app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
+        }
+
         app.insert_resource(PanOrbitEnabled(true));
 
         app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
@@ -64,13 +69,13 @@ impl Plugin for EditorPlugin {
             .in_set(EditorSet::Editor));
 
         //play systems
-        app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
+        app.add_systems(OnEnter(EditorState::GamePrepare), (cleanup_grid_lines, save_prefab_before_play));
         app.add_systems(OnEnter(SaveState::Idle), to_game_after_save.run_if(in_state(EditorState::GamePrepare)));
 
         app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
 
         app.add_systems(OnEnter(EditorState::Editor), 
-            (clear_and_load_on_start, change_camera_in_editor));
+            (clear_and_load_on_start, change_camera_in_editor, create_grid_lines));
 
         app.add_systems(PostUpdate, 
             (auto_add_picking, 
@@ -78,11 +83,15 @@ impl Plugin for EditorPlugin {
                 auto_add_picking_dummy)
                 .run_if(in_state(EditorState::Editor)));
 
-        app.add_systems(Update, (draw_camera_gizmo, disable_no_editor_cams).run_if(in_state(EditorState::Editor)));
+        app.add_systems(Update, 
+            (draw_camera_gizmo, 
+                disable_no_editor_cams).run_if(in_state(EditorState::Editor)));
 
         app.add_event::<SelectEvent>();
 
         app.init_resource::<EditorUiReg>();
+
+        app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 
         register_default_editor_bundles(app);
     }
@@ -96,7 +105,20 @@ struct SelectEvent {
     event : ListenerInput<Pointer<Down>>
 }
 
+fn create_grid_lines(
+    mut commands : Commands,
+) {
+    commands.spawn(InfiniteGridBundle::default());
+}
 
+fn cleanup_grid_lines(
+    mut commands : Commands,
+    query : Query<Entity, With<InfiniteGrid>>,
+) {
+    for e in query.iter() {
+        commands.entity(e).despawn_recursive();
+    }
+}
 
 fn auto_add_picking(
     mut commands : Commands,
