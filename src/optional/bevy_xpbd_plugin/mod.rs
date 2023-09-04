@@ -30,6 +30,9 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<AngularDamping>();
         app.editor_registry::<Inertia>();
         app.editor_registry::<CenterOfMass>();
+        app.editor_registry::<LockedAxes>();
+        app.editor_registry::<GravityScale>();
+        app.editor_registry::<Sensor>();
 
         app.add_systems(Update, collider::update_collider);
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)));
