@@ -46,7 +46,7 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
 
 #[derive(Resource)]
 struct InspectState {
-    create_component_type : Option<ComponentId>,
+    component_add_filter : String,
     commands : Vec<InspectCommand>,
     gizmo_mode : GizmoMode
 }
@@ -54,7 +54,7 @@ struct InspectState {
 impl Default for InspectState {
     fn default() -> Self {
         Self {
-            create_component_type : None,
+            component_add_filter : "".to_string(),
             commands : vec![],
             gizmo_mode : GizmoMode::Translate
         }
@@ -233,41 +233,66 @@ pub fn inspect(
                     }
                 }
 
-                //add component
-                let selected_name;
-                if let Some(selected_id) = state.create_component_type {
-                    let selected_info = cell.components().get_info(selected_id).unwrap();
-                    selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
-                } else {
-                    selected_name = "Press to select".to_string();
-                }
-                let combo = egui::ComboBox::new(format!("inspect_select"), "New")
-                    .selected_text(&selected_name).show_ui(ui, |ui| {
+                ui.label("Add component");
+                ui.text_edit_singleline(&mut state.component_add_filter);
+                let lower_filter = state.component_add_filter.to_lowercase();
+                egui::ScrollArea::vertical().max_height(300.0).show(ui, |ui| {
+                    egui::Grid::new("Component grid").show(ui, |ui| {
+                        let mut counter = 0;
                         for idx in 0..components_id.len() {
                             let c_id = components_id[idx];
                             let t_id = types_id[idx];
-
-                            if editor_registry.silent.contains(&t_id) {
-                                continue;
-                            }
-                            
                             let name = registry.get(t_id).unwrap().short_name();
-                            ui.selectable_value(
-                                &mut state.create_component_type, 
-                                Some(c_id),
-                                name);
+
+                            if name.to_lowercase().contains(&lower_filter) {
+                                ui.label(name);
+                                if ui.button("+").clicked() {
+                                    let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                                    for e in selected.iter() {
+                                        commands.push(InspectCommand::AddComponent(*e, id));
+                                    }
+                                }
+                                ui.end_row();
+                            }
                         }
                     });
-                if ui.button("Add component").clicked() {
-                    info!("adding component button clicked");
-                    if let Some(c_id) = state.create_component_type {
-                        info!("adding component {:?}", c_id);
-                        let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                        for e in selected.iter() {
-                            commands.push(InspectCommand::AddComponent(*e, id));
-                        }
-                    }
-                }
+                });
+
+                //add component
+                // let selected_name;
+                // if let Some(selected_id) = state.create_component_type {
+                //     let selected_info = cell.components().get_info(selected_id).unwrap();
+                //     selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
+                // } else {
+                //     selected_name = "Press to select".to_string();
+                // }
+                // let combo = egui::ComboBox::new(format!("inspect_select"), "New")
+                //     .selected_text(&selected_name).show_ui(ui, |ui| {
+                //         for idx in 0..components_id.len() {
+                //             let c_id = components_id[idx];
+                //             let t_id = types_id[idx];
+
+                //             if editor_registry.silent.contains(&t_id) {
+                //                 continue;
+                //             }
+                            
+                //             let name = registry.get(t_id).unwrap().short_name();
+                //             ui.selectable_value(
+                //                 &mut state.create_component_type, 
+                //                 Some(c_id),
+                //                 name);
+                //         }
+                //     });
+                // if ui.button("Add component").clicked() {
+                //     info!("adding component button clicked");
+                //     if let Some(c_id) = state.create_component_type {
+                //         info!("adding component {:?}", c_id);
+                //         let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
+                //         for e in selected.iter() {
+                //             commands.push(InspectCommand::AddComponent(*e, id));
+                //         }
+                //     }
+                // }
             });
 
 
