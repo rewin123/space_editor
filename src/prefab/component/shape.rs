@@ -60,7 +60,7 @@ impl Default for BoxPrefab {
 }
 
 impl BoxPrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         Mesh::from(shape::Box::new(self.w, self.h, self.d))
     }
 }
@@ -80,7 +80,7 @@ impl Default for SpherePrefab {
 }
 
 impl SpherePrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::UVSphere::default();
         data.radius = self.r;
         Mesh::from(data)
@@ -107,7 +107,7 @@ impl Default for QuadPrefab {
 }
 
 impl QuadPrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Quad::default();
         data.size = self.size;
         data.flip = self.flip;
@@ -134,7 +134,7 @@ impl Default for CapsulePrefab {
 }
 
 impl CapsulePrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Capsule::default();
         data.radius = self.r;
         data.rings = self.rings;
@@ -161,7 +161,7 @@ impl Default for CirclePrefab {
 }
 
 impl CirclePrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Circle::default();
         data.radius = self.r;
         data.vertices = self.vertices;
@@ -189,7 +189,7 @@ impl Default for CylinderPrefab {
 }
 
 impl CylinderPrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Cylinder::default();
         data.radius = self.r;
         data.resolution = self.resolution;
@@ -216,7 +216,7 @@ impl Default for IcospherePrefab {
 }
 
 impl IcospherePrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Icosphere::default();
         data.radius = self.r;
         data.subdivisions = self.subdivisions;
@@ -246,7 +246,7 @@ impl Default for PlanePrefab {
 }
 
 impl PlanePrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Plane::default();
         data.size = self.size;
         data.subdivisions = self.subdivisions;
@@ -273,7 +273,7 @@ impl Default for RegularPoligonPrefab {
 }
 
 impl RegularPoligonPrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::RegularPolygon::default();
         data.radius = self.radius;
         data.sides = self.sides;
@@ -303,7 +303,7 @@ impl Default for TorusPrefab {
 }
 
 impl TorusPrefab {
-    fn to_mesh(&self) -> Mesh {
+    pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::Torus::default();
         data.radius = self.radius;
         data.ring_radius = self.ring_radius;
