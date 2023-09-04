@@ -19,7 +19,8 @@ pub enum ColliderPrefab {
     Triangle{a : Vector, b : Vector, c : Vector},
     Ball(f32),
     Segment{a : Vector, b : Vector},
-    FromMesh
+    FromMesh,
+    FromPrefabMesh
 }
 
 impl Default for ColliderPrefab {
