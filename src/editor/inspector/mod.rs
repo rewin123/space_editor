@@ -236,7 +236,7 @@ pub fn inspect(
                 ui.label("Add component");
                 ui.text_edit_singleline(&mut state.component_add_filter);
                 let lower_filter = state.component_add_filter.to_lowercase();
-                egui::ScrollArea::vertical().max_height(300.0).show(ui, |ui| {
+                egui::ScrollArea::vertical().show(ui, |ui| {
                     egui::Grid::new("Component grid").show(ui, |ui| {
                         let mut counter = 0;
                         for idx in 0..components_id.len() {
