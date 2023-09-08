@@ -9,7 +9,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
@@ -31,7 +31,7 @@ impl Plugin for InspectorPlugin {
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
             .before(ui_camera_block)
-            .in_set(EditorSet::Editor));
+            .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
     }
 }
 

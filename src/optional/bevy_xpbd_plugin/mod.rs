@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
-use crate::EditorState;
+use crate::{EditorState, PrefabSet};
 
 pub mod collider;
 
@@ -34,17 +34,15 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<GravityScale>();
         app.editor_registry::<Sensor>();
 
-        app.add_systems(Update, collider::update_collider);
-        app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)));
-        app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)));
+        app.add_systems(Update, collider::update_collider.in_set(PrefabSet::DetectPrefabChange));
+        app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)).in_set(PrefabSet::DetectPrefabChange));
+        app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(OnEnter(EditorState::Editor), force_rigidbody_type_change_in_editor);
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(Update, 
-            (editor_pos_change, sync_position_spawn)
+            (sync_position_spawn)
                 .after(crate::editor::inspector::inspect)
                 .run_if(in_state(EditorState::Editor)));
-
-        
     }
 }
 
@@ -116,9 +114,9 @@ fn force_rigidbody_type_change(
 ) {
     for (e, tp, col) in query.iter() {
         commands.entity(e).remove::<RigidBody>().insert(tp.to_rigidbody());
-        if let Some(col) = col {
-            commands.entity(e).insert(col.to_collider());
-        }
+        // if let Some(col) = col {
+        //     commands.entity(e).insert(col.to_collider());
+        // }
     }
 }
 
@@ -129,17 +127,5 @@ fn rigidbody_type_change(
     for (e, tp) in query.iter() {
         commands.entity(e).remove::<RigidBody>();
         commands.entity(e).insert(tp.to_rigidbody());
-    }
-}
-
-
-pub fn editor_pos_change(
-    mut commands : Commands,
-    mut query : Query<(&mut Position, &mut Rotation, &Transform), Changed<Transform>>
-) {
-    for (mut pos, mut rot, transform) in query.iter_mut() {
-        // let transform = transform.compute_transform();
-        pos.0 = transform.translation;
-        rot.0 = transform.rotation;
     }
 }

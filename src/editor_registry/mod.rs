@@ -5,9 +5,10 @@ use bevy_egui::egui;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use std::any::TypeId;
 
-use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}};
+use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}, PrefabSet};
 
 pub struct EditorRegistryPlugin;
+
 
 
 
@@ -143,48 +144,53 @@ impl EditorRegistry {
 }
 
 pub trait EditorRegistryExt {
-    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
-    fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
-    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self);
+    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
+    fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
+    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
 
-    fn editor_relation<T, Relation>(&mut self)
+    fn editor_relation<T, Relation>(&mut self) -> &mut Self
         where T : Component, Relation : Component + Default;
     
-    fn editor_auto_struct<T>(&mut self)
+    fn editor_auto_struct<T>(&mut self) -> &mut Self
         where  T : Component + Reflect + FromReflect + Default + Clone + 'static + GetTypeRegistration + TypePath;
 }
 
 impl EditorRegistryExt for App {
-    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
+    fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
         self.world.init_component::<T>();
         self.register_type::<T>();
+        self
     }
 
-    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
+    fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().only_clone_register::<T>();
         self.register_type::<T>();
+        self
     }
 
-    fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
+    fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().silent_register::<T>();
         self.register_type::<T>();
+        self
     }
 
-    fn editor_relation<T, Relation>(&mut self) 
+    fn editor_relation<T, Relation>(&mut self) -> &mut Self
         where T : Component, Relation : Component + Default {
         
-        self.add_systems(Update, relation_system::<T, Relation>);
+        self.add_systems(Update, relation_system::<T, Relation>.in_set(PrefabSet::Relation));
+        self
     }
 
     
-    fn editor_auto_struct<T>(&mut self)
+    fn editor_auto_struct<T>(&mut self) -> &mut Self
         where T : Component + Reflect + FromReflect + Default + Clone + 'static + GetTypeRegistration + TypePath {
         self.editor_silent_registry::<AutoStruct<T>>();
         self.editor_registry::<T>();
 
         self.add_systems(OnEnter(SaveState::Save), generate_auto_structs::<T>);
         self.add_systems(Update, despawn_auto_structs::<T>);
+        self
     }
 }
 

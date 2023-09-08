@@ -58,8 +58,6 @@ pub fn update_collider(
     updated_prefab_meshs : Query<(Entity, &ColliderPrefab, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
     meshs : Res<Assets<Mesh>>
 ) {
-
-
     for (e, collider, rigidbody, transform, mesh, prefab_mesh) in query.iter() {
         commands.entity(e).remove::<Collider>();
         let col = get_collider(collider, mesh, &meshs, prefab_mesh);  

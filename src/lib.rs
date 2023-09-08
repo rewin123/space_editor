@@ -23,6 +23,10 @@ pub mod prelude {
     pub use super::SpaceEditorPlugin;
     pub use super::PrefabMarker;
     pub use super::editor_registry::*;
+    pub use super::*;
+
+    #[cfg(feature = "bevy_xpbd_3d")]
+    pub use super::optional::bevy_xpbd_plugin::*;
 }
 
 pub struct SpaceEditorPlugin {
@@ -43,6 +47,11 @@ impl Plugin for SpaceEditorPlugin {
         app.add_plugins(PrefabPlugin);
         app.add_plugins(OptionalPlugin);
         app.add_plugins(EditorPlugin);
+
+        app.configure_sets(Update, (PrefabSet::PrefabLoad, PrefabSet::Relation, PrefabSet::RelationApply, PrefabSet::DetectPrefabChange, PrefabSet::PrefabChangeApply).chain());
+
+        app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
+        app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
     }
 }
 
@@ -69,4 +78,30 @@ pub enum EditorState {
 pub enum EditorSet {
     Editor,
     Game
+}
+
+#[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
+pub enum PrefabSet {
+    PrefabLoad,
+    Relation,
+    RelationApply,
+    DetectPrefabChange,
+    PrefabChangeApply
+}
+
+pub fn simple_editor_setup(mut commands: Commands) {
+    
+   // light
+    commands.spawn(DirectionalLightBundle {
+        directional_light : DirectionalLight { shadows_enabled: true, ..default() },
+        transform: Transform::from_xyz(4.0, 8.0, 4.0).with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
+        ..default()
+    });
+    // camera
+    commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    }).insert(bevy_panorbit_camera::PanOrbitCamera::default())
+    .insert(bevy_mod_picking::prelude::RaycastPickCamera::default())
+    .insert(EditorCameraMarker);
 }

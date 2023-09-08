@@ -6,7 +6,7 @@ pub mod load;
 use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, EditorCameraMarker};
+use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, EditorCameraMarker, PrefabSet};
 
 use component::*;
 use spawn_system::*;
@@ -85,12 +85,12 @@ impl Plugin for PrefabPlugin {
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
-        app.add_systems(Update, spawn_scene);
-        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity));
+        app.add_systems(Update, spawn_scene.in_set(PrefabSet::PrefabLoad));
+        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity).in_set(PrefabSet::Relation));
 
         app.add_systems(
             Update,
-            (sync_mesh, sync_material)
+            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange)
         );
 
         app.add_systems(
