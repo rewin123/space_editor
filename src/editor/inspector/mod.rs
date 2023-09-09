@@ -9,7 +9,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::reflect_inspector::InspectorUi;
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
@@ -31,7 +31,7 @@ impl Plugin for InspectorPlugin {
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
             .after(reset_pan_orbit_state)
             .before(ui_camera_block)
-            .in_set(EditorSet::Editor));
+            .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
     }
 }
 
@@ -236,7 +236,7 @@ pub fn inspect(
                 ui.label("Add component");
                 ui.text_edit_singleline(&mut state.component_add_filter);
                 let lower_filter = state.component_add_filter.to_lowercase();
-                egui::ScrollArea::vertical().max_height(300.0).show(ui, |ui| {
+                egui::ScrollArea::vertical().show(ui, |ui| {
                     egui::Grid::new("Component grid").show(ui, |ui| {
                         let mut counter = 0;
                         for idx in 0..components_id.len() {
