@@ -34,7 +34,7 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<GravityScale>();
         app.editor_registry::<Sensor>();
 
-        app.add_systems(Update, collider::update_collider.in_set(PrefabSet::DetectPrefabChange));
+        app.add_systems(Update, (collider::update_collider, editor_pos_change).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(OnEnter(EditorState::Editor), force_rigidbody_type_change_in_editor);
@@ -127,5 +127,16 @@ fn rigidbody_type_change(
     for (e, tp) in query.iter() {
         commands.entity(e).remove::<RigidBody>();
         commands.entity(e).insert(tp.to_rigidbody());
+    }
+}
+
+pub fn editor_pos_change(
+    mut commands : Commands,
+    mut query : Query<(&mut Position, &mut Rotation, &Transform), Changed<Transform>>
+) {
+    for (mut pos, mut rot, transform) in query.iter_mut() {
+        // let transform = transform.compute_transform();
+        pos.0 = transform.translation;
+        rot.0 = transform.rotation;
     }
 }

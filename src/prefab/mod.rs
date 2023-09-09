@@ -31,6 +31,8 @@ impl Plugin for PrefabPlugin {
         app.configure_set(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
         app.configure_set(Update, EditorSet::Editor.run_if(in_state(EditorState::Editor)));
         
+        app.register_type::<EntityLink>();
+
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
 

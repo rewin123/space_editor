@@ -35,7 +35,7 @@ impl ColliderPrefab {
     pub fn to_collider(&self) -> Collider {
         match self {
             ColliderPrefab::Cuboid(bbox) => {
-                (Collider::cuboid(bbox.x, bbox.y, bbox.z))
+                Collider::cuboid(bbox.x, bbox.y, bbox.z)
             },
             ColliderPrefab::Capsule { height, radius } => Collider::capsule(*height, *radius),
             ColliderPrefab::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*a, *b, *radius),

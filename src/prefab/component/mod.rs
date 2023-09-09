@@ -86,3 +86,17 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
         T::default()
     }
 }
+
+
+
+#[derive(Reflect, Clone)]
+#[reflect(Default)]
+pub struct EntityLink {
+    pub entity : Entity
+}
+
+impl Default for EntityLink {
+    fn default() -> Self {
+        Self { entity: Entity::PLACEHOLDER }
+    }
+}

@@ -26,7 +26,13 @@ impl Plugin for BotMenuPlugin {
             .in_set(EditorSet::Editor));
         app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));
         app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
+        app.add_event::<LoadEvent>();
     }
+}
+
+#[derive(Event)]
+pub struct LoadEvent {
+    pub path : String
 }
 
 fn bot_menu_game(
@@ -49,7 +55,8 @@ fn bot_menu(
     mut save_state : ResMut<NextState<SaveState>>,
     mut assets : ResMut<AssetServer>,
     mut load_server : ResMut<EditorLoader>,
-    mut state : ResMut<NextState<EditorState>>
+    mut state : ResMut<NextState<EditorState>>,
+    mut events : EventReader<LoadEvent>
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot_panel").show(ctx, |ui| {
@@ -76,6 +83,14 @@ fn bot_menu(
             }
         });
     });
+
+    for event in events.iter() {
+        save_confg.path = event.path.clone();
+        load_server.scene = Some(
+            assets.load(format!("{}.scn.ron",save_confg.path))
+        );
+    } 
+    events.clear();
 }
 
 fn load_listener(

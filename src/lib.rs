@@ -4,7 +4,7 @@ pub mod editor_registry;
 
 pub mod optional;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, pbr::CascadeShadowConfigBuilder};
 
 use editor::EditorPlugin;
 use optional::OptionalPlugin;
@@ -90,11 +90,14 @@ pub enum PrefabSet {
 }
 
 pub fn simple_editor_setup(mut commands: Commands) {
-    
+    commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
    // light
     commands.spawn(DirectionalLightBundle {
         directional_light : DirectionalLight { shadows_enabled: true, ..default() },
         transform: Transform::from_xyz(4.0, 8.0, 4.0).with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
+        cascade_shadow_config: CascadeShadowConfigBuilder {
+            ..default()
+        }.into(),
         ..default()
     });
     // camera
