@@ -4,7 +4,7 @@ use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity}
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
-//Sompple platformer example
+//Simple platformer example
 
 fn main() {
     App::default()
