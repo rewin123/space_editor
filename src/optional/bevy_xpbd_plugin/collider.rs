@@ -1,5 +1,5 @@
 
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::{DynamicList, List}};
 use bevy_xpbd_3d::prelude::*;
 
 use crate::prefab::component::MeshPrimitivePrefab;
@@ -8,6 +8,11 @@ use super::RigidBodyPrefab;
 
 pub type Vector = bevy_xpbd_3d::math::Vector;
 pub type Scalar = bevy_xpbd_3d::math::Scalar;
+
+#[derive(Reflect, Debug, Clone, PartialEq, Component)]
+struct ColliderCompound {
+    pub parts : Vec<ColliderPrefab>
+}
 
 #[derive(Debug, Component, Reflect, Clone, PartialEq)]
 #[reflect(Component)]
@@ -24,6 +29,7 @@ pub enum ColliderPrefab {
     FromMesh,
     FromPrefabMesh
 }
+
 
 impl Default for ColliderPrefab {
     fn default() -> Self {
@@ -46,7 +52,7 @@ impl ColliderPrefab {
             ColliderPrefab::Ball(radius) => Collider::ball(*radius),
             ColliderPrefab::Segment { a, b } => Collider::segment(*a, *b),
             ColliderPrefab::FromMesh => Collider::default(),
-            ColliderPrefab::FromPrefabMesh => Collider::default(),
+            ColliderPrefab::FromPrefabMesh => Collider::default(), 
         }
     }
 }

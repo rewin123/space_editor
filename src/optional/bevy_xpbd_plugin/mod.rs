@@ -136,7 +136,11 @@ pub fn editor_pos_change(
 ) {
     for (mut pos, mut rot, transform) in query.iter_mut() {
         // let transform = transform.compute_transform();
-        pos.0 = transform.translation;
-        rot.0 = transform.rotation;
+        if pos.0 != transform.translation {
+            pos.0 = transform.translation;
+        }
+        if rot.0 != transform.rotation {
+            rot.0 = transform.rotation;
+        }
     }
 }

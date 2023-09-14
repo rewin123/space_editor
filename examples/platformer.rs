@@ -1,6 +1,6 @@
 use std::any::{Any, TypeId};
 
-use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity}, PhysicsSet};
+use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}, PhysicsSet};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
@@ -115,7 +115,7 @@ fn move_player(
 }
 
 fn camera_follow(
-    targets : Query<&GlobalTransform, Without<FollowCamera>>,
+    targets : Query<&Position, Without<FollowCamera>>,
     mut cameras : Query<(&mut Transform, &FollowCamera)>,
     time : Res<Time>
 ) {
@@ -123,7 +123,7 @@ fn camera_follow(
         if cam.target.entity != Entity::PLACEHOLDER {
             if let Ok(target_transform) = targets.get(cam.target.entity) {
                 let look_pos = cam_transform.translation + cam_transform.forward() * cam.dist;
-                let dp = target_transform.translation() - look_pos;
+                let dp = target_transform.0 - look_pos;
                 cam_transform.translation += dp * time.delta_seconds() * cam.speed;
             }
         }
