@@ -8,7 +8,7 @@ use crate::prefab::component::EntityLink;
 
 
 
-fn many_unimplemented<T: Any>(
+pub fn many_unimplemented<T: Any>(
     ui: &mut egui::Ui,
     _options: &dyn Any,
     _id: egui::Id,
@@ -20,7 +20,7 @@ fn many_unimplemented<T: Any>(
     false
 }
 
-fn setup_ref_registry(
+pub fn setup_ref_registry(
     mut reg : ResMut<AppTypeRegistry>
 ) {
     let mut reg = reg.write();
@@ -35,7 +35,7 @@ fn setup_ref_registry(
         )
 }
 
-fn entity_ref_ui(
+pub fn entity_ref_ui(
     value: &mut dyn Any,
     ui: &mut egui::Ui,
     options: &dyn Any,

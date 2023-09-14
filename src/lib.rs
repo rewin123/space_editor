@@ -94,7 +94,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
    // light
     commands.spawn(DirectionalLightBundle {
         directional_light : DirectionalLight { shadows_enabled: true, ..default() },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0).with_rotation(Quat::from_rotation_x(-std::f32::consts::PI / 4.)),
+        transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
         cascade_shadow_config: CascadeShadowConfigBuilder {
             ..default()
         }.into(),

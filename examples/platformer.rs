@@ -1,6 +1,6 @@
 use std::any::{Any, TypeId};
 
-use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}, PhysicsSet};
+use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 

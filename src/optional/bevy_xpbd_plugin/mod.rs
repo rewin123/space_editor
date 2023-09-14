@@ -6,6 +6,8 @@ pub mod collider;
 
 use crate::prelude::EditorRegistryExt;
 
+use self::collider::{ColliderPrimitive, ColliderPart, ColliderPrefabCompound};
+
 pub type Vector = bevy_xpbd_3d::math::Vector;
 pub type Scalar = bevy_xpbd_3d::math::Scalar;
 
@@ -33,6 +35,11 @@ impl Plugin for BevyXpbdPlugin {
         app.editor_registry::<LockedAxes>();
         app.editor_registry::<GravityScale>();
         app.editor_registry::<Sensor>();
+
+        app.register_type::<ColliderPrimitive>();
+        app.register_type::<ColliderPart>();
+        app.register_type::<Vec<ColliderPart>>();
+        app.register_type::<ColliderPrefabCompound>();
 
         app.add_systems(Update, (collider::update_collider, editor_pos_change).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)).in_set(PrefabSet::DetectPrefabChange));
