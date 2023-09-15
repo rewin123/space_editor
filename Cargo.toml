@@ -3,6 +3,14 @@ name = "space_editor"
 version = "0.1.0"
 edition = "2021"
 default-run = "space_editor"
+license = "MIT OR Apache-2.0"
+keywords = ["gamedev", "editor", "bevy"]
+categories = ["game-development"]
+exclude = ["/assets", "/examples"]
+description = "Prefab editor for bevy game engine. Make levels/object templates with intuitive UI"
+readme = "README.md"
+homepage = "https://github.com/rewin123/space_editor"
+repository = "https://github.com/rewin123/space_editor"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
