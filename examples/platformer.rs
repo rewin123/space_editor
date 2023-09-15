@@ -5,6 +5,8 @@ use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
 //Simple platformer example
+//To run execute command:
+// cargo run run --example platformer --features bevy_xpbd_3d
 
 fn main() {
     App::default()
