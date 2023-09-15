@@ -1,7 +1,13 @@
+/// Module contains all editor UI logic and components
 pub mod editor;
+
+/// Module contains all prefab logic and components
 pub mod prefab;
+
+/// Module contains custom registry options to store clone functions and bundles in UI
 pub mod editor_registry;
 
+/// Optional editor extensions (like activate bevy_xpbd support in editor)
 pub mod optional;
 
 use bevy::{prelude::*, pbr::CascadeShadowConfigBuilder};
@@ -10,6 +16,7 @@ use editor::EditorPlugin;
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
 
+/// Public usage of packages that used in this crate
 pub mod ext {
     pub use bevy_mod_picking::prelude::*;
     pub use bevy_inspector_egui::prelude::*;
@@ -17,6 +24,7 @@ pub mod ext {
     pub use bevy::prelude::*;
 }
 
+/// All useful structure from this crate
 pub mod prelude {
     pub use super::editor::prelude::*;
     pub use super::prefab::*;
@@ -29,6 +37,7 @@ pub mod prelude {
     pub use super::optional::bevy_xpbd_plugin::*;
 }
 
+/// Plugin to activate editor UI and prefab plugin
 pub struct SpaceEditorPlugin {
 
 }
@@ -56,30 +65,33 @@ impl Plugin for SpaceEditorPlugin {
 }
 
 
-//editor shows only entities with this marker
+/// Editor work only with entities with this marker
 #[derive(Component, Default, Clone, Reflect)]
 #[reflect(Component)]
 pub struct PrefabMarker;
 
+/// Marker for editor camera to disable in play mode
 #[derive(Component, Default, Clone, Reflect)]
 #[reflect(Component)]
 pub struct EditorCameraMarker;
 
-
+/// Editor states (Editor, GamePrepare, Game)
 #[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
 pub enum EditorState {
-    Editor, // editor is showing
-    GamePrepare, //editor preparing to run game
+    Editor, /// editor is showing
+    GamePrepare, /// editor preparing to run game
     #[default]
-    Game // playing game
+    Game 
 }
 
+/// Sets for separate game and editor logic
 #[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
 pub enum EditorSet {
     Editor,
     Game
 }
 
+/// All prefab logics collected in this sets to allow easy extend prefab logic
 #[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
 pub enum PrefabSet {
     PrefabLoad,
@@ -89,6 +101,7 @@ pub enum PrefabSet {
     PrefabChangeApply
 }
 
+/// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
 pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
    // light

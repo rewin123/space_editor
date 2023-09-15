@@ -15,11 +15,11 @@ use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented}
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
-
+/// Entities with this marker will be skiped in inspector
 #[derive(Component)]
 pub struct SkipInspector;
 
-
+/// Plugin to activate components inspector and gizmo in editor UI
 pub struct InspectorPlugin;
 
 impl Plugin for InspectorPlugin {
@@ -54,6 +54,7 @@ fn register_custom_impls(
         );
 }
 
+/// Function form bevy_inspector_egui to split component to data ptr and "set changed" function
 pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, impl FnMut() + 'a) {
     // bypass_change_detection returns a `&mut PtrMut` which is basically useless, because all its methods take `self`
     let ptr = mut_untyped.bypass_change_detection();
@@ -63,6 +64,7 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
     (ptr, move || mut_untyped.set_changed())
 }
 
+/// Just state of inspector panel
 #[derive(Resource)]
 struct InspectState {
     component_add_filter : String,
@@ -105,6 +107,8 @@ fn execute_inspect_command(
     state.commands.clear();
 }
 
+
+/// System to show inspector panel
 pub fn inspect(
     world : &mut World
 ) {

@@ -4,9 +4,12 @@ use bevy::{prelude::*, utils::HashSet, pbr::wireframe::{Wireframe, WireframePlug
 
 use crate::EditorSet;
 
+/// This struct used as marked for all selected entities 
 #[derive(Component, Default, Clone)]
 pub struct Selected;
 
+
+/// Plugin to activate select system
 pub struct SelectedPlugin;
 
 impl Plugin for SelectedPlugin {

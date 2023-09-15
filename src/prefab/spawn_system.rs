@@ -3,10 +3,11 @@ use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 use super::{component::*, load::PrefabLoader};
 
+/// This system using for spawning gltf scene
 pub fn spawn_scene(
     mut commands : Commands,
     prefabs : Query<(Entity, &GltfPrefab, Option<&Children>, Option<&Visibility>, Option<&Transform>), Changed<GltfPrefab>>,
-    auto_childs : Query<&ScaneAutoChild>,
+    auto_childs : Query<&SceneAutoChild>,
     asset_server : Res<AssetServer>
 ) {
     for (e, prefab, children, vis, tr) in prefabs.iter() {
@@ -24,10 +25,10 @@ pub fn spawn_scene(
                 scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)), 
                 ..default() },
                 hook : SceneHook::new(|e, cmd| {
-                    cmd.insert(ScaneAutoChild);
+                    cmd.insert(SceneAutoChild);
                 })
              })
-             .insert(ScaneAutoChild)
+             .insert(SceneAutoChild)
             .id();
         commands.entity(e).add_child(id);
 
@@ -40,6 +41,7 @@ pub fn spawn_scene(
     }
 }
 
+/// System to sync Mesh and MeshPrimitivePrefab
 pub fn sync_mesh(
     mut commands : Commands,
     query : Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
@@ -51,6 +53,7 @@ pub fn sync_mesh(
     }
 }
 
+/// System to sync StandartMaterial and MaterialPrefab
 pub fn sync_material(
     mut commands : Commands,
     query : Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
@@ -63,7 +66,7 @@ pub fn sync_material(
     }
 }
 
-//remove mesh handle if prefab struct was removed in editor states
+/// remove mesh handle if prefab struct was removed in editor states
 pub fn editor_remove_mesh(
     mut commands : Commands,
     mut query : RemovedComponents<MeshPrimitivePrefab>,
@@ -75,6 +78,7 @@ pub fn editor_remove_mesh(
     }
 }
 
+/// Spawn system on enter to EditorState::Game state
 pub fn spawn_player_start(
     mut commands : Commands,
     query : Query<(Entity, &PlayerStart)>,

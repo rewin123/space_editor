@@ -12,7 +12,7 @@ pub use player_start::*;
 
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
-
+/// Component to define path to gltf asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct GltfPrefab {
@@ -29,10 +29,12 @@ impl Default for GltfPrefab {
     }
 }
 
+/// Marker for entities spawned from gltf scene
 #[derive(Component, Reflect, Default)]
-pub struct ScaneAutoChild;
+pub struct SceneAutoChild;
 
 
+/// Not used right now. Planned to be easy method for creating prefab structs from usual structs with assets
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component)]
 pub struct AutoStruct<T : Reflect + FromReflect + Default + Clone> {
@@ -88,7 +90,7 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
 }
 
 
-
+/// This component used in prefab to determine links between entities. Its need to create custom UI in bevy_inspector_egui. You must implement MapEntities trait for your component to make it work. See FollowCamera struct from examples/platformer.rs
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct EntityLink {

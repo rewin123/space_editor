@@ -1,5 +1,6 @@
 use crate::ext::*;
 
+/// Entities with this component will spawn prefab on enter to EditorState::Game state
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component, Default)]
 pub struct PlayerStart {

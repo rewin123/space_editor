@@ -10,6 +10,7 @@ pub struct EditorLoader {
     pub scene : Option<Handle<DynamicScene>>
 }
 
+/// Plugin to activate bot menu in editor UI
 pub struct BotMenuPlugin;
 
 impl Plugin for BotMenuPlugin {

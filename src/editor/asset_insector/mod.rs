@@ -5,16 +5,19 @@ use bevy_egui::*;
 
 use super::ui_camera_block;
 
+///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 pub struct EditorAsset {
     pub path: String,
     pub ext: String,
 }
 
+///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 #[derive(Resource, Default)]
 pub struct DetectedAssets {
     pub assets : Vec<EditorAsset>
 }
 
+///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 pub struct AssetDetectorPlugin;
 
 impl Plugin for AssetDetectorPlugin {
