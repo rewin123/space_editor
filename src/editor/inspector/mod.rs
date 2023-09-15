@@ -6,18 +6,20 @@ use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntype
 
 use bevy_egui::*;
 
-use bevy_inspector_egui::reflect_inspector::InspectorUi;
+use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink};
+
+use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
-
+/// Entities with this marker will be skiped in inspector
 #[derive(Component)]
 pub struct SkipInspector;
 
-
+/// Plugin to activate components inspector and gizmo in editor UI
 pub struct InspectorPlugin;
 
 impl Plugin for InspectorPlugin {
@@ -32,9 +34,27 @@ impl Plugin for InspectorPlugin {
             .after(reset_pan_orbit_state)
             .before(ui_camera_block)
             .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
+
+        app.add_systems(Startup, register_custom_impls);
     }
 }
 
+fn register_custom_impls(
+    registry : Res<AppTypeRegistry>
+) {
+    let mut registry = registry.write();
+    registry.get_mut(TypeId::of::<EntityLink>())
+        .unwrap_or_else(|| panic!("{} not registered", std::any::type_name::<EntityLink>()))
+        .insert(
+            InspectorEguiImpl::new(
+                entity_ref_ui,
+                entity_ref_ui_readonly,
+                many_unimplemented::<EntityRef>
+            )
+        );
+}
+
+/// Function form bevy_inspector_egui to split component to data ptr and "set changed" function
 pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, impl FnMut() + 'a) {
     // bypass_change_detection returns a `&mut PtrMut` which is basically useless, because all its methods take `self`
     let ptr = mut_untyped.bypass_change_detection();
@@ -44,6 +64,7 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
     (ptr, move || mut_untyped.set_changed())
 }
 
+/// Just state of inspector panel
 #[derive(Resource)]
 struct InspectState {
     component_add_filter : String,
@@ -86,6 +107,8 @@ fn execute_inspect_command(
     state.commands.clear();
 }
 
+
+/// System to show inspector panel
 pub fn inspect(
     world : &mut World
 ) {

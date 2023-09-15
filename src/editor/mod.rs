@@ -2,11 +2,17 @@
 
 use bevy::{prelude::*, render::camera::RenderTarget};
 
+/// Contains all component inspector login
 pub mod inspector;
+/// Contains all bot panel logic
 pub mod bot_menu;
+/// Contains all hierarchy panel logic
 pub mod hierarchy;
+/// Contains logic for selecting entities
 pub mod selected;
+/// Not used riught now. Planned to be asset inspector UI for all assets in asset/ folder
 pub mod asset_insector;
+/// Contains logic to register editor bundles for fast spawning entities with fixed components set
 pub mod ui_registration;
 
 use bevy_egui::EguiContexts;
@@ -21,6 +27,7 @@ use self::prelude::Selected;
 
 use ui_registration::*;
 
+/// All useful structs and functions from editor UI
 pub mod prelude {
     pub use super::inspector::*;
     pub use super::bot_menu::*;
@@ -29,6 +36,7 @@ pub mod prelude {
     pub use bevy_panorbit_camera::{PanOrbitCamera};
 }
 
+/// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
@@ -204,6 +212,7 @@ fn clear_and_load_on_start(
     );
 }
 
+/// Resource, which contains pan orbit camera state
 #[derive(Resource, Default)]
 pub struct PanOrbitEnabled(pub bool);
 
@@ -223,6 +232,8 @@ pub fn update_pan_orbit(
     }    
 }
 
+
+/// Sytem to block camera control if egui is using mouse 
 pub fn ui_camera_block(
     mut ctxs : EguiContexts,
     mut state : ResMut<PanOrbitEnabled>
@@ -232,6 +243,7 @@ pub fn ui_camera_block(
     }
 }
 
+/// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
     mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>, Without<CameraPlay>)>,
     mut play_cameras : Query<(&mut Camera, &CameraPlay), (Without<EditorCameraMarker>, With<CameraPlay>)>
@@ -243,6 +255,7 @@ pub fn change_camera_in_play(
     }
 }
 
+/// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
     mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>)>,
     mut play_cameras : Query<&mut Camera, (Without<EditorCameraMarker>)>

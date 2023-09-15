@@ -1,6 +1,7 @@
 
 use crate::ext::*;
 
+/// Pomponent to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
 pub enum MeshPrimitivePrefab {
@@ -24,6 +25,7 @@ impl Default for MeshPrimitivePrefab {
 }
 
 impl MeshPrimitivePrefab {
+    /// Convert MeshPrimitivePrefab to bevy Mesh
     pub fn to_mesh(&self) -> Mesh {
         match self {
             MeshPrimitivePrefab::Cube(s) => Mesh::from(shape::Cube::new(*s)),
@@ -41,6 +43,8 @@ impl MeshPrimitivePrefab {
     }
 }
 
+
+/// Values to setup box mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct BoxPrefab {
@@ -65,6 +69,7 @@ impl BoxPrefab {
     }
 }
 
+/// Values to setup sphere mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct SpherePrefab {
@@ -88,6 +93,7 @@ impl SpherePrefab {
 }
 
 
+/// Values to setup quad mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct QuadPrefab {
@@ -116,6 +122,8 @@ impl QuadPrefab {
     }
 }
 
+
+/// Values to setup capsule mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct CapsulePrefab {
@@ -142,6 +150,8 @@ impl CapsulePrefab {
     }
 }
 
+
+/// Values to setup circle mesh
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
 pub struct CirclePrefab {
@@ -169,6 +179,8 @@ impl CirclePrefab {
     }
 }
 
+
+/// Values to setup cylinder mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct CylinderPrefab {
@@ -198,6 +210,8 @@ impl CylinderPrefab {
     }
 }
 
+
+/// Values to setup icosphere mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct IcospherePrefab {
@@ -228,6 +242,8 @@ impl IcospherePrefab {
     }
 }
 
+
+/// Values to setup plane mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct PlanePrefab {
@@ -254,6 +270,8 @@ impl PlanePrefab {
     }
 }
 
+
+/// Values to setup regular poligon mesh
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
 pub struct RegularPoligonPrefab {
@@ -281,6 +299,7 @@ impl RegularPoligonPrefab {
     }
 }
 
+/// Values to setup torus mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct TorusPrefab {

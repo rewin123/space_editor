@@ -4,6 +4,7 @@ use crate::{ext::*, PrefabMarker, prefab::component::*};
 
 pub const MESH_CATEGORY : &str = "mesh";
 
+/// Resource with bundles to spawn
 #[derive(Resource, Default)]
 pub struct EditorUiReg {
     pub bundles : HashMap<String, HashMap<String, EditorBundleUntyped>>
@@ -18,18 +19,21 @@ impl EditorUiReg {
     }
 }
 
+/// Contains all info to display and spawn editor bundle
 pub struct EditorBundle<T : Bundle + Clone> {
     pub data : T,
     pub category : String,
     pub name : String
 }
 
+/// Untyped editor bundle
 pub struct EditorBundleUntyped {
     pub data : Box<dyn Fn(&mut EntityCommands) + Send + Sync>,
     pub name : String
 }
 
 impl EditorBundleUntyped {
+    /// Create new untyped editor bundle
     pub fn new<T : Bundle + Clone>(data : T, name : String) -> Self {
         Self {
             data : Box::new(move |cmds| {
@@ -39,6 +43,7 @@ impl EditorBundleUntyped {
         }
     }
 
+    /// Spawn in world untyped editor bundle and mark entity as part of prefab
     pub fn spawn(&self, commands : &mut Commands) -> Entity {
         let mut cmds = commands.spawn_empty();
         (self.data)(&mut cmds);
@@ -47,7 +52,9 @@ impl EditorBundleUntyped {
     }
 }
 
+/// Train to add editor_bundle(..) to App 
 pub trait EditorUiExt {
+    /// Register new bundle in editor ui
     fn editor_bundle<T : Bundle + Clone>(&mut self, category : &str, name : &str, bundle : T);
 }
 
@@ -65,6 +72,7 @@ impl EditorUiExt for App {
     }
 }
 
+/// Register all default editor bundles
 pub fn register_default_editor_bundles(app : &mut App) {
     app.editor_bundle("Mesh", "Cube", (
         MeshPrimitivePrefab::Cube(1.0),

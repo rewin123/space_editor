@@ -38,11 +38,14 @@ impl Plugin for SavePrefabPlugin {
     }
 }
 
+/// This struct determine path to save prefab
 #[derive(Resource, Clone, Default)]
 pub struct SaveConfig {
     pub path : String
 }
 
+
+/// State system using to enable slow logic of saving
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum SaveState {
     Save,
@@ -68,6 +71,7 @@ fn delete_prepared_children(
     }
 }
 
+/// Convert world to prefab
 pub fn serialize_prefab(
     world : &mut World
 ){

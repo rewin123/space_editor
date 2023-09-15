@@ -1,6 +1,10 @@
+/// Contains all component for prefab logic
 pub mod component;
+/// Contains systems for spawning prefabs
 pub mod spawn_system;
+/// Containg systems for saving prefab
 pub mod save;
+/// Contains systems for loading prefab from file
 pub mod load;
 
 use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
@@ -13,6 +17,7 @@ use spawn_system::*;
 use save::*;
 use load::*;
 
+/// This plugin contains all components and logic of prefabs
 pub struct PrefabPlugin;
 
 impl Plugin for PrefabPlugin {

@@ -7,6 +7,7 @@ use std::any::TypeId;
 
 use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}, PrefabSet};
 
+/// Plugin to activate custom registry 
 pub struct EditorRegistryPlugin;
 
 
@@ -25,6 +26,7 @@ impl Plugin for EditorRegistryPlugin {
     }
 }
 
+/// Contains function to remove component in untyped style
 #[derive(Clone)]
 pub struct RemoveComponent {
     func : Arc<dyn Fn(&mut EntityCommands) + Send + Sync>
@@ -40,6 +42,7 @@ impl RemoveComponent {
     }
 }
 
+/// Contains function to clone component in untyped style
 #[derive(Clone)]
 pub struct CloneComponent {
     func : Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>
@@ -57,6 +60,7 @@ impl CloneComponent {
     }
 }
 
+/// Contains function to add default component in untyped style
 #[derive(Clone)]
 pub struct AddDefaultComponent {
     func : Arc<dyn Fn(Entity, &mut World) + Send + Sync>
@@ -79,6 +83,7 @@ impl AddDefaultComponent {
 }
 
 
+/// Resource, which contains all custom editor registry
 #[derive(Default, Resource, Clone)]
 pub struct EditorRegistry {
     pub registry : TypeRegistry,
@@ -89,6 +94,7 @@ pub struct EditorRegistry {
 }
 
 impl EditorRegistry {
+    /// Register new component, which will be shown in editor UI and saved in prefab
     pub fn register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.registry.write().register::<T>();
         self.spawn_components.insert(
@@ -104,6 +110,7 @@ impl EditorRegistry {
         );
     }
 
+    /// Register new component, which will be hidden in editor UI and saved in prefab
     pub fn silent_register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.registry.write().register::<T>();
         self.spawn_components.insert(
@@ -120,22 +127,26 @@ impl EditorRegistry {
         );
     }
 
+    /// Register new component, which will be cloned with editor ui clone event
     pub fn only_clone_register<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) {
         self.clone_components.push(
             CloneComponent::new::<T>()
         );
     }
 
+    /// Get spawn function for this component type
     pub fn get_spawn_command(&self, id : &TypeId) -> AddDefaultComponent {
         self.spawn_components.get(id).unwrap().clone()
     }
 
+    /// Get remove function for this component type
     pub fn remove_by_id(&self, cmds : &mut EntityCommands, id : &TypeId) {
         if let Some(rem) = self.remove_components.get(id) {
             (rem.func)(cmds);
         }
     }
 
+    /// Get clone function for this component type
     pub fn clone_entity_flat(&self, cmds : &mut EntityCommands, src : &EntityRef) {
         for t in &self.clone_components {
             (t.func)(cmds, src);
@@ -144,13 +155,18 @@ impl EditorRegistry {
 }
 
 pub trait EditorRegistryExt {
+    /// refister new component in editor UI and prefab systems
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
+    /// register new component inly in prefab systems (will be no shown in editor UI)
     fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
+    
     fn editor_clone_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
 
+    /// Mark that if T component spawned, then Relation must be spawned too
     fn editor_relation<T, Relation>(&mut self) -> &mut Self
         where T : Component, Relation : Component + Default;
     
+    /// Not used yet
     fn editor_auto_struct<T>(&mut self) -> &mut Self
         where  T : Component + Reflect + FromReflect + Default + Clone + 'static + GetTypeRegistration + TypePath;
 }
@@ -194,6 +210,8 @@ impl EditorRegistryExt for App {
     }
 }
 
+
+/// Not used
 fn generate_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>(
     mut commands : Commands,
     query : Query<(Entity, &T)>,
@@ -204,6 +222,7 @@ fn generate_auto_structs<T : Component + Reflect + FromReflect + Default + Clone
     }
 }
 
+/// Not used
 fn despawn_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>(
     mut commands : Commands,
     query : Query<(Entity, &AutoStruct<T>)>,
@@ -214,7 +233,6 @@ fn despawn_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>
         commands.entity(e).insert(data).remove::<AutoStruct<T>>();
     }
 }
-
 
 fn relation_system<T : Component, Relation : Component + Default>(
     mut commands : Commands,

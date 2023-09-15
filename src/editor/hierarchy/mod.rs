@@ -5,12 +5,13 @@ use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global
 
 use super::{selected::*, ui_camera_block, ui_registration::*};
 
+/// Event to clone entity with clone all registered components
 #[derive(Event)]
 pub struct CloneEvent {
     id : Entity
 }
 
-
+/// Plugin to activate hierarchy UI in editor UI
 pub struct SpaceHierarchyPlugin {
 
 }
@@ -36,7 +37,7 @@ impl Plugin for SpaceHierarchyPlugin {
     }
 }
 
-
+/// System to show hierarchy 
 pub fn show_hierarchy(
     mut commands : Commands, 
     mut contexts : EguiContexts,
