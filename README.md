@@ -7,7 +7,10 @@ Welcome to space_editor, a Bevy Prefab Editor built for seamless integration int
 
 Getting Started
 To run the editor, use the following command:
-> cargo run 
+> cargo run
+
+To run platformer example, use the following command:
+> cargo run run --example platformer --features bevy_xpbd_3d
 
 
 ## Usage
@@ -99,15 +102,15 @@ MIT - https://choosealicense.com/licenses/mit/
 | Customizable UI                  | Feature to customize the inspector UI as per user preference.                                                            | ✅ Done             |
 | Asset Inspector                  | Viewer for all project assets to easily drag and drop for adding.                                                        | ❌ Planned          |
 | Play/Editor States               | Ability to add state to run the game in the editor window, save the prefab at play state start, and reload after end.    | ✅ Done             |
-| Player Start Component           | A component to load a prefab only in Play state.                                                                         | ❌ Planned          |
+| Player Start Component           | A component to load a prefab only in Play state.                                                                         | ✅ Done          |
 | Search and Add Assets            | Support for searching existing assets by typing the name in a field.                                                     | ❌ Planned          |
 | Edit Nested Prefabs              | If a prefab opened in the editor contains another prefab, allow changes to internal state and apply to all prefabs.      | ❌ Planned          |
 | Individual Prefab Parameters     | Feature to change some parameters in a unique way, independent of other prefabs.                                         | ❌ Planned          |
-| Mesh Component                   | Support for using primitives in the prefab editor.                                                                       | 🛠️ Work in progress |
-| Material Component               | Support for setting up material in prefab.                                                                               | 🛠️ Work in progress |
+| Mesh Component                   | Support for using primitives in the prefab editor.                                                                       | ✅ Done |
+| Material Component               | Support for setting up material in prefab.                                                                               | ✅ Done |
 | Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned          |
-| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ❌ Planned          |
-| bevy_protoSupport                | Support for commonly used text-based prefab system                                                                       | ❌ Planned          |
+| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | 🛠️ Work in progress      |
+| bevy_proto Support                | Support for commonly used text-based prefab system                                                                       | ❌ Planned          |
 | bevy_mod_picking Support         | Support for mouse select and deselect of entities                                                                        | ✅ Done             |
 | bevy_inspector_egui Support      | Support for commonly used inspector library                                                                              | ✅ Done             |
 | Multiple Select Support          | Feature to manipulate multiple objects simultaneously.                                                                   | 🛠️ Work in progress |
