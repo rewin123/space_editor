@@ -51,7 +51,7 @@ pub fn show_hierarchy(
     let pointer_used = contexts.ctx_mut().is_using_pointer();
     egui::SidePanel::left("Scene hierarchy")
             .show(contexts.ctx_mut(), |ui| {
-        ui.label(egui::RichText::new("Hiearachy"));
+        ui.heading(egui::RichText::new("Hiearachy"));
 
         for (entity, _, _, parent) in all.iter() {
             if parent.is_none() {

@@ -27,7 +27,7 @@ pub struct ColliderPrefabCompound {
 
 impl Default for ColliderPrefab {
     fn default() -> Self {
-        ColliderPrefab::Primitive { pos: Vec3::default(), rot: Vec3::default(), primitive: ColliderPrimitive::Cuboid(Vec3::default()) }
+        ColliderPrefab::Primitive { pos: Vec3::default(), rot: Vec3::default(), primitive: ColliderPrimitive::Cuboid(Vec3::ONE) }
     }
 }
 

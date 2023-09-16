@@ -156,7 +156,8 @@ pub fn inspect(
         let mut ctx = cell.get_entity(ctx_e).unwrap().get_mut::<EguiContext>().unwrap();
         let mut commands : Vec<InspectCommand> = vec![];
         egui::SidePanel::right("Inspector").show(ctx.get_mut(), |ui| {
-
+            
+            ui.heading("Inspector");
 
             egui::ComboBox::new("gizmo_mode", "Gizmo mode").selected_text(format!("{:?}", &state.gizmo_mode))
                 .show_ui(ui, |ui| {
@@ -180,6 +181,8 @@ pub fn inspect(
             }
 
             ui.separator();
+
+
             let mut queue = CommandQueue::default();
             let mut cx = bevy_inspector_egui::reflect_inspector::Context {
                 world: Some(cell.world_mut().into()),
