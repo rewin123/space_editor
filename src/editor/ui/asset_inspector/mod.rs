@@ -1,9 +1,6 @@
 use std::fs;
 use std::path::Path;
 use bevy::prelude::*;
-use bevy_egui::*;
-
-use super::ui_camera_block;
 
 ///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 pub struct EditorAsset {
@@ -24,7 +21,7 @@ impl Plugin for AssetDetectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DetectedAssets>();
 
-        app.add_systems(Startup, detect_assets.before(ui_camera_block));
+        app.add_systems(Startup, detect_assets.before(crate::editor::ui_camera_block));
     }
 }
 

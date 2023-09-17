@@ -1,9 +1,9 @@
 use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform, EditorSet};
+use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry, EditorTab}, EditorSet, PrefabMarker, editor::ui_registration::EditorUiReg};
 
-use super::{selected::*, ui_camera_block, ui_registration::*};
+use super::EditorUiAppExt;
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -31,11 +31,30 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_systems(Update, show_hierarchy.before(ui_camera_block).in_set(EditorSet::Editor));
-        app.add_systems(Update, clone_enitites.after(show_hierarchy).in_set(EditorSet::Editor));
-        app.add_event::<CloneEvent>();
+        app.editor_tab(crate::prelude::EditorTabName::Hierarchy, HierarchyTab::default());
+
+        // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
+        // app.add_systems(Update, clone_enitites.after(show_hierarchy).in_set(EditorSet::Editor));
+        // app.add_event::<CloneEvent>();
     }
 }
+
+#[derive(Default, Resource)]
+pub struct HierarchyTab {
+
+}
+
+impl EditorTab for HierarchyTab {
+    fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
+        
+    }
+
+    fn title(&self) -> egui::WidgetText {
+        "Hierarchy".into()
+    }
+}
+
+
 
 /// System to show hierarchy 
 pub fn show_hierarchy(

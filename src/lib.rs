@@ -22,6 +22,7 @@ pub mod ext {
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_egui::*;
     pub use bevy::prelude::*;
+    pub use bevy_panorbit_camera::*;
 }
 
 /// All useful structure from this crate

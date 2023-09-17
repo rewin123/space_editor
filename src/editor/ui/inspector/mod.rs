@@ -9,11 +9,9 @@ use bevy_egui::*;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink, prelude::{SelectedPlugin, Selected}};
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
-
-use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
 /// Entities with this marker will be skiped in inspector
 #[derive(Component)]
@@ -31,8 +29,8 @@ impl Plugin for InspectorPlugin {
         app.init_resource::<InspectState>();
 
         app.add_systems(Update, (inspect, execute_inspect_command).chain()
-            .after(reset_pan_orbit_state)
-            .before(ui_camera_block)
+            .after(crate::editor::reset_pan_orbit_state)
+            .before(crate::editor::ui_camera_block)
             .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
 
         app.add_systems(Startup, register_custom_impls);
@@ -453,6 +451,6 @@ pub fn inspect(
     
 
     if disable_pan_orbit {
-        world.resource_mut::<PanOrbitEnabled>().0 = false;
+        world.resource_mut::<crate::editor::PanOrbitEnabled>().0 = false;
     }
 }

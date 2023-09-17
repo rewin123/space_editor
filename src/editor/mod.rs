@@ -2,17 +2,9 @@
 
 use bevy::{prelude::*, render::camera::RenderTarget};
 
-/// Contains all component inspector login
-pub mod inspector;
-/// Contains all bot panel logic
-pub mod bot_menu;
-/// Contains all hierarchy panel logic
-pub mod hierarchy;
-/// Contains logic for selecting entities
-pub mod selected;
-/// Not used riught now. Planned to be asset inspector UI for all assets in asset/ folder
-pub mod asset_insector;
-/// Contains logic to register editor bundles for fast spawning entities with fixed components set
+pub mod ui;
+pub mod core;
+
 pub mod ui_registration;
 
 use bevy_egui::EguiContexts;
@@ -21,19 +13,17 @@ use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlu
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::{CameraPlay, MeshPrimitivePrefab}}, PrefabMarker, EditorCameraMarker};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker, prelude::{Selected, EditorTabName, GameViewTab}};
 
-use self::prelude::Selected;
 
 use ui_registration::*;
 
+use self::prelude::{EditorUiPlugin, hierarchy, EditorUi};
+
 /// All useful structs and functions from editor UI
 pub mod prelude {
-    pub use super::inspector::*;
-    pub use super::bot_menu::*;
-    pub use super::hierarchy::*;
-    pub use super::selected::*;
-    pub use bevy_panorbit_camera::{PanOrbitCamera};
+    pub use super::core::*;
+    pub use super::ui::*;
 }
 
 /// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
@@ -47,9 +37,7 @@ impl Plugin for EditorPlugin {
         
         app
         .add_plugins(DefaultInspectorConfigPlugin)
-        .add_plugins(prelude::SpaceHierarchyPlugin::default())
-        .add_plugins(prelude::InspectorPlugin)
-        .add_plugins(prelude::BotMenuPlugin)
+        .add_plugins(EditorUiPlugin::default())
         .add_plugins(PanOrbitCameraPlugin);
 
         if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
@@ -61,6 +49,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_infinite_grid::InfiniteGridPlugin>() {
             app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
         }
+        app.init_resource::<prelude::EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
 
@@ -236,10 +225,23 @@ pub fn update_pan_orbit(
 /// Sytem to block camera control if egui is using mouse 
 pub fn ui_camera_block(
     mut ctxs : EguiContexts,
-    mut state : ResMut<PanOrbitEnabled>
+    mut state : ResMut<PanOrbitEnabled>,
+    game_view : Res<GameViewTab>
 ) {
-    if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
-        *state = PanOrbitEnabled(false);
+    let ctx = ctxs.ctx_mut();
+    if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
+        let Some(pos) = ctx.pointer_latest_pos() else {
+            return;
+        };
+        if let Some(area) = game_view.viewport_rect {
+            if area.contains(pos) {
+
+            } else {
+                *state = PanOrbitEnabled(false);
+            }
+        } else {
+            *state = PanOrbitEnabled(false);
+        }
     }
 }
 

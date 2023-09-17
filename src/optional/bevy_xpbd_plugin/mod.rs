@@ -4,7 +4,7 @@ use crate::{EditorState, PrefabSet};
 
 pub mod collider;
 
-use crate::prelude::EditorRegistryExt;
+use crate::prelude::{EditorRegistryExt, inspect};
 
 use self::collider::{ColliderPrimitive, ColliderPart, ColliderPrefabCompound};
 
@@ -48,7 +48,7 @@ impl Plugin for BevyXpbdPlugin {
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(Update, 
             (sync_position_spawn)
-                .after(crate::editor::inspector::inspect)
+                .after(inspect)
                 .run_if(in_state(EditorState::Editor)));
     }
 }
