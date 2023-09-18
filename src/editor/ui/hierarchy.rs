@@ -1,3 +1,5 @@
+use std::sync::{RwLock, Arc};
+
 use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
@@ -44,9 +46,13 @@ pub struct HierarchyTab {
 
 }
 
+pub struct EditorUiRef(egui::Ui);
+
+
 impl EditorTab for HierarchyTab {
     fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
         
+       
     }
 
     fn title(&self) -> egui::WidgetText {

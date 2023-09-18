@@ -42,7 +42,9 @@ impl Plugin for EditorUiPlugin {
         app.add_systems(Update, show_editor_ui);
         app.editor_tab(EditorTabName::GameView, GameViewTab::default());
 
+
         app.add_plugins(SpaceHierarchyPlugin::default());
+        app.add_plugins(SpaceInspectorPlugin);
 
         if self.use_standart_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
@@ -51,6 +53,7 @@ impl Plugin for EditorUiPlugin {
             ]);
 
             let [game, right_panel] = editor.tree.split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
+            let [hierarchy, inspector] = editor.tree.split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
         }
     }
 }
@@ -70,6 +73,7 @@ fn show_editor_ui(
         editor_ui.ui(world, egui_context.get_mut());
     });
 }
+
 
 #[derive(Resource, Default)]
 pub struct EditorUi {

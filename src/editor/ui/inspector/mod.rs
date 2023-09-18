@@ -9,18 +9,20 @@ use bevy_egui::*;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink, prelude::{SelectedPlugin, Selected}};
+use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink, prelude::{SelectedPlugin, Selected, EditorTab}};
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
+
+use super::EditorUiAppExt;
 
 /// Entities with this marker will be skiped in inspector
 #[derive(Component)]
 pub struct SkipInspector;
 
 /// Plugin to activate components inspector and gizmo in editor UI
-pub struct InspectorPlugin;
+pub struct SpaceInspectorPlugin;
 
-impl Plugin for InspectorPlugin {
+impl Plugin for SpaceInspectorPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<SelectedPlugin>() {
             app.add_plugins(SelectedPlugin);
@@ -28,12 +30,28 @@ impl Plugin for InspectorPlugin {
 
         app.init_resource::<InspectState>();
 
-        app.add_systems(Update, (inspect, execute_inspect_command).chain()
-            .after(crate::editor::reset_pan_orbit_state)
-            .before(crate::editor::ui_camera_block)
-            .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
+        app.editor_tab(crate::prelude::EditorTabName::Inspector, InspectorTab::default());
+        // app.add_systems(Update, (inspect, execute_inspect_command).chain()
+        //     .after(crate::editor::reset_pan_orbit_state)
+        //     .before(crate::editor::ui_camera_block)
+        //     .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
 
         app.add_systems(Startup, register_custom_impls);
+    }
+}
+
+#[derive(Resource, Default)]
+pub struct InspectorTab {
+
+}
+
+impl EditorTab for InspectorTab {
+    fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
+        
+    }
+
+    fn title(&self) -> egui::WidgetText {
+        "Inspector".into()
     }
 }
 

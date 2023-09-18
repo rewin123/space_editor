@@ -3,13 +3,12 @@ use std::{any::TypeId, sync::Arc};
 use bevy_egui::egui::{self, WidgetText};
 use bevy::{prelude::*, utils::HashMap};
 
-
 pub trait EditorTab {
     fn ui(&mut self, ui : &mut egui::Ui, world : &mut World);
     fn title(&self) -> egui::WidgetText;
 }
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialEq, Eq, Debug)]
 pub enum EditorTabName {
     Hierarchy,
     GameView,
@@ -27,7 +26,7 @@ pub struct EditorTabViewer<'a> {
     pub title_commands : &'a mut HashMap<EditorTabName, EditorTabGetTitleFn>
 }
 
-impl egui_dock::TabViewer for EditorTabViewer<'_> {
+impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
     type Tab = EditorTabName;
 
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
@@ -42,7 +41,7 @@ impl egui_dock::TabViewer for EditorTabViewer<'_> {
         if let Some(cmd) = self.title_commands.get(tab) {
             cmd(self.world)
         } else {
-            "NOT FOUND TAB".into()
+            format!("{tab:?}").into()
         }
     }
 
