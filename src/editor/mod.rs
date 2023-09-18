@@ -86,7 +86,7 @@ impl Plugin for EditorPlugin {
 
         app.add_event::<SelectEvent>();
 
-        app.init_resource::<EditorUiReg>();
+        app.init_resource::<BundleReg>();
 
         app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 

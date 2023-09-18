@@ -3,9 +3,9 @@ use std::sync::{RwLock, Arc};
 use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry, EditorTab}, EditorSet, PrefabMarker, editor::ui_registration::EditorUiReg};
+use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry, EditorTab}, EditorSet, PrefabMarker, editor::ui_registration::BundleReg};
 
-use super::EditorUiAppExt;
+use super::{EditorUiAppExt, EditorUiRef};
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -33,80 +33,61 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.editor_tab(crate::prelude::EditorTabName::Hierarchy, HierarchyTab::default());
+        app.editor_tab(
+            crate::prelude::EditorTabName::Hierarchy, 
+            "Hierarchy".into(), 
+            show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
-        // app.add_systems(Update, clone_enitites.after(show_hierarchy).in_set(EditorSet::Editor));
-        // app.add_event::<CloneEvent>();
+        app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
+        app.add_event::<CloneEvent>();
     }
 }
-
-#[derive(Default, Resource)]
-pub struct HierarchyTab {
-
-}
-
-pub struct EditorUiRef(egui::Ui);
-
-
-impl EditorTab for HierarchyTab {
-    fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
-        
-       
-    }
-
-    fn title(&self) -> egui::WidgetText {
-        "Hierarchy".into()
-    }
-}
-
 
 
 /// System to show hierarchy 
 pub fn show_hierarchy(
     mut commands : Commands, 
-    mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     mut selected : Query<Entity, With<Selected>>,
     mut clone_events : EventWriter<CloneEvent>,
-    ui_reg : Res<EditorUiReg>,
+    ui_reg : Res<BundleReg>,
+    mut ui : NonSendMut<EditorUiRef>
 ) {
     let mut all : Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
-    let pointer_used = contexts.ctx_mut().is_using_pointer();
-    egui::SidePanel::left("Scene hierarchy")
-            .show(contexts.ctx_mut(), |ui| {
-        ui.heading(egui::RichText::new("Hiearachy"));
+    let pointer_used = false;
+    
+    let ui =  &mut ui.0;
 
-        for (entity, _, _, parent) in all.iter() {
-            if parent.is_none() {
-                draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
+    for (entity, _, _, parent) in all.iter() {
+        if parent.is_none() {
+            draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
+        }
+    }
+    ui.vertical_centered(|ui| {
+        if ui.button("----- + -----").clicked() {
+            commands.spawn_empty().insert(PrefabMarker);
+        }
+        if ui.button("Clear all").clicked() {
+            for (entity, _, _, parent) in all.iter() {
+                commands.entity(*entity).despawn_recursive();
             }
         }
-        ui.vertical_centered(|ui| {
-            if ui.button("----- + -----").clicked() {
-                commands.spawn_empty().insert(PrefabMarker);
-            }
-            if ui.button("Clear all").clicked() {
-                for (entity, _, _, parent) in all.iter() {
-                    commands.entity(*entity).despawn_recursive();
-                }
-            }
 
-           
-        });
-
-        ui.label("Spawn bundle");
-        for (cat_name, cat) in ui_reg.bundles.iter() {
-            ui.menu_button(cat_name, |ui| {
-                for (name, dyn_bundle) in cat {
-                    if ui.button(name).clicked() {
-                        let entity = dyn_bundle.spawn(&mut commands);
-                    }
-                }
-            });
-        }
+        
     });
+
+    ui.label("Spawn bundle");
+    for (cat_name, cat) in ui_reg.bundles.iter() {
+        ui.menu_button(cat_name, |ui| {
+            for (name, dyn_bundle) in cat {
+                if ui.button(name).clicked() {
+                    let entity = dyn_bundle.spawn(&mut commands);
+                }
+            }
+        });
+    }
 }
 
 fn draw_entity(

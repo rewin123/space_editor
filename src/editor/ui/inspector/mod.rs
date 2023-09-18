@@ -30,7 +30,7 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.init_resource::<InspectState>();
 
-        app.editor_tab(crate::prelude::EditorTabName::Inspector, InspectorTab::default());
+        app.editor_tab_by_trait(crate::prelude::EditorTabName::Inspector, InspectorTab::default());
         // app.add_systems(Update, (inspect, execute_inspect_command).chain()
         //     .after(crate::editor::reset_pan_orbit_state)
         //     .before(crate::editor::ui_camera_block)
@@ -47,7 +47,7 @@ pub struct InspectorTab {
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
-        
+        inspect(ui, world);
     }
 
     fn title(&self) -> egui::WidgetText {
@@ -126,6 +126,7 @@ fn execute_inspect_command(
 
 /// System to show inspector panel
 pub fn inspect(
+    ui : &mut egui::Ui,
     world : &mut World
 ) {
 
@@ -169,11 +170,8 @@ pub fn inspect(
         let mut cell = world.as_unsafe_world_cell();
         let mut state = cell.get_resource_mut::<InspectState>().unwrap();
 
-        let mut ctx = cell.get_entity(ctx_e).unwrap().get_mut::<EguiContext>().unwrap();
         let mut commands : Vec<InspectCommand> = vec![];
-        egui::SidePanel::right("Inspector").show(ctx.get_mut(), |ui| {
             
-            ui.heading("Inspector");
 
             egui::ComboBox::new("gizmo_mode", "Gizmo mode").selected_text(format!("{:?}", &state.gizmo_mode))
                 .show_ui(ui, |ui| {
@@ -335,7 +333,6 @@ pub fn inspect(
                 //         }
                 //     }
                 // }
-            });
 
 
 

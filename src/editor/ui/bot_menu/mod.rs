@@ -22,7 +22,6 @@ impl Plugin for BotMenuPlugin {
         app.init_resource::<EditorLoader>();
 
         app.add_systems(Update, bot_menu
-            .after(super::inspector::inspect)
             .after(show_hierarchy)
             .in_set(EditorSet::Editor));
         app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));

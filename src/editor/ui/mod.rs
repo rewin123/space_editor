@@ -39,8 +39,9 @@ impl Default for EditorUiPlugin {
 impl Plugin for EditorUiPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EditorUi>();
+        app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(Update, show_editor_ui);
-        app.editor_tab(EditorTabName::GameView, GameViewTab::default());
+        app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
 
         app.add_plugins(SpaceHierarchyPlugin::default());
@@ -77,17 +78,21 @@ fn show_editor_ui(
 
 #[derive(Resource, Default)]
 pub struct EditorUi {
-    pub show_commands : HashMap<EditorTabName, EditorTabShowFn>,
-    pub title_commands : HashMap<EditorTabName, EditorTabGetTitleFn>,
+    pub registry : HashMap<EditorTabName, EditorUiReg>,
     pub tree : egui_dock::Tree<EditorTabName>
+}
+
+pub enum EditorUiReg {
+    Trait{show_command : EditorTabShowFn,
+        title_command : EditorTabGetTitleFn},
+    Schedule
 }
 
 impl EditorUi {
     pub fn ui(&mut self, world : &mut World, ctx : &mut egui::Context) {
         let mut tab_viewer = EditorTabViewer {
             world,
-            title_commands: &mut self.title_commands,
-            show_commands: &mut self.show_commands,
+            registry : &mut self.registry
         };
         DockArea::new(&mut self.tree)
             .show(ctx, &mut tab_viewer);
@@ -95,21 +100,41 @@ impl EditorUi {
 }
 
 pub trait EditorUiAppExt {
-    fn editor_tab<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static;
+    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static;
+    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>);
 }
 
 impl EditorUiAppExt for App {
-    fn editor_tab<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static {
+    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static {
         self.insert_resource(tab);
         let show_fn = Box::new(|ui : &mut egui::Ui, world : &mut World| {
             world.resource_scope(|scoped_world, mut data : Mut<T>| {
                 data.ui(ui, scoped_world)
             });
         });
-        self.world.resource_mut::<EditorUi>().show_commands.insert(tab_id.clone(), show_fn);
+        let reg = EditorUiReg::Trait { 
+            show_command: show_fn, 
+            title_command: Box::new(|world| {
+                world.resource_mut::<T>().title()
+            }) 
+        };
 
-        self.world.resource_mut::<EditorUi>().title_commands.insert(tab_id, Box::new(|world| {
-            world.resource_mut::<T>().title()
-        }));
+        self.world.resource_mut::<EditorUi>().registry.insert(tab_id, reg);
+    }
+
+    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>) {
+        let mut tab = ScheduleEditorTab {
+            schedule: Schedule::new(),
+            title,
+        };
+
+        tab.schedule.add_systems(tab_systesm);
+
+        self.world.resource_mut::<ScheduleEditorTabStorage>().0.insert(tab_id.clone(), tab);
+        self.world.resource_mut::<EditorUi>().registry.insert(tab_id, EditorUiReg::Schedule);
     }
 }
+
+
+/// Temporary resource for pretty ststem, based tab registration
+pub struct EditorUiRef(egui::Ui);
