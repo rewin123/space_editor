@@ -23,6 +23,8 @@ pub use game_view::*;
 use bevy_egui::{egui, EguiContext};
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 
+use crate::prelude::SelectedPlugin;
+
 
 pub struct EditorUiPlugin {
     pub use_standart_layout : bool
@@ -38,6 +40,11 @@ impl Default for EditorUiPlugin {
 
 impl Plugin for EditorUiPlugin {
     fn build(&self, app: &mut App) {
+
+        if !app.is_plugin_added::<SelectedPlugin>() {
+            app.add_plugins(SelectedPlugin);
+        }
+
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(Update, show_editor_ui);

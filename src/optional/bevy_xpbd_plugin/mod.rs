@@ -48,7 +48,6 @@ impl Plugin for BevyXpbdPlugin {
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(Update, 
             (sync_position_spawn)
-                .after(inspect)
                 .run_if(in_state(EditorState::Editor)));
     }
 }

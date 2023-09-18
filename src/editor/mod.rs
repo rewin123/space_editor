@@ -145,9 +145,6 @@ fn select_listener(
     mut ctxs : EguiContexts,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
-        return;
-    }
     for event in events.iter() {
         match event.event.button {
             PointerButton::Primary => {

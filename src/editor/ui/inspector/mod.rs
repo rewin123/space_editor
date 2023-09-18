@@ -24,9 +24,7 @@ pub struct SpaceInspectorPlugin;
 
 impl Plugin for SpaceInspectorPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<SelectedPlugin>() {
-            app.add_plugins(SelectedPlugin);
-        }
+        
 
         app.init_resource::<InspectState>();
 
@@ -35,6 +33,8 @@ impl Plugin for SpaceInspectorPlugin {
         //     .after(crate::editor::reset_pan_orbit_state)
         //     .before(crate::editor::ui_camera_block)
         //     .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
+
+        app.add_systems(Update, execute_inspect_command);
 
         app.add_systems(Startup, register_custom_impls);
     }
@@ -297,168 +297,6 @@ pub fn inspect(
                         }
                     });
                 });
-
-                //add component
-                // let selected_name;
-                // if let Some(selected_id) = state.create_component_type {
-                //     let selected_info = cell.components().get_info(selected_id).unwrap();
-                //     selected_name = registry.get(selected_info.type_id().unwrap()).unwrap().short_name().to_string();
-                // } else {
-                //     selected_name = "Press to select".to_string();
-                // }
-                // let combo = egui::ComboBox::new(format!("inspect_select"), "New")
-                //     .selected_text(&selected_name).show_ui(ui, |ui| {
-                //         for idx in 0..components_id.len() {
-                //             let c_id = components_id[idx];
-                //             let t_id = types_id[idx];
-
-                //             if editor_registry.silent.contains(&t_id) {
-                //                 continue;
-                //             }
-                            
-                //             let name = registry.get(t_id).unwrap().short_name();
-                //             ui.selectable_value(
-                //                 &mut state.create_component_type, 
-                //                 Some(c_id),
-                //                 name);
-                //         }
-                //     });
-                // if ui.button("Add component").clicked() {
-                //     info!("adding component button clicked");
-                //     if let Some(c_id) = state.create_component_type {
-                //         info!("adding component {:?}", c_id);
-                //         let id = cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                //         for e in selected.iter() {
-                //             commands.push(InspectCommand::AddComponent(*e, id));
-                //         }
-                //     }
-                // }
-
-
-
-            // GIZMO DRAW
-            // Draw gizmo per entity to individual move
-            // If SHIFT pressed draw "mean" gizmo to move all selected entities together
-
-            let view_matrix = Mat4::from(cam_pos.affine().inverse());
-            if ui.input(|s| s.modifiers.shift) {
-                let mut mean_transform = Transform::IDENTITY;
-                for e in &selected {
-                    let Some(ecell) = cell.get_entity(*e) else {
-                        continue;
-                    };
-                    let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
-                        continue;
-                    };
-                    let tr = global_transform.compute_transform();
-                    mean_transform.translation += tr.translation;
-                    mean_transform.scale += tr.scale;
-                }
-                mean_transform.translation /= selected.len() as f32;
-                mean_transform.scale /= selected.len() as f32;
-
-                let mut global_mean = GlobalTransform::from(mean_transform);
-
-                let mut loc_transform = vec![];
-                for e in &selected {
-                    let Some(ecell) = cell.get_entity(*e) else {
-                        continue;
-                    };
-                    let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
-                        continue;
-                    };
-                    loc_transform.push(global_transform.reparented_to(&global_mean));
-                }
-
-                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo mean global"))
-                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                    .view_matrix(view_matrix.to_cols_array_2d())
-                    .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
-                    .mode(state.gizmo_mode.clone())
-                    .interact(ui) {
-
-                    mean_transform = Transform {
-                        translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                        rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                        scale: Vec3::from(<[f32; 3]>::from(result.scale)),
-                    };
-                    disable_pan_orbit = true;
-                }
-
-                global_mean = GlobalTransform::from(mean_transform);
-
-                for (idx, e) in selected.iter().enumerate() {
-                    let Some(ecell) = cell.get_entity(*e) else {
-                        continue;
-                    };
-                    let Some(mut transform) = ecell.get_mut::<Transform>() else {
-                        continue;
-                    };
-
-                    let new_global = global_mean.mul_transform(loc_transform[idx]);
-
-                    if let Some(parent) = ecell.get::<Parent>() {
-                        if let Some(parent) = cell.get_entity(parent.get()) {
-                            if let Some(parent_global) = parent.get::<GlobalTransform>() {
-                                *transform = new_global.reparented_to(&parent_global);
-                            }
-                        }
-                    } else {
-                        *transform = new_global.compute_transform();
-                    }
-                }
-            } else {
-                for e in &selected {
-                    let Some(ecell) = cell.get_entity(*e) else {
-                        continue;
-                    };
-                    let Some(mut transform) = ecell.get_mut::<Transform>() else {
-                        continue;
-                    };
-                    if let Some(parent) = ecell.get::<Parent>() {
-                        if let Some(parent) = cell.get_entity(parent.get()) {
-                            if let Some(parent_global) = parent.get::<GlobalTransform>() {
-                                if let Some(global) = ecell.get::<GlobalTransform>() {
-                                    if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                                        .view_matrix(view_matrix.to_cols_array_2d())
-                                        .model_matrix(global.compute_matrix().to_cols_array_2d())
-                                        .mode(state.gizmo_mode.clone())
-                                        .interact(ui) {
-                                        
-                                        let new_transform = Transform {
-                                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                                            scale: Vec3::from(<[f32; 3]>::from(result.scale)),
-                                        };
-
-                                        let new_transform = GlobalTransform::from(new_transform);
-                                        *transform = new_transform.reparented_to(&parent_global);
-                                        transform.set_changed();
-                                    }
-                                    disable_pan_orbit = true;
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                    if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                        .view_matrix(view_matrix.to_cols_array_2d())
-                        .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                        .mode(state.gizmo_mode.clone())
-                        .interact(ui) {
-
-                        *transform = Transform {
-                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                            scale: Vec3::from(<[f32; 3]>::from(result.scale)),
-                        };
-                        transform.set_changed();
-                        disable_pan_orbit = true;
-                    }
-                }
-            }
         });
 
         state.commands = commands;
