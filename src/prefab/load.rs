@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
 
 use crate::{editor_registry::EditorRegistryExt, PrefabMarker};

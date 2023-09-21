@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use bevy::prelude::*;
-use bevy_egui::*;
+
 
 use super::ui_camera_block;
 

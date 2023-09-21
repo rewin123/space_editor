@@ -9,7 +9,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink};
+use crate::{editor_registry::EditorRegistry, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink};
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
 

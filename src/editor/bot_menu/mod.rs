@@ -1,6 +1,6 @@
-use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{entity::EntityMap, reflect::ReflectMapEntities}, utils::HashMap};
+
+use bevy::{prelude::*, ecs::entity::EntityMap};
 use bevy_egui::*;
 
 use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy, EditorState, EditorSet};

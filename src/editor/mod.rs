@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::{prelude::*, render::camera::RenderTarget};
+use bevy::prelude::*;
 
 /// Contains all component inspector login
 pub mod inspector;
@@ -21,7 +21,7 @@ use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlu
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::{CameraPlay, MeshPrimitivePrefab}}, PrefabMarker, EditorCameraMarker};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker};
 
 use self::prelude::Selected;
 
