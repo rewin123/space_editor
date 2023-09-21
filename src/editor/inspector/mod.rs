@@ -15,7 +15,7 @@ use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented}
 
 use super::{selected::{SelectedPlugin, Selected}, reset_pan_orbit_state, PanOrbitEnabled, ui_camera_block};
 
-/// Entities with this marker will be skiped in inspector
+/// Entities with this marker will be skipped in inspector
 #[derive(Component)]
 pub struct SkipInspector;
 

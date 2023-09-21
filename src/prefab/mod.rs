@@ -2,7 +2,7 @@
 pub mod component;
 /// Contains systems for spawning prefabs
 pub mod spawn_system;
-/// Containg systems for saving prefab
+/// Contains systems for saving prefab
 pub mod save;
 /// Contains systems for loading prefab from file
 pub mod load;
@@ -55,7 +55,7 @@ impl Plugin for PrefabPlugin {
         app.register_type::<CylinderPrefab>();
         app.register_type::<IcospherePrefab>();
         app.register_type::<PlanePrefab>();
-        app.register_type::<RegularPoligonPrefab>();
+        app.register_type::<RegularPolygonPrefab>();
         app.register_type::<TorusPrefab>();
 
         //material registration
@@ -93,7 +93,7 @@ impl Plugin for PrefabPlugin {
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
         app.add_systems(Update, spawn_scene.in_set(PrefabSet::PrefabLoad));
-        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visiblity, remove_computed_visiblity).in_set(PrefabSet::Relation));
+        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visibility, remove_computed_visibility).in_set(PrefabSet::Relation));
 
         app.add_systems(
             Update,
@@ -113,13 +113,13 @@ impl Plugin for PrefabPlugin {
 
 
 fn draw_camera_gizmo(
-    mut gizom : Gizmos,
+    mut gizmos : Gizmos,
     cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
 ) {
     for (transform, projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(2.0, 1.0, 1.0));
-        gizom.cuboid(cuboid_transform, Color::PINK);
+        gizmos.cuboid(cuboid_transform, Color::PINK);
     }
 }
 
@@ -161,7 +161,7 @@ fn remove_global_transform(
     }
 }
 
-fn add_computed_visiblity(
+fn add_computed_visibility(
     mut commands : Commands,
     query : Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>
 ) {
@@ -170,7 +170,7 @@ fn add_computed_visiblity(
     }
 }
 
-fn remove_computed_visiblity(
+fn remove_computed_visibility(
     mut commands : Commands,
     query : Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>
 ) {

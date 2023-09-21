@@ -128,9 +128,9 @@ pub fn register_default_editor_bundles(app : &mut App) {
         Transform::default(),
         Visibility::default()
     ));
-    app.editor_bundle("Mesh", "RegularPoligon", (
-        MeshPrimitivePrefab::RegularPoligon(RegularPoligonPrefab::default()),
-        Name::new("RegularPoligon".to_string()),
+    app.editor_bundle("Mesh", "RegularPolygon", (
+        MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
+        Name::new("RegularPolygon".to_string()),
         Transform::default(),
         Visibility::default()
     ));

@@ -45,15 +45,15 @@ pub fn spawn_scene(
 pub fn sync_mesh(
     mut commands : Commands,
     query : Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
-    mut meshs : ResMut<Assets<Mesh>>
+    mut meshes : ResMut<Assets<Mesh>>
 ) {
     for (e, pref) in query.iter() {
-        let mesh = meshs.add(pref.to_mesh());
+        let mesh = meshes.add(pref.to_mesh());
         commands.entity(e).insert(mesh);
     }
 }
 
-/// System to sync StandartMaterial and MaterialPrefab
+/// System to sync StandardMaterial and MaterialPrefab
 pub fn sync_material(
     mut commands : Commands,
     query : Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
