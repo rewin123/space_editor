@@ -245,7 +245,7 @@ pub fn ui_camera_block(
 
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
-    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>, Without<CameraPlay>)>,
+    mut cameras : Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
     mut play_cameras : Query<(&mut Camera, &CameraPlay), (Without<EditorCameraMarker>, With<CameraPlay>)>
 ) {
     if !play_cameras.is_empty() {
@@ -257,8 +257,8 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>)>,
-    mut play_cameras : Query<&mut Camera, (Without<EditorCameraMarker>)>
+    mut cameras : Query<&mut Camera, With<EditorCameraMarker>>,
+    mut play_cameras : Query<&mut Camera, Without<EditorCameraMarker>>
 ) {
     for mut ecam in cameras.iter_mut() {
         ecam.is_active = true;
@@ -270,7 +270,7 @@ pub fn change_camera_in_editor(
 }
 
 fn disable_no_editor_cams(
-    mut cameras : Query<(&mut Camera), (Without<EditorCameraMarker>)>,
+    mut cameras : Query<&mut Camera, Without<EditorCameraMarker>>,
 ) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
