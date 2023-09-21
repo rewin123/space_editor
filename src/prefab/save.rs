@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
-use std::{any::TypeId, default, fs::File, io::Write};
+use std::{any::TypeId, fs::File, io::Write};
 
 use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 

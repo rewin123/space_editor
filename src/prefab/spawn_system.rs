@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
-use super::{component::*, load::PrefabLoader};
+use super::component::*;
 
 /// This system using for spawning gltf scene
 pub fn spawn_scene(

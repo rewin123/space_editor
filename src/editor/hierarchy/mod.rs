@@ -1,7 +1,7 @@
-use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{PrefabMarker, prelude::{EditorRegistry, inspect}, prefab::add_global_transform, EditorSet};
+use crate::{PrefabMarker, prelude::EditorRegistry, EditorSet};
 
 use super::{selected::*, ui_camera_block, ui_registration::*};
 

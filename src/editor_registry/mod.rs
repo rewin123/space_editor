@@ -1,8 +1,7 @@
-use std::{marker::PhantomData, sync::Arc, any::Any};
+use std::sync::Arc;
 
-use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration, TypePath}, ecs::{system::{EntityCommand, EntityCommands}, component::ComponentId, world::unsafe_world_cell::UnsafeWorldCell}, utils::{HashMap, HashSet}};
-use bevy_egui::egui;
-use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
+use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration, TypePath}, ecs::system::{EntityCommand, EntityCommands}, utils::{HashMap, HashSet}};
+
 use std::any::TypeId;
 
 use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}, PrefabSet};

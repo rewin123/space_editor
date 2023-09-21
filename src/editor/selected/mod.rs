@@ -1,6 +1,6 @@
 
 
-use bevy::{prelude::*, utils::HashSet, pbr::wireframe::{Wireframe, WireframePlugin}};
+use bevy::{prelude::*, pbr::wireframe::{Wireframe, WireframePlugin}};
 
 use crate::EditorSet;
 

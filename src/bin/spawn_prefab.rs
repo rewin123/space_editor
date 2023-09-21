@@ -1,5 +1,5 @@
 use bevy_panorbit_camera::PanOrbitCameraPlugin;
-use space_editor::prelude::{*, load::{PrefabLoader, PrefabBundle}};
+use space_editor::prelude::{*, load::{PrefabBundle}};
 use bevy::prelude::*;
 
 fn main() {
