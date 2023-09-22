@@ -32,7 +32,7 @@ impl Plugin for SpaceHierarchyPlugin {
         }
 
         app.add_systems(Update, show_hierarchy.before(ui_camera_block).in_set(EditorSet::Editor));
-        app.add_systems(Update, clone_enitites.after(show_hierarchy).in_set(EditorSet::Editor));
+        app.add_systems(Update, clone_entities.after(show_hierarchy).in_set(EditorSet::Editor));
         app.add_event::<CloneEvent>();
     }
 }
@@ -51,7 +51,7 @@ pub fn show_hierarchy(
     let pointer_used = contexts.ctx_mut().is_using_pointer();
     egui::SidePanel::left("Scene hierarchy")
             .show(contexts.ctx_mut(), |ui| {
-        ui.label(egui::RichText::new("Hiearachy"));
+        ui.label(egui::RichText::new("Hierarchy"));
 
         for (entity, _, _, parent) in all.iter() {
             if parent.is_none() {
@@ -161,7 +161,7 @@ struct CloneStep {
     parent : Option<Entity>
 }
 
-fn clone_enitites(
+fn clone_entities(
     mut commands : Commands,
     query : Query<EntityRef>,
     mut events : EventReader<CloneEvent>,

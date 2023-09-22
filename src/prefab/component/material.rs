@@ -1,7 +1,7 @@
 
 use crate::ext::*;
 
-/// Prefab component that store parametrs and asset patrhs for creating StandartMaterial
+/// Prefab component that store parameters and asset paths for creating StandardMaterial
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
 pub struct MaterialPrefab {
@@ -69,7 +69,7 @@ fn try_image(path : &String, asset_server : &AssetServer) -> Option<Handle<Image
 
 impl MaterialPrefab {
 
-    /// Convert MaterialPrefab to StandartMaterial
+    /// Convert MaterialPrefab to StandardMaterial
     pub fn to_material(&self, asset_server : &AssetServer) -> StandardMaterial {
         let base_color_texture = try_image(&self.base_color_texture, asset_server);
         let emissive_texture = try_image(&self.emissive_texture, asset_server);

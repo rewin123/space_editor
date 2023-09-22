@@ -7,7 +7,7 @@ use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::
 use crate::prefab::component::EntityLink;
 
 
-/// Metho from bevy_inspector_egui to make dummy reflection ui
+/// Method from bevy_inspector_egui to make dummy reflection ui
 pub fn many_unimplemented<T: Any>(
     ui: &mut egui::Ui,
     _options: &dyn Any,

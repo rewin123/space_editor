@@ -10,8 +10,8 @@ pub mod bot_menu;
 pub mod hierarchy;
 /// Contains logic for selecting entities
 pub mod selected;
-/// Not used riught now. Planned to be asset inspector UI for all assets in asset/ folder
-pub mod asset_insector;
+/// Not used right now. Planned to be asset inspector UI for all assets in asset/ folder
+pub mod asset_inspector;
 /// Contains logic to register editor bundles for fast spawning entities with fixed components set
 pub mod ui_registration;
 
@@ -233,7 +233,7 @@ pub fn update_pan_orbit(
 }
 
 
-/// Sytem to block camera control if egui is using mouse 
+/// System to block camera control if egui is using mouse
 pub fn ui_camera_block(
     mut ctxs : EguiContexts,
     mut state : ResMut<PanOrbitEnabled>
@@ -278,24 +278,24 @@ fn disable_no_editor_cams(
 }
 
 fn draw_camera_gizmo(
-    mut gizom : Gizmos,
+    mut gizmos : Gizmos,
     cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
 ) {
     for (transform, projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
-        gizom.cuboid(cuboid_transform, Color::PINK);
+        gizmos.cuboid(cuboid_transform, Color::PINK);
 
         let scale = 1.5;
         
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
+        gizmos.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizmos.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizmos.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
+        gizmos.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
 
         let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
         let rect_transform = transform.mul_transform(rect_transform);
 
-        gizom.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
+        gizmos.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
     }
 }

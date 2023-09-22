@@ -81,13 +81,13 @@ impl ColliderPrimitive {
 pub fn update_collider(
     mut commands : Commands,
     query : Query<(Entity, &ColliderPrefab, Option<&RigidBodyPrefab>, Option<&Transform>, Option<&Handle<Mesh>>, Option<&MeshPrimitivePrefab>), Changed<ColliderPrefab>>,
-    updated_meshs : Query<(Entity, &ColliderPrefab, &Handle<Mesh>), Changed<Handle<Mesh>>>,
-    updated_prefab_meshs : Query<(Entity, &ColliderPrefab, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
-    meshs : Res<Assets<Mesh>>
+    updated_meshes : Query<(Entity, &ColliderPrefab, &Handle<Mesh>), Changed<Handle<Mesh>>>,
+    updated_prefab_meshes : Query<(Entity, &ColliderPrefab, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
+    meshes : Res<Assets<Mesh>>
 ) {
     for (e, collider, rigidbody, transform, mesh, prefab_mesh) in query.iter() {
         commands.entity(e).remove::<Collider>();
-        let col = get_collider(collider, mesh, &meshs, prefab_mesh);  
+        let col = get_collider(collider, mesh, &meshes, prefab_mesh);
         commands.entity(e).insert(col);
 
         if rigidbody.is_none() {
@@ -99,9 +99,9 @@ pub fn update_collider(
         }
     }
 
-    for (e, collider, mesh) in updated_meshs.iter() {
+    for (e, collider, mesh) in updated_meshes.iter() {
         if *collider == ColliderPrefab::FromMesh {
-            if let Some(mesh) = meshs.get(mesh) {
+            if let Some(mesh) = meshes.get(mesh) {
                 if let Some(col) = Collider::convex_decomposition_from_bevy_mesh(mesh) {
                     commands.entity(e).insert(col);
                 } else {
@@ -113,7 +113,7 @@ pub fn update_collider(
         }
     }
 
-    for (e, collider, mesh) in updated_prefab_meshs.iter() {
+    for (e, collider, mesh) in updated_prefab_meshes.iter() {
         if *collider == ColliderPrefab::FromPrefabMesh {
             commands.entity(e).remove::<Collider>();
             commands.entity(e).insert(get_prefab_mesh_collider(mesh));
@@ -121,11 +121,11 @@ pub fn update_collider(
     }
 }
 
-fn get_collider(collider: &ColliderPrefab, mesh: Option<&Handle<Mesh>>, meshs: &Assets<Mesh>, prefab_mesh: Option<&MeshPrimitivePrefab>) -> Collider {
+fn get_collider(collider: &ColliderPrefab, mesh: Option<&Handle<Mesh>>, meshes: &Assets<Mesh>, prefab_mesh: Option<&MeshPrimitivePrefab>) -> Collider {
     match collider {
         ColliderPrefab::FromMesh => {
             if let Some(mesh) = mesh {
-                if let Some(mesh) = meshs.get(mesh) {
+                if let Some(mesh) = meshes.get(mesh) {
                     return Collider::trimesh_from_bevy_mesh(mesh).unwrap_or_default();
                 } else {
                     return Collider::default();
@@ -169,7 +169,7 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
         MeshPrimitivePrefab::Cylinder(val) => Collider::cylinder(1.0, val.r),
         MeshPrimitivePrefab::Icosphere(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
         MeshPrimitivePrefab::Plane(val) => Collider::cuboid(val.size, EPS, val.size),
-        MeshPrimitivePrefab::RegularPoligon(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
+        MeshPrimitivePrefab::RegularPolygon(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
         MeshPrimitivePrefab::Torus(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
     };
     col

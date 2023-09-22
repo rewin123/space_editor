@@ -1,7 +1,7 @@
 
 use crate::ext::*;
 
-/// Pomponent to setup mesh of prefab
+/// Component to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
 pub enum MeshPrimitivePrefab {
@@ -14,7 +14,7 @@ pub enum MeshPrimitivePrefab {
     Cylinder(CylinderPrefab),
     Icosphere(IcospherePrefab),
     Plane(PlanePrefab),
-    RegularPoligon(RegularPoligonPrefab),
+    RegularPolygon(RegularPolygonPrefab),
     Torus(TorusPrefab),
 }
 
@@ -37,7 +37,7 @@ impl MeshPrimitivePrefab {
             MeshPrimitivePrefab::Cylinder(c) => c.to_mesh(),
             MeshPrimitivePrefab::Icosphere(c) => c.to_mesh(),
             MeshPrimitivePrefab::Plane(c) => c.to_mesh(),
-            MeshPrimitivePrefab::RegularPoligon(c) => c.to_mesh(),
+            MeshPrimitivePrefab::RegularPolygon(c) => c.to_mesh(),
             MeshPrimitivePrefab::Torus(c) => c.to_mesh()
         }
     }
@@ -271,16 +271,16 @@ impl PlanePrefab {
 }
 
 
-/// Values to setup regular poligon mesh
+/// Values to setup regular polygon mesh
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
-pub struct RegularPoligonPrefab {
+pub struct RegularPolygonPrefab {
     pub radius : f32,
     #[inspector(min = 3)]
     pub sides : usize,
 }
 
-impl Default for RegularPoligonPrefab {
+impl Default for RegularPolygonPrefab {
     fn default() -> Self {
         let def = shape::RegularPolygon::default();
         Self {
@@ -290,7 +290,7 @@ impl Default for RegularPoligonPrefab {
     }
 }
 
-impl RegularPoligonPrefab {
+impl RegularPolygonPrefab {
     pub fn to_mesh(&self) -> Mesh {
         let mut data = shape::RegularPolygon::default();
         data.radius = self.radius;

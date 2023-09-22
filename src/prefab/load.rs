@@ -12,8 +12,8 @@ pub struct PrefabBundle {
     transform : Transform,
     global_transform : GlobalTransform,
     
-    visiblity : Visibility,
-    computed_visiblity : ComputedVisibility
+    visibility : Visibility,
+    computed_visibility : ComputedVisibility
 }
 
 impl PrefabBundle {
