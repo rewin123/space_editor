@@ -106,19 +106,46 @@ impl Default for EditorUi {
 }
 
 pub enum EditorUiReg {
-    Trait{show_command : EditorTabShowFn,
+    ResourceBased{show_command : EditorTabShowFn,
         title_command : EditorTabGetTitleFn},
     Schedule
 }
 
 impl EditorUi {
     pub fn ui(&mut self, world : &mut World, ctx : &mut egui::Context) {
+        //collect tab names to vec to detect visible
+        let mut visible = vec![];
+        for tab in self.tree.iter_nodes() {
+            match tab {
+                egui_dock::Node::Empty => {},
+                egui_dock::Node::Leaf { rect, viewport, tabs, active, scroll } => visible.extend(tabs.clone()),
+                egui_dock::Node::Vertical { rect, fraction } => {},
+                egui_dock::Node::Horizontal { rect, fraction } => {},
+            }
+        }
+
+        
         let mut tab_viewer = EditorTabViewer {
             world,
-            registry : &mut self.registry
+            registry : &mut self.registry,
+            visible,
+            commands: vec![],
         };
+
         DockArea::new(&mut self.tree)
+            .show_add_buttons(true)
+            .show_add_popup(true)
             .show(ctx, &mut tab_viewer);
+
+        for command in tab_viewer.commands {
+            match command {
+                EditorTabCommand::Add { name, surface, node } => {
+                    if let Some(surface) = self.tree.get_surface_mut(surface) {
+                        surface.node_tree_mut().unwrap().split_right(node, 0.5, vec![name]);
+                    }
+                },
+            }
+        }
     }
 }
 
@@ -135,7 +162,7 @@ impl EditorUiAppExt for App {
                 data.ui(ui, scoped_world)
             });
         });
-        let reg = EditorUiReg::Trait { 
+        let reg = EditorUiReg::ResourceBased { 
             show_command: show_fn, 
             title_command: Box::new(|world| {
                 world.resource_mut::<T>().title()

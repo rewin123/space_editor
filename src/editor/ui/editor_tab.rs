@@ -22,9 +22,16 @@ pub enum EditorTabName {
 pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut World) + Send + Sync>;
 pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> WidgetText + Send + Sync>;
 
+pub enum EditorTabCommand {
+    Add{name : EditorTabName, surface: egui_dock::SurfaceIndex, node: egui_dock::NodeIndex}
+}
+
 pub struct EditorTabViewer<'a> {
     pub world : &'a mut World,
-    pub registry : &'a mut HashMap<EditorTabName, EditorUiReg>
+    pub registry : &'a mut HashMap<EditorTabName, EditorUiReg>,
+    pub visible : Vec<EditorTabName>,
+    pub commands : Vec<EditorTabCommand>
+
 }
 
 impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
@@ -33,7 +40,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
         if let Some(reg) = self.registry.get_mut(tab_name) {
             match reg {
-                EditorUiReg::Trait { show_command, title_command } => {
+                EditorUiReg::ResourceBased { show_command, title_command } => {
                     show_command(ui, self.world);
                 },
                 EditorUiReg::Schedule => {
@@ -58,7 +65,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
         if let Some(reg) = self.registry.get_mut(tab) {
             match reg {
-                EditorUiReg::Trait { show_command, title_command } => {
+                EditorUiReg::ResourceBased { show_command, title_command } => {
                     title_command(self.world)
                 },
                 EditorUiReg::Schedule => {
@@ -77,6 +84,24 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
 
     fn clear_background(&self, window: &Self::Tab) -> bool {
         !matches!(window, EditorTabName::GameView)
+    }
+
+    fn add_popup(&mut self, ui: &mut egui::Ui, _surface: egui_dock::SurfaceIndex, _node: egui_dock::NodeIndex) {
+        ui.set_min_width(120.0);
+        ui.style_mut().visuals.button_frame = false;
+        let mut counter = 0;
+        for reg in self.registry.iter() {
+            if !self.visible.contains(reg.0) {
+                if ui.button(format!("{:?}", reg.0)).clicked() {
+                    self.commands.push(EditorTabCommand::Add { name: reg.0.clone(), surface: _surface, node: _node });
+                }
+                counter += 1;
+            }
+        }
+
+        if counter == 0 {
+            ui.label("All tabs are showing");
+        }
     }
 }
 
