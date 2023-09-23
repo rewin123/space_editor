@@ -5,6 +5,8 @@ use bevy_egui::*;
 
 use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy, EditorState, EditorSet};
 
+use egui_file::FileDialog;
+
 #[derive(Resource, Default, Clone)]
 pub struct EditorLoader {
     pub scene : Option<Handle<DynamicScene>>
@@ -20,6 +22,7 @@ impl Plugin for BotMenuPlugin {
             app.add_plugins(PrefabPlugin);
         }
         app.init_resource::<EditorLoader>();
+        app.init_resource::<BotMenuState>();
 
         app.add_systems(Update, bot_menu
             .in_set(EditorSet::Editor));
@@ -47,6 +50,11 @@ fn bot_menu_game(
     });
 }
 
+#[derive(Resource, Default)]
+pub struct BotMenuState {
+    pub file_dialog : Option<egui_file::FileDialog>
+}
+
 pub fn bot_menu(
     mut commands : Commands,
     mut ctxs : EguiContexts,
@@ -55,7 +63,8 @@ pub fn bot_menu(
     mut assets : ResMut<AssetServer>,
     mut load_server : ResMut<EditorLoader>,
     mut state : ResMut<NextState<EditorState>>,
-    mut events : EventReader<LoadEvent>
+    mut events : EventReader<LoadEvent>,
+    mut menu_state : ResMut<BotMenuState>
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot menu").show(ctx, |ui| {
@@ -64,6 +73,31 @@ pub fn bot_menu(
 
             ui.label("Save path:");
             ui.add(egui::TextEdit::singleline(&mut save_confg.path));
+
+            if ui.button("📂").clicked() {
+                let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
+                    .filter(Box::new(|path| path.to_str().unwrap().ends_with(".scn.ron")));
+                dialog.open();
+                menu_state.file_dialog = Some(dialog);
+            }
+
+            if let Some(dialog) = &mut menu_state.file_dialog {
+                if dialog.show(ctx).selected() {
+                    if let Some(file) = dialog.path() {
+                        let mut path = file.to_str().unwrap().to_string();
+                        //remove assets/ from path
+                        if path.starts_with("assets/") {
+                            path = path.replace("assets/", "");
+                            //remove .scn.ron
+                            path = path.replace(".scn.ron", "");
+                            save_confg.path = path;
+                            load_server.scene = Some(
+                                assets.load(format!("{}.scn.ron",save_confg.path))
+                            );
+                        }
+                    }
+                }
+            }
 
             if ui.button("Save").clicked() {
                 save_state.set(SaveState::Save);
