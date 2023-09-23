@@ -85,7 +85,6 @@ pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, im
 struct InspectState {
     component_add_filter : String,
     commands : Vec<InspectCommand>,
-    gizmo_mode : GizmoMode
 }
 
 impl Default for InspectState {
@@ -93,7 +92,6 @@ impl Default for InspectState {
         Self {
             component_add_filter : "".to_string(),
             commands : vec![],
-            gizmo_mode : GizmoMode::Translate
         }
     }
 }
@@ -171,32 +169,6 @@ pub fn inspect(
         let mut state = cell.get_resource_mut::<InspectState>().unwrap();
 
         let mut commands : Vec<InspectCommand> = vec![];
-            
-
-            egui::ComboBox::new("gizmo_mode", "Gizmo mode").selected_text(format!("{:?}", &state.gizmo_mode))
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(
-                        &mut state.gizmo_mode, GizmoMode::Translate, format!("{:?}", GizmoMode::Translate));
-                    ui.selectable_value(
-                        &mut state.gizmo_mode, GizmoMode::Rotate, format!("{:?}", GizmoMode::Rotate));
-                    ui.selectable_value(
-                        &mut state.gizmo_mode, GizmoMode::Scale, format!("{:?}", GizmoMode::Scale));
-                });
-
-            ui.label("Press T, R, F to select Translate/Rotate/Scale mode");
-            if ui.input(|i| i.key_pressed(egui::Key::T)) {
-                state.gizmo_mode = GizmoMode::Translate;
-            }
-            if ui.input(|i| i.key_pressed(egui::Key::R)) {
-                state.gizmo_mode = GizmoMode::Rotate;
-            }
-            if ui.input(|i| i.key_pressed(egui::Key::F)) {
-                state.gizmo_mode = GizmoMode::Scale;
-            }
-
-            ui.separator();
-
-
             let mut queue = CommandQueue::default();
             let mut cx = bevy_inspector_egui::reflect_inspector::Context {
                 world: Some(cell.world_mut().into()),

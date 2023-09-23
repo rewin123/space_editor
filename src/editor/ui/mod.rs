@@ -23,7 +23,7 @@ pub use game_view::*;
 use bevy_egui::{egui, EguiContext};
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 
-use crate::prelude::SelectedPlugin;
+use crate::{prelude::SelectedPlugin, EditorSet};
 
 use super::update_pan_orbit;
 
@@ -47,12 +47,14 @@ impl Plugin for EditorUiPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
+        app.add_plugins(bot_menu::BotMenuPlugin);
+
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(Update, (
-            show_editor_ui.before(update_pan_orbit),
+            show_editor_ui.before(update_pan_orbit).after(bot_menu::bot_menu),
             set_camera_viewport
-        ));
+        ).in_set(EditorSet::Editor));
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
 
@@ -61,12 +63,12 @@ impl Plugin for EditorUiPlugin {
 
         if self.use_standart_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
-            editor.tree = egui_dock::Tree::new(vec![
+            editor.tree = egui_dock::DockState::new(vec![
                 EditorTabName::GameView
             ]);
 
-            let [game, right_panel] = editor.tree.split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
-            let [hierarchy, inspector] = editor.tree.split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
+            let [game, right_panel] = editor.tree.main_surface_mut().split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
+            let [hierarchy, inspector] = editor.tree.main_surface_mut().split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
         }
     }
 }
@@ -88,10 +90,19 @@ fn show_editor_ui(
 }
 
 
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct EditorUi {
     pub registry : HashMap<EditorTabName, EditorUiReg>,
-    pub tree : egui_dock::Tree<EditorTabName>
+    pub tree : egui_dock::DockState<EditorTabName>
+}
+
+impl Default for EditorUi {
+    fn default() -> Self {
+        Self {
+            registry : HashMap::default(),
+            tree : egui_dock::DockState::new(vec![])
+        }
+    }
 }
 
 pub enum EditorUiReg {

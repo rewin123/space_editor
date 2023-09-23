@@ -143,8 +143,12 @@ fn select_listener(
     query : Query<Entity, With<Selected>>,
     mut events : EventReader<SelectEvent>,
     mut ctxs : EguiContexts,
+    mut pan_orbit_state : ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
+    if pan_orbit_state.0 == false {
+        return;
+    }
     for event in events.iter() {
         match event.event.button {
             PointerButton::Primary => {

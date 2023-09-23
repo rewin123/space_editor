@@ -1,46 +1,59 @@
 
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow, render::camera::CameraProjection};
-use bevy_egui::egui;
+use bevy_egui::egui::{self, RichText, Key};
 use egui_gizmo::GizmoMode;
 
 use crate::{prelude::{EditorTab, Selected}, EditorCameraMarker, editor::PanOrbitEnabled};
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 pub struct GameViewTab {
-    pub viewport_rect : Option<egui::Rect>
+    pub viewport_rect : Option<egui::Rect>,
+    pub gizmo_mode : GizmoMode
 }
 
-pub fn set_camera_viewport(
-    ui_state: Res<GameViewTab>,
-    primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
-    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
-) {
-    let mut cam = cameras.single_mut();
-
-    let Ok(window) = primary_window.get_single() else {
-        return;
-    };
-
-    let Some(viewport_rect) = ui_state.viewport_rect else {
-        return;
-    };
-
-    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
-
-    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
-    let viewport_size = viewport_rect.size() * scale_factor as f32;
-
-    cam.viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
-        physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
-        depth: 0.0..1.0,
-    });
+impl Default for GameViewTab {
+    fn default() -> Self {
+        Self {
+            viewport_rect : None,
+            gizmo_mode : GizmoMode::Translate
+        }
+    }
 }
 
 impl EditorTab for GameViewTab {
     fn ui(&mut self, ui : &mut bevy_egui::egui::Ui, world : &mut World) {
         self.viewport_rect = Some(ui.clip_rect());
+
+        let mode2name = vec![
+            (GizmoMode::Translate, "Translate"),
+            (GizmoMode::Rotate, "Rotate"),
+            (GizmoMode::Scale, "Scale")
+        ];
+
+        for (mode, name) in mode2name {
+            if self.gizmo_mode == mode {
+                ui.button(RichText::new(name).strong()).clicked();
+            } else {
+                if ui.button(name).clicked() {
+                    self.gizmo_mode = mode;
+                }
+            }
+        }
+
+        if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
+            //hot keys. Blender keys preffer
+            let mode2key = vec![
+                (GizmoMode::Translate, Key::G),
+                (GizmoMode::Rotate, Key::R),
+                (GizmoMode::Scale, Key::S)
+            ];
+
+            for (mode, key) in mode2key {
+                if ui.input(|s| s.key_pressed(key)) {
+                    self.gizmo_mode = mode;
+                }
+            }
+        }
 
         // GIZMO DRAW
         // Draw gizmo per entity to individual move
@@ -93,7 +106,7 @@ impl EditorTab for GameViewTab {
                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                     .view_matrix(view_matrix.to_cols_array_2d())
                     .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
-                    .mode(gizmo_mode.clone())
+                    .mode(self.gizmo_mode.clone())
                     .interact(ui) {
 
                     mean_transform = Transform {
@@ -142,7 +155,7 @@ impl EditorTab for GameViewTab {
                                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                                         .view_matrix(view_matrix.to_cols_array_2d())
                                         .model_matrix(global.compute_matrix().to_cols_array_2d())
-                                        .mode(gizmo_mode.clone())
+                                        .mode(self.gizmo_mode.clone())
                                         .interact(ui) {
                                         
                                         let new_transform = Transform {
@@ -165,7 +178,7 @@ impl EditorTab for GameViewTab {
                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                         .view_matrix(view_matrix.to_cols_array_2d())
                         .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                        .mode(gizmo_mode.clone())
+                        .mode(self.gizmo_mode.clone())
                         .interact(ui) {
 
                         *transform = Transform {
@@ -188,4 +201,33 @@ impl EditorTab for GameViewTab {
     fn title(&self) -> bevy_egui::egui::WidgetText {
         "Game view".into()
     }
+}
+
+
+pub fn set_camera_viewport(
+    ui_state: Res<GameViewTab>,
+    primary_window: Query<&mut Window, With<PrimaryWindow>>,
+    egui_settings: Res<bevy_egui::EguiSettings>,
+    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
+) {
+    let mut cam = cameras.single_mut();
+
+    let Ok(window) = primary_window.get_single() else {
+        return;
+    };
+
+    let Some(viewport_rect) = ui_state.viewport_rect else {
+        return;
+    };
+
+    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
+
+    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
+    let viewport_size = viewport_rect.size() * scale_factor as f32;
+
+    cam.viewport = Some(bevy::render::camera::Viewport {
+        physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
+        physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
+        depth: 0.0..1.0,
+    });
 }

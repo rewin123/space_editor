@@ -22,7 +22,6 @@ impl Plugin for BotMenuPlugin {
         app.init_resource::<EditorLoader>();
 
         app.add_systems(Update, bot_menu
-            .after(show_hierarchy)
             .in_set(EditorSet::Editor));
         app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));
         app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
@@ -48,7 +47,7 @@ fn bot_menu_game(
     });
 }
 
-fn bot_menu(
+pub fn bot_menu(
     mut commands : Commands,
     mut ctxs : EguiContexts,
     mut save_confg : ResMut<SaveConfig>,
@@ -59,7 +58,8 @@ fn bot_menu(
     mut events : EventReader<LoadEvent>
 ) {
     let ctx = ctxs.ctx_mut();
-    egui::TopBottomPanel::bottom("bot_panel").show(ctx, |ui| {
+    egui::TopBottomPanel::bottom("bot menu").show(ctx, |ui| {
+
         ui.horizontal(|ui| {
 
             ui.label("Save path:");
