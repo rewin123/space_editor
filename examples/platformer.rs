@@ -1,12 +1,12 @@
-use std::any::{Any, TypeId};
+
+// Simple platformer example
+// Run command:
+// cargo run run --example platformer --features bevy_xpbd_3d
 
 use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
-//Simple platformer example
-//To run execute command:
-// cargo run run --example platformer --features bevy_xpbd_3d
 
 fn main() {
     App::default()
@@ -22,7 +22,7 @@ fn main() {
         .editor_relation::<FollowCamera, Camera3d>()
         
         .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
-        .add_systems(PostUpdate, camera_follow.run_if(in_state(EditorState::Game)))
+        .add_systems(PostUpdate, camera_follow.after(bevy_xpbd_3d::PhysicsSet::Sync).run_if(in_state(EditorState::Game)))
         .run();
 }
 
@@ -109,7 +109,9 @@ fn move_player(
 
             //smooth change vel
             let cur_vel = vel.0.clone();
-            vel.0 = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
+            let cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
+            vel.0 = cur_vel;
+
         } else {
 
         }

@@ -10,7 +10,16 @@ pub use camera::*;
 pub mod player_start;
 pub use player_start::*;
 
+pub mod path;
+pub use path::*;
+
 use bevy::{prelude::*, reflect::*, utils::HashMap};
+
+pub trait AssetPath {
+    fn get_filter(&self) -> egui_file::Filter;
+    fn set_path(&mut self, path : &str);
+    fn get_path_mut(&mut self) -> &mut String;
+}
 
 /// Component to define path to gltf asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone)]

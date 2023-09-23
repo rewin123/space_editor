@@ -41,7 +41,7 @@ impl Plugin for BevyXpbdPlugin {
         app.register_type::<Vec<ColliderPart>>();
         app.register_type::<ColliderPrefabCompound>();
 
-        app.add_systems(Update, (collider::update_collider, editor_pos_change).in_set(PrefabSet::DetectPrefabChange));
+        app.add_systems(Update, (collider::update_collider, editor_pos_change).in_set(PrefabSet::DetectPrefabChange).run_if(in_state(EditorState::Editor)));
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(Update, rigidbody_type_change.run_if(in_state(EditorState::Game)).in_set(PrefabSet::DetectPrefabChange));
         app.add_systems(OnEnter(EditorState::Editor), force_rigidbody_type_change_in_editor);

@@ -8,14 +8,16 @@ use crate::{prelude::{EditorTab, Selected}, EditorCameraMarker, editor::PanOrbit
 #[derive(Resource)]
 pub struct GameViewTab {
     pub viewport_rect : Option<egui::Rect>,
-    pub gizmo_mode : GizmoMode
+    pub gizmo_mode : GizmoMode,
+    pub smoothed_dt : f32
 }
 
 impl Default for GameViewTab {
     fn default() -> Self {
         Self {
             viewport_rect : None,
-            gizmo_mode : GizmoMode::Translate
+            gizmo_mode : GizmoMode::Translate,
+            smoothed_dt : 0.0
         }
     }
 }
@@ -54,6 +56,11 @@ impl EditorTab for GameViewTab {
                 }
             }
         }
+
+        //Draw FPS
+        let dt = world.get_resource::<Time>().unwrap().delta_seconds();
+        self.smoothed_dt = self.smoothed_dt * 0.98 + dt * 0.02;
+        ui.colored_label(egui::Color32::WHITE, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
 
         // GIZMO DRAW
         // Draw gizmo per entity to individual move

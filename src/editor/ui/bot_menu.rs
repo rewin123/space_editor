@@ -3,9 +3,7 @@ use std::any::TypeId;
 use bevy::{prelude::*, ecs::{entity::EntityMap, reflect::ReflectMapEntities}, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::show_hierarchy, EditorState, EditorSet};
-
-use egui_file::FileDialog;
+use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::{show_hierarchy, EditorEvent}, EditorState, EditorSet};
 
 #[derive(Resource, Default, Clone)]
 pub struct EditorLoader {
@@ -26,7 +24,6 @@ impl Plugin for BotMenuPlugin {
 
         app.add_systems(Update, bot_menu
             .in_set(EditorSet::Editor));
-        app.add_systems(Update, (apply_deferred, load_listener).chain().after(bot_menu).in_set(EditorSet::Editor));
         app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
         app.add_event::<LoadEvent>();
     }
@@ -38,14 +35,19 @@ pub struct LoadEvent {
 }
 
 fn bot_menu_game(
+    mut smoothed_dt : Local<f32>,
     mut ctxs : EguiContexts,
-    mut state : ResMut<NextState<EditorState>>
+    mut state : ResMut<NextState<EditorState>>,
+    time : Res<Time>
 ) {
     egui::TopBottomPanel::bottom("bot_panel").show(ctxs.ctx_mut(), |ui| {
         ui.vertical_centered(|ui| {
             if ui.button("⏸").clicked() {
                 state.set(EditorState::Editor);
             }
+
+            *smoothed_dt = *smoothed_dt * 0.98 + time.delta_seconds() * 0.02;
+            ui.label(format!("FPS: {:.0}", 1.0 / *smoothed_dt));
         });
     });
 }
@@ -56,15 +58,15 @@ pub struct BotMenuState {
 }
 
 pub fn bot_menu(
-    mut commands : Commands,
     mut ctxs : EguiContexts,
     mut save_confg : ResMut<SaveConfig>,
     mut save_state : ResMut<NextState<SaveState>>,
-    mut assets : ResMut<AssetServer>,
+    assets : Res<AssetServer>,
     mut load_server : ResMut<EditorLoader>,
     mut state : ResMut<NextState<EditorState>>,
     mut events : EventReader<LoadEvent>,
-    mut menu_state : ResMut<BotMenuState>
+    mut menu_state : ResMut<BotMenuState>,
+    mut editor_events : EventWriter<EditorEvent>
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot menu").show(ctx, |ui| {
@@ -76,7 +78,8 @@ pub fn bot_menu(
 
             if ui.button("📂").clicked() {
                 let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                    .filter(Box::new(|path| path.to_str().unwrap().ends_with(".scn.ron")));
+                    .filter(Box::new(|path| path.to_str().unwrap().ends_with(".scn.ron")))
+                    .title("Open prefab (*.scn.ron)");
                 dialog.open();
                 menu_state.file_dialog = Some(dialog);
             }
@@ -96,20 +99,37 @@ pub fn bot_menu(
                             );
                         }
                     }
+                } else {
+                    let mut need_move_to_default_dir = false;
+                    if let Some(path) = dialog.path() {
+                        if let Some(path) = path.to_str() {
+                            if !path.contains("assets") {
+                                need_move_to_default_dir = true;
+                            }
+                        } else {
+                            need_move_to_default_dir = true;
+                        }
+                    } else {
+                        need_move_to_default_dir = true;
+                    }
+                    if need_move_to_default_dir {
+                        dialog.set_path("assets/");
+                    }
                 }
             }
 
             if ui.button("Save").clicked() {
-                save_state.set(SaveState::Save);
+                
+                editor_events.send(EditorEvent::Save(save_confg.path.clone()));
             }
 
             if ui.button("Load").clicked() {
                 if !save_confg.path.is_empty() {
-                    load_server.scene = Some(
-                        assets.load(format!("{}.scn.ron",save_confg.path))
-                    );
+                    editor_events.send(EditorEvent::Load(format!("{}.scn.ron",save_confg.path)));
+                    // load_server.scene = Some(
+                    //     assets.load(format!("{}.scn.ron",save_confg.path))
+                    // );
                 }
-                // TODO: else show notification with information
             }
 
             if ui.button("▶").clicked() {
@@ -125,44 +145,4 @@ pub fn bot_menu(
         );
     } 
     events.clear();
-}
-
-fn load_listener(
-    world : &mut World
-) {
-    let app_registry = world.resource::<AppTypeRegistry>().clone();
-    let load_server = world.resource::<EditorLoader>().clone();
-    let mut prefab;
-    {
-        let assets = world.resource::<Assets<DynamicScene>>();
-        if let Some(scene) = &load_server.scene {
-            if let Some(scene) = assets.get(scene) {
-                let mut scene = Scene::from_dynamic_scene(scene, &app_registry).unwrap();
-                scene.world.insert_resource(app_registry.clone());
-                prefab = DynamicScene::from_scene(&scene); //kill me, is it clone() analog for DynamicScene
-            } else {
-                return;
-            }
-        } else {
-            return;
-        }
-    }
-    world.resource_mut::<EditorLoader>().scene = None;
-
-    let  mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
-    let mark_to_delete : Vec<_> = query.iter(&world).collect();
-    for entity in mark_to_delete {
-        world.entity_mut(entity).despawn_recursive();
-    }
-
-    for entity in &mut prefab.entities {
-
-        entity.components.push(
-            Box::new(PrefabMarker)
-        );
-    }
-
-    let mut map = EntityMap::default();
-    prefab.write_to_world(world, &mut map);
-
 }

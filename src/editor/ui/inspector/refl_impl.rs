@@ -4,7 +4,7 @@ use bevy::{prelude::{AppTypeRegistry, ResMut}, reflect::Reflect};
 use bevy_egui::egui;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 
-use crate::prefab::component::EntityLink;
+use crate::prefab::component::{EntityLink, AssetPath};
 
 
 /// Metho from bevy_inspector_egui to make dummy reflection ui

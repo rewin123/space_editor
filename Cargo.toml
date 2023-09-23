@@ -31,6 +31,9 @@ egui_file = "0.10.2"
 bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git", optional = true}
 bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false, features = ["3d", "f32", "collider-from-mesh"],  optional = true}
 
+[profile.dev.package.bevy_xpbd_3d]
+opt-level = 3
+
 [features]
 f64 = ["dep:bevy_transform64", "bevy_xpbd_3d?/f64"]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin"]

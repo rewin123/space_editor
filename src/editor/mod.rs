@@ -18,7 +18,7 @@ use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraP
 
 use ui_registration::*;
 
-use self::prelude::{EditorUiPlugin, hierarchy, EditorUi};
+use self::prelude::{EditorUiPlugin, hierarchy, EditorUi, EditorCore};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -52,6 +52,8 @@ impl Plugin for EditorPlugin {
         app.init_resource::<prelude::EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
+
+        app.add_plugins(EditorCore);
 
         app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
 
