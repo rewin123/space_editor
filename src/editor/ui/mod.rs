@@ -25,6 +25,8 @@ use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 
 use crate::prelude::SelectedPlugin;
 
+use super::update_pan_orbit;
+
 
 pub struct EditorUiPlugin {
     pub use_standart_layout : bool
@@ -47,7 +49,10 @@ impl Plugin for EditorUiPlugin {
 
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
-        app.add_systems(Update, show_editor_ui);
+        app.add_systems(Update, (
+            show_editor_ui.before(update_pan_orbit),
+            set_camera_viewport
+        ));
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
 
