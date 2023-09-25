@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 
 pub mod ui;
 pub mod core;
@@ -18,7 +18,7 @@ use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraP
 
 use ui_registration::*;
 
-use self::prelude::{EditorUiPlugin, EditorCore};
+use self::prelude::EditorUiPlugin;
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -53,7 +53,7 @@ impl Plugin for EditorPlugin {
 
         app.insert_resource(PanOrbitEnabled(true));
 
-        app.add_plugins(EditorCore);
+        app.add_plugins(prelude::EditorCore);
 
         app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
 

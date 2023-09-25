@@ -9,7 +9,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
 
 
-use crate::{editor_registry::{EditorRegistry}, EditorCameraMarker, prefab::component::EntityLink, prelude::{Selected, EditorTab}};
+use crate::{editor_registry::EditorRegistry, prefab::component::EntityLink, prelude::{Selected, EditorTab}};
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
 
@@ -138,25 +138,12 @@ pub fn inspect(
     let app_registry = world.resource::<AppTypeRegistry>().clone();
     let world_registry = app_registry.read();
     let disable_pan_orbit = false;
-    let ctx_e;
-    {
-        let mut ctx_query = world.query_filtered::<Entity, (With<EguiContext>, With<Window>)>();
-        ctx_e = ctx_query.get_single(world).unwrap();
-    }
 
     let mut components_id = Vec::new();
     let mut types_id = Vec::new();
     let mut components_by_entity: HashMap<u32, Vec<ComponentId>> = HashMap::new();
     let mut types_by_entity: HashMap<u32, Vec<TypeId>> = HashMap::new();
 
-    let cam_proj;
-    let cam_pos;
-    {
-        let mut cam_query = world.query_filtered::<(&Projection, &GlobalTransform), With<EditorCameraMarker>>();
-        let (proj, pos) = cam_query.single(world);
-        cam_proj = proj.clone();
-        cam_pos = *pos;
-    }
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
             components_id.push(c_id);

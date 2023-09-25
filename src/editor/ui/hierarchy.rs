@@ -152,11 +152,6 @@ fn draw_entity(
     });
 }
 
-struct CloneStep {
-    src_id : Entity,
-    dst_id : Entity,
-    parent : Option<Entity>
-}
 
 fn clone_enitites(
     mut commands : Commands,

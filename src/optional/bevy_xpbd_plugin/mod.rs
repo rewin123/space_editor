@@ -4,7 +4,7 @@ use crate::{EditorState, PrefabSet};
 
 pub mod collider;
 
-use crate::prelude::{EditorRegistryExt, inspect};
+use crate::prelude::EditorRegistryExt;
 
 use self::collider::{ColliderPrimitive, ColliderPart, ColliderPrefabCompound};
 
@@ -54,9 +54,9 @@ impl Plugin for BevyXpbdPlugin {
 
 fn sync_position_spawn(
     mut commands : Commands,
-    query : Query<(Entity, &Transform), (Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>)>
+    query : Query<(Entity, &Transform), Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>>
 ) {
-    for (e, mut tr) in query.iter() {
+    for (e, tr) in query.iter() {
         commands.entity(e).insert(Position(tr.translation));
         commands.entity(e).insert(Rotation(tr.rotation));
     }
@@ -118,7 +118,7 @@ fn force_rigidbody_type_change(
     mut commands : Commands,
     query : Query<(Entity, &RigidBodyPrefab, Option<&collider::ColliderPrefab>)>
 ) {
-    for (e, tp, col) in query.iter() {
+    for (e, tp, _col) in query.iter() {
         commands.entity(e).remove::<RigidBody>().insert(tp.to_rigidbody());
         // if let Some(col) = col {
         //     commands.entity(e).insert(col.to_collider());
@@ -137,7 +137,6 @@ fn rigidbody_type_change(
 }
 
 pub fn editor_pos_change(
-    mut commands : Commands,
     mut query : Query<(&mut Position, &mut Rotation, &Transform), Changed<Transform>>
 ) {
     for (mut pos, mut rot, transform) in query.iter_mut() {

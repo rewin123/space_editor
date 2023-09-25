@@ -1,5 +1,5 @@
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 pub use bevy_inspector_egui::prelude::*;
 
@@ -68,10 +68,10 @@ impl ColliderPrimitive {
             },
             ColliderPrimitive::Capsule { height, radius } => Collider::capsule(*height, *radius),
             ColliderPrimitive::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*a, *b, *radius),
-            ColliderPrimitive::Cone { height, radius } => (Collider::cone(*height, *radius)),
-            ColliderPrimitive::Cylinder { height, radius } => (Collider::cylinder(*height, *radius)),
-            ColliderPrimitive::Halfspace { outward_normal } => (Collider::halfspace(*outward_normal)),
-            ColliderPrimitive::Triangle { a, b, c } => (Collider::triangle(*a, *b, *c)),
+            ColliderPrimitive::Cone { height, radius } => Collider::cone(*height, *radius),
+            ColliderPrimitive::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
+            ColliderPrimitive::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
+            ColliderPrimitive::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
             ColliderPrimitive::Ball(radius) => Collider::ball(*radius),
             ColliderPrimitive::Segment { a, b } => Collider::segment(*a, *b),
         }
