@@ -115,13 +115,3 @@ pub fn serialize_prefab(
     world.resource_mut::<NextState<SaveState>>().set(SaveState::Idle);
 
 }
-
-
-
-fn load_prefab(
-    _commands : Commands,
-    _query : Query<(Entity, &PrefabLoader)>,
-    _asset_server : Res<AssetServer>
-) {
-
-}
