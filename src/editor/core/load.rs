@@ -39,6 +39,10 @@ pub fn load_listener(
     }
 
     let mut map = EntityMap::default();
-    prefab.write_to_world(world, &mut map);
+    let res = prefab.write_to_world(world, &mut map);
+    match res {
+        Ok(_) => {/*some info planned*/},
+        Err(_) => {/*some info planned*/},
+    }
 
 }

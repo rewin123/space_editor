@@ -16,6 +16,7 @@ impl Plugin for EditorCore {
         app.add_event::<EditorEvent>();
         
         app.add_systems(Update, (apply_deferred, load_listener).chain().after(crate::prelude::bot_menu).in_set(EditorSet::Editor));
+        app.add_systems(Update, editor_event_listener);
     }
 }
 
