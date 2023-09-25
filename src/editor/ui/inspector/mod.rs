@@ -2,14 +2,14 @@ pub mod refl_impl;
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, render::camera::CameraProjection, utils::HashMap};
+use bevy::{prelude::*, ecs::{component::ComponentId, change_detection::MutUntyped, system::CommandQueue}, reflect::ReflectFromPtr, ptr::PtrMut, utils::HashMap};
 
 use bevy_egui::*;
 
 use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
-use egui_gizmo::*;
 
-use crate::{editor_registry::{EditorRegistryExt, EditorRegistry}, EditorSet, EditorCameraMarker, PrefabSet, prefab::component::EntityLink, prelude::{SelectedPlugin, Selected, EditorTab}};
+
+use crate::{editor_registry::{EditorRegistry}, EditorCameraMarker, prefab::component::EntityLink, prelude::{Selected, EditorTab}};
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
 
@@ -71,7 +71,7 @@ fn register_custom_impls(
 }
 
 /// Function form bevy_inspector_egui to split component to data ptr and "set changed" function
-pub fn mut_untyped_split<'a>(mut mut_untyped: MutUntyped<'a>) -> (PtrMut<'a>, impl FnMut() + 'a) {
+pub fn mut_untyped_split(mut mut_untyped: MutUntyped<'_>) -> (PtrMut<'_>, impl FnMut() + '_) {
     // bypass_change_detection returns a `&mut PtrMut` which is basically useless, because all its methods take `self`
     let ptr = mut_untyped.bypass_change_detection();
     // SAFETY: this is exactly the same PtrMut, just not in a `&mut`. The old one is no longer accessible
@@ -129,7 +129,7 @@ pub fn inspect(
 ) {
 
     let selected = world.query_filtered::<Entity, With<Selected>>()
-        .iter(&world)
+        .iter(world)
         .collect::<Vec<_>>();
 
     let editor_registry = world.resource::<EditorRegistry>().clone();
@@ -137,11 +137,11 @@ pub fn inspect(
     let registry = all_registry.read();
     let app_registry = world.resource::<AppTypeRegistry>().clone();
     let world_registry = app_registry.read();
-    let mut disable_pan_orbit = false;
+    let disable_pan_orbit = false;
     let ctx_e;
     {
         let mut ctx_query = world.query_filtered::<Entity, (With<EguiContext>, With<Window>)>();
-        ctx_e = ctx_query.get_single(&world).unwrap();
+        ctx_e = ctx_query.get_single(world).unwrap();
     }
 
     let mut components_id = Vec::new();
@@ -155,7 +155,7 @@ pub fn inspect(
         let mut cam_query = world.query_filtered::<(&Projection, &GlobalTransform), With<EditorCameraMarker>>();
         let (proj, pos) = cam_query.single(world);
         cam_proj = proj.clone();
-        cam_pos = pos.clone();
+        cam_pos = *pos;
     }
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
@@ -165,7 +165,7 @@ pub fn inspect(
     }
 
     unsafe {
-        let mut cell = world.as_unsafe_world_cell();
+        let cell = world.as_unsafe_world_cell();
         let mut state = cell.get_resource_mut::<InspectState>().unwrap();
 
         let mut commands : Vec<InspectCommand> = vec![];
@@ -182,7 +182,7 @@ pub fn inspect(
                         let mut name;
                         if let Some(name_struct) = e.get::<Name>() {
                             name = name_struct.as_str().to_string();
-                            if name == "" {
+                            if name.is_empty() {
                                 name = format!("{:?} (empty name)", e.id());
                             }
                          } else {
@@ -196,14 +196,12 @@ pub fn inspect(
                                 let c_id = components_by_entity
                                     .entry(e_id)
                                     .or_insert(Vec::new())
-                                    .get(idx)
-                                    .map(|v| *v)
+                                    .get(idx).copied()
                                     .unwrap_or(components_id[idx]);
                                 let t_id = types_by_entity
                                     .entry(e_id)
                                     .or_insert(Vec::new())
-                                    .get(idx)
-                                    .map(|v| *v)
+                                    .get(idx).copied()
                                     .unwrap_or(types_id[idx]);
                                 
                                 if let Some(data) = e.get_mut_by_id(c_id) {
@@ -250,7 +248,7 @@ pub fn inspect(
                 let lower_filter = state.component_add_filter.to_lowercase();
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     egui::Grid::new("Component grid").show(ui, |ui| {
-                        let mut counter = 0;
+                        let _counter = 0;
                         for idx in 0..components_id.len() {
                             let c_id = components_id[idx];
                             let t_id = types_id[idx];

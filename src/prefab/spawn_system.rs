@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
-use super::{component::*, load::PrefabLoader};
+use super::{component::*};
 
 /// This system using for spawning gltf scene
 pub fn spawn_scene(
@@ -24,7 +24,7 @@ pub fn spawn_scene(
               scene : SceneBundle { 
                 scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)), 
                 ..default() },
-                hook : SceneHook::new(|e, cmd| {
+                hook : SceneHook::new(|_e, cmd| {
                     cmd.insert(SceneAutoChild);
                 })
              })
@@ -87,7 +87,7 @@ pub fn spawn_player_start(
     for (e, prefab) in query.iter() {
         info!("Spawning player start {:?} {}", e, &prefab.prefab);
         let child = commands.spawn(DynamicSceneBundle {
-            scene : asset_server.load(format!("{}", &prefab.prefab)),
+            scene : asset_server.load(prefab.prefab.to_string()),
             ..default()
         }).id();
         commands.entity(e).add_child(child);

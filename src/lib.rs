@@ -39,18 +39,13 @@ pub mod prelude {
 }
 
 /// Plugin to activate editor UI and prefab plugin
+#[derive(Default)]
 pub struct SpaceEditorPlugin {
 
 }
 
 
-impl Default for SpaceEditorPlugin {
-    fn default() -> Self {
-        Self {
 
-        }
-    }
-}
 
 impl Plugin for SpaceEditorPlugin {    
     fn build(&self, app: &mut App) {

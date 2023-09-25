@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::{prelude::*, render::camera::RenderTarget};
+use bevy::{prelude::*};
 
 pub mod ui;
 pub mod core;
@@ -13,12 +13,12 @@ use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlu
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker, prelude::{Selected, EditorTabName, GameViewTab}};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker, prelude::{Selected, GameViewTab}};
 
 
 use ui_registration::*;
 
-use self::prelude::{EditorUiPlugin, hierarchy, EditorUi, EditorCore};
+use self::prelude::{EditorUiPlugin, EditorCore};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -144,11 +144,11 @@ fn select_listener(
     mut commands : Commands,
     query : Query<Entity, With<Selected>>,
     mut events : EventReader<SelectEvent>,
-    mut ctxs : EguiContexts,
-    mut pan_orbit_state : ResMut<PanOrbitEnabled>,
+    _ctxs : EguiContexts,
+    pan_orbit_state : ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    if pan_orbit_state.0 == false {
+    if !pan_orbit_state.0 {
         return;
     }
     for event in events.iter() {
@@ -250,7 +250,7 @@ pub fn ui_camera_block(
 
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
-    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>, Without<CameraPlay>)>,
+    mut cameras : Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
     mut play_cameras : Query<(&mut Camera, &CameraPlay), (Without<EditorCameraMarker>, With<CameraPlay>)>
 ) {
     if !play_cameras.is_empty() {
@@ -262,8 +262,8 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut cameras : Query<(&mut Camera), (With<EditorCameraMarker>)>,
-    mut play_cameras : Query<&mut Camera, (Without<EditorCameraMarker>)>
+    mut cameras : Query<&mut Camera, With<EditorCameraMarker>>,
+    mut play_cameras : Query<&mut Camera, Without<EditorCameraMarker>>
 ) {
     for mut ecam in cameras.iter_mut() {
         ecam.is_active = true;
@@ -275,7 +275,7 @@ pub fn change_camera_in_editor(
 }
 
 fn disable_no_editor_cams(
-    mut cameras : Query<(&mut Camera), (Without<EditorCameraMarker>)>,
+    mut cameras : Query<&mut Camera, Without<EditorCameraMarker>>,
 ) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
@@ -286,7 +286,7 @@ fn draw_camera_gizmo(
     mut gizom : Gizmos,
     cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
 ) {
-    for (transform, projection) in cameras.iter() {
+    for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
         gizom.cuboid(cuboid_transform, Color::PINK);

@@ -79,11 +79,11 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
 
         let mut res = self.data.clone();
         {
-            let mut res_reflect = res.as_reflect_mut();
+            let res_reflect = res.as_reflect_mut();
             if let ReflectMut::Struct(s) = res_reflect.reflect_mut() {
 
                 for (field_name, path) in self.asset_paths.iter() {
-                    if let Some(field) = s.field_mut(&field_name) {
+                    if let Some(field) = s.field_mut(field_name) {
                         if let Some(handle) = field.downcast_mut::<Handle<Image>>() {
                             *handle = assets.load(path);
                         } else if let Some(handle) = field.downcast_mut::<Handle<Mesh>>() {

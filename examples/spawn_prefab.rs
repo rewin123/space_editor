@@ -13,7 +13,7 @@ fn main() {
 
 fn setup(
     mut commands: Commands,
-    assets : Res<AssetServer>
+    _assets : Res<AssetServer>
 ) {
     // prefab loaded by adding PrefabLoader component to any entity (it will be parent of prefab) or with prefab bundle
     commands.spawn(PrefabBundle::new("tile.scn.ron"))

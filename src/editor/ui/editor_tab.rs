@@ -1,4 +1,4 @@
-use std::{any::TypeId, sync::Arc};
+
 
 use bevy_egui::egui::{self, WidgetText};
 use bevy::{prelude::*, utils::HashMap};
@@ -40,7 +40,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
         if let Some(reg) = self.registry.get_mut(tab_name) {
             match reg {
-                EditorUiReg::ResourceBased { show_command, title_command } => {
+                EditorUiReg::ResourceBased { show_command, title_command: _ } => {
                     show_command(ui, self.world);
                 },
                 EditorUiReg::Schedule => {
@@ -65,7 +65,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
         if let Some(reg) = self.registry.get_mut(tab) {
             match reg {
-                EditorUiReg::ResourceBased { show_command, title_command } => {
+                EditorUiReg::ResourceBased { show_command: _, title_command } => {
                     title_command(self.world)
                 },
                 EditorUiReg::Schedule => {
@@ -113,7 +113,7 @@ pub struct ScheduleEditorTab {
 
 impl EditorTab for ScheduleEditorTab {
     fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
-        let inner_ui = ui.child_ui(ui.max_rect(), ui.layout().clone());
+        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
         world.insert_non_send_resource(EditorUiRef(inner_ui));
 
         self.schedule.run(world);

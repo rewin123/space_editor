@@ -1,9 +1,9 @@
-use std::any::TypeId;
 
-use bevy::{prelude::*, ecs::{entity::EntityMap, reflect::ReflectMapEntities}, utils::HashMap};
+
+use bevy::{prelude::*};
 use bevy_egui::*;
 
-use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, PrefabMarker, prelude::{show_hierarchy, EditorEvent}, EditorState, EditorSet};
+use crate::{prefab::{save::{SaveState, SaveConfig}, PrefabPlugin}, prelude::{EditorEvent}, EditorState, EditorSet};
 
 #[derive(Resource, Default, Clone)]
 pub struct EditorLoader {
@@ -60,7 +60,7 @@ pub struct BotMenuState {
 pub fn bot_menu(
     mut ctxs : EguiContexts,
     mut save_confg : ResMut<SaveConfig>,
-    mut save_state : ResMut<NextState<SaveState>>,
+    _save_state : ResMut<NextState<SaveState>>,
     assets : Res<AssetServer>,
     mut load_server : ResMut<EditorLoader>,
     mut state : ResMut<NextState<EditorState>>,
@@ -123,13 +123,11 @@ pub fn bot_menu(
                 editor_events.send(EditorEvent::Save(save_confg.path.clone()));
             }
 
-            if ui.button("Load").clicked() {
-                if !save_confg.path.is_empty() {
-                    editor_events.send(EditorEvent::Load(format!("{}.scn.ron",save_confg.path)));
-                    // load_server.scene = Some(
-                    //     assets.load(format!("{}.scn.ron",save_confg.path))
-                    // );
-                }
+            if ui.button("Load").clicked() && !save_confg.path.is_empty() {
+                editor_events.send(EditorEvent::Load(format!("{}.scn.ron",save_confg.path)));
+                // load_server.scene = Some(
+                //     assets.load(format!("{}.scn.ron",save_confg.path))
+                // );
             }
 
             if ui.button("▶").clicked() {

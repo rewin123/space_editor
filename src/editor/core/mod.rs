@@ -38,7 +38,7 @@ fn editor_event_listener(
                         assets.load(format!("{}.scn.ron", path))
                     );
             },
-            EditorEvent::Save(path) => {
+            EditorEvent::Save(_path) => {
                 save_state.set(SaveState::Save);
             },
         }

@@ -116,7 +116,7 @@ fn draw_camera_gizmo(
     mut gizom : Gizmos,
     cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
 ) {
-    for (transform, projection) in cameras.iter() {
+    for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(2.0, 1.0, 1.0));
         gizom.cuboid(cuboid_transform, Color::PINK);
@@ -140,7 +140,7 @@ pub fn add_global_transform(
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
             if let Ok(parent_global) = globals.get(parent.get()) {
-                commands.entity(e).insert(parent_global.mul_transform(tr.clone()));
+                commands.entity(e).insert(parent_global.mul_transform(*tr));
             } else {
                 commands.entity(e).insert(GlobalTransform::from(*tr));
             }

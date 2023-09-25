@@ -67,8 +67,8 @@ impl Plugin for EditorUiPlugin {
                 EditorTabName::GameView
             ]);
 
-            let [game, right_panel] = editor.tree.main_surface_mut().split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
-            let [hierarchy, inspector] = editor.tree.main_surface_mut().split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
+            let [_game, right_panel] = editor.tree.main_surface_mut().split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
+            let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
         }
     }
 }
@@ -118,9 +118,9 @@ impl EditorUi {
         for tab in self.tree.iter_nodes() {
             match tab {
                 egui_dock::Node::Empty => {},
-                egui_dock::Node::Leaf { rect, viewport, tabs, active, scroll } => visible.extend(tabs.clone()),
-                egui_dock::Node::Vertical { rect, fraction } => {},
-                egui_dock::Node::Horizontal { rect, fraction } => {},
+                egui_dock::Node::Leaf { rect: _, viewport: _, tabs, active: _, scroll: _ } => visible.extend(tabs.clone()),
+                egui_dock::Node::Vertical { rect: _, fraction: _ } => {},
+                egui_dock::Node::Horizontal { rect: _, fraction: _ } => {},
             }
         }
 

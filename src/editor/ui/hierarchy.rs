@@ -1,9 +1,9 @@
-use std::sync::{RwLock, Arc};
 
-use bevy::{prelude::*, ecs::system::EntityCommands, utils::HashMap};
+
+use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry, EditorTab}, EditorSet, PrefabMarker, editor::ui_registration::BundleReg};
+use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry}, EditorSet, PrefabMarker, editor::ui_registration::BundleReg};
 
 use super::{EditorUiAppExt, EditorUiRef};
 
@@ -14,17 +14,12 @@ pub struct CloneEvent {
 }
 
 /// Plugin to activate hierarchy UI in editor UI
+#[derive(Default)]
 pub struct SpaceHierarchyPlugin {
 
 }
 
-impl Default for SpaceHierarchyPlugin {
-    fn default() -> Self {
-        Self {
 
-        }
-    }
-}
 
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
@@ -70,7 +65,7 @@ pub fn show_hierarchy(
             commands.spawn_empty().insert(PrefabMarker);
         }
         if ui.button("Clear all").clicked() {
-            for (entity, _, _, parent) in all.iter() {
+            for (entity, _, _, _parent) in all.iter() {
                 commands.entity(*entity).despawn_recursive();
             }
         }
@@ -83,7 +78,7 @@ pub fn show_hierarchy(
         ui.menu_button(cat_name, |ui| {
             for (name, dyn_bundle) in cat {
                 if ui.button(name).clicked() {
-                    let entity = dyn_bundle.spawn(&mut commands);
+                    let _entity = dyn_bundle.spawn(&mut commands);
                 }
             }
         });
@@ -126,17 +121,13 @@ fn draw_entity(
                     clone_events.send(CloneEvent { id: entity });
                     ui.close_menu();
                 }
-                if !selected.is_empty() && !selected.contains(entity) {
-                    if ui.button("Attach to").clicked() {
-                        for e in selected.iter() {
-                            commands.entity(entity).add_child(e);
-                        }
+                if !selected.is_empty() && !selected.contains(entity) && ui.button("Attach to").clicked() {
+                    for e in selected.iter() {
+                        commands.entity(entity).add_child(e);
                     }
                 }
-                if parent.is_some() {
-                    if ui.button("Detach").clicked() {
-                        commands.entity(entity).remove_parent();
-                    }
+                if parent.is_some() && ui.button("Detach").clicked() {
+                    commands.entity(entity).remove_parent();
                 }
             });
 
@@ -171,15 +162,15 @@ fn clone_enitites(
     mut commands : Commands,
     query : Query<EntityRef>,
     mut events : EventReader<CloneEvent>,
-    mut editor_registry : Res<EditorRegistry>
+    editor_registry : Res<EditorRegistry>
 ) {
     for event in events.into_iter() {
 
         let mut queue = vec![(event.id, commands.spawn_empty().id())];
         let mut map = HashMap::new();
 
-        while queue.len() > 0 {
-            let (src_id, dst_id) = queue.pop().unwrap();
+        while let Some((src_id, dst_id)) = queue.pop() {
+            
             map.insert(src_id, dst_id);
             if let Ok(entity) = query.get(src_id) {
                 if entity.contains::<PrefabMarker>() {

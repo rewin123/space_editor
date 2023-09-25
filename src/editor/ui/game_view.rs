@@ -1,5 +1,5 @@
 
-use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow, render::camera::CameraProjection};
+use bevy::{prelude::*, window::PrimaryWindow, render::camera::CameraProjection};
 use bevy_egui::egui::{self, RichText, Key};
 use egui_gizmo::GizmoMode;
 
@@ -35,10 +35,8 @@ impl EditorTab for GameViewTab {
         for (mode, name) in mode2name {
             if self.gizmo_mode == mode {
                 ui.button(RichText::new(name).strong()).clicked();
-            } else {
-                if ui.button(name).clicked() {
-                    self.gizmo_mode = mode;
-                }
+            } else if ui.button(name).clicked() {
+                self.gizmo_mode = mode;
             }
         }
 
@@ -69,12 +67,12 @@ impl EditorTab for GameViewTab {
         let (cam_transform, cam_proj) = {
             let mut cam_query = world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
             let (ref_tr, ref_cam) = cam_query.single(world);
-            (ref_tr.clone(), ref_cam.clone()) 
+            (*ref_tr, ref_cam.clone()) 
         };
 
         let selected = world.query_filtered::<Entity, With<Selected>>().iter(world).collect::<Vec<_>>();
         let mut disable_pan_orbit = false;
-        let gizmo_mode = GizmoMode::Translate;
+        let _gizmo_mode = GizmoMode::Translate;
 
         unsafe {
             let cell = world.as_unsafe_world_cell();
@@ -86,7 +84,7 @@ impl EditorTab for GameViewTab {
                     let Some(ecell) = cell.get_entity(*e) else {
                         continue;
                     };
-                    let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
+                    let Some(global_transform) = ecell.get_mut::<GlobalTransform>() else {
                         continue;
                     };
                     let tr = global_transform.compute_transform();
@@ -103,17 +101,17 @@ impl EditorTab for GameViewTab {
                     let Some(ecell) = cell.get_entity(*e) else {
                         continue;
                     };
-                    let Some(mut global_transform) = ecell.get_mut::<GlobalTransform>() else {
+                    let Some(global_transform) = ecell.get_mut::<GlobalTransform>() else {
                         continue;
                     };
                     loc_transform.push(global_transform.reparented_to(&global_mean));
                 }
 
-                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo mean global"))
+                if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
                     .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                     .view_matrix(view_matrix.to_cols_array_2d())
                     .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
-                    .mode(self.gizmo_mode.clone())
+                    .mode(self.gizmo_mode)
                     .interact(ui) {
 
                     mean_transform = Transform {
@@ -139,7 +137,7 @@ impl EditorTab for GameViewTab {
                     if let Some(parent) = ecell.get::<Parent>() {
                         if let Some(parent) = cell.get_entity(parent.get()) {
                             if let Some(parent_global) = parent.get::<GlobalTransform>() {
-                                *transform = new_global.reparented_to(&parent_global);
+                                *transform = new_global.reparented_to(parent_global);
                             }
                         }
                     } else {
@@ -162,7 +160,7 @@ impl EditorTab for GameViewTab {
                                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                                         .view_matrix(view_matrix.to_cols_array_2d())
                                         .model_matrix(global.compute_matrix().to_cols_array_2d())
-                                        .mode(self.gizmo_mode.clone())
+                                        .mode(self.gizmo_mode)
                                         .interact(ui) {
                                         
                                         let new_transform = Transform {
@@ -172,7 +170,7 @@ impl EditorTab for GameViewTab {
                                         };
 
                                         let new_transform = GlobalTransform::from(new_transform);
-                                        *transform = new_transform.reparented_to(&parent_global);
+                                        *transform = new_transform.reparented_to(parent_global);
                                         transform.set_changed();
                                     }
                                     disable_pan_orbit = true;
@@ -185,7 +183,7 @@ impl EditorTab for GameViewTab {
                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
                         .view_matrix(view_matrix.to_cols_array_2d())
                         .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                        .mode(self.gizmo_mode.clone())
+                        .mode(self.gizmo_mode)
                         .interact(ui) {
 
                         *transform = Transform {

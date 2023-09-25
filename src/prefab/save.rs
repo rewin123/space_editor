@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
-use std::{any::TypeId, default, fs::File, io::Write};
+use std::{any::TypeId, fs::File, io::Write};
 
 use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 
@@ -91,10 +91,10 @@ pub fn serialize_prefab(
         .with_filter(
             SceneFilter::Allowlist(
                 HashSet::from_iter(allow_types.iter().cloned())))
-        .extract_entities(entities.iter().map(|e| *e));
+        .extract_entities(entities.iter().copied());
     let scene = builder.build();
 
-    let res = scene.serialize_ron(&world.resource::<AppTypeRegistry>());
+    let res = scene.serialize_ron(world.resource::<AppTypeRegistry>());
 
     if let Ok(str) = res {
         IoTaskPool::get()
@@ -119,9 +119,9 @@ pub fn serialize_prefab(
 
 
 fn load_prefab(
-    mut commands : Commands,
-    query : Query<(Entity, &PrefabLoader)>,
-    asset_server : Res<AssetServer>
+    _commands : Commands,
+    _query : Query<(Entity, &PrefabLoader)>,
+    _asset_server : Res<AssetServer>
 ) {
 
 }

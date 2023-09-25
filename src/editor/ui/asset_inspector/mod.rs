@@ -28,7 +28,7 @@ impl Plugin for AssetDetectorPlugin {
 fn detect_assets(
     mut assets : ResMut<DetectedAssets>
 ) {
-    get_assets_in_directory(&Path::new("assets"), &mut assets.assets);
+    get_assets_in_directory(Path::new("assets"), &mut assets.assets);
 }
 
 fn get_assets_in_directory(dir_path: &Path, assets: &mut Vec<EditorAsset>) {
