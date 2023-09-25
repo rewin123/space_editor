@@ -5,6 +5,81 @@
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
+            x: 0.41614056,
+            y: -0.28648877,
+            z: -0.28093243,
+          ),
+          rotation: (-0.6675922, 0.0, 0.0, 0.7445271),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::GltfPrefab": (
+          path: "colone.glb",
+          scene: "Scene0",
+        ),
+        "space_editor::prefab::save::ChildrenPrefab": ([
+          17179869206,
+        ]),
+        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
+          pos: (
+            x: -0.25,
+            y: 1.75,
+            z: 0.05,
+          ),
+          rot: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          primitive: Cuboid((
+            x: 1.3,
+            y: 3.5,
+            z: 1.3,
+          )),
+        ),
+        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_3d::components::mass_properties::Mass": (124.215004),
+        "bevy_xpbd_3d::components::Friction": (
+          dynamic_coefficient: 0.3,
+          static_coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::Restitution": (
+          coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
+          x_axis: (
+            x: 144.31052,
+            y: -0.0000005767716,
+            z: -0.00000001752888,
+          ),
+          y_axis: (
+            x: -0.0000005767716,
+            y: 35.0154,
+            z: 0.00000008710291,
+          ),
+          z_axis: (
+            x: -0.00000001752888,
+            y: 0.00000008710291,
+            z: 144.31053,
+          ),
+        )),
+        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
+          x: -0.25000003,
+          y: 1.7476183,
+          z: 0.05,
+        )),
+      },
+    ),
+    7: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
             x: 7.1922965,
             y: 3.735711,
             z: 0.0,
@@ -49,124 +124,27 @@
         ),
       },
     ),
-    7: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: -16.673035,
-            y: 1.5396833,
-            z: -38.380207,
-          ),
-          rotation: (0.0, 0.0, 0.0, 1.0),
-          scale: (
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
-          ),
-        ),
-        "bevy_core::name::Name": (
-          hash: 11039913775001325628,
-          name: "Cube",
-        ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
-          base_color: Rgba(
-            red: 1.0,
-            green: 0.0,
-            blue: 0.0,
-            alpha: 1.0,
-          ),
-          base_color_texture: "",
-          emissive: Rgba(
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-            alpha: 1.0,
-          ),
-          emissive_texture: "",
-          perceptual_roughness: 0.5,
-          metallic: 0.0,
-          metallic_roughness_texture: "",
-          reflectance: 0.5,
-          normal_map_texture: "",
-          flip_normal_map_y: false,
-          occlusion_texture: "",
-          double_sided: false,
-          unlit: false,
-          fog_enabled: true,
-          alpha_mode: Opaque,
-          depth_bias: 0.0,
-          depth_map: "",
-          parallax_depth_scale: 0.1,
-          parallax_mapping_method: Occlusion,
-          max_parallax_layer_count: 16.0,
-        ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
-          w: 5.0,
-          h: 1.0,
-          d: 5.0,
-        )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
-        "bevy_xpbd_3d::components::Friction": (
-          dynamic_coefficient: 0.3,
-          static_coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::Restitution": (
-          coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
-          x_axis: (
-            x: 2485.5796,
-            y: 0.0,
-            z: 0.0,
-          ),
-          y_axis: (
-            x: 0.0,
-            y: 4783.58,
-            z: 0.0,
-          ),
-          z_axis: (
-            x: 0.0,
-            y: 0.0,
-            z: 2489.4995,
-          ),
-        )),
-        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
-          x: 0.0,
-          y: 0.0,
-          z: 0.0,
-        )),
-      },
-    ),
     8: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: 0.0,
-            y: 0.0,
-            z: -16.504646,
+            x: 0.26489353,
+            y: 0.21842492,
+            z: -0.45153165,
           ),
-          rotation: (0.0, 0.0, 0.0, 1.0),
+          rotation: (0.0, -0.00000000046566123, 0.0, 1.0),
           scale: (
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
+            x: 1.0000001,
+            y: 0.99999964,
+            z: 1.0000001,
           ),
-        ),
-        "bevy_core::name::Name": (
-          hash: 11039913775001325628,
-          name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_editor::prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
-            green: 1.0,
-            blue: 0.37254903,
+            green: 0.0,
+            blue: 0.0,
             alpha: 1.0,
           ),
           base_color_texture: "",
@@ -195,43 +173,9 @@
           max_parallax_layer_count: 16.0,
         ),
         "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
-          w: 5.0,
-          h: 1.0,
-          d: 5.0,
-        )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
-        "bevy_xpbd_3d::components::Friction": (
-          dynamic_coefficient: 0.3,
-          static_coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::Restitution": (
-          coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
-          x_axis: (
-            x: 2485.5796,
-            y: 0.0,
-            z: 0.0,
-          ),
-          y_axis: (
-            x: 0.0,
-            y: 4783.58,
-            z: 0.0,
-          ),
-          z_axis: (
-            x: 0.0,
-            y: 0.0,
-            z: 2489.4995,
-          ),
-        )),
-        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
-          x: 0.0,
-          y: 0.0,
-          z: 0.0,
+          w: 0.2,
+          h: 0.2,
+          d: 0.2,
         )),
       },
     ),
@@ -294,7 +238,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -306,19 +250,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2485.5796,
+            x: 2756.4133,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4783.58,
+            y: 5304.4126,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2489.4995,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -329,6 +273,99 @@
       },
     ),
     10: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -7.800579,
+            y: 0.0,
+            z: -25.785236,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_core::name::Name": (
+          hash: 11039913775001325628,
+          name: "Cube",
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 0.0,
+            green: 0.25490198,
+            blue: 0.972549,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 5.0,
+          h: 1.0,
+          d: 5.0,
+        )),
+        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
+        "bevy_xpbd_3d::components::Friction": (
+          dynamic_coefficient: 0.3,
+          static_coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::Restitution": (
+          coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
+          x_axis: (
+            x: 2756.4133,
+            y: 0.0,
+            z: 0.0,
+          ),
+          y_axis: (
+            x: 0.0,
+            y: 5304.4126,
+            z: 0.0,
+          ),
+          z_axis: (
+            x: 0.0,
+            y: 0.0,
+            z: 2760.3333,
+          ),
+        )),
+        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
+          x: 0.0,
+          y: 0.0,
+          z: 0.0,
+        )),
+      },
+    ),
+    11: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -383,7 +420,7 @@
         )),
       },
     ),
-    11: (
+    12: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -438,181 +475,13 @@
         )),
       },
     ),
-    12: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: 0.0,
-            y: -0.000009655952,
-            z: 7.3677998,
-          ),
-          rotation: (0.0, 0.0, 0.0, 1.0),
-          scale: (
-            x: 1.0,
-            y: 1.0,
-            z: 1.0,
-          ),
-        ),
-        "bevy_core::name::Name": (
-          hash: 11039913775001325628,
-          name: "Cube",
-        ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
-          base_color: Rgba(
-            red: 1.0,
-            green: 1.0,
-            blue: 1.0,
-            alpha: 1.0,
-          ),
-          base_color_texture: "",
-          emissive: Rgba(
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-            alpha: 1.0,
-          ),
-          emissive_texture: "",
-          perceptual_roughness: 0.5,
-          metallic: 0.0,
-          metallic_roughness_texture: "",
-          reflectance: 0.5,
-          normal_map_texture: "",
-          flip_normal_map_y: false,
-          occlusion_texture: "",
-          double_sided: false,
-          unlit: false,
-          fog_enabled: true,
-          alpha_mode: Opaque,
-          depth_bias: 0.0,
-          depth_map: "",
-          parallax_depth_scale: 0.1,
-          parallax_mapping_method: Occlusion,
-          max_parallax_layer_count: 16.0,
-        ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
-          w: 5.0,
-          h: 1.0,
-          d: 5.0,
-        )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
-        "bevy_xpbd_3d::components::Friction": (
-          dynamic_coefficient: 0.3,
-          static_coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::Restitution": (
-          coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
-          x_axis: (
-            x: 2485.5796,
-            y: 0.0,
-            z: 0.0,
-          ),
-          y_axis: (
-            x: 0.0,
-            y: 4783.58,
-            z: 0.0,
-          ),
-          z_axis: (
-            x: 0.0,
-            y: 0.0,
-            z: 2489.4995,
-          ),
-        )),
-        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
-          x: 0.0,
-          y: 0.0,
-          z: 0.0,
-        )),
-      },
-    ),
     13: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: -16.236588,
-            y: 1.4635863,
-            z: -30.082056,
-          ),
-          rotation: (-0.7019975, 0.0, 0.0, 0.7121794),
-          scale: (
-            x: 1.0,
-            y: 0.99999726,
-            z: 0.99999726,
-          ),
-        ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::GltfPrefab": (
-          path: "colone.glb",
-          scene: "Scene0",
-        ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
-          17179869206,
-        ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
-          pos: (
-            x: -0.25,
-            y: 1.75,
-            z: 0.05,
-          ),
-          rot: (
             x: 0.0,
             y: 0.0,
-            z: 0.0,
-          ),
-          primitive: Cuboid((
-            x: 1.3,
-            y: 3.5,
-            z: 1.3,
-          )),
-        ),
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (88.725),
-        "bevy_xpbd_3d::components::Friction": (
-          dynamic_coefficient: 0.3,
-          static_coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::Restitution": (
-          coefficient: 0.3,
-          combine_rule: Average,
-        ),
-        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
-          x_axis: (
-            x: 103.082695,
-            y: -0.0000005796555,
-            z: -0.000000017528889,
-          ),
-          y_axis: (
-            x: -0.0000005796555,
-            y: 25.018486,
-            z: 0.00000008624836,
-          ),
-          z_axis: (
-            x: -0.000000017528889,
-            y: 0.00000008624836,
-            z: 103.0827,
-          ),
-        )),
-        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
-          x: -0.25000003,
-          y: 1.7466663,
-          z: 0.049999993,
-        )),
-      },
-    ),
-    14: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: -16.673103,
-            y: 1.5396833,
-            z: -25.659279,
+            z: -16.504646,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -628,9 +497,9 @@
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_editor::prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
-            red: 0.93333334,
-            green: 0.0,
-            blue: 1.0,
+            red: 0.0,
+            green: 1.0,
+            blue: 0.37254903,
             alpha: 1.0,
           ),
           base_color_texture: "",
@@ -665,7 +534,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -677,19 +546,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2485.5796,
+            x: 2756.4133,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4783.58,
+            y: 5304.4126,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2489.4995,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -699,62 +568,7 @@
         )),
       },
     ),
-    15: (
-      components: {
-        "bevy_transform::components::transform::Transform": (
-          translation: (
-            x: 0.26489353,
-            y: 0.21842492,
-            z: -0.45153165,
-          ),
-          rotation: (0.0, -0.00000000046566123, 0.0, 1.0),
-          scale: (
-            x: 1.0000001,
-            y: 0.99999964,
-            z: 1.0000001,
-          ),
-        ),
-        "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
-          base_color: Rgba(
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-            alpha: 1.0,
-          ),
-          base_color_texture: "",
-          emissive: Rgba(
-            red: 0.0,
-            green: 0.0,
-            blue: 0.0,
-            alpha: 1.0,
-          ),
-          emissive_texture: "",
-          perceptual_roughness: 0.5,
-          metallic: 0.0,
-          metallic_roughness_texture: "",
-          reflectance: 0.5,
-          normal_map_texture: "",
-          flip_normal_map_y: false,
-          occlusion_texture: "",
-          double_sided: false,
-          unlit: false,
-          fog_enabled: true,
-          alpha_mode: Opaque,
-          depth_bias: 0.0,
-          depth_map: "",
-          parallax_depth_scale: 0.1,
-          parallax_mapping_method: Occlusion,
-          max_parallax_layer_count: 16.0,
-        ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
-          w: 0.2,
-          h: 0.2,
-          d: 0.2,
-        )),
-      },
-    ),
-    16: (
+    14: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -813,7 +627,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1124.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1249.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -825,19 +639,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2431.4128,
+            x: 2702.2466,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4679.4136,
+            y: 5200.246,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2435.3328,
+            z: 2706.1665,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -847,13 +661,181 @@
         )),
       },
     ),
-    17: (
+    15: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
             x: 0.0,
+            y: -0.000009655952,
+            z: 7.3677998,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_core::name::Name": (
+          hash: 11039913775001325628,
+          name: "Cube",
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 5.0,
+          h: 1.0,
+          d: 5.0,
+        )),
+        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
+        "bevy_xpbd_3d::components::Friction": (
+          dynamic_coefficient: 0.3,
+          static_coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::Restitution": (
+          coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
+          x_axis: (
+            x: 2756.4133,
             y: 0.0,
-            z: 2.2603722,
+            z: 0.0,
+          ),
+          y_axis: (
+            x: 0.0,
+            y: 5304.4126,
+            z: 0.0,
+          ),
+          z_axis: (
+            x: 0.0,
+            y: 0.0,
+            z: 2760.3333,
+          ),
+        )),
+        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
+          x: 0.0,
+          y: 0.0,
+          z: 0.0,
+        )),
+      },
+    ),
+    16: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -16.236588,
+            y: 1.4635863,
+            z: -30.082056,
+          ),
+          rotation: (-0.7019975, 0.0, 0.0, 0.7121794),
+          scale: (
+            x: 1.0,
+            y: 0.99999726,
+            z: 0.99999726,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_editor::prefab::component::GltfPrefab": (
+          path: "colone.glb",
+          scene: "Scene0",
+        ),
+        "space_editor::prefab::save::ChildrenPrefab": ([
+          23,
+        ]),
+        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
+          pos: (
+            x: -0.25,
+            y: 1.75,
+            z: 0.05,
+          ),
+          rot: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          primitive: Cuboid((
+            x: 1.3,
+            y: 3.5,
+            z: 1.3,
+          )),
+        ),
+        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_3d::components::mass_properties::Mass": (118.3),
+        "bevy_xpbd_3d::components::Friction": (
+          dynamic_coefficient: 0.3,
+          static_coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::Restitution": (
+          coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
+          x_axis: (
+            x: 137.43922,
+            y: -0.00000057719143,
+            z: -0.00000001752888,
+          ),
+          y_axis: (
+            x: -0.00000057719143,
+            y: 33.34927,
+            z: 0.000000086998,
+          ),
+          z_axis: (
+            x: -0.00000001752888,
+            y: 0.000000086998,
+            z: 137.43924,
+          ),
+        )),
+        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
+          x: -0.25000003,
+          y: 1.7474993,
+          z: 0.049999997,
+        )),
+      },
+    ),
+    17: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -16.673035,
+            y: 1.5396833,
+            z: -38.380207,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -906,7 +888,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -918,19 +900,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2485.5796,
+            x: 2756.4133,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4783.58,
+            y: 5304.4126,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2489.4995,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -944,44 +926,62 @@
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: 0.41614056,
-            y: -0.28648877,
-            z: -0.28093243,
+            x: -16.673103,
+            y: 1.5396833,
+            z: -25.659279,
           ),
-          rotation: (-0.6675922, 0.0, 0.0, 0.7445271),
+          rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
             x: 1.0,
             y: 1.0,
             z: 1.0,
           ),
         ),
+        "bevy_core::name::Name": (
+          hash: 11039913775001325628,
+          name: "Cube",
+        ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::GltfPrefab": (
-          path: "colone.glb",
-          scene: "Scene0",
-        ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
-          23,
-        ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
-          pos: (
-            x: -0.25,
-            y: 1.75,
-            z: 0.05,
+        "space_editor::prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 0.93333334,
+            green: 0.0,
+            blue: 1.0,
+            alpha: 1.0,
           ),
-          rot: (
-            x: 0.0,
-            y: 0.0,
-            z: 0.0,
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
           ),
-          primitive: Cuboid((
-            x: 1.3,
-            y: 3.5,
-            z: 1.3,
-          )),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
         ),
+        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+          w: 5.0,
+          h: 1.0,
+          d: 5.0,
+        )),
+        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (94.64),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -993,25 +993,25 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 109.95402,
-            y: -0.00000057910455,
-            z: -0.000000017528887,
+            x: 2756.4133,
+            y: 0.0,
+            z: 0.0,
           ),
           y_axis: (
-            x: -0.00000057910455,
-            y: 26.684668,
-            z: 0.00000008645496,
+            x: 0.0,
+            y: 5304.4126,
+            z: 0.0,
           ),
           z_axis: (
-            x: -0.000000017528887,
-            y: 0.00000008645496,
-            z: 109.954025,
+            x: 0.0,
+            y: 0.0,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
-          x: -0.25000003,
-          y: 1.7468746,
-          z: 0.049999993,
+          x: 0.0,
+          y: 0.0,
+          z: 0.0,
         )),
       },
     ),
@@ -1074,7 +1074,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -1086,19 +1086,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2485.5796,
+            x: 2756.4133,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4783.58,
+            y: 5304.4126,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2489.4995,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -1162,13 +1162,13 @@
         ),
         "space_editor::prefab::component::shape::MeshPrimitivePrefab": Cube(1.0),
         "space_editor::prefab::save::ChildrenPrefab": ([
+          12,
           11,
-          10,
-          15,
+          8,
         ]),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Dynamic,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (44.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (49.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -1180,19 +1180,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7.3333316,
+            x: 8.166664,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 7.3333316,
+            y: 8.166664,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7.3333316,
+            z: 8.166664,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -1210,9 +1210,9 @@
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: -7.800579,
+            x: 0.0,
             y: 0.0,
-            z: -25.785236,
+            z: 2.2603722,
           ),
           rotation: (0.0, 0.0, 0.0, 1.0),
           scale: (
@@ -1228,9 +1228,9 @@
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_editor::prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
-            red: 0.0,
-            green: 0.25490198,
-            blue: 0.972549,
+            red: 1.0,
+            green: 0.0,
+            blue: 0.0,
             alpha: 1.0,
           ),
           base_color_texture: "",
@@ -1265,7 +1265,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (1149.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (1274.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -1277,19 +1277,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 2485.5796,
+            x: 2756.4133,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 4783.58,
+            y: 5304.4126,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 2489.4995,
+            z: 2760.3333,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((

@@ -1,12 +1,12 @@
-use std::any::{Any, TypeId};
+
+// Simple platformer example
+// Run command:
+// cargo run run --example platformer --features bevy_xpbd_3d
 
 use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
-//Simple platformer example
-//To run execute command:
-// cargo run run --example platformer --features bevy_xpbd_3d
 
 fn main() {
     App::default()
@@ -74,10 +74,10 @@ impl MapEntities for FollowCamera {
 
 fn move_player(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(&mut LinearVelocity, &mut AngularVelocity, &PlayerController, &CollidingEntities, &mut Transform)>,
+    mut query: Query<(Entity, &mut LinearVelocity, &mut AngularVelocity, &PlayerController, &CollidingEntities, &mut Transform)>,
     time : Res<Time>
 ) {
-    for (mut vel, mut rot, controller, colliding, mut tranform) in query.iter_mut() {
+    for (e, mut vel, mut rot, controller, colliding, mut tranform) in query.iter_mut() {
         if colliding.len() > 0 {
             let frw = tranform.forward();
             let up = tranform.up();
