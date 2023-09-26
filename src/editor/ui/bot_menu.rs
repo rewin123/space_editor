@@ -131,7 +131,7 @@ pub fn bot_menu(
             }
 
             if ui.button("▶").clicked() {
-                state.set(EditorState::GamePrepare);
+                editor_events.send(EditorEvent::StartGame);
             }
         });
     });

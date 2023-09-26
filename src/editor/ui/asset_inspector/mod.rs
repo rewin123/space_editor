@@ -1,12 +1,6 @@
 use std::fs;
 use std::path::Path;
 use bevy::prelude::*;
-<<<<<<<< HEAD:src/editor/ui/asset_inspector/mod.rs
-========
-
-
-use super::ui_camera_block;
->>>>>>>> main:src/editor/asset_inspector/mod.rs
 
 ///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 pub struct EditorAsset {

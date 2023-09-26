@@ -6,7 +6,7 @@ pub use load::*;
 
 use bevy::prelude::*;
 
-use crate::{prelude::EditorLoader, prefab::save::SaveState, EditorSet};
+use crate::{prelude::EditorLoader, prefab::save::SaveState, EditorSet, EditorState};
 
 
 pub struct EditorCore;
@@ -23,7 +23,8 @@ impl Plugin for EditorCore {
 #[derive(Event)]
 pub enum EditorEvent {
     Load(String),
-    Save(String)
+    Save(String),
+    StartGame
 }
 
 fn editor_event_listener(
@@ -31,6 +32,7 @@ fn editor_event_listener(
     mut load_server : ResMut<EditorLoader>,
     assets : Res<AssetServer>,
     mut save_state : ResMut<NextState<SaveState>>,
+    mut start_game_state : ResMut<NextState<EditorState>>
 ) {
     for event in events.iter() {
         match event {
@@ -41,6 +43,9 @@ fn editor_event_listener(
             },
             EditorEvent::Save(_path) => {
                 save_state.set(SaveState::Save);
+            },
+            EditorEvent::StartGame => {
+                start_game_state.set(EditorState::GamePrepare);
             },
         }
     }

@@ -173,10 +173,12 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
+pub const TMP_PATH : &'static str = "tmp.snc.ron";
+
 fn save_prefab_before_play(
-    mut save_state : ResMut<NextState<SaveState>>,
+    mut editor_events : EventWriter<prelude::EditorEvent>,
 ) {
-    save_state.set(SaveState::Save);
+    editor_events.send(prelude::EditorEvent::Save(TMP_PATH.to_string()));
 }
 
 fn to_game_after_save(

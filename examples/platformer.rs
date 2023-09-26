@@ -22,7 +22,7 @@ fn main() {
         .editor_relation::<FollowCamera, Camera3d>()
         
         .add_systems(PhysicsSchedule, move_player.run_if(in_state(EditorState::Game)).before(PhysicsStepSet::BroadPhase))
-        .add_systems(PostUpdate, camera_follow.after(bevy_xpbd_3d::PhysicsSet::Sync).run_if(in_state(EditorState::Game)))
+        .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
 }
 
