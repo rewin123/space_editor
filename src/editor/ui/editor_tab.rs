@@ -1,4 +1,4 @@
-
+// This module contains the implementation of the editor tabs
 
 use bevy_egui::egui::{self, WidgetText};
 use bevy::{prelude::*, utils::HashMap};
@@ -92,7 +92,13 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
         let mut counter = 0;
         for reg in self.registry.iter() {
             if !self.visible.contains(reg.0) {
-                if ui.button(format!("{:?}", reg.0)).clicked() {
+                let format_name;
+                if let EditorTabName::Other(name) = reg.0 {
+                    format_name = name.clone();
+                } else {
+                    format_name = format!("{:?}", reg.0);
+                }
+                if ui.button(format_name).clicked() {
                     self.commands.push(EditorTabCommand::Add { name: reg.0.clone(), surface: _surface, node: _node });
                 }
                 counter += 1;
@@ -108,7 +114,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
 
 pub struct ScheduleEditorTab {
     pub schedule : Schedule,
-    pub  title : egui::WidgetText
+    pub title : egui::WidgetText
 }
 
 impl EditorTab for ScheduleEditorTab {

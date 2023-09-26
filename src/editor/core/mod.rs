@@ -38,7 +38,7 @@ fn editor_event_listener(
         match event {
             EditorEvent::Load(path) => {
                     load_server.scene = Some(
-                        assets.load(format!("{}", path))
+                        assets.load(path.to_string())
                     );
             },
             EditorEvent::Save(_path) => {

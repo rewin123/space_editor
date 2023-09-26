@@ -20,10 +20,18 @@ fn main() {
 
         .editor_registry::<FollowCamera>()
         .editor_relation::<FollowCamera, Camera3d>()
+
+        .editor_tab(EditorTabName::Other("simple_tab".to_string()), "Simnple tab".into(), simple_tab_system)
         
         .add_systems(PhysicsSchedule, move_player.run_if(in_state(EditorState::Game)).before(PhysicsStepSet::BroadPhase))
         .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
+}
+
+fn simple_tab_system(
+    mut ui : NonSendMut<EditorUiRef>) {
+    let ui = &mut ui.0;
+    ui.label("Hello editor");
 }
 
 fn configure_editor(
@@ -77,7 +85,7 @@ fn move_player(
     mut query: Query<(Entity, &mut LinearVelocity, &mut AngularVelocity, &PlayerController, &CollidingEntities, &mut Transform)>,
     time : Res<Time>
 ) {
-    for (e, mut vel, mut rot, controller, colliding, tranform) in query.iter_mut() {
+    for (_e, mut vel, mut rot, controller, colliding, tranform) in query.iter_mut() {
         if colliding.len() > 0 {
             let frw = tranform.forward();
             let up = tranform.up();
@@ -107,13 +115,11 @@ fn move_player(
             }
 
             //smooth change vel
-            let cur_vel = vel.0.clone();
+            let cur_vel = vel.0;
             let cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
             vel.0 = cur_vel;
 
-        } else {
-
-        }
+        } 
     }    
 }
 

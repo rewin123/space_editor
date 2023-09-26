@@ -173,7 +173,7 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-pub const TMP_PATH : &'static str = "tmp.snc.ron";
+pub const TMP_PATH : &str = "tmp.snc.ron";
 
 fn save_prefab_before_play(
     mut editor_events : EventWriter<prelude::EditorEvent>,

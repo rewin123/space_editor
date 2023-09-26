@@ -63,7 +63,7 @@ pub fn bot_menu(
     _save_state : ResMut<NextState<SaveState>>,
     assets : Res<AssetServer>,
     mut load_server : ResMut<EditorLoader>,
-    mut state : ResMut<NextState<EditorState>>,
+    _state : ResMut<NextState<EditorState>>,
     mut events : EventReader<LoadEvent>,
     mut menu_state : ResMut<BotMenuState>,
     mut editor_events : EventWriter<EditorEvent>

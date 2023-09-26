@@ -150,12 +150,12 @@ impl EditorUi {
 }
 
 pub trait EditorUiAppExt {
-    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static;
-    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>);
+    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) -> &mut Self where T : EditorTab + Resource + Send + Sync + 'static;
+    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>) -> &mut Self;
 }
 
 impl EditorUiAppExt for App {
-    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) where T : EditorTab + Resource + Send + Sync + 'static {
+    fn editor_tab_by_trait<T>(&mut self, tab_id : EditorTabName, tab : T) -> &mut Self where T : EditorTab + Resource + Send + Sync + 'static {
         self.insert_resource(tab);
         let show_fn = Box::new(|ui : &mut egui::Ui, world : &mut World| {
             world.resource_scope(|scoped_world, mut data : Mut<T>| {
@@ -170,9 +170,10 @@ impl EditorUiAppExt for App {
         };
 
         self.world.resource_mut::<EditorUi>().registry.insert(tab_id, reg);
+        self
     }
 
-    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>) {
+    fn editor_tab<T>(&mut self, tab_id : EditorTabName, title : egui::WidgetText, tab_systesm : impl IntoSystemConfigs<T>) -> &mut Self {
         let mut tab = ScheduleEditorTab {
             schedule: Schedule::new(),
             title,
@@ -182,9 +183,10 @@ impl EditorUiAppExt for App {
 
         self.world.resource_mut::<ScheduleEditorTabStorage>().0.insert(tab_id.clone(), tab);
         self.world.resource_mut::<EditorUi>().registry.insert(tab_id, EditorUiReg::Schedule);
+        self
     }
 }
 
 
-/// Temporary resource for pretty ststem, based tab registration
-pub struct EditorUiRef(egui::Ui);
+/// Temporary resource for pretty system, based tab registration
+pub struct EditorUiRef(pub egui::Ui);
