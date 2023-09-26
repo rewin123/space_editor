@@ -1,13 +1,13 @@
 //code only for editor gui
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 pub mod ui;
 pub mod core;
 
 pub mod ui_registration;
 
-use bevy_egui::EguiContexts;
+use bevy_egui::{EguiContexts, EguiContext};
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGrid};
 use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlugin};
 use bevy_mod_picking::{prelude::*, PickableBundle};
@@ -227,11 +227,14 @@ pub fn update_pan_orbit(
 
 /// Sytem to block camera control if egui is using mouse 
 pub fn ui_camera_block(
-    mut ctxs : EguiContexts,
+    mut ctxs : Query<&mut EguiContext, With<PrimaryWindow>>,
     mut state : ResMut<PanOrbitEnabled>,
     game_view : Res<GameViewTab>
 ) {
-    let ctx = ctxs.ctx_mut();
+    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
+        return;
+    };
+    let ctx = ctx_ref.get_mut();
     if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
         let Some(pos) = ctx.pointer_latest_pos() else {
             return;

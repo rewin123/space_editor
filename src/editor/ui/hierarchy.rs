@@ -54,35 +54,36 @@ pub fn show_hierarchy(
     let pointer_used = false;
     
     let ui =  &mut ui.0;
-
-    for (entity, _, _, parent) in all.iter() {
-        if parent.is_none() {
-            draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
-        }
-    }
-    ui.vertical_centered(|ui| {
-        if ui.button("----- + -----").clicked() {
-            commands.spawn_empty().insert(PrefabMarker);
-        }
-        if ui.button("Clear all").clicked() {
-            for (entity, _, _, _parent) in all.iter() {
-                commands.entity(*entity).despawn_recursive();
-            }
-        }
-
-        
-    });
-
-    ui.label("Spawn bundle");
-    for (cat_name, cat) in ui_reg.bundles.iter() {
-        ui.menu_button(cat_name, |ui| {
-            for (name, dyn_bundle) in cat {
-                if ui.button(name).clicked() {
-                    let _entity = dyn_bundle.spawn(&mut commands);
+    egui::ScrollArea::vertical().show(ui, |ui| {
+            for (entity, _, _, parent) in all.iter() {
+                if parent.is_none() {
+                    draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
                 }
             }
+        ui.vertical_centered(|ui| {
+            if ui.button("----- + -----").clicked() {
+                commands.spawn_empty().insert(PrefabMarker);
+            }
+            if ui.button("Clear all").clicked() {
+                for (entity, _, _, _parent) in all.iter() {
+                    commands.entity(*entity).despawn_recursive();
+                }
+            }
+
+            
         });
-    }
+
+        ui.label("Spawn bundle");
+        for (cat_name, cat) in ui_reg.bundles.iter() {
+            ui.menu_button(cat_name, |ui| {
+                for (name, dyn_bundle) in cat {
+                    if ui.button(name).clicked() {
+                        let _entity = dyn_bundle.spawn(&mut commands);
+                    }
+                }
+            });
+        }
+    });
 }
 
 fn draw_entity(

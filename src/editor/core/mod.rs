@@ -36,7 +36,7 @@ fn editor_event_listener(
         match event {
             EditorEvent::Load(path) => {
                     load_server.scene = Some(
-                        assets.load(format!("{}.scn.ron", path))
+                        assets.load(format!("{}", path))
                     );
             },
             EditorEvent::Save(_path) => {

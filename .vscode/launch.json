@@ -1,0 +1,139 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'space_editor'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "space_editor",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'space_editor'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=space_editor",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "space_editor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'space_editor'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=space_editor",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "space_editor",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'platformer'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=platformer",
+                    "--features=bevy_xpbd_3d",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "platformer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'platformer'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=platformer",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "platformer",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'spawn_prefab'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=spawn_prefab",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "spawn_prefab",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'spawn_prefab'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=spawn_prefab",
+                    "--package=space_editor"
+                ],
+                "filter": {
+                    "name": "spawn_prefab",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

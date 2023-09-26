@@ -3,7 +3,7 @@
 // Run command:
 // cargo run run --example platformer --features bevy_xpbd_3d
 
-use bevy_xpbd_3d::prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position};
+use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}, PhysicsSchedule, PhysicsStepSet};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
@@ -21,7 +21,7 @@ fn main() {
         .editor_registry::<FollowCamera>()
         .editor_relation::<FollowCamera, Camera3d>()
         
-        .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
+        .add_systems(PhysicsSchedule, move_player.run_if(in_state(EditorState::Game)).before(PhysicsStepSet::BroadPhase))
         .add_systems(PostUpdate, camera_follow.after(bevy_xpbd_3d::PhysicsSet::Sync).run_if(in_state(EditorState::Game)))
         .run();
 }
