@@ -1,8 +1,8 @@
 pub mod selected;
 pub use selected::*;
 
-pub mod load;
-pub use load::*;
+mod load;
+use load::*;
 
 use bevy::prelude::*;
 

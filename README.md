@@ -1,9 +1,20 @@
 # space_editor: The Bevy Prefab Editor
 License: MIT 
 
-![sEditor screenshot](https://github.com/rewin123/space_editor/blob/main/showcase.png)
+![Editor screenshot](https://github.com/rewin123/space_editor/blob/main/showcase.png)
 
-Welcome to space_editor, a Bevy Prefab Editor built for seamless integration into your game applications. Its design principle is straightforwardness - it's meant to be easy to use and highly customizable.
+space_editor is usefull tool for scene/prefab/prototyping for bevy.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
+## Main features
+
+- **Intuitive Scene and Prefab Management**: Space Editor allows you to prepare and save scenes and prefabs with an intuitive user interface. You can easily reuse them in your game development workflow. 
+- **bevy_xpbd_3d compatibility**: Space Editor supports bevy_xpbd_3d, including all editor features. 
+- **Gizmo-Based manipulations**: Manipulate entity positions, rotations, and scales using gizmos. 
+- **Component values editing**: Easily edit component parameters within the editor UI 
+- **Seamless Editor-Game switching**: Switch between the editor UI and the game effortlessly for fast prototyping and testing. 
+- **Prefab Reusability**: Prefabs can be nested within other prefabs, improving reusability and organization in your projects. 
+- **Many custom components**: Space Editor implements various custom components to seamlessly integrate its saving system with the standard Bevy scene format. 
+- **Easy API for customization**: Customize or register your own components within the editor with ease, tailoring it to your specific project needs.
+- **API for adding tabs**: Extend the functionality of the editor by easily adding new tabs, enhancing your workflow. 
 
 Getting Started
 To run the editor, use the following command:
@@ -39,32 +50,8 @@ fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
         .add_plugins(SpaceEditorPlugin::default())
-        .add_systems(Startup, setup)
+        .add_systems(Startup, simple_editor_setup)
         .run();
-}
-
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    
-    // light
-    commands.spawn(PointLightBundle {
-        point_light: PointLight {
-            intensity: 1500.0,
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0),
-        ..default()
-    });
-    // camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    }) .insert(RaycastPickCamera::default())
-    .insert(PanOrbitCamera::default());
 }
 ```
 
@@ -82,7 +69,8 @@ The representation of components in the editor UI can also be customized by bevy
 A prefab is simply a Bevy scene serialized to a readable and editable RON format. However, it needs to be spawned through PrefabBundle to activate custom logic such as adding global transforms to an object.
 
 ### Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. I work in develop branch to make main branch stable.
+Any request for adding functionality to the editor is welcome. Open an issue on the [issue tracker](https://github.com/rewin123/space_editor/issues).
+Any pull request is welcome too:) 
 
 ### License
 MIT - https://choosealicense.com/licenses/mit/
@@ -109,7 +97,7 @@ MIT - https://choosealicense.com/licenses/mit/
 | Mesh Component                   | Support for using primitives in the prefab editor.                                                                       | ✅ Done |
 | Material Component               | Support for setting up material in prefab.                                                                               | ✅ Done |
 | Bevy_rapier Support              | Support for adding collider/other components from the `bevy_rapier` crate to the editor.                                 | ❌ Planned          |
-| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | 🛠️ Work in progress      |
+| Bevy_xpcb Support                | Support for adding collider/other components from the `bevy_xpcb` crate to the editor.                                   | ✅ Mostly done      |
 | bevy_proto Support                | Support for commonly used text-based prefab system                                                                       | ❌ Planned          |
 | bevy_mod_picking Support         | Support for mouse select and deselect of entities                                                                        | ✅ Done             |
 | bevy_inspector_egui Support      | Support for commonly used inspector library                                                                              | ✅ Done             |

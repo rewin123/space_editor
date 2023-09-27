@@ -10,7 +10,7 @@ pub mod load;
 use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, EditorCameraMarker, PrefabSet};
+use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, PrefabSet};
 
 use component::*;
 use spawn_system::*;
@@ -108,18 +108,6 @@ impl Plugin for PrefabPlugin {
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);
 
-    }
-}
-
-
-fn draw_camera_gizmo(
-    mut gizmos : Gizmos,
-    cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
-) {
-    for (transform, _projection) in cameras.iter() {
-        let transform = transform.compute_transform();
-        let cuboid_transform = transform.with_scale(Vec3::new(2.0, 1.0, 1.0));
-        gizmos.cuboid(cuboid_transform, Color::PINK);
     }
 }
 
