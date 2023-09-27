@@ -24,7 +24,7 @@ The Editor UI is built upon the [edui_dock](https://github.com/Adanos020/egui_do
 
 Most editor features are implemented as tabs within the dock system, providing a structured and organized workspace. You can easily manage these tabs to suit your workflow:
 
-- **GameView Tab**: This tab displays the rendered output from the editor camera.
+- **GameView Tab**: This tab displays the rendered output from the editor camera and gizmos for manipulate objects.
 
 - **Hierarchy Tab**: The Hierarchy tab provides comprehensive information about all entities within your prefab. It not only displays entity details but also allows you to perform various actions:
   - Create new entities
@@ -46,6 +46,17 @@ The dock system in the Editor UI offers a high degree of flexibility:
 
 - For added convenience, tabs can also be detached from the main dock system and placed in subwindows, allowing you to arrange your workspace exactly the way you prefer.
 
+## Bot menu
+
+![[bot_menu.png]]
+
+Bot menu is panel with settings for current scene. It contains:
+
+- Path to prefab without "scn.ron" extension
+- Folder button to open file dialog to select prefab
+- "Save" button to save prefab manually
+- "Load" button to load prefab from "Save path" parameter
+- Play button to starty play game
 
 # Customization
 
