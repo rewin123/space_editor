@@ -1,39 +1,29 @@
 //code only for editor gui
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
-/// Contains all component inspector login
-pub mod inspector;
-/// Contains all bot panel logic
-pub mod bot_menu;
-/// Contains all hierarchy panel logic
-pub mod hierarchy;
-/// Contains logic for selecting entities
-pub mod selected;
-/// Not used right now. Planned to be asset inspector UI for all assets in asset/ folder
-pub mod asset_inspector;
-/// Contains logic to register editor bundles for fast spawning entities with fixed components set
+pub mod ui;
+pub mod core;
+
 pub mod ui_registration;
 
-use bevy_egui::EguiContexts;
+use bevy_egui::{EguiContexts, EguiContext};
 use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGrid};
 use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlugin};
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker};
+use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker, prelude::{Selected, GameViewTab}};
 
-use self::prelude::Selected;
 
 use ui_registration::*;
 
+use self::prelude::EditorUiPlugin;
+
 /// All useful structs and functions from editor UI
 pub mod prelude {
-    pub use super::inspector::*;
-    pub use super::bot_menu::*;
-    pub use super::hierarchy::*;
-    pub use super::selected::*;
-    pub use bevy_panorbit_camera::{PanOrbitCamera};
+    pub use super::core::*;
+    pub use super::ui::*;
 }
 
 /// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
@@ -47,9 +37,7 @@ impl Plugin for EditorPlugin {
         
         app
         .add_plugins(DefaultInspectorConfigPlugin)
-        .add_plugins(prelude::SpaceHierarchyPlugin::default())
-        .add_plugins(prelude::InspectorPlugin)
-        .add_plugins(prelude::BotMenuPlugin)
+        .add_plugins(EditorUiPlugin::default())
         .add_plugins(PanOrbitCameraPlugin);
 
         if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
@@ -61,8 +49,11 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_infinite_grid::InfiniteGridPlugin>() {
             app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
         }
+        app.init_resource::<prelude::EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
+
+        app.add_plugins(prelude::EditorCore);
 
         app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
 
@@ -97,7 +88,7 @@ impl Plugin for EditorPlugin {
 
         app.add_event::<SelectEvent>();
 
-        app.init_resource::<EditorUiReg>();
+        app.init_resource::<BundleReg>();
 
         app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 
@@ -153,10 +144,11 @@ fn select_listener(
     mut commands : Commands,
     query : Query<Entity, With<Selected>>,
     mut events : EventReader<SelectEvent>,
-    mut ctxs : EguiContexts,
+    _ctxs : EguiContexts,
+    pan_orbit_state : ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
+    if !pan_orbit_state.0 {
         return;
     }
     for event in events.iter() {
@@ -181,10 +173,12 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
+pub const TMP_PATH : &str = "tmp.snc.ron";
+
 fn save_prefab_before_play(
-    mut save_state : ResMut<NextState<SaveState>>,
+    mut editor_events : EventWriter<prelude::EditorEvent>,
 ) {
-    save_state.set(SaveState::Save);
+    editor_events.send(prelude::EditorEvent::Save(TMP_PATH.to_string()));
 }
 
 fn to_game_after_save(
@@ -233,13 +227,29 @@ pub fn update_pan_orbit(
 }
 
 
-/// System to block camera control if egui is using mouse
+/// Sytem to block camera control if egui is using mouse 
 pub fn ui_camera_block(
-    mut ctxs : EguiContexts,
-    mut state : ResMut<PanOrbitEnabled>
+    mut ctxs : Query<&mut EguiContext, With<PrimaryWindow>>,
+    mut state : ResMut<PanOrbitEnabled>,
+    game_view : Res<GameViewTab>
 ) {
-    if ctxs.ctx_mut().is_pointer_over_area() || ctxs.ctx_mut().is_using_pointer() {
-        *state = PanOrbitEnabled(false);
+    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
+        return;
+    };
+    let ctx = ctx_ref.get_mut();
+    if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
+        let Some(pos) = ctx.pointer_latest_pos() else {
+            return;
+        };
+        if let Some(area) = game_view.viewport_rect {
+            if area.contains(pos) {
+
+            } else {
+                *state = PanOrbitEnabled(false);
+            }
+        } else {
+            *state = PanOrbitEnabled(false);
+        }
     }
 }
 
@@ -278,24 +288,24 @@ fn disable_no_editor_cams(
 }
 
 fn draw_camera_gizmo(
-    mut gizmos : Gizmos,
+    mut gizom : Gizmos,
     cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
 ) {
-    for (transform, projection) in cameras.iter() {
+    for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
-        gizmos.cuboid(cuboid_transform, Color::PINK);
+        gizom.cuboid(cuboid_transform, Color::PINK);
 
         let scale = 1.5;
         
-        gizmos.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizmos.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizmos.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
-        gizmos.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
+        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
 
         let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
         let rect_transform = transform.mul_transform(rect_transform);
 
-        gizmos.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
+        gizom.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
     }
 }

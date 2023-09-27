@@ -2,9 +2,6 @@ use std::fs;
 use std::path::Path;
 use bevy::prelude::*;
 
-
-use super::ui_camera_block;
-
 ///Not used right now. Planned to be UI inspector for all assets in asset/ folder
 pub struct EditorAsset {
     pub path: String,
@@ -24,14 +21,14 @@ impl Plugin for AssetDetectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DetectedAssets>();
 
-        app.add_systems(Startup, detect_assets.before(ui_camera_block));
+        app.add_systems(Startup, detect_assets.before(crate::editor::ui_camera_block));
     }
 }
 
 fn detect_assets(
     mut assets : ResMut<DetectedAssets>
 ) {
-    get_assets_in_directory(&Path::new("assets"), &mut assets.assets);
+    get_assets_in_directory(Path::new("assets"), &mut assets.assets);
 }
 
 fn get_assets_in_directory(dir_path: &Path, assets: &mut Vec<EditorAsset>) {

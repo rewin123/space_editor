@@ -91,10 +91,10 @@ pub fn serialize_prefab(
         .with_filter(
             SceneFilter::Allowlist(
                 HashSet::from_iter(allow_types.iter().cloned())))
-        .extract_entities(entities.iter().map(|e| *e));
+        .extract_entities(entities.iter().copied());
     let scene = builder.build();
 
-    let res = scene.serialize_ron(&world.resource::<AppTypeRegistry>());
+    let res = scene.serialize_ron(world.resource::<AppTypeRegistry>());
 
     if let Ok(str) = res {
         IoTaskPool::get()
@@ -113,15 +113,5 @@ pub fn serialize_prefab(
     }
 
     world.resource_mut::<NextState<SaveState>>().set(SaveState::Idle);
-
-}
-
-
-
-fn load_prefab(
-    mut commands : Commands,
-    query : Query<(Entity, &PrefabLoader)>,
-    asset_server : Res<AssetServer>
-) {
 
 }

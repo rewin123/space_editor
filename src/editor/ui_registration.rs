@@ -6,11 +6,11 @@ pub const MESH_CATEGORY : &str = "mesh";
 
 /// Resource with bundles to spawn
 #[derive(Resource, Default)]
-pub struct EditorUiReg {
+pub struct BundleReg {
     pub bundles : HashMap<String, HashMap<String, EditorBundleUntyped>>
 }
 
-impl EditorUiReg {
+impl BundleReg {
     pub fn add_bundle<T : Bundle + Clone>(&mut self, bundle : EditorBundle<T>) {
         
         let dyn_bundle = EditorBundleUntyped::new(bundle.data.clone(), bundle.name.clone());
@@ -60,11 +60,11 @@ pub trait EditorUiExt {
 
 impl EditorUiExt for App {
     fn editor_bundle<T : Bundle + Clone>(&mut self, category : &str, name : &str, bundle : T) {
-        let mut reg = if let Some(reg) = self.world.get_resource_mut::<EditorUiReg>() {
+        let mut reg = if let Some(reg) = self.world.get_resource_mut::<BundleReg>() {
             reg
         } else {
-            self.init_resource::<EditorUiReg>();
-            self.world.get_resource_mut::<EditorUiReg>().unwrap()
+            self.init_resource::<BundleReg>();
+            self.world.get_resource_mut::<BundleReg>().unwrap()
         };
 
         reg.add_bundle(EditorBundle { data : bundle, category : category.to_string(), name : name.to_string() });

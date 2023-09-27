@@ -10,7 +10,16 @@ pub use camera::*;
 pub mod player_start;
 pub use player_start::*;
 
+pub mod path;
+pub use path::*;
+
 use bevy::{prelude::*, reflect::*, utils::HashMap};
+
+pub trait AssetPath {
+    fn get_filter(&self) -> egui_file::Filter;
+    fn set_path(&mut self, path : &str);
+    fn get_path_mut(&mut self) -> &mut String;
+}
 
 /// Component to define path to gltf asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone)]
@@ -70,11 +79,11 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
 
         let mut res = self.data.clone();
         {
-            let mut res_reflect = res.as_reflect_mut();
+            let res_reflect = res.as_reflect_mut();
             if let ReflectMut::Struct(s) = res_reflect.reflect_mut() {
 
                 for (field_name, path) in self.asset_paths.iter() {
-                    if let Some(field) = s.field_mut(&field_name) {
+                    if let Some(field) = s.field_mut(field_name) {
                         if let Some(handle) = field.downcast_mut::<Handle<Image>>() {
                             *handle = assets.load(path);
                         } else if let Some(handle) = field.downcast_mut::<Handle<Mesh>>() {

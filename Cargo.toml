@@ -12,8 +12,6 @@ readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 bevy = "0.11.2"
 bevy_egui = "0.21"
@@ -22,13 +20,15 @@ bevy-scene-hook = "7"
 ron = "0.8.0"
 bevy_panorbit_camera = "0.7.0"
 bevy-inspector-egui = {version = "0.19.0", features = ["bevy_pbr", "highlight_changes"]}
-bevy_mod_picking = "0.15.0"
+bevy_mod_picking = {version = "0.15.0", features = ["backend_egui"]}
 bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_infinite_grid", branch = "main" }
+egui_dock = "0.7"
+egui_file = "0.10.2"
 
-
-bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git", optional = true}
 bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false, features = ["3d", "f32", "collider-from-mesh"],  optional = true}
 
+[profile.dev.package.bevy_xpbd_3d]
+opt-level = 3
+
 [features]
-f64 = ["dep:bevy_transform64", "bevy_xpbd_3d?/f64"]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin"]

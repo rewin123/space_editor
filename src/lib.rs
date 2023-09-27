@@ -32,24 +32,20 @@ pub mod prelude {
     pub use super::PrefabMarker;
     pub use super::editor_registry::*;
     pub use super::*;
+    pub use prefab::load::PrefabBundle;
 
     #[cfg(feature = "bevy_xpbd_3d")]
     pub use super::optional::bevy_xpbd_plugin::*;
 }
 
 /// Plugin to activate editor UI and prefab plugin
+#[derive(Default)]
 pub struct SpaceEditorPlugin {
 
 }
 
 
-impl Default for SpaceEditorPlugin {
-    fn default() -> Self {
-        Self {
 
-        }
-    }
-}
 
 impl Plugin for SpaceEditorPlugin {    
     fn build(&self, app: &mut App) {

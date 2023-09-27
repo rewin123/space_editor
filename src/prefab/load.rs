@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*};
 use bevy_scene_hook::SceneHook;
 
 use crate::{editor_registry::EditorRegistryExt, PrefabMarker};
@@ -12,8 +12,8 @@ pub struct PrefabBundle {
     transform : Transform,
     global_transform : GlobalTransform,
     
-    visibility : Visibility,
-    computed_visibility : ComputedVisibility
+    visiblity : Visibility,
+    computed_visiblity : ComputedVisibility
 }
 
 impl PrefabBundle {
@@ -56,7 +56,7 @@ fn load_prefab(
     mut commands : Commands,
     query : Query<(Entity, &PrefabLoader, Option<&Children>, Option<&Transform>, Option<&Visibility>), Changed<PrefabLoader>>,
     auto_childs : Query<Entity, With<PrefabAutoChild>>,
-    mut assets : ResMut<AssetServer>
+    assets : ResMut<AssetServer>
 ) {
     for (e, l, children, tr, vis) in query.iter() {
 
@@ -81,11 +81,11 @@ fn load_prefab(
         commands.entity(e).with_children(|cmds| {
             cmds.spawn(
                 DynamicSceneBundle {
-                    scene : scene,
+                    scene,
                     ..default()
                 }
             )
-            .insert(SceneHook::new(|e, cmd| {
+            .insert(SceneHook::new(|_e, cmd| {
                 cmd.insert(PrefabAutoChild);
             }))
             .insert(PrefabAutoChild);

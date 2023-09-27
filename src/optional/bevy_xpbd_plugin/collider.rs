@@ -1,5 +1,5 @@
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 pub use bevy_inspector_egui::prelude::*;
 
@@ -27,7 +27,7 @@ pub struct ColliderPrefabCompound {
 
 impl Default for ColliderPrefab {
     fn default() -> Self {
-        ColliderPrefab::Primitive { pos: Vec3::default(), rot: Vec3::default(), primitive: ColliderPrimitive::Cuboid(Vec3::default()) }
+        ColliderPrefab::Primitive { pos: Vec3::default(), rot: Vec3::default(), primitive: ColliderPrimitive::Cuboid(Vec3::ONE) }
     }
 }
 
@@ -68,10 +68,10 @@ impl ColliderPrimitive {
             },
             ColliderPrimitive::Capsule { height, radius } => Collider::capsule(*height, *radius),
             ColliderPrimitive::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*a, *b, *radius),
-            ColliderPrimitive::Cone { height, radius } => (Collider::cone(*height, *radius)),
-            ColliderPrimitive::Cylinder { height, radius } => (Collider::cylinder(*height, *radius)),
-            ColliderPrimitive::Halfspace { outward_normal } => (Collider::halfspace(*outward_normal)),
-            ColliderPrimitive::Triangle { a, b, c } => (Collider::triangle(*a, *b, *c)),
+            ColliderPrimitive::Cone { height, radius } => Collider::cone(*height, *radius),
+            ColliderPrimitive::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
+            ColliderPrimitive::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
+            ColliderPrimitive::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
             ColliderPrimitive::Ball(radius) => Collider::ball(*radius),
             ColliderPrimitive::Segment { a, b } => Collider::segment(*a, *b),
         }
@@ -126,32 +126,32 @@ fn get_collider(collider: &ColliderPrefab, mesh: Option<&Handle<Mesh>>, meshes: 
         ColliderPrefab::FromMesh => {
             if let Some(mesh) = mesh {
                 if let Some(mesh) = meshes.get(mesh) {
-                    return Collider::trimesh_from_bevy_mesh(mesh).unwrap_or_default();
+                    Collider::trimesh_from_bevy_mesh(mesh).unwrap_or_default()
                 } else {
-                    return Collider::default();
+                    Collider::default()
                 } 
             } else {
-                return Collider::default();
+                Collider::default()
             }
         },
         ColliderPrefab::FromPrefabMesh => {
             if let Some(mesh) = prefab_mesh {
-                let col = get_prefab_mesh_collider(mesh);
-                return col;
+                
+                get_prefab_mesh_collider(mesh)
             } else {
-                return Collider::default();
+                Collider::default()
             }
         },
         ColliderPrefab::Primitive { pos, rot, primitive } => {
-            return Collider::compound(vec![(*pos, Quat::from_euler(EulerRot::XYZ, rot.x, rot.y, rot.z), primitive.to_collider())]);
+            Collider::compound(vec![(*pos, Quat::from_euler(EulerRot::XYZ, rot.x, rot.y, rot.z), primitive.to_collider())])
         },
         ColliderPrefab::Compound(com) => {
-            if com.parts.len() > 0 {
+            if !com.parts.is_empty() {
                 return Collider::compound(
                     com.parts.iter().map(|p| (p.pos,  Quat::from_euler(EulerRot::XYZ, p.rot.x, p.rot.y, p.rot.z), p.primitive.to_collider())).collect()
                 );
             } else {
-                return Collider::default();
+                Collider::default()
             }
         }
     }
@@ -159,7 +159,8 @@ fn get_collider(collider: &ColliderPrefab, mesh: Option<&Handle<Mesh>>, meshes: 
 
 fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
     const EPS : f32 = 0.00001;
-    let col = match mesh {
+    
+    match mesh {
         MeshPrimitivePrefab::Cube(val) => Collider::cuboid(*val, *val, *val),
         MeshPrimitivePrefab::Box(val) => Collider::cuboid(val.w, val.h, val.d),
         MeshPrimitivePrefab::Sphere(val) => Collider::ball(val.r),
@@ -171,8 +172,7 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
         MeshPrimitivePrefab::Plane(val) => Collider::cuboid(val.size, EPS, val.size),
         MeshPrimitivePrefab::RegularPolygon(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
         MeshPrimitivePrefab::Torus(val) => Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default(),
-    };
-    col
+    }
 }
 
 // pub fn debug_draw_collider(

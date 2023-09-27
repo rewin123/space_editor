@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, reflect::{TypeRegistry, GetTypeRegistration, TypePath}, ecs::system::{EntityCommand, EntityCommands}, utils::{HashMap, HashSet}};
 
+
 use std::any::TypeId;
 
 use crate::{PrefabMarker, prefab::{component::AutoStruct, save::SaveState}, PrefabSet};
@@ -154,7 +155,7 @@ impl EditorRegistry {
 }
 
 pub trait EditorRegistryExt {
-    /// register new component in editor UI and prefab systems
+    /// refister new component in editor UI and prefab systems
     fn editor_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;
     /// register new component inly in prefab systems (will be no shown in editor UI)
     fn editor_silent_registry<T : Component + Default + Send + 'static + GetTypeRegistration + Clone>(&mut self) -> &mut Self;

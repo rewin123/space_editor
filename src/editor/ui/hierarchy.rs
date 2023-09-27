@@ -1,9 +1,11 @@
+
+
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
 
-use crate::{PrefabMarker, prelude::EditorRegistry, EditorSet};
+use crate::{prelude::{SelectedPlugin, Selected, EditorRegistry}, EditorSet, PrefabMarker, editor::ui_registration::BundleReg};
 
-use super::{selected::*, ui_camera_block, ui_registration::*};
+use super::{EditorUiAppExt, EditorUiRef};
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -12,17 +14,12 @@ pub struct CloneEvent {
 }
 
 /// Plugin to activate hierarchy UI in editor UI
+#[derive(Default)]
 pub struct SpaceHierarchyPlugin {
 
 }
 
-impl Default for SpaceHierarchyPlugin {
-    fn default() -> Self {
-        Self {
 
-        }
-    }
-}
 
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
@@ -31,44 +28,49 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_systems(Update, show_hierarchy.before(ui_camera_block).in_set(EditorSet::Editor));
-        app.add_systems(Update, clone_entities.after(show_hierarchy).in_set(EditorSet::Editor));
+        app.editor_tab(
+            crate::prelude::EditorTabName::Hierarchy, 
+            "Hierarchy".into(), 
+            show_hierarchy);
+
+        // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
+        app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
         app.add_event::<CloneEvent>();
     }
 }
 
+
 /// System to show hierarchy 
 pub fn show_hierarchy(
     mut commands : Commands, 
-    mut contexts : EguiContexts,
     query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
     mut selected : Query<Entity, With<Selected>>,
     mut clone_events : EventWriter<CloneEvent>,
-    ui_reg : Res<EditorUiReg>,
+    ui_reg : Res<BundleReg>,
+    mut ui : NonSendMut<EditorUiRef>
 ) {
     let mut all : Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
-    let pointer_used = contexts.ctx_mut().is_using_pointer();
-    egui::SidePanel::left("Scene hierarchy")
-            .show(contexts.ctx_mut(), |ui| {
-        ui.label(egui::RichText::new("Hierarchy"));
-
-        for (entity, _, _, parent) in all.iter() {
-            if parent.is_none() {
-                draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
+    let pointer_used = false;
+    
+    let ui =  &mut ui.0;
+    egui::ScrollArea::vertical().show(ui, |ui| {
+            for (entity, _, _, parent) in all.iter() {
+                if parent.is_none() {
+                    draw_entity(&mut commands, ui, &query, *entity, &mut selected, &mut clone_events, pointer_used);
+                }
             }
-        }
         ui.vertical_centered(|ui| {
             if ui.button("----- + -----").clicked() {
                 commands.spawn_empty().insert(PrefabMarker);
             }
             if ui.button("Clear all").clicked() {
-                for (entity, _, _, parent) in all.iter() {
+                for (entity, _, _, _parent) in all.iter() {
                     commands.entity(*entity).despawn_recursive();
                 }
             }
 
-           
+            
         });
 
         ui.label("Spawn bundle");
@@ -76,7 +78,7 @@ pub fn show_hierarchy(
             ui.menu_button(cat_name, |ui| {
                 for (name, dyn_bundle) in cat {
                     if ui.button(name).clicked() {
-                        let entity = dyn_bundle.spawn(&mut commands);
+                        let _entity = dyn_bundle.spawn(&mut commands);
                     }
                 }
             });
@@ -120,17 +122,13 @@ fn draw_entity(
                     clone_events.send(CloneEvent { id: entity });
                     ui.close_menu();
                 }
-                if !selected.is_empty() && !selected.contains(entity) {
-                    if ui.button("Attach to").clicked() {
-                        for e in selected.iter() {
-                            commands.entity(entity).add_child(e);
-                        }
+                if !selected.is_empty() && !selected.contains(entity) && ui.button("Attach to").clicked() {
+                    for e in selected.iter() {
+                        commands.entity(entity).add_child(e);
                     }
                 }
-                if parent.is_some() {
-                    if ui.button("Detach").clicked() {
-                        commands.entity(entity).remove_parent();
-                    }
+                if parent.is_some() && ui.button("Detach").clicked() {
+                    commands.entity(entity).remove_parent();
                 }
             });
 
@@ -155,25 +153,20 @@ fn draw_entity(
     });
 }
 
-struct CloneStep {
-    src_id : Entity,
-    dst_id : Entity,
-    parent : Option<Entity>
-}
 
-fn clone_entities(
+fn clone_enitites(
     mut commands : Commands,
     query : Query<EntityRef>,
     mut events : EventReader<CloneEvent>,
-    mut editor_registry : Res<EditorRegistry>
+    editor_registry : Res<EditorRegistry>
 ) {
     for event in events.into_iter() {
 
         let mut queue = vec![(event.id, commands.spawn_empty().id())];
         let mut map = HashMap::new();
 
-        while queue.len() > 0 {
-            let (src_id, dst_id) = queue.pop().unwrap();
+        while let Some((src_id, dst_id)) = queue.pop() {
+            
             map.insert(src_id, dst_id);
             if let Ok(entity) = query.get(src_id) {
                 if entity.contains::<PrefabMarker>() {
