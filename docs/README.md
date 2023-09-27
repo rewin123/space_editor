@@ -136,9 +136,9 @@ These approaches allow you to extend the space_editor's functionality by adding 
 # Code structure
 
 Space editor code contains three main parts:
-- [EditorUI](editor_ui) (src/editor/ui/) - contains main editor UI
-- [EditorCore](editor_core) (src/editor/core/) - contains editor ui core functionality like loading/saving/game start
-- [Prefab](prefab) (src/prefab/) - contains prefab logic and components and can be used separately from EditorUI or EditorCore
+- EditorUI (src/editor/ui/) - contains main editor UI
+- EditorCore (src/editor/core/) - contains editor ui core functionality like loading/saving/game start
+- Prefab (src/prefab/) - contains prefab logic and components and can be used separately from EditorUI or EditorCore
 
 ## Dependencies
 
