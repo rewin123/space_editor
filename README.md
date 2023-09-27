@@ -59,7 +59,7 @@ fn main() {
 
 ## Customization
 
-More detailed information in docs/README.md
+**More detailed information in docs/README.md**
 
 Custom types can be added to the editor gui and prefab spawn system with just a single line:
 
