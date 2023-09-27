@@ -1,19 +1,18 @@
 
-![[showcase.png]]
+![[/imgs/showcase.png]]
 
-space_editor target is be usefull tool for scene/prefab/prototyping for bevy. Currently is an very early stage of development. So any idea how growth this project is usefull.
-
+space_editor is usefull tool for scene/prefab/prototyping for bevy.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 ## Main features
 
 - **Intuitive Scene and Prefab Management**: Space Editor allows you to prepare and save scenes and prefabs with an intuitive user interface. You can easily reuse them in your game development workflow. 
-- **bevy_xpbd_3d Compatibility**: Space Editor supports bevy_xpbd_3d, including all editor features. 
-- **Gizmo-Based Manipulations**: Manipulate entity positions, rotations, and scales using gizmos. 
-- **Component Parameter Editing**: Easily edit component parameters within the editor UI, streamlining your development process. 
-- **Seamless Editor-Game Switching**: Switch between the editor UI and the game view effortlessly for fast prototyping and testing. 
+- **bevy_xpbd_3d compatibility**: Space Editor supports bevy_xpbd_3d, including all editor features. 
+- **Gizmo-Based manipulations**: Manipulate entity positions, rotations, and scales using gizmos. 
+- **Component values editing**: Easily edit component parameters within the editor UI 
+- **Seamless Editor-Game switching**: Switch between the editor UI and the game effortlessly for fast prototyping and testing. 
 - **Prefab Reusability**: Prefabs can be nested within other prefabs, improving reusability and organization in your projects. 
-- **Custom Saving Structures**: Space Editor implements various custom structures to seamlessly integrate its saving system with the standard Bevy scene format. 
-- **Easy API for Customization**: Customize or register your own components within the editor with ease, tailoring it to your specific project needs.
-- **API for Adding Tabs**: Extend the functionality of the editor by easily adding new tabs, enhancing your workflow. 
+- **Many custom components**: Space Editor implements various custom components to seamlessly integrate its saving system with the standard Bevy scene format. 
+- **Easy API for customization**: Customize or register your own components within the editor with ease, tailoring it to your specific project needs.
+- **API for adding tabs**: Extend the functionality of the editor by easily adding new tabs, enhancing your workflow. 
 
 # Editor UI
 
@@ -78,7 +77,7 @@ app.editor_bundle("Mesh", "Cube", (
 
 And after call method, "Cube" bundle can be acessed in UI
 
-![[example_bundle.png]]
+![[/imgs/example_bundle.png]]
 
 ## Add New Tab to Editor UI
 
@@ -116,10 +115,12 @@ app.editor_tab(EditorTabName::Other("simple_tab".to_string()), "Simnple tab".int
 ```
 
 Result:
-![[example_systenm_tab.png]]
+![[/imgs/example_systenm_tab.png]]
 
 These approaches allow you to extend the space_editor's functionality by adding custom tabs tailored to your specific needs.
 
+
+# Contribution
 
 # Code structure
 
@@ -141,3 +142,9 @@ The project relies on the following crates:
 - **egui_file**: Used for displaying a file dialog.
 - **egui_dock**: Implements a sophisticated dock system for editor ui.
 - **bevy-scene-hook**: Conveniently marks scene objects and enables their hiding in the editor.
+
+# Version policy
+
+- **0.0.xx**: This version format is reserved for bug fixes or minor changes that do not impact the code API significantly. It is suitable for addressing issues without introducing major alterations.
+- **0.xx.0**: Versions in this format encompass changes that are not considered minor. This may include new features, enhancements, or modifications that have a more significant impact on the codebase or functionality.
+- **xx.0.0**: This version format is reserved for breaking changes that fundamentally alter the project's structure or behavior. It signifies major updates that may require code adjustments, so be prepared for substantial modifications when transitioning to this version.
