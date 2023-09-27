@@ -7,11 +7,6 @@ use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
 #[reflect(Component, MapEntities)]
 pub struct ChildrenPrefab(pub Vec<Entity>);
 
-#[derive(Component, Default)]
-struct PrefabLoader {
-    pub path : String
-}
-
 impl ChildrenPrefab {
     pub fn from_children(children : &Children) -> Self {
         Self(children.to_vec())

@@ -32,7 +32,7 @@ pub mod prelude {
     pub use super::PrefabMarker;
     pub use super::editor_registry::*;
     pub use super::*;
-    pub use prefab::load::PrefabBundle;
+    pub use super::prefab::load::PrefabBundle;
 
     #[cfg(feature = "bevy_xpbd_3d")]
     pub use super::optional::bevy_xpbd_plugin::*;
