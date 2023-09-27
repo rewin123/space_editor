@@ -1,5 +1,5 @@
 
-![[/imgs/showcase.png]]
+![/imgs/showcase.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/showcase.png)
 
 space_editor is usefull tool for scene/prefab/prototyping for bevy.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 ## Main features
@@ -48,7 +48,7 @@ The dock system in the Editor UI offers a high degree of flexibility:
 
 ## Bot menu
 
-![[bot_menu.png]]
+![bot_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/bot_menu.png)
 
 Bot menu is panel with settings for current scene. It contains:
 
@@ -88,7 +88,7 @@ app.editor_bundle("Mesh", "Cube", (
 
 And after call method, "Cube" bundle can be acessed in UI
 
-![[/imgs/example_bundle.png]]
+![/imgs/example_bundle.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle.png)
 
 ## Add New Tab to Editor UI
 
@@ -126,7 +126,7 @@ app.editor_tab(EditorTabName::Other("simple_tab".to_string()), "Simnple tab".int
 ```
 
 Result:
-![[/imgs/example_systenm_tab.png]]
+![/imgs/example_systenm_tab.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_systenm_tab.png)
 
 These approaches allow you to extend the space_editor's functionality by adding custom tabs tailored to your specific needs.
 
