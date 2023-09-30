@@ -18,7 +18,7 @@ use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraP
 
 use ui_registration::*;
 
-use self::prelude::EditorUiPlugin;
+use self::prelude::{EditorUiPlugin, PrefabMemoryCache};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -173,12 +173,10 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-pub const TMP_PATH : &str = "tmp.snc.ron";
-
 fn save_prefab_before_play(
     mut editor_events : EventWriter<prelude::EditorEvent>,
 ) {
-    editor_events.send(prelude::EditorEvent::Save(TMP_PATH.to_string()));
+    editor_events.send(prelude::EditorEvent::Save(prelude::EditorPrefabPath::MemoryCahce));
 }
 
 fn to_game_after_save(
@@ -197,13 +195,24 @@ fn clear_and_load_on_start(
     mut load_server : ResMut<prelude::EditorLoader>,
     save_confg : Res<crate::prefab::save::SaveConfig>,
     assets : Res<AssetServer>,
+    cache : Res<PrefabMemoryCache>,
 ) {
-    if save_confg.path.is_empty() {
+    if save_confg.path.is_none() {
         return;
     }
-    load_server.scene = Some(
-        assets.load(format!("{}.scn.ron",save_confg.path))
-    );
+    match save_confg.path.as_ref().unwrap() {
+        prelude::EditorPrefabPath::File(path) => {
+            info!("Loading prefab from file {}",path);
+            load_server.scene = Some(
+                assets.load(format!("{}.scn.ron",path))
+            );
+        },
+        prelude::EditorPrefabPath::MemoryCahce => {
+            info!("Loading prefab from cache");
+            load_server.scene = cache.scene.clone();
+        },
+    }
+    
 }
 
 /// Resource, which contains pan orbit camera state

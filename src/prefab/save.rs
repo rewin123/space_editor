@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashSet, tasks::IoTaskPool, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 use std::{any::TypeId, fs::File, io::Write};
 
-use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}};
+use crate::{PrefabMarker, editor_registry::{EditorRegistryExt, EditorRegistry}, prelude::{EditorPrefabPath, PrefabMemoryCache}};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
@@ -36,7 +36,7 @@ impl Plugin for SavePrefabPlugin {
 /// This struct determine path to save prefab
 #[derive(Resource, Clone, Default)]
 pub struct SaveConfig {
-    pub path : String
+    pub path : Option<EditorPrefabPath>
 }
 
 
@@ -92,17 +92,26 @@ pub fn serialize_prefab(
     let res = scene.serialize_ron(world.resource::<AppTypeRegistry>());
 
     if let Ok(str) = res {
-        IoTaskPool::get()
-            .spawn(async move {
                 // Write the scene RON data to file
                 let path = config.path;
-                File::create(format!("assets/{path}.scn.ron"))
-                    .and_then(|mut file| file.write(str.as_bytes()))
-                    .expect("Error while writing scene to file");
+                if let Some(path) = path {
+                    match path {
+                        EditorPrefabPath::File(path) => {
+                            IoTaskPool::get().spawn(async move {
+                                File::create(format!("assets/{path}"))
+                                    .and_then(|mut file| file.write(str.as_bytes()))
+                                    .expect("Error while writing scene to file");
+                                info!("Saved prefab to file {}", path);
+                            }).detach();
+                        },
+                        EditorPrefabPath::MemoryCahce => {
+                            let handle = world.resource_mut::<Assets<DynamicScene>>().add(scene);
+                            world.resource_mut::<PrefabMemoryCache>().scene = Some(handle);
+                        },
+                    }
+                    
+                }
 
-                info!("Saved prefab to file");
-        })
-        .detach();
     } else if let Err(e) = res {
         error!("failed to serialize prefab: {:?}", e);
     }

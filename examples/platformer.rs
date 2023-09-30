@@ -36,9 +36,9 @@ fn simple_tab_system(
 }
 
 fn configure_editor(
-    mut load_event : EventWriter<LoadEvent>
+    mut load_event : EventWriter<MenuLoadEvent>
 ) {
-    load_event.send(LoadEvent { path: "level_test".to_string() });
+    load_event.send(MenuLoadEvent { path: "level_test".to_string() });
 }
 
 #[derive(Component, Reflect, Clone)]
