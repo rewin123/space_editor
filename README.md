@@ -25,6 +25,14 @@ To run platformer example, use the following command:
 
 
 ## Usage
+
+### Cargo
+
+Add this line to your Cargo.toml file
+```toml
+space_editor = { git = "https://github.com/rewin123/space_editor.git", branch="v0.1.1" }
+```
+
 ### Prefab spawn system
 To utilize the prefab spawn system, simply add the plugin to your application as follows:
 ```
