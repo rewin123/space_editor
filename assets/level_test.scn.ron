@@ -1,7 +1,7 @@
 (
   resources: {},
   entities: {
-    17179869191: (
+    6: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -60,7 +60,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -72,19 +72,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -94,7 +94,7 @@
         )),
       },
     ),
-    17179869192: (
+    7: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -153,7 +153,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -165,19 +165,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -187,7 +187,7 @@
         )),
       },
     ),
-    17179869193: (
+    8: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -246,7 +246,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -258,19 +258,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -280,7 +280,7 @@
         )),
       },
     ),
-    17179869194: (
+    9: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -335,7 +335,7 @@
         )),
       },
     ),
-    17179869195: (
+    10: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -394,7 +394,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -406,19 +406,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -428,7 +428,7 @@
         )),
       },
     ),
-    17179869196: (
+    11: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -449,7 +449,7 @@
           scene: "Scene0",
         ),
         "space_editor::prefab::save::ChildrenPrefab": ([
-          103079215126,
+          17179869206,
         ]),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
           pos: (
@@ -469,7 +469,7 @@
           )),
         ),
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (686.1396),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (697.96954),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -481,29 +481,29 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 797.08185,
-            y: -0.0000005618846,
-            z: -0.00000001752847,
+            x: 810.8244,
+            y: -0.0000005617346,
+            z: -0.000000017528466,
           ),
           y_axis: (
-            x: -0.0000005618846,
-            y: 193.29208,
-            z: 0.00000009476587,
+            x: -0.0000005617346,
+            y: 196.6242,
+            z: 0.000000094840736,
           ),
           z_axis: (
-            x: -0.00000001752847,
-            y: 0.00000009476587,
-            z: 797.08185,
+            x: -0.000000017528466,
+            y: 0.000000094840736,
+            z: 810.8244,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
           x: -0.25000003,
-          y: 1.749569,
-          z: 0.04999999,
+          y: 1.7495763,
+          z: 0.049999993,
         )),
       },
     ),
-    17179869198: (
+    12: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -558,7 +558,7 @@
         )),
       },
     ),
-    17179869199: (
+    13: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -617,7 +617,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -629,19 +629,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -651,7 +651,7 @@
         )),
       },
     ),
-    17179869201: (
+    14: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -672,7 +672,7 @@
           scene: "Scene0",
         ),
         "space_editor::prefab::save::ChildrenPrefab": ([
-          17179869197,
+          23,
         ]),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
           pos: (
@@ -692,7 +692,7 @@
           )),
         ),
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (680.2246),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (692.05457),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -704,29 +704,29 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 790.2106,
-            y: -0.0000005619605,
-            z: -0.000000017528471,
+            x: 803.9531,
+            y: -0.00000056180926,
+            z: -0.000000017528468,
           ),
           y_axis: (
-            x: -0.0000005619605,
-            y: 191.62602,
-            z: 0.0000000947279,
+            x: -0.00000056180926,
+            y: 194.95815,
+            z: 0.00000009480352,
           ),
           z_axis: (
-            x: -0.000000017528471,
-            y: 0.0000000947279,
-            z: 790.2106,
+            x: -0.000000017528468,
+            y: 0.00000009480352,
+            z: 803.9531,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
           x: -0.25000003,
-          y: 1.7495654,
+          y: 1.7495728,
           z: 0.04999999,
         )),
       },
     ),
-    17179869203: (
+    15: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -785,7 +785,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3624.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3674.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -797,19 +797,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7848.071,
+            x: 7956.404,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15096.097,
+            y: 15304.431,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7851.9907,
+            z: 7960.3237,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -819,7 +819,7 @@
         )),
       },
     ),
-    17179869204: (
+    16: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -878,7 +878,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -890,19 +890,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -912,7 +912,7 @@
         )),
       },
     ),
-    17179869207: (
+    17: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -971,7 +971,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -983,19 +983,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -1005,7 +1005,7 @@
         )),
       },
     ),
-    17179869210: (
+    18: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -1060,11 +1060,11 @@
         )),
       },
     ),
-    38654705680: (
+    19: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
-            x: 0.11794937,
+            x: -0.00745821,
             y: 0.0,
             z: 2.2603722,
           ),
@@ -1119,7 +1119,7 @@
         )),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (3649.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -1131,19 +1131,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 7902.2373,
+            x: 8010.5703,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 15200.264,
+            y: 15408.598,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 7906.157,
+            z: 8014.49,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -1153,7 +1153,7 @@
         )),
       },
     ),
-    38654705685: (
+    20: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -1207,13 +1207,13 @@
         ),
         "space_editor::prefab::component::shape::MeshPrimitivePrefab": Cube(1.0),
         "space_editor::prefab::save::ChildrenPrefab": ([
-          17179869194,
-          17179869198,
-          17179869210,
+          9,
+          12,
+          18,
         ]),
         "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
         "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Dynamic,
-        "bevy_xpbd_3d::components::mass_properties::Mass": (144.0),
+        "bevy_xpbd_3d::components::mass_properties::Mass": (146.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
           static_coefficient: 0.3,
@@ -1225,19 +1225,19 @@
         ),
         "bevy_xpbd_3d::components::mass_properties::Inertia": ((
           x_axis: (
-            x: 23.99998,
+            x: 24.333313,
             y: 0.0,
             z: 0.0,
           ),
           y_axis: (
             x: 0.0,
-            y: 23.99998,
+            y: 24.333313,
             z: 0.0,
           ),
           z_axis: (
             x: 0.0,
             y: 0.0,
-            z: 23.99998,
+            z: 24.333313,
           ),
         )),
         "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
@@ -1264,7 +1264,7 @@
         ),
       },
     ),
-    38654705688: (
+    21: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
@@ -1306,7 +1306,7 @@
         "platformer::FollowCamera": (
           dist: 34.0,
           target: (
-            entity: 38654705685,
+            entity: 20,
           ),
           speed: 2.0,
         ),

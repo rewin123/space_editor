@@ -20,6 +20,7 @@ pub use editor_tab::*;
 pub mod game_view;
 pub use game_view::*;
 
+
 use bevy_egui::{egui, EguiContext};
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 
@@ -67,8 +68,8 @@ impl Plugin for EditorUiPlugin {
                 EditorTabName::GameView
             ]);
 
-            let [_game, right_panel] = editor.tree.main_surface_mut().split_right(egui_dock::NodeIndex::root(), 0.75, vec![EditorTabName::Hierarchy]);
-            let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(right_panel, 0.5, vec![EditorTabName::Inspector]);
+            let [_game, _inspector] = editor.tree.main_surface_mut().split_right(egui_dock::NodeIndex::root(), 0.8, vec![EditorTabName::Inspector]);
+            let [_hierarchy, _game] = editor.tree.main_surface_mut().split_left(_game, 0.2, vec![EditorTabName::Hierarchy]);
         }
     }
 }
