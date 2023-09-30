@@ -4,7 +4,7 @@
 // cargo run run --example platformer --features bevy_xpbd_3d
 
 use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position, RayHits}, PhysicsSchedule, PhysicsStepSet};
-use space_editor::prelude::{*, component::EntityLink};
+use space_editor::prelude::{*, component::EntityLink, spatial_query::RayCasterPrefab};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
 
@@ -17,6 +17,7 @@ fn main() {
 
         .editor_registry::<PlayerController>()
         .editor_relation::<PlayerController, RigidBodyPrefab>()
+        .editor_relation::<PlayerController, RayCasterPrefab>()
 
         .editor_registry::<FollowCamera>()
         .editor_relation::<FollowCamera, Camera3d>()
