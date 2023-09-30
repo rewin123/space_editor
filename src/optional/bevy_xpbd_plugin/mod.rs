@@ -4,13 +4,15 @@ use crate::{EditorState, PrefabSet};
 
 pub mod collider;
 
+pub mod spatial_query;
+
 use crate::prelude::EditorRegistryExt;
 
 use self::collider::{ColliderPrimitive, ColliderPart, ColliderPrefabCompound};
+use self::spatial_query::register_xpbd_spatial_types;
 
 pub type Vector = bevy_xpbd_3d::math::Vector;
 pub type Scalar = bevy_xpbd_3d::math::Scalar;
-
 
 pub struct BevyXpbdPlugin;
 
@@ -40,6 +42,8 @@ impl Plugin for BevyXpbdPlugin {
         app.register_type::<ColliderPart>();
         app.register_type::<Vec<ColliderPart>>();
         app.register_type::<ColliderPrefabCompound>();
+
+        register_xpbd_spatial_types(app);
 
         app.add_systems(Update, (collider::update_collider, editor_pos_change).in_set(PrefabSet::DetectPrefabChange).run_if(in_state(EditorState::Editor)));
         app.add_systems(Update, rigidbody_type_change_in_editor.run_if(in_state(EditorState::Editor)).in_set(PrefabSet::DetectPrefabChange));

@@ -165,6 +165,10 @@ pub trait EditorRegistryExt {
     /// Mark that if T component spawned, then Relation must be spawned too
     fn editor_relation<T, Relation>(&mut self) -> &mut Self
         where T : Component, Relation : Component + Default;
+
+    /// Simple sync between prefab struct and bevy struct
+    fn editor_into_sync<T, Target>(&mut self) -> &mut Self
+        where T : Component + Clone + Into<Target>, Target : Component;
     
     /// Not used yet
     fn editor_auto_struct<T>(&mut self) -> &mut Self
@@ -208,8 +212,25 @@ impl EditorRegistryExt for App {
         self.add_systems(Update, despawn_auto_structs::<T>);
         self
     }
+
+    fn editor_into_sync<T, Target>(&mut self) -> &mut Self
+        where T : Component + Clone + Into<Target>, Target : Component {
+        
+        self.add_systems(Update, into_sync_system::<T, Target>);
+
+        self
+    }
 }
 
+fn into_sync_system<T : Component + Clone + Into<Target>, Target : Component>(
+    mut commands : Commands,
+    query : Query<(Entity, &T), Changed<T>>
+) {
+    for (e, t) in query.iter() {
+        let new_target : Target = t.clone().into();
+        commands.entity(e).insert(new_target);
+    }
+}
 
 /// Not used
 fn generate_auto_structs<T : Component + Reflect + FromReflect + Default + Clone>(
