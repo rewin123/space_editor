@@ -3,7 +3,7 @@
 // Run command:
 // cargo run run --example platformer --features bevy_xpbd_3d
 
-use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position}, PhysicsSchedule, PhysicsStepSet};
+use bevy_xpbd_3d::{prelude::{LinearVelocity, CollidingEntities, AngularVelocity, Position, RayHits}, PhysicsSchedule, PhysicsStepSet};
 use space_editor::prelude::{*, component::EntityLink};
 use bevy::{prelude::*, ecs::{entity::MapEntities, reflect::ReflectMapEntities}};
 
@@ -44,14 +44,16 @@ fn configure_editor(
 #[reflect(Component, Default)]
 struct PlayerController {
     pub speed : f32,
-    pub jump_speed : f32
+    pub jump_speed : f32,
+    jumped : bool
 }
 
 impl Default for PlayerController {
     fn default() -> Self {
         Self {
             speed: 10.0,
-            jump_speed: 100.0
+            jump_speed: 100.0,
+            jumped: false
         }
     }
 }
@@ -82,11 +84,17 @@ impl MapEntities for FollowCamera {
 
 fn move_player(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<(Entity, &mut LinearVelocity, &mut AngularVelocity, &PlayerController, &CollidingEntities, &mut Transform)>,
+    mut query: Query<(Entity, &mut LinearVelocity, &mut AngularVelocity, &mut PlayerController, &RayHits, &mut Transform)>,
     time : Res<Time>
 ) {
-    for (_e, mut vel, mut rot, controller, colliding, tranform) in query.iter_mut() {
-        if colliding.len() > 0 {
+    for (_e, mut vel, mut rot, mut controller, hits, tranform) in query.iter_mut() {
+
+        //take 1th hit, because 0th hit is self hit
+        if let Some(hit) = hits.iter_sorted().nth(1) {
+            if hit.time_of_impact > 0.7 {
+                continue
+            }
+            info!("time of impact: {:?} {:?}", hit.entity, hit.time_of_impact);
             let frw = tranform.forward();
             let up = tranform.up();
 
@@ -110,16 +118,19 @@ fn move_player(
             
             target_vel *= controller.speed;
 
-            if keyboard_input.pressed(KeyCode::Space) {
+            if keyboard_input.pressed(KeyCode::Space) && !controller.jumped {
                 target_vel += up * controller.jump_speed;
+                controller.jumped = true;
+            }
+            if !keyboard_input.pressed(KeyCode::Space) {
+                controller.jumped = false;
             }
 
             //smooth change vel
             let cur_vel = vel.0;
             let cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
             vel.0 = cur_vel;
-
-        } 
+        }
     }    
 }
 
