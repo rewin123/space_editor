@@ -46,8 +46,8 @@ pub struct SpaceEditorPlugin {
 
 #[cfg(feature = "f32")]
 pub mod types {
-    pub type STransform = Transform;
-    pub type SGlobalTransform = GlobalTransform;
+    pub type STransform = bevy::prelude::Transform;
+    pub type SGlobalTransform = bevy::prelude::GlobalTransform;
 }
 
 #[cfg(feature = "f64")]
