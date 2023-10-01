@@ -66,7 +66,9 @@ impl EditorTab for GameViewTab {
 
         let (cam_transform, cam_proj) = {
             let mut cam_query = world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
-            let (ref_tr, ref_cam) = cam_query.single(world);
+            let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
+                return;
+            };
             (*ref_tr, ref_cam.clone()) 
         };
 
