@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-      - develop
   pull_request:
     branches:
       - main
-      - develop
 
 env:
   CARGO_TERM_COLOR: always
@@ -79,5 +77,4 @@ jobs:
         with:
           components: rustfmt
       - name: Run cargo fmt
-        if: github.ref == 'refs/heads/main' || github.base_ref == 'refs/heads/main'
         run: cargo fmt --all -- --check
