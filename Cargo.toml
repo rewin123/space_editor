@@ -25,8 +25,8 @@ bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporat
 egui_dock = "0.7"
 egui_file = "0.10.2"
 
-bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git"}
-bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false ,  optional = true}
+bevy_transform64 = {git = "https://github.com/rewin123/bevy_transform64.git", optional = true}
+bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false , optional = true}
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
