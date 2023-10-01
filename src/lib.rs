@@ -44,8 +44,17 @@ pub struct SpaceEditorPlugin {
 
 }
 
+#[cfg(feature = "f32")]
+pub mod types {
+    pub type STransform = Transform;
+    pub type SGlobalTransform = GlobalTransform;
+}
 
-
+#[cfg(feature = "f64")]
+pub mod types {
+    pub type STransform = DTransform;
+    pub type SGlobalTransform = DGlobalTransform;
+}
 
 impl Plugin for SpaceEditorPlugin {    
     fn build(&self, app: &mut App) {
