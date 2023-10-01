@@ -31,6 +31,4 @@ bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-featur
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh"]
-f32 = ["bevy_xpbd_3d/f32"]
-f64 = ["bevy_xpbd_3d/f64"]
+bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/f32", "bevy_xpbd_3d/collider-from-mesh"]
