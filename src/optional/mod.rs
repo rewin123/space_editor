@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub mod bevy_xpbd_plugin;
 
 #[cfg(feature = "f64")]
-pub mod bevy_transform64;
+pub mod bevy_transform64_plugin;
 
 //add optional dependencies
 pub struct OptionalPlugin;
@@ -16,6 +16,12 @@ impl Plugin for OptionalPlugin {
             info!("Add bevy_xpbd_3d plugin to editor");
             app.add_plugins(bevy_xpbd_plugin::BevyXpbdPlugin);
 
+        }
+
+        #[cfg(feature = "f64")]
+        {
+            info!("Add bevy_transform64 plugin to editor");
+            app.add_plugins(bevy_transform64_plugin::BevyTransform64Plugin);
         }
     }
 }

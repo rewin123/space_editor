@@ -35,7 +35,7 @@ opt-level = 3
 default = ["f32"]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh"]
 f32 = ["bevy_xpbd_3d/f32"]
-f64 = ["dep:bevy_transform64", "bevy_xpbd_3d/f64"]
+f64 = ["dep:bevy_transform64", "bevy_xpbd_3d?/f64"]
 
 [[example]]
 name = "platformer"

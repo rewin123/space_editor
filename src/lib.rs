@@ -1,3 +1,7 @@
+#[cfg(all(feature = "f32", feature = "f64"))]
+compile_error!("feature \"f32\" and feature \"f64\" cannot be enabled at the same time");
+
+
 /// Module contains all editor UI logic and components
 pub mod editor;
 
@@ -48,12 +52,21 @@ pub struct SpaceEditorPlugin {
 pub mod types {
     pub type STransform = bevy::prelude::Transform;
     pub type SGlobalTransform = bevy::prelude::GlobalTransform;
+    pub type SQuat = bevy::prelude::Quat;
+    pub type Vector = bevy::prelude::Vec3;
+    pub type Scalar = f32;
 }
 
 #[cfg(feature = "f64")]
 pub mod types {
+    use bevy::math::{DVec3, DQuat};
+    use bevy_transform64::prelude::*;
+
     pub type STransform = DTransform;
     pub type SGlobalTransform = DGlobalTransform;
+    pub type SQuat = DQuat;
+    pub type Vector = DVec3;
+    pub type Scalar = f64;
 }
 
 impl Plugin for SpaceEditorPlugin {    
