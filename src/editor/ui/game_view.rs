@@ -1,35 +1,38 @@
-
-use bevy::{prelude::*, window::PrimaryWindow, render::camera::CameraProjection};
-use bevy_egui::egui::{self, RichText, Key};
+use bevy::{prelude::*, render::camera::CameraProjection, window::PrimaryWindow};
+use bevy_egui::egui::{self, Key, RichText};
 use egui_gizmo::GizmoMode;
 
-use crate::{prelude::{EditorTab, Selected}, EditorCameraMarker, editor::PanOrbitEnabled};
+use crate::{
+    editor::PanOrbitEnabled,
+    prelude::{EditorTab, Selected},
+    EditorCameraMarker,
+};
 
 #[derive(Resource)]
 pub struct GameViewTab {
-    pub viewport_rect : Option<egui::Rect>,
-    pub gizmo_mode : GizmoMode,
-    pub smoothed_dt : f32
+    pub viewport_rect: Option<egui::Rect>,
+    pub gizmo_mode: GizmoMode,
+    pub smoothed_dt: f32,
 }
 
 impl Default for GameViewTab {
     fn default() -> Self {
         Self {
-            viewport_rect : None,
-            gizmo_mode : GizmoMode::Translate,
-            smoothed_dt : 0.0
+            viewport_rect: None,
+            gizmo_mode: GizmoMode::Translate,
+            smoothed_dt: 0.0,
         }
     }
 }
 
 impl EditorTab for GameViewTab {
-    fn ui(&mut self, ui : &mut bevy_egui::egui::Ui, world : &mut World) {
+    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, world: &mut World) {
         self.viewport_rect = Some(ui.clip_rect());
 
         let mode2name = vec![
             (GizmoMode::Translate, "Translate"),
             (GizmoMode::Rotate, "Rotate"),
-            (GizmoMode::Scale, "Scale")
+            (GizmoMode::Scale, "Scale"),
         ];
 
         for (mode, name) in mode2name {
@@ -45,7 +48,7 @@ impl EditorTab for GameViewTab {
             let mode2key = vec![
                 (GizmoMode::Translate, Key::G),
                 (GizmoMode::Rotate, Key::R),
-                (GizmoMode::Scale, Key::S)
+                (GizmoMode::Scale, Key::S),
             ];
 
             for (mode, key) in mode2key {
@@ -58,21 +61,28 @@ impl EditorTab for GameViewTab {
         //Draw FPS
         let dt = world.get_resource::<Time>().unwrap().delta_seconds();
         self.smoothed_dt = self.smoothed_dt * 0.98 + dt * 0.02;
-        ui.colored_label(egui::Color32::WHITE, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
+        ui.colored_label(
+            egui::Color32::WHITE,
+            format!("FPS: {:.0}", 1.0 / self.smoothed_dt),
+        );
 
         // GIZMO DRAW
         // Draw gizmo per entity to individual move
         // If SHIFT pressed draw "mean" gizmo to move all selected entities together
 
         let (cam_transform, cam_proj) = {
-            let mut cam_query = world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
+            let mut cam_query =
+                world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
             let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
                 return;
             };
-            (*ref_tr, ref_cam.clone()) 
+            (*ref_tr, ref_cam.clone())
         };
 
-        let selected = world.query_filtered::<Entity, With<Selected>>().iter(world).collect::<Vec<_>>();
+        let selected = world
+            .query_filtered::<Entity, With<Selected>>()
+            .iter(world)
+            .collect::<Vec<_>>();
         let mut disable_pan_orbit = false;
         let _gizmo_mode = GizmoMode::Translate;
 
@@ -109,13 +119,14 @@ impl EditorTab for GameViewTab {
                     loc_transform.push(global_transform.reparented_to(&global_mean));
                 }
 
-                if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
-                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                    .view_matrix(view_matrix.to_cols_array_2d())
-                    .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
-                    .mode(self.gizmo_mode)
-                    .interact(ui) {
-
+                if let Some(result) =
+                    egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
+                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
+                        .view_matrix(view_matrix.to_cols_array_2d())
+                        .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
+                        .mode(self.gizmo_mode)
+                        .interact(ui)
+                {
                     mean_transform = Transform {
                         translation: Vec3::from(<[f32; 3]>::from(result.translation)),
                         rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
@@ -158,16 +169,25 @@ impl EditorTab for GameViewTab {
                         if let Some(parent) = cell.get_entity(parent.get()) {
                             if let Some(parent_global) = parent.get::<GlobalTransform>() {
                                 if let Some(global) = ecell.get::<GlobalTransform>() {
-                                    if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                                        .view_matrix(view_matrix.to_cols_array_2d())
-                                        .model_matrix(global.compute_matrix().to_cols_array_2d())
-                                        .mode(self.gizmo_mode)
-                                        .interact(ui) {
-                                        
+                                    if let Some(result) =
+                                        egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
+                                            .projection_matrix(
+                                                cam_proj.get_projection_matrix().to_cols_array_2d(),
+                                            )
+                                            .view_matrix(view_matrix.to_cols_array_2d())
+                                            .model_matrix(
+                                                global.compute_matrix().to_cols_array_2d(),
+                                            )
+                                            .mode(self.gizmo_mode)
+                                            .interact(ui)
+                                    {
                                         let new_transform = Transform {
-                                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
+                                            translation: Vec3::from(<[f32; 3]>::from(
+                                                result.translation,
+                                            )),
+                                            rotation: Quat::from_array(<[f32; 4]>::from(
+                                                result.rotation,
+                                            )),
                                             scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                                         };
 
@@ -186,8 +206,8 @@ impl EditorTab for GameViewTab {
                         .view_matrix(view_matrix.to_cols_array_2d())
                         .model_matrix(transform.compute_matrix().to_cols_array_2d())
                         .mode(self.gizmo_mode)
-                        .interact(ui) {
-
+                        .interact(ui)
+                    {
                         *transform = Transform {
                             translation: Vec3::from(<[f32; 3]>::from(result.translation)),
                             rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
@@ -209,7 +229,6 @@ impl EditorTab for GameViewTab {
         "Game view".into()
     }
 }
-
 
 pub fn set_camera_viewport(
     ui_state: Res<GameViewTab>,

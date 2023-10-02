@@ -1,6 +1,5 @@
-use space_editor::prelude::*;
 use bevy::prelude::*;
-
+use space_editor::prelude::*;
 
 fn main() {
     App::default()

@@ -1,11 +1,15 @@
 use std::any::{Any, TypeId};
 
-use bevy::{prelude::{AppTypeRegistry, ResMut}, reflect::Reflect};
+use bevy::{
+    prelude::{AppTypeRegistry, ResMut},
+    reflect::Reflect,
+};
 use bevy_egui::egui;
-use bevy_inspector_egui::{reflect_inspector::InspectorUi, inspector_egui_impls::InspectorEguiImpl};
+use bevy_inspector_egui::{
+    inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+};
 
 use crate::prefab::component::EntityLink;
-
 
 /// Method from bevy_inspector_egui to make dummy reflection ui
 pub fn many_unimplemented<T: Any>(
@@ -15,26 +19,20 @@ pub fn many_unimplemented<T: Any>(
     _env: InspectorUi<'_, '_>,
     _values: &mut [&mut dyn Reflect],
     _projector: &dyn Fn(&mut dyn Reflect) -> &mut dyn Reflect,
-) -> bool { 
-
+) -> bool {
     false
 }
 
-
 /// Custom UI for EntityLink struct
-pub fn setup_ref_registry(
-    reg : ResMut<AppTypeRegistry>
-) {
+pub fn setup_ref_registry(reg: ResMut<AppTypeRegistry>) {
     let mut reg = reg.write();
     reg.get_mut(TypeId::of::<EntityLink>())
         .unwrap_or_else(|| panic!("EntityRef not registered!"))
-        .insert(
-            InspectorEguiImpl::new(
-                entity_ref_ui,
-                entity_ref_ui_readonly,
-                many_unimplemented::<EntityLink>
-            )
-        )
+        .insert(InspectorEguiImpl::new(
+            entity_ref_ui,
+            entity_ref_ui_readonly,
+            many_unimplemented::<EntityLink>,
+        ))
 }
 
 /// Custom UI for EntityLink struct
@@ -52,7 +50,14 @@ pub fn entity_ref_ui(
                 .show_ui(ui, |ui| {
                     unsafe {
                         for e in world.world().world().iter_entities() {
-                            if ui.selectable_value(&mut value.entity, e.id(), format!("{:?}", e.id())).clicked() {
+                            if ui
+                                .selectable_value(
+                                    &mut value.entity,
+                                    e.id(),
+                                    format!("{:?}", e.id()),
+                                )
+                                .clicked()
+                            {
                                 return true;
                             }
                         }
@@ -77,5 +82,4 @@ pub fn entity_ref_ui_readonly(
     _: egui::Id,
     _: InspectorUi<'_, '_>,
 ) {
-
 }

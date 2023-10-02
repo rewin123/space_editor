@@ -1,11 +1,8 @@
-
-use bevy::{prelude::*, ecs::entity::EntityMap};
+use bevy::{ecs::entity::EntityMap, prelude::*};
 
 use crate::{prelude::EditorLoader, PrefabMarker};
 
-pub fn load_listener(
-    world : &mut World
-) {
+pub fn load_listener(world: &mut World) {
     let app_registry = world.resource::<AppTypeRegistry>().clone();
     let load_server = world.resource::<EditorLoader>().clone();
     let mut prefab;
@@ -25,24 +22,20 @@ pub fn load_listener(
     }
     world.resource_mut::<EditorLoader>().scene = None;
 
-    let  mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
-    let mark_to_delete : Vec<_> = query.iter(world).collect();
+    let mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
+    let mark_to_delete: Vec<_> = query.iter(world).collect();
     for entity in mark_to_delete {
         world.entity_mut(entity).despawn_recursive();
     }
 
     for entity in &mut prefab.entities {
-
-        entity.components.push(
-            Box::new(PrefabMarker)
-        );
+        entity.components.push(Box::new(PrefabMarker));
     }
 
     let mut map = EntityMap::default();
     let res = prefab.write_to_world(world, &mut map);
     match res {
-        Ok(_) => {/*some info planned*/},
-        Err(_) => {/*some info planned*/},
+        Ok(_) => { /*some info planned*/ }
+        Err(_) => { /*some info planned*/ }
     }
-
 }

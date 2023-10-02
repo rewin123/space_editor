@@ -1,15 +1,12 @@
+use super::editor_tab::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::*;
-use super::editor_tab::*;
-
 
 #[derive(Resource)]
-pub struct DebugWorldInspector {
-
-}
+pub struct DebugWorldInspector {}
 
 impl EditorTab for DebugWorldInspector {
-    fn ui(&mut self, ui : &mut egui::Ui, world : &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
         bevy_inspector_egui::bevy_inspector::ui_for_world(world, ui);
     }
 

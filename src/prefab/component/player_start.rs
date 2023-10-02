@@ -4,13 +4,13 @@ use crate::ext::*;
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component, Default)]
 pub struct PlayerStart {
-    pub prefab : String
+    pub prefab: String,
 }
 
 impl Default for PlayerStart {
     fn default() -> Self {
         Self {
-            prefab : "".to_string()
+            prefab: "".to_string(),
         }
     }
 }
