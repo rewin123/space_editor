@@ -13,8 +13,9 @@ env:
 
 jobs:
   # Run cargo test
-  test:
-    name: Test Suite
+  # Run cargo test
+  test_minimal:
+    name: Test without features
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -36,6 +37,30 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Run cargo test
         run: cargo test
+    
+  test_all:
+    name: Test all features
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install Dependencies
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      - name: Run cargo test
+        run: cargo test --features bevy_xpbd_3d
 
   # Run cargo clippy -- -D warnings
   clippy_check:
