@@ -7,7 +7,7 @@ pub mod bevy_xpbd_plugin;
 pub struct OptionalPlugin;
 
 impl Plugin for OptionalPlugin {
-    fn build(&self, _app: &mut App) {
+    fn build(&self, app: &mut App) {
         #[cfg(feature = "bevy_xpbd_3d")]
         {
             info!("Add bevy_xpbd_3d plugin to editor");

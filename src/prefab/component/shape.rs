@@ -86,8 +86,10 @@ impl Default for SpherePrefab {
 
 impl SpherePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::UVSphere::default();
-        data.radius = self.r;
+        let data = shape::UVSphere {
+            radius: self.r,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
@@ -113,10 +115,10 @@ impl Default for QuadPrefab {
 
 impl QuadPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Quad::default();
-        data.size = self.size;
-        data.flip = self.flip;
-
+        let data = shape::Quad {
+            size: self.size,
+            flip: self.flip,
+        };
         Mesh::from(data)
     }
 }
@@ -141,9 +143,11 @@ impl Default for CapsulePrefab {
 
 impl CapsulePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Capsule::default();
-        data.radius = self.r;
-        data.rings = self.rings;
+        let data = shape::Capsule {
+            radius: self.r,
+            rings: self.rings,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
@@ -169,9 +173,10 @@ impl Default for CirclePrefab {
 
 impl CirclePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Circle::default();
-        data.radius = self.r;
-        data.vertices = self.vertices;
+        let data = shape::Circle {
+            radius: self.r,
+            vertices: self.vertices,
+        };
         Mesh::from(data)
     }
 }
@@ -198,10 +203,12 @@ impl Default for CylinderPrefab {
 
 impl CylinderPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Cylinder::default();
-        data.radius = self.r;
-        data.resolution = self.resolution;
-        data.segments = self.segments;
+        let data = shape::Cylinder {
+            radius: self.r,
+            resolution: self.resolution,
+            segments: self.segments,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
@@ -226,9 +233,10 @@ impl Default for IcospherePrefab {
 
 impl IcospherePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Icosphere::default();
-        data.radius = self.r;
-        data.subdivisions = self.subdivisions;
+        let data = shape::Icosphere {
+            radius: self.r,
+            subdivisions: self.subdivisions,
+        };
         if let Ok(mesh) = Mesh::try_from(data) {
             mesh
         } else {
@@ -257,9 +265,10 @@ impl Default for PlanePrefab {
 
 impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Plane::default();
-        data.size = self.size;
-        data.subdivisions = self.subdivisions;
+        let data = shape::Plane {
+            size: self.size,
+            subdivisions: self.subdivisions
+        };
         Mesh::from(data)
     }
 }
@@ -285,9 +294,10 @@ impl Default for RegularPolygonPrefab {
 
 impl RegularPolygonPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::RegularPolygon::default();
-        data.radius = self.radius;
-        data.sides = self.sides;
+        let data = shape::RegularPolygon {
+            radius: self.radius,
+            sides: self.sides
+        };
         Mesh::from(data)
     }
 }
@@ -316,11 +326,12 @@ impl Default for TorusPrefab {
 
 impl TorusPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Torus::default();
-        data.radius = self.radius;
-        data.ring_radius = self.ring_radius;
-        data.subdivisions_sides = self.subdivisions_sides;
-        data.subdivisions_segments = self.subdivisions_segments;
+        let data = shape::Torus {
+            radius: self.radius,
+            ring_radius: self.ring_radius,
+            subdivisions_sides: self.subdivisions_sides,
+            subdivisions_segments: self.subdivisions_segments,
+        };
         Mesh::from(data)
     }
 }

@@ -154,9 +154,11 @@ fn auto_add_picking(
     }
 }
 
+type AutoAddQueryFilter = (Without<PrefabMarker>, Without<Pickable>, With<Parent>);
+
 fn auto_add_picking_dummy(
     mut commands: Commands,
-    query: Query<Entity, (Without<PrefabMarker>, Without<Pickable>, With<Parent>)>,
+    query: Query<Entity, AutoAddQueryFilter>,
 ) {
     for e in query.iter() {
         commands
@@ -279,12 +281,14 @@ pub fn ui_camera_block(
     }
 }
 
+type ChangeCameraQueryFilter = (With<EditorCameraMarker>, Without<CameraPlay>);
+
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
     mut cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
     mut play_cameras: Query<
         (&mut Camera, &CameraPlay),
-        (Without<EditorCameraMarker>, With<CameraPlay>),
+        ChangeCameraQueryFilter,
     >,
 ) {
     if !play_cameras.is_empty() {

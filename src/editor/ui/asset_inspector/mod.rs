@@ -34,20 +34,18 @@ fn detect_assets(mut assets: ResMut<DetectedAssets>) {
 
 fn get_assets_in_directory(dir_path: &Path, assets: &mut Vec<EditorAsset>) {
     if let Ok(entries) = fs::read_dir(dir_path) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.is_file() {
-                    if let Some(ext) = path.extension() {
-                        let editor_asset = EditorAsset {
-                            path: path.to_str().unwrap().to_string(),
-                            ext: ext.to_str().unwrap().to_string(),
-                        };
-                        assets.push(editor_asset);
-                    }
-                } else if path.is_dir() {
-                    get_assets_in_directory(&path, assets);
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_file() {
+                if let Some(ext) = path.extension() {
+                    let editor_asset = EditorAsset {
+                        path: path.to_str().unwrap().to_string(),
+                        ext: ext.to_str().unwrap().to_string(),
+                    };
+                    assets.push(editor_asset);
                 }
+            } else if path.is_dir() {
+                get_assets_in_directory(&path, assets);
             }
         }
     }

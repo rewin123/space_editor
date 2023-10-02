@@ -37,10 +37,12 @@ impl Plugin for SpaceHierarchyPlugin {
     }
 }
 
+type HierarchyQueryIter<'a> = (Entity, Option<&'a Name>, Option<&'a Children>, Option<&'a Parent>);
+
 /// System to show hierarchy
 pub fn show_hierarchy(
     mut commands: Commands,
-    query: Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
+    query: Query<HierarchyQueryIter, With<PrefabMarker>>,
     mut selected: Query<Entity, With<Selected>>,
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
@@ -48,7 +50,6 @@ pub fn show_hierarchy(
 ) {
     let mut all: Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
-    let pointer_used = false;
 
     let ui = &mut ui.0;
     egui::ScrollArea::vertical().show(ui, |ui| {
@@ -61,7 +62,6 @@ pub fn show_hierarchy(
                     *entity,
                     &mut selected,
                     &mut clone_events,
-                    pointer_used,
                 );
             }
         }
@@ -89,14 +89,15 @@ pub fn show_hierarchy(
     });
 }
 
+type DrawIter<'a> = (Entity, Option<&'a Name>, Option<&'a Children>, Option<&'a Parent>);
+
 fn draw_entity(
     commands: &mut Commands,
     ui: &mut egui::Ui,
-    query: &Query<(Entity, Option<&Name>, Option<&Children>, Option<&Parent>), With<PrefabMarker>>,
+    query: &Query<DrawIter, With<PrefabMarker>>,
     entity: Entity,
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
-    pointer_used: bool,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -161,7 +162,6 @@ fn draw_entity(
                     *child,
                     selected,
                     clone_events,
-                    pointer_used,
                 );
             }
         }
