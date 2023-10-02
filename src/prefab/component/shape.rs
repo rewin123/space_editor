@@ -267,7 +267,7 @@ impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
         let data = shape::Plane {
             size: self.size,
-            subdivisions: self.subdivisions
+            subdivisions: self.subdivisions,
         };
         Mesh::from(data)
     }
@@ -296,7 +296,7 @@ impl RegularPolygonPrefab {
     pub fn to_mesh(&self) -> Mesh {
         let data = shape::RegularPolygon {
             radius: self.radius,
-            sides: self.sides
+            sides: self.sides,
         };
         Mesh::from(data)
     }

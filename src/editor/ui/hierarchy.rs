@@ -37,7 +37,12 @@ impl Plugin for SpaceHierarchyPlugin {
     }
 }
 
-type HierarchyQueryIter<'a> = (Entity, Option<&'a Name>, Option<&'a Children>, Option<&'a Parent>);
+type HierarchyQueryIter<'a> = (
+    Entity,
+    Option<&'a Name>,
+    Option<&'a Children>,
+    Option<&'a Parent>,
+);
 
 /// System to show hierarchy
 pub fn show_hierarchy(
@@ -89,7 +94,12 @@ pub fn show_hierarchy(
     });
 }
 
-type DrawIter<'a> = (Entity, Option<&'a Name>, Option<&'a Children>, Option<&'a Parent>);
+type DrawIter<'a> = (
+    Entity,
+    Option<&'a Name>,
+    Option<&'a Children>,
+    Option<&'a Parent>,
+);
 
 fn draw_entity(
     commands: &mut Commands,
@@ -155,14 +165,7 @@ fn draw_entity(
 
         if let Some(children) = children {
             for child in children.iter() {
-                draw_entity(
-                    commands,
-                    ui,
-                    query,
-                    *child,
-                    selected,
-                    clone_events,
-                );
+                draw_entity(commands, ui, query, *child, selected, clone_events);
             }
         }
     });
