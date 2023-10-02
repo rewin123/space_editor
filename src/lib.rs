@@ -19,7 +19,6 @@ use bevy::{prelude::*, pbr::CascadeShadowConfigBuilder};
 use editor::EditorPlugin;
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
-use prelude::types::{STransform, Vector};
 
 /// Public usage of packages that used in this crate
 pub mod ext {
@@ -47,27 +46,6 @@ pub mod prelude {
 #[derive(Default)]
 pub struct SpaceEditorPlugin {
 
-}
-
-#[cfg(feature = "f32")]
-pub mod types {
-    pub type STransform = bevy::prelude::Transform;
-    pub type SGlobalTransform = bevy::prelude::GlobalTransform;
-    pub type SQuat = bevy::prelude::Quat;
-    pub type Vector = bevy::prelude::Vec3;
-    pub type Scalar = f32;
-}
-
-#[cfg(feature = "f64")]
-pub mod types {
-    use bevy::math::{DVec3, DQuat};
-    use bevy_transform64::prelude::*;
-
-    pub type STransform = DTransform;
-    pub type SGlobalTransform = DGlobalTransform;
-    pub type SQuat = DQuat;
-    pub type Vector = DVec3;
-    pub type Scalar = f64;
 }
 
 impl Plugin for SpaceEditorPlugin {    
@@ -144,10 +122,9 @@ pub fn simple_editor_setup(mut commands: Commands) {
 
     // camera
     commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     }).insert(bevy_panorbit_camera::PanOrbitCamera::default())
     .insert(bevy_mod_picking::prelude::RaycastPickCamera::default())
-    .insert(EditorCameraMarker)
-    .insert(STransform::from_xyz(-2.0, 2.5, 5.0).look_at(Vector::ZERO, Vector::Y))
-    .insert(types::SGlobalTransform::from_xyz(0.0, 0.0, 0.0));
+    .insert(EditorCameraMarker);
 }

@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, utils::HashMap};
 
-use crate::{ext::*, PrefabMarker, prefab::component::*, types::STransform};
+use crate::{ext::*, PrefabMarker, prefab::component::*};
 
 pub const MESH_CATEGORY : &str = "mesh";
 
@@ -77,74 +77,74 @@ pub fn register_default_editor_bundles(app : &mut App) {
     app.editor_bundle("Mesh", "Cube", (
         MeshPrimitivePrefab::Cube(1.0),
         Name::new("Cube".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Box", (
         MeshPrimitivePrefab::Box(BoxPrefab::default()),
         Name::new("Box".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Sphere", (
         MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
         Name::new("UVSphere".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Quad", (
         MeshPrimitivePrefab::Quad(QuadPrefab::default()),
         Name::new("Quad".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Capsule", (
         MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
         Name::new("Capsule"),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Circle", (
         MeshPrimitivePrefab::Circle(CirclePrefab::default()),
         Name::new("Circle".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Cylinder", (
         MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
         Name::new("Cylinder".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Icosphere", (
         MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
         Name::new("Icosphere".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Plane", (
         MeshPrimitivePrefab::Plane(PlanePrefab::default()),
         Name::new("Plane".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "RegularPolygon", (
         MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
         Name::new("RegularPolygon".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
     app.editor_bundle("Mesh", "Torus", (
         MeshPrimitivePrefab::Torus(TorusPrefab::default()),
         Name::new("Torus".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default()
     ));
 
     app.editor_bundle("Camera", "CameraPlay", (
         Camera3d::default(),
         Name::new("Camera3d".to_string()),
-        STransform::default(),
+        Transform::default(),
         Visibility::default(),
         CameraPlay::default()
     ));

@@ -1,13 +1,14 @@
 
 use bevy::prelude::*;
-use bevy_xpbd_3d::math::Quaternion;
+use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 pub use bevy_inspector_egui::prelude::*;
 
 use crate::prefab::component::MeshPrimitivePrefab;
-use crate::types::*;
 
-use super::RigidBodyPrefab;
+use super::{RigidBodyPrefab};
+
+
 
 #[derive(Reflect, Debug, Clone, PartialEq, Component, InspectorOptions)]
 #[reflect(Component, Default)]

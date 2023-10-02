@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
 
-use crate::{editor_registry::EditorRegistryExt, PrefabMarker, types::{STransform, SGlobalTransform}};
+use crate::{editor_registry::EditorRegistryExt, PrefabMarker};
 
 use super::save::ChildrenPrefab;
 
@@ -9,8 +9,8 @@ use super::save::ChildrenPrefab;
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
     loader : PrefabLoader,
-    transform : STransform,
-    global_transform : SGlobalTransform,
+    transform : Transform,
+    global_transform : GlobalTransform,
     
     visiblity : Visibility,
     computed_visiblity : ComputedVisibility
@@ -54,15 +54,15 @@ pub struct PrefabLoader {
 
 fn load_prefab(
     mut commands : Commands,
-    query : Query<(Entity, &PrefabLoader, Option<&Children>, Option<&STransform>, Option<&Visibility>), Changed<PrefabLoader>>,
+    query : Query<(Entity, &PrefabLoader, Option<&Children>, Option<&Transform>, Option<&Visibility>), Changed<PrefabLoader>>,
     auto_childs : Query<Entity, With<PrefabAutoChild>>,
     assets : ResMut<AssetServer>
 ) {
     for (e, l, children, tr, vis) in query.iter() {
 
         if tr.is_none() {
-            commands.entity(e).insert(STransform::default());
-            commands.entity(e).insert(SGlobalTransform::default());
+            commands.entity(e).insert(Transform::default());
+            commands.entity(e).insert(GlobalTransform::default());
         }
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());

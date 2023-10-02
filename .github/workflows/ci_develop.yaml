@@ -37,8 +37,8 @@ jobs:
       - name: Run cargo test
         run: cargo test
     
-  test_f32:
-    name: Test with f32 and all features (no f64)
+  test_all:
+    name: Test all features
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -59,28 +59,4 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Run cargo test
-        run: cargo test --features f32,bevy_xpbd_3d
-
-  test_f64:
-    name: Test with f64 and all features (no f32)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
-      - name: Run cargo test
-        run: cargo test --features f64,bevy_xpbd_3d
+        run: cargo test --features bevy_xpbd_3d

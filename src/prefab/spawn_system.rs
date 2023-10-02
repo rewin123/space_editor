@@ -1,14 +1,12 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
-use crate::types::STransform;
-
 use super::{component::*};
 
 /// This system using for spawning gltf scene
 pub fn spawn_scene(
     mut commands : Commands,
-    prefabs : Query<(Entity, &GltfPrefab, Option<&Children>, Option<&Visibility>, Option<&STransform>), Changed<GltfPrefab>>,
+    prefabs : Query<(Entity, &GltfPrefab, Option<&Children>, Option<&Visibility>, Option<&Transform>), Changed<GltfPrefab>>,
     auto_childs : Query<&SceneAutoChild>,
     asset_server : Res<AssetServer>
 ) {

@@ -10,7 +10,7 @@ pub mod load;
 use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, PrefabSet, types::{STransform, SGlobalTransform}};
+use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, PrefabSet};
 
 use component::*;
 use spawn_system::*;
@@ -39,7 +39,7 @@ impl Plugin for PrefabPlugin {
         app.register_type::<EntityLink>();
 
         
-        app.editor_registry::<STransform>();
+        app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
         app.editor_registry::<Visibility>();
 
@@ -47,7 +47,7 @@ impl Plugin for PrefabPlugin {
         app.editor_registry::<MaterialPrefab>();
 
         app.editor_registry::<MeshPrimitivePrefab>();
-        app.editor_relation::<MeshPrimitivePrefab, crate::types::STransform>();
+        app.editor_relation::<MeshPrimitivePrefab, Transform>();
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
         app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
 
@@ -81,19 +81,19 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<Camera, Projection>();
         app.editor_relation::<Camera, VisibleEntities>();
         app.editor_relation::<Camera, Frustum>();
-        app.editor_relation::<Camera, STransform>();
+        app.editor_relation::<Camera, Transform>();
         app.editor_relation::<Camera, Tonemapping>();
         app.editor_relation::<Camera, DebandDither>();
         app.editor_relation::<Camera, ColorGrading>();
         app.add_systems(Update, camera_render_graph_creation);
         
         app.editor_registry::<PlayerStart>();
-        app.editor_relation::<PlayerStart, STransform>();
-        app.editor_relation::<PlayerStart, SGlobalTransform>();
+        app.editor_relation::<PlayerStart, Transform>();
+        app.editor_relation::<PlayerStart, GlobalTransform>();
         app.editor_relation::<PlayerStart, Visibility>();
         app.editor_relation::<PlayerStart, ComputedVisibility>();
 
-        app.editor_relation::<STransform, SGlobalTransform>();
+        app.editor_relation::<Transform, GlobalTransform>();
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
@@ -127,18 +127,18 @@ fn camera_render_graph_creation(
 
 pub fn add_global_transform(
     mut commands : Commands,
-    mut query : Query<(Entity, &mut STransform, Option<&Parent>), (With<STransform>, Without<SGlobalTransform>)>,
-    globals : Query<&SGlobalTransform>
+    mut query : Query<(Entity, &mut Transform, Option<&Parent>), (With<Transform>, Without<GlobalTransform>)>,
+    globals : Query<&GlobalTransform>
 ) {
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
             if let Ok(parent_global) = globals.get(parent.get()) {
                 commands.entity(e).insert(parent_global.mul_transform(*tr));
             } else {
-                commands.entity(e).insert(SGlobalTransform::from(*tr));
+                commands.entity(e).insert(GlobalTransform::from(*tr));
             }
         } else {
-            commands.entity(e).insert(SGlobalTransform::from(*tr));
+            commands.entity(e).insert(GlobalTransform::from(*tr));
 
         }
         tr.set_changed();
@@ -147,10 +147,10 @@ pub fn add_global_transform(
 
 fn remove_global_transform(
     mut commands : Commands,
-    query : Query<Entity, (Without<STransform>, With<SGlobalTransform>)>
+    query : Query<Entity, (Without<Transform>, With<GlobalTransform>)>
 ) {
     for e in query.iter() {
-        commands.entity(e).remove::<SGlobalTransform>();
+        commands.entity(e).remove::<GlobalTransform>();
     }
 }
 

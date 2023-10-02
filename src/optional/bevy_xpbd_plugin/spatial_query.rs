@@ -40,7 +40,6 @@ impl Into<RayCaster> for RayCasterPrefab {
 }
 
 //debug in editor draw
-#[cfg(feature="f32")]
 fn draw_ray_caster(
     mut gizmos : Gizmos,
     query : Query<(&RayCaster, &RayHits)>
@@ -74,47 +73,6 @@ fn draw_ray_caster(
     }
 }
 
-#[cfg(feature="f64")]
-fn draw_ray_caster(
-    mut gizmos : Gizmos,
-    query : Query<(&RayCaster, &RayHits)>,
-    origin : Res<bevy_transform64::SimpleWorldOrigin>
-) {
-    use bevy_xpbd_3d::math::AsF32;
-
-
-    for (ray, hits) in query.iter() {
-        let global_origin = ray.global_origin();
-        let global_direction = ray.global_direction();
-        let global_draw = (global_origin - origin.origin).as_f32();
-        for hit in hits.iter() {
-            let hit_draw = (global_origin + global_direction * hit.time_of_impact - origin.origin).as_f32();
-            gizmos.line(
-                global_draw,
-                hit_draw,
-                Color::PURPLE
-            );
-            gizmos.sphere(
-                hit_draw,
-                Quat::IDENTITY,
-                0.1,
-                Color::PURPLE
-            );
-        }
-
-        if hits.is_empty() {
-            let inf_color = Color::GRAY;
-            gizmos.line(
-                global_draw,
-                global_draw + global_direction.as_f32() * 1000.0,
-                inf_color
-            );
-        }
-        
-    }
-}
-
-
 
 #[derive(Component, Reflect, Clone, Debug, InspectorOptions, Default)]
 #[reflect(Component, Default)]
@@ -132,7 +90,6 @@ impl Into<ShapeCaster> for ShapeCasterPrefab {
     }
 }
 
-#[cfg(feature="f32")]
 fn draw_shapecast(
     mut gizmos : Gizmos,
     query : Query<(&ShapeCaster, &ShapeHits)>
@@ -159,44 +116,6 @@ fn draw_shapecast(
             gizmos.line(
                 global_origin,
                 global_origin + global_direction * 1000.0,
-                inf_color
-            );
-        }
-    }
-}
-
-#[cfg(feature="f64")]
-fn draw_shapecast(
-    mut gizmos : Gizmos,
-    query : Query<(&ShapeCaster, &ShapeHits)>,
-    origin : Res<bevy_transform64::SimpleWorldOrigin>
-) {
-    use bevy_xpbd_3d::math::AsF32;
-
-    for (caster, hits) in query.iter() {
-        let global_origin = caster.global_origin();
-        let global_direction = caster.global_direction();
-        let global_draw = (global_origin - origin.origin).as_f32();
-        for hit in hits.iter() {
-            let hit_draw = (global_origin + global_direction * hit.time_of_impact - origin.origin).as_f32();
-            gizmos.line(
-                global_draw,
-                hit_draw,
-                Color::PURPLE
-            );
-            gizmos.sphere(
-                hit_draw,
-                Quat::IDENTITY,
-                0.1,
-                Color::PURPLE
-            );
-        }
-
-        if hits.is_empty() {
-            let inf_color = Color::GRAY;
-            gizmos.line(
-                global_draw,
-                global_draw + global_direction.as_f32() * 1000.0,
                 inf_color
             );
         }

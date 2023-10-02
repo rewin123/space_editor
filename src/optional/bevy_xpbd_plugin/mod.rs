@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
-use crate::types::STransform;
 use crate::{EditorState, PrefabSet};
 
 pub mod collider;
@@ -59,7 +58,7 @@ impl Plugin for BevyXpbdPlugin {
 
 fn sync_position_spawn(
     mut commands : Commands,
-    query : Query<(Entity, &STransform), Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>>
+    query : Query<(Entity, &Transform), Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>>
 ) {
     for (e, tr) in query.iter() {
         commands.entity(e).insert(Position(tr.translation));
@@ -93,7 +92,7 @@ impl RigidBodyPrefab {
 
 fn force_rigidbody_type_change_in_editor(
     mut commands : Commands,
-    query : Query<(Entity, &RigidBodyPrefab, Option<&STransform>)>
+    query : Query<(Entity, &RigidBodyPrefab, Option<&Transform>)>
 ) {
     for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
@@ -107,7 +106,7 @@ fn force_rigidbody_type_change_in_editor(
 
 fn rigidbody_type_change_in_editor(
     mut commands : Commands,
-    query : Query<(Entity, &RigidBodyPrefab, Option<&STransform>), Changed<RigidBodyPrefab>>
+    query : Query<(Entity, &RigidBodyPrefab, Option<&Transform>), Changed<RigidBodyPrefab>>
 ) {
     for (e, tp , transform) in query.iter() {
         info!("Rigidbody type changed in {:?}", e);
@@ -142,7 +141,7 @@ fn rigidbody_type_change(
 }
 
 pub fn editor_pos_change(
-    mut query : Query<(&mut Position, &mut Rotation, &STransform), Changed<STransform>>
+    mut query : Query<(&mut Position, &mut Rotation, &Transform), Changed<Transform>>
 ) {
     for (mut pos, mut rot, transform) in query.iter_mut() {
         // let transform = transform.compute_transform();
