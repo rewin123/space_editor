@@ -20,6 +20,7 @@ pub use editor_tab::*;
 pub mod game_view;
 pub use game_view::*;
 
+pub mod debug_panels;
 
 use bevy_egui::{egui, EguiContext};
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
@@ -57,6 +58,8 @@ impl Plugin for EditorUiPlugin {
             set_camera_viewport
         ).in_set(EditorSet::Editor));
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
+
+        app.editor_tab_by_trait(EditorTabName::Other("Debug World Inspector".to_string()), self::debug_panels::DebugWorldInspector{});
 
 
         app.add_plugins(SpaceHierarchyPlugin::default());

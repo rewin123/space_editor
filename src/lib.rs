@@ -19,6 +19,7 @@ use bevy::{prelude::*, pbr::CascadeShadowConfigBuilder};
 use editor::EditorPlugin;
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
+use prelude::types::{STransform, Vector};
 
 /// Public usage of packages that used in this crate
 pub mod ext {
@@ -131,11 +132,22 @@ pub fn simple_editor_setup(mut commands: Commands) {
         }.into(),
         ..default()
     });
+
+    //grid
+    commands.spawn(bevy_infinite_grid::InfiniteGridBundle {
+        grid: bevy_infinite_grid::InfiniteGrid {
+            // shadow_color: None,
+            ..default()
+        },
+        ..default()
+    });
+
     // camera
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     }).insert(bevy_panorbit_camera::PanOrbitCamera::default())
     .insert(bevy_mod_picking::prelude::RaycastPickCamera::default())
-    .insert(EditorCameraMarker);
+    .insert(EditorCameraMarker)
+    .insert(STransform::from_xyz(-2.0, 2.5, 5.0).look_at(Vector::ZERO, Vector::Y))
+    .insert(types::SGlobalTransform::from_xyz(0.0, 0.0, 0.0));
 }

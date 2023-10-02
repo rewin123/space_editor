@@ -38,6 +38,11 @@ impl Plugin for PrefabPlugin {
         
         app.register_type::<EntityLink>();
 
+        
+        app.editor_registry::<STransform>();
+        app.editor_registry::<Name>();
+        app.editor_registry::<Visibility>();
+
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
 

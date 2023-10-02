@@ -17,10 +17,6 @@ impl Plugin for EditorRegistryPlugin {
     fn build(&self, app: &mut App) {
         
         app.init_resource::<EditorRegistry>();
-
-        app.editor_registry::<Transform>();
-        app.editor_registry::<Name>();
-        app.editor_registry::<Visibility>();
         
         app.editor_clone_registry::<PrefabMarker>();
     }
