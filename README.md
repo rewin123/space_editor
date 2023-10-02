@@ -89,7 +89,6 @@ MIT - https://choosealicense.com/licenses/mit/
 ### Roadmap 🗺️
 
 Current target (v0.2):
-- bevy_transform64 support
 - Undo/Redo functionality
 - Light support
 
