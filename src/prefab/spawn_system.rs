@@ -1,17 +1,25 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
-use super::{component::*};
+use super::component::*;
 
 /// This system using for spawning gltf scene
 pub fn spawn_scene(
-    mut commands : Commands,
-    prefabs : Query<(Entity, &GltfPrefab, Option<&Children>, Option<&Visibility>, Option<&Transform>), Changed<GltfPrefab>>,
-    auto_childs : Query<&SceneAutoChild>,
-    asset_server : Res<AssetServer>
+    mut commands: Commands,
+    prefabs: Query<
+        (
+            Entity,
+            &GltfPrefab,
+            Option<&Children>,
+            Option<&Visibility>,
+            Option<&Transform>,
+        ),
+        Changed<GltfPrefab>,
+    >,
+    auto_childs: Query<&SceneAutoChild>,
+    asset_server: Res<AssetServer>,
 ) {
     for (e, prefab, children, vis, tr) in prefabs.iter() {
-
         if let Some(children) = children {
             for e in children {
                 if auto_childs.contains(*e) {
@@ -20,15 +28,17 @@ pub fn spawn_scene(
             }
         }
 
-        let id = commands.spawn(HookedSceneBundle {
-              scene : SceneBundle { 
-                scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)), 
-                ..default() },
-                hook : SceneHook::new(|_e, cmd| {
+        let id = commands
+            .spawn(HookedSceneBundle {
+                scene: SceneBundle {
+                    scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)),
+                    ..default()
+                },
+                hook: SceneHook::new(|_e, cmd| {
                     cmd.insert(SceneAutoChild);
-                })
-             })
-             .insert(SceneAutoChild)
+                }),
+            })
+            .insert(SceneAutoChild)
             .id();
         commands.entity(e).add_child(id);
 
@@ -36,16 +46,23 @@ pub fn spawn_scene(
             commands.entity(e).insert(VisibilityBundle::default());
         }
         if tr.is_none() {
+            #[cfg(feature = "f32")]
             commands.entity(e).insert(TransformBundle::default());
+            #[cfg(feature = "f64")]
+            {
+                commands
+                    .entity(e)
+                    .insert(bevy_transform64::DTransformBundle::default());
+            }
         }
     }
 }
 
 /// System to sync Mesh and MeshPrimitivePrefab
 pub fn sync_mesh(
-    mut commands : Commands,
-    query : Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
-    mut meshs : ResMut<Assets<Mesh>>
+    mut commands: Commands,
+    query: Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
+    mut meshs: ResMut<Assets<Mesh>>,
 ) {
     for (e, pref) in query.iter() {
         let mesh = meshs.add(pref.to_mesh());
@@ -55,10 +72,10 @@ pub fn sync_mesh(
 
 /// System to sync StandartMaterial and MaterialPrefab
 pub fn sync_material(
-    mut commands : Commands,
-    query : Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
-    mut materials : ResMut<Assets<StandardMaterial>>,
-    asset_server : Res<AssetServer>
+    mut commands: Commands,
+    query: Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
     for (e, pref) in query.iter() {
         let mat = materials.add(pref.to_material(&asset_server));
@@ -68,8 +85,8 @@ pub fn sync_material(
 
 /// remove mesh handle if prefab struct was removed in editor states
 pub fn editor_remove_mesh(
-    mut commands : Commands,
-    mut query : RemovedComponents<MeshPrimitivePrefab>,
+    mut commands: Commands,
+    mut query: RemovedComponents<MeshPrimitivePrefab>,
 ) {
     for e in query.iter() {
         if let Some(mut cmd) = commands.get_entity(e) {
@@ -80,16 +97,18 @@ pub fn editor_remove_mesh(
 
 /// Spawn system on enter to EditorState::Game state
 pub fn spawn_player_start(
-    mut commands : Commands,
-    query : Query<(Entity, &PlayerStart)>,
-    asset_server : Res<AssetServer>
+    mut commands: Commands,
+    query: Query<(Entity, &PlayerStart)>,
+    asset_server: Res<AssetServer>,
 ) {
     for (e, prefab) in query.iter() {
         info!("Spawning player start {:?} {}", e, &prefab.prefab);
-        let child = commands.spawn(DynamicSceneBundle {
-            scene : asset_server.load(prefab.prefab.to_string()),
-            ..default()
-        }).id();
+        let child = commands
+            .spawn(DynamicSceneBundle {
+                scene: asset_server.load(prefab.prefab.to_string()),
+                ..default()
+            })
+            .id();
         commands.entity(e).add_child(child);
     }
 }

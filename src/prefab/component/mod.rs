@@ -17,7 +17,7 @@ use bevy::{prelude::*, reflect::*, utils::HashMap};
 
 pub trait AssetPath {
     fn get_filter(&self) -> egui_file::Filter;
-    fn set_path(&mut self, path : &str);
+    fn set_path(&mut self, path: &str);
     fn get_path_mut(&mut self) -> &mut String;
 }
 
@@ -25,15 +25,15 @@ pub trait AssetPath {
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
 pub struct GltfPrefab {
-    pub path : String,
-    pub scene : String
+    pub path: String,
+    pub scene: String,
 }
 
 impl Default for GltfPrefab {
     fn default() -> Self {
-        Self { 
+        Self {
             scene: "Scene0".to_string(),
-            path : String::new()
+            path: String::new(),
         }
     }
 }
@@ -42,18 +42,16 @@ impl Default for GltfPrefab {
 #[derive(Component, Reflect, Default)]
 pub struct SceneAutoChild;
 
-
 /// Not used right now. Planned to be easy method for creating prefab structs from usual structs with assets
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component)]
-pub struct AutoStruct<T : Reflect + FromReflect + Default + Clone> {
-    pub data : T,
-    pub asset_paths : HashMap<String, String>
+pub struct AutoStruct<T: Reflect + FromReflect + Default + Clone> {
+    pub data: T,
+    pub asset_paths: HashMap<String, String>,
 }
 
-impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
-
-    pub fn new(data : &T, assets : &AssetServer) -> AutoStruct<T> {
+impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
+    pub fn new(data: &T, assets: &AssetServer) -> AutoStruct<T> {
         let mut paths = HashMap::new();
 
         if let ReflectRef::Struct(s) = data.reflect_ref() {
@@ -70,18 +68,16 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
         }
 
         AutoStruct::<T> {
-            data : data.clone(),
-            asset_paths : paths
+            data: data.clone(),
+            asset_paths: paths,
         }
     }
 
-    pub fn get_data(&self, assets : &AssetServer) -> T {
-
+    pub fn get_data(&self, assets: &AssetServer) -> T {
         let mut res = self.data.clone();
         {
             let res_reflect = res.as_reflect_mut();
             if let ReflectMut::Struct(s) = res_reflect.reflect_mut() {
-
                 for (field_name, path) in self.asset_paths.iter() {
                     if let Some(field) = s.field_mut(field_name) {
                         if let Some(handle) = field.downcast_mut::<Handle<Image>>() {
@@ -91,23 +87,23 @@ impl<T : Reflect + FromReflect + Default + Clone> AutoStruct<T> {
                         }
                     }
                 }
-
             }
         }
         T::default()
     }
 }
 
-
 /// This component used in prefab to determine links between entities. Its need to create custom UI in bevy_inspector_egui. You must implement MapEntities trait for your component to make it work. See FollowCamera struct from examples/platformer.rs
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct EntityLink {
-    pub entity : Entity
+    pub entity: Entity,
 }
 
 impl Default for EntityLink {
     fn default() -> Self {
-        Self { entity: Entity::PLACEHOLDER }
+        Self {
+            entity: Entity::PLACEHOLDER,
+        }
     }
 }

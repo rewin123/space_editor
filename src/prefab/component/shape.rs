@@ -1,4 +1,3 @@
-
 use crate::ext::*;
 
 /// Component to setup mesh of prefab
@@ -20,7 +19,11 @@ pub enum MeshPrimitivePrefab {
 
 impl Default for MeshPrimitivePrefab {
     fn default() -> Self {
-        MeshPrimitivePrefab::Box(BoxPrefab { w: 1.0, h: 1.0, d: 1.0 })
+        MeshPrimitivePrefab::Box(BoxPrefab {
+            w: 1.0,
+            h: 1.0,
+            d: 1.0,
+        })
     }
 }
 
@@ -38,27 +41,26 @@ impl MeshPrimitivePrefab {
             MeshPrimitivePrefab::Icosphere(c) => c.to_mesh(),
             MeshPrimitivePrefab::Plane(c) => c.to_mesh(),
             MeshPrimitivePrefab::RegularPolygon(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Torus(c) => c.to_mesh()
+            MeshPrimitivePrefab::Torus(c) => c.to_mesh(),
         }
     }
 }
-
 
 /// Values to setup box mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct BoxPrefab {
-    pub w : f32,
-    pub h : f32,
-    pub d : f32
+    pub w: f32,
+    pub h: f32,
+    pub d: f32,
 }
 
 impl Default for BoxPrefab {
     fn default() -> Self {
         Self {
-            w : 1.0,
-            h : 1.0,
-            d : 1.0
+            w: 1.0,
+            h: 1.0,
+            d: 1.0,
         }
     }
 }
@@ -73,25 +75,24 @@ impl BoxPrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct SpherePrefab {
-    pub r : f32
+    pub r: f32,
 }
 
 impl Default for SpherePrefab {
     fn default() -> Self {
-        Self {
-            r : 1.0
-        }
+        Self { r: 1.0 }
     }
 }
 
 impl SpherePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::UVSphere::default();
-        data.radius = self.r;
+        let data = shape::UVSphere {
+            radius: self.r,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup quad mesh
 #[derive(Reflect, Clone)]
@@ -107,133 +108,135 @@ impl Default for QuadPrefab {
     fn default() -> Self {
         Self {
             size: Vec2::ONE,
-            flip: false
+            flip: false,
         }
     }
 }
 
 impl QuadPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Quad::default();
-        data.size = self.size;
-        data.flip = self.flip;
-
+        let data = shape::Quad {
+            size: self.size,
+            flip: self.flip,
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup capsule mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct CapsulePrefab {
-    pub r : f32,
-    pub rings : usize
+    pub r: f32,
+    pub rings: usize,
 }
 
 impl Default for CapsulePrefab {
     fn default() -> Self {
         let def = shape::Capsule::default();
         Self {
-            r : def.radius,
-            rings : def.rings
+            r: def.radius,
+            rings: def.rings,
         }
     }
 }
 
 impl CapsulePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Capsule::default();
-        data.radius = self.r;
-        data.rings = self.rings;
+        let data = shape::Capsule {
+            radius: self.r,
+            rings: self.rings,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup circle mesh
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
 pub struct CirclePrefab {
-    pub r : f32,
+    pub r: f32,
     #[inspector(min = 3)]
-    pub vertices : usize
+    pub vertices: usize,
 }
 
 impl Default for CirclePrefab {
     fn default() -> Self {
         let def = shape::Circle::default();
         Self {
-            r : def.radius,
-            vertices : def.vertices
+            r: def.radius,
+            vertices: def.vertices,
         }
     }
 }
 
 impl CirclePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Circle::default();
-        data.radius = self.r;
-        data.vertices = self.vertices;
+        let data = shape::Circle {
+            radius: self.r,
+            vertices: self.vertices,
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup cylinder mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct CylinderPrefab {
-    pub r : f32,
-    pub resolution : u32,
-    pub segments : u32
+    pub r: f32,
+    pub resolution: u32,
+    pub segments: u32,
 }
 
 impl Default for CylinderPrefab {
     fn default() -> Self {
         let def = shape::Cylinder::default();
         Self {
-            r : def.radius,
-            resolution : def.resolution,
-            segments : def.segments
+            r: def.radius,
+            resolution: def.resolution,
+            segments: def.segments,
         }
     }
 }
 
 impl CylinderPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Cylinder::default();
-        data.radius = self.r;
-        data.resolution = self.resolution;
-        data.segments = self.segments;
+        let data = shape::Cylinder {
+            radius: self.r,
+            resolution: self.resolution,
+            segments: self.segments,
+            ..Default::default()
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup icosphere mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct IcospherePrefab {
-    pub r : f32,
-    pub subdivisions : usize,
+    pub r: f32,
+    pub subdivisions: usize,
 }
 
 impl Default for IcospherePrefab {
     fn default() -> Self {
         let def = shape::Icosphere::default();
         Self {
-            r : def.radius,
-            subdivisions : def.subdivisions
+            r: def.radius,
+            subdivisions: def.subdivisions,
         }
     }
 }
 
 impl IcospherePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Icosphere::default();
-        data.radius = self.r;
-        data.subdivisions = self.subdivisions;
+        let data = shape::Icosphere {
+            radius: self.r,
+            subdivisions: self.subdivisions,
+        };
         if let Ok(mesh) = Mesh::try_from(data) {
             mesh
         } else {
@@ -242,59 +245,59 @@ impl IcospherePrefab {
     }
 }
 
-
 /// Values to setup plane mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct PlanePrefab {
-    pub size : f32,
-    pub subdivisions : u32,
+    pub size: f32,
+    pub subdivisions: u32,
 }
 
 impl Default for PlanePrefab {
     fn default() -> Self {
         let def = shape::Plane::default();
         Self {
-            size : def.size,
-            subdivisions : def.subdivisions
+            size: def.size,
+            subdivisions: def.subdivisions,
         }
     }
 }
 
 impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Plane::default();
-        data.size = self.size;
-        data.subdivisions = self.subdivisions;
+        let data = shape::Plane {
+            size: self.size,
+            subdivisions: self.subdivisions
+        };
         Mesh::from(data)
     }
 }
-
 
 /// Values to setup regular polygon mesh
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
 pub struct RegularPolygonPrefab {
-    pub radius : f32,
+    pub radius: f32,
     #[inspector(min = 3)]
-    pub sides : usize,
+    pub sides: usize,
 }
 
 impl Default for RegularPolygonPrefab {
     fn default() -> Self {
         let def = shape::RegularPolygon::default();
         Self {
-            radius : def.radius,
-            sides : def.sides
+            radius: def.radius,
+            sides: def.sides,
         }
     }
 }
 
 impl RegularPolygonPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::RegularPolygon::default();
-        data.radius = self.radius;
-        data.sides = self.sides;
+        let data = shape::RegularPolygon {
+            radius: self.radius,
+            sides: self.sides
+        };
         Mesh::from(data)
     }
 }
@@ -303,31 +306,32 @@ impl RegularPolygonPrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct TorusPrefab {
-    pub radius : f32,
-    pub ring_radius : f32,
-    pub subdivisions_sides : usize,
-    pub subdivisions_segments : usize,
+    pub radius: f32,
+    pub ring_radius: f32,
+    pub subdivisions_sides: usize,
+    pub subdivisions_segments: usize,
 }
 
 impl Default for TorusPrefab {
     fn default() -> Self {
         let def = shape::Torus::default();
         Self {
-            radius : def.radius,
-            ring_radius : def.ring_radius,
-            subdivisions_sides : def.subdivisions_sides,
-            subdivisions_segments : def.subdivisions_segments
+            radius: def.radius,
+            ring_radius: def.ring_radius,
+            subdivisions_sides: def.subdivisions_sides,
+            subdivisions_segments: def.subdivisions_segments,
         }
     }
 }
 
 impl TorusPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let mut data = shape::Torus::default();
-        data.radius = self.radius;
-        data.ring_radius = self.ring_radius;
-        data.subdivisions_sides = self.subdivisions_sides;
-        data.subdivisions_segments = self.subdivisions_segments;
+        let data = shape::Torus {
+            radius: self.radius,
+            ring_radius: self.ring_radius,
+            subdivisions_sides: self.subdivisions_sides,
+            subdivisions_segments: self.subdivisions_segments,
+        };
         Mesh::from(data)
     }
 }

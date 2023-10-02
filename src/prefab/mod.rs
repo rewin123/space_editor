@@ -1,28 +1,41 @@
 /// Contains all component for prefab logic
 pub mod component;
-/// Contains systems for spawning prefabs
-pub mod spawn_system;
-/// Contains systems for saving prefab
-pub mod save;
 /// Contains systems for loading prefab from file
 pub mod load;
+/// Contains systems for saving prefab
+pub mod save;
+/// Contains systems for spawning prefabs
+pub mod spawn_system;
 
-use bevy::{prelude::*, core_pipeline::{core_3d::Camera3dDepthTextureUsage, tonemapping::{Tonemapping, DebandDither}}, render::{view::{VisibleEntities, ColorGrading}, primitives::Frustum, camera::CameraRenderGraph}};
+use bevy::{
+    core_pipeline::{
+        core_3d::Camera3dDepthTextureUsage,
+        tonemapping::{DebandDither, Tonemapping},
+    },
+    prelude::*,
+    render::{
+        camera::CameraRenderGraph,
+        primitives::Frustum,
+        view::{ColorGrading, VisibleEntities},
+    },
+};
 use bevy_scene_hook::HookPlugin;
 
-use crate::{editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorState, EditorSet, PrefabMarker, PrefabSet};
+use crate::{
+    editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorSet, EditorState,
+    PrefabMarker, PrefabSet,
+};
 
 use component::*;
-use spawn_system::*;
-use save::*;
 use load::*;
+use save::*;
+use spawn_system::*;
 
 /// This plugin contains all components and logic of prefabs
 pub struct PrefabPlugin;
 
 impl Plugin for PrefabPlugin {
     fn build(&self, app: &mut App) {
-
         app.add_state::<EditorState>();
 
         if !app.is_plugin_added::<HookPlugin>() {
@@ -34,9 +47,16 @@ impl Plugin for PrefabPlugin {
         }
 
         app.configure_set(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_set(Update, EditorSet::Editor.run_if(in_state(EditorState::Editor)));
-        
+        app.configure_set(
+            Update,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+
         app.register_type::<EntityLink>();
+
+        app.editor_registry::<Transform>();
+        app.editor_registry::<Name>();
+        app.editor_registry::<Visibility>();
 
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
@@ -71,7 +91,6 @@ impl Plugin for PrefabPlugin {
 
         app.register_type::<Camera3dDepthTextureUsage>();
 
-
         app.editor_relation::<Camera3d, Camera>();
         app.editor_relation::<Camera, Projection>();
         app.editor_relation::<Camera, VisibleEntities>();
@@ -81,7 +100,7 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<Camera, DebandDither>();
         app.editor_relation::<Camera, ColorGrading>();
         app.add_systems(Update, camera_render_graph_creation);
-        
+
         app.editor_registry::<PlayerStart>();
         app.editor_relation::<PlayerStart, Transform>();
         app.editor_relation::<PlayerStart, GlobalTransform>();
@@ -93,37 +112,50 @@ impl Plugin for PrefabPlugin {
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
         app.add_systems(Update, spawn_scene.in_set(PrefabSet::PrefabLoad));
-        app.add_systems(Update, (add_global_transform, remove_global_transform, add_computed_visibility, remove_computed_visibility).in_set(PrefabSet::Relation));
-
         app.add_systems(
             Update,
-            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange)
+            (
+                add_global_transform,
+                remove_global_transform,
+                add_computed_visibility,
+                remove_computed_visibility,
+            )
+                .in_set(PrefabSet::Relation),
         );
 
         app.add_systems(
             Update,
-            (editor_remove_mesh).run_if(in_state(EditorState::Editor))
+            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange),
+        );
+
+        app.add_systems(
+            Update,
+            (editor_remove_mesh).run_if(in_state(EditorState::Editor)),
         );
 
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);
-
     }
 }
 
 fn camera_render_graph_creation(
-    mut commands : Commands,
-    query : Query<Entity, (With<Camera>, With<PrefabMarker>, Without<CameraRenderGraph>)>
+    mut commands: Commands,
+    query: Query<Entity, (With<Camera>, With<PrefabMarker>, Without<CameraRenderGraph>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert( CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::NAME));
+        commands.entity(e).insert(CameraRenderGraph::new(
+            bevy::core_pipeline::core_3d::graph::NAME,
+        ));
     }
 }
 
 pub fn add_global_transform(
-    mut commands : Commands,
-    mut query : Query<(Entity, &mut Transform, Option<&Parent>), (With<Transform>, Without<GlobalTransform>)>,
-    globals : Query<&GlobalTransform>
+    mut commands: Commands,
+    mut query: Query<
+        (Entity, &mut Transform, Option<&Parent>),
+        (With<Transform>, Without<GlobalTransform>),
+    >,
+    globals: Query<&GlobalTransform>,
 ) {
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
@@ -134,15 +166,14 @@ pub fn add_global_transform(
             }
         } else {
             commands.entity(e).insert(GlobalTransform::from(*tr));
-
         }
         tr.set_changed();
     }
 }
 
 fn remove_global_transform(
-    mut commands : Commands,
-    query : Query<Entity, (Without<Transform>, With<GlobalTransform>)>
+    mut commands: Commands,
+    query: Query<Entity, (Without<Transform>, With<GlobalTransform>)>,
 ) {
     for e in query.iter() {
         commands.entity(e).remove::<GlobalTransform>();
@@ -150,8 +181,8 @@ fn remove_global_transform(
 }
 
 fn add_computed_visibility(
-    mut commands : Commands,
-    query : Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>
+    mut commands: Commands,
+    query: Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>,
 ) {
     for e in query.iter() {
         commands.entity(e).insert(ComputedVisibility::default());
@@ -159,8 +190,8 @@ fn add_computed_visibility(
 }
 
 fn remove_computed_visibility(
-    mut commands : Commands,
-    query : Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>
+    mut commands: Commands,
+    query: Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>,
 ) {
     for e in query.iter() {
         commands.entity(e).remove::<ComputedVisibility>();

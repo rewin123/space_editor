@@ -3,7 +3,6 @@ use bevy::prelude::*;
 #[cfg(feature = "bevy_xpbd_3d")]
 pub mod bevy_xpbd_plugin;
 
-
 //add optional dependencies
 pub struct OptionalPlugin;
 
@@ -13,7 +12,6 @@ impl Plugin for OptionalPlugin {
         {
             info!("Add bevy_xpbd_3d plugin to editor");
             app.add_plugins(bevy_xpbd_plugin::BevyXpbdPlugin);
-
         }
     }
 }

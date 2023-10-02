@@ -5,21 +5,22 @@ use crate::{editor_registry::EditorRegistryExt, PrefabMarker};
 
 use super::save::ChildrenPrefab;
 
-
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
-    loader : PrefabLoader,
-    transform : Transform,
-    global_transform : GlobalTransform,
-    
-    visiblity : Visibility,
-    computed_visiblity : ComputedVisibility
+    loader: PrefabLoader,
+    transform: Transform,
+    global_transform: GlobalTransform,
+
+    visiblity: Visibility,
+    computed_visiblity: ComputedVisibility,
 }
 
 impl PrefabBundle {
-    pub fn new(path : &str) -> Self {
+    pub fn new(path: &str) -> Self {
         Self {
-            loader : PrefabLoader { path: path.to_string() },
+            loader: PrefabLoader {
+                path: path.to_string(),
+            },
             ..default()
         }
     }
@@ -33,35 +34,45 @@ pub struct PrefabAutoChild;
 impl Plugin for LoadPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<PrefabLoader>();
-        app.add_systems(Update, load_prefab
-            .after(bevy_scene_hook::Systems::SceneHookRunner));
-        app.add_systems(Update, conflict_resolve
-            .after(bevy_scene_hook::Systems::SceneHookRunner)
-            .before(load_prefab));
+        app.add_systems(
+            Update,
+            load_prefab.after(bevy_scene_hook::Systems::SceneHookRunner),
+        );
+        app.add_systems(
+            Update,
+            conflict_resolve
+                .after(bevy_scene_hook::Systems::SceneHookRunner)
+                .before(load_prefab),
+        );
         app.add_systems(Update, auto_children);
-
     }
 }
 
 #[derive(Component, Default, Reflect, Clone)]
 #[reflect(Component)]
 pub struct PrefabLoader {
-    pub path : String
+    pub path: String,
 }
 
-
-
-
 fn load_prefab(
-    mut commands : Commands,
-    query : Query<(Entity, &PrefabLoader, Option<&Children>, Option<&Transform>, Option<&Visibility>), Changed<PrefabLoader>>,
-    auto_childs : Query<Entity, With<PrefabAutoChild>>,
-    assets : ResMut<AssetServer>
+    mut commands: Commands,
+    query: Query<
+        (
+            Entity,
+            &PrefabLoader,
+            Option<&Children>,
+            Option<&Transform>,
+            Option<&Visibility>,
+        ),
+        Changed<PrefabLoader>,
+    >,
+    auto_childs: Query<Entity, With<PrefabAutoChild>>,
+    assets: ResMut<AssetServer>,
 ) {
     for (e, l, children, tr, vis) in query.iter() {
-
         if tr.is_none() {
-            commands.entity(e).insert(TransformBundle::default());
+            commands.entity(e).insert(Transform::default());
+            commands.entity(e).insert(GlobalTransform::default());
         }
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());
@@ -77,25 +88,20 @@ fn load_prefab(
             commands.entity(e).clear_children();
         }
 
-        let scene : Handle<DynamicScene> = assets.load(&l.path);
+        let scene: Handle<DynamicScene> = assets.load(&l.path);
         commands.entity(e).with_children(|cmds| {
-            cmds.spawn(
-                DynamicSceneBundle {
-                    scene,
-                    ..default()
-                }
-            )
-            .insert(SceneHook::new(|_e, cmd| {
-                cmd.insert(PrefabAutoChild);
-            }))
-            .insert(PrefabAutoChild);
+            cmds.spawn(DynamicSceneBundle { scene, ..default() })
+                .insert(SceneHook::new(|_e, cmd| {
+                    cmd.insert(PrefabAutoChild);
+                }))
+                .insert(PrefabAutoChild);
         });
     }
 }
 
 fn conflict_resolve(
-    mut commands : Commands,
-    query : Query<Entity, (With<PrefabAutoChild>, With<PrefabMarker>)>
+    mut commands: Commands,
+    query: Query<Entity, (With<PrefabAutoChild>, With<PrefabMarker>)>,
 ) {
     for e in query.iter() {
         commands.entity(e).remove::<PrefabMarker>();
@@ -103,9 +109,9 @@ fn conflict_resolve(
 }
 
 fn auto_children(
-    mut commands : Commands,
-    query : Query<(Entity, &ChildrenPrefab)>,
-    existen_entity : Query<Entity>
+    mut commands: Commands,
+    query: Query<(Entity, &ChildrenPrefab)>,
+    existen_entity: Query<Entity>,
 ) {
     for (e, children) in query.iter() {
         let mut cmds = commands.entity(e);

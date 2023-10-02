@@ -25,10 +25,14 @@ bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporat
 egui_dock = "0.7"
 egui_file = "0.10.2"
 
-bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false ,  optional = true}
+bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", default-features = false , optional = true}
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/f32", "bevy_xpbd_3d/collider-from-mesh"]
+bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32"]
+
+[[example]]
+name = "platformer"
+required-features = ["bevy_xpbd_3d"]

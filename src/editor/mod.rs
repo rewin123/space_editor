@@ -2,19 +2,22 @@
 
 use bevy::{prelude::*, window::PrimaryWindow};
 
-pub mod ui;
 pub mod core;
+pub mod ui;
 
 pub mod ui_registration;
 
-use bevy_egui::{EguiContexts, EguiContext};
-use bevy_infinite_grid::{InfiniteGridBundle, InfiniteGrid};
-use bevy_inspector_egui::{DefaultInspectorConfigPlugin, quick::WorldInspectorPlugin};
+use bevy_egui::{EguiContext, EguiContexts};
+use bevy_infinite_grid::{InfiniteGrid, InfiniteGridBundle};
+use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use bevy_mod_picking::{prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
-use crate::{EditorState, EditorSet, prefab::{save::SaveState, component::CameraPlay}, PrefabMarker, EditorCameraMarker, prelude::{Selected, GameViewTab}};
-
+use crate::{
+    prefab::{component::CameraPlay, save::SaveState},
+    prelude::{GameViewTab, Selected},
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
+};
 
 use ui_registration::*;
 
@@ -34,16 +37,18 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
-        
-        app
-        .add_plugins(DefaultInspectorConfigPlugin)
-        .add_plugins(EditorUiPlugin::default())
-        .add_plugins(PanOrbitCameraPlugin);
+
+        app.add_plugins(DefaultInspectorConfigPlugin)
+            .add_plugins(EditorUiPlugin::default())
+            .add_plugins(PanOrbitCameraPlugin);
 
         if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
-            app.add_plugins(bevy_mod_picking::DefaultPickingPlugins.build()
-                .disable::<DebugPickingPlugin>()
-                .disable::<DefaultHighlightingPlugin>());
+            app.add_plugins(
+                bevy_mod_picking::DefaultPickingPlugins
+                    .build()
+                    .disable::<DebugPickingPlugin>()
+                    .disable::<DefaultHighlightingPlugin>(),
+            );
         }
 
         if !app.is_plugin_added::<bevy_infinite_grid::InfiniteGridPlugin>() {
@@ -55,36 +60,60 @@ impl Plugin for EditorPlugin {
 
         app.add_plugins(prelude::EditorCore);
 
-        app.add_systems(Startup, (set_start_state, apply_state_transition::<EditorState>).chain().in_set(EditorSet::Editor));
+        app.add_systems(
+            Startup,
+            (set_start_state, apply_state_transition::<EditorState>)
+                .chain()
+                .in_set(EditorSet::Editor),
+        );
 
-        app.add_systems(Update, reset_pan_orbit_state
-            .in_set(EditorSet::Editor));
-        app.add_systems(Update, update_pan_orbit
-            .after(reset_pan_orbit_state)
-            .before(PanOrbitCameraSystemSet)
-            .in_set(EditorSet::Editor));
-        app.add_systems(Update, ui_camera_block.after(reset_pan_orbit_state).
-            before(update_pan_orbit)
-            .in_set(EditorSet::Editor));
+        app.add_systems(Update, reset_pan_orbit_state.in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            update_pan_orbit
+                .after(reset_pan_orbit_state)
+                .before(PanOrbitCameraSystemSet)
+                .in_set(EditorSet::Editor),
+        );
+        app.add_systems(
+            Update,
+            ui_camera_block
+                .after(reset_pan_orbit_state)
+                .before(update_pan_orbit)
+                .in_set(EditorSet::Editor),
+        );
 
         //play systems
-        app.add_systems(OnEnter(EditorState::GamePrepare), (cleanup_grid_lines, save_prefab_before_play));
-        app.add_systems(OnEnter(SaveState::Idle), to_game_after_save.run_if(in_state(EditorState::GamePrepare)));
+        app.add_systems(
+            OnEnter(EditorState::GamePrepare),
+            (cleanup_grid_lines, save_prefab_before_play),
+        );
+        app.add_systems(
+            OnEnter(SaveState::Idle),
+            to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
+        );
 
         app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
 
-        app.add_systems(OnEnter(EditorState::Editor), 
-            (clear_and_load_on_start, change_camera_in_editor, create_grid_lines));
+        app.add_systems(
+            OnEnter(EditorState::Editor),
+            (
+                clear_and_load_on_start,
+                change_camera_in_editor,
+                create_grid_lines,
+            ),
+        );
 
-        app.add_systems(PostUpdate, 
-            (auto_add_picking, 
-                select_listener,
-                auto_add_picking_dummy)
-                .run_if(in_state(EditorState::Editor)));
+        app.add_systems(
+            PostUpdate,
+            (auto_add_picking, select_listener, auto_add_picking_dummy)
+                .run_if(in_state(EditorState::Editor)),
+        );
 
-        app.add_systems(Update, 
-            (draw_camera_gizmo, 
-                disable_no_editor_cams).run_if(in_state(EditorState::Editor)));
+        app.add_systems(
+            Update,
+            (draw_camera_gizmo, disable_no_editor_cams).run_if(in_state(EditorState::Editor)),
+        );
 
         app.add_event::<SelectEvent>();
 
@@ -96,56 +125,55 @@ impl Plugin for EditorPlugin {
     }
 }
 
-
-
 #[derive(Event)]
 struct SelectEvent {
-    e : Entity,
-    event : ListenerInput<Pointer<Down>>
+    e: Entity,
+    event: ListenerInput<Pointer<Down>>,
 }
 
-fn create_grid_lines(
-    mut commands : Commands,
-) {
+fn create_grid_lines(mut commands: Commands) {
     commands.spawn(InfiniteGridBundle::default());
 }
 
-fn cleanup_grid_lines(
-    mut commands : Commands,
-    query : Query<Entity, With<InfiniteGrid>>,
-) {
+fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<InfiniteGrid>>) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
     }
 }
 
 fn auto_add_picking(
-    mut commands : Commands,
-    query : Query<Entity, (With<PrefabMarker>, Without<Pickable>)>
+    mut commands: Commands,
+    query: Query<Entity, (With<PrefabMarker>, Without<Pickable>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert(PickableBundle::default())
+        commands
+            .entity(e)
+            .insert(PickableBundle::default())
             .insert(RaycastPickTarget::default())
             .insert(On::<Pointer<Down>>::send_event::<SelectEvent>());
     }
 }
 
+type AutoAddQueryFilter = (Without<PrefabMarker>, Without<Pickable>, With<Parent>);
+
 fn auto_add_picking_dummy(
-    mut commands : Commands,
-    query : Query<Entity, (Without<PrefabMarker>, Without<Pickable>, With<Parent>)>
+    mut commands: Commands,
+    query: Query<Entity, AutoAddQueryFilter>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert(PickableBundle::default())
+        commands
+            .entity(e)
+            .insert(PickableBundle::default())
             .insert(RaycastPickTarget::default());
     }
 }
 
 fn select_listener(
-    mut commands : Commands,
-    query : Query<Entity, With<Selected>>,
-    mut events : EventReader<SelectEvent>,
-    _ctxs : EguiContexts,
-    pan_orbit_state : ResMut<PanOrbitEnabled>,
+    mut commands: Commands,
+    query: Query<Entity, With<Selected>>,
+    mut events: EventReader<SelectEvent>,
+    _ctxs: EguiContexts,
+    pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
     if !pan_orbit_state.0 {
@@ -160,87 +188,79 @@ fn select_listener(
                         commands.entity(e).remove::<Selected>();
                     }
                 }
-            },
-            PointerButton::Secondary => {/*Show context menu?*/},
-            PointerButton::Middle => {},
+            }
+            PointerButton::Secondary => { /*Show context menu?*/ }
+            PointerButton::Middle => {}
         }
     }
 }
 
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        SelectEvent { e: value.listener(), event: value }
+        SelectEvent {
+            e: value.listener(),
+            event: value,
+        }
     }
 }
 
-fn save_prefab_before_play(
-    mut editor_events : EventWriter<prelude::EditorEvent>,
-) {
-    editor_events.send(prelude::EditorEvent::Save(prelude::EditorPrefabPath::MemoryCahce));
+fn save_prefab_before_play(mut editor_events: EventWriter<prelude::EditorEvent>) {
+    editor_events.send(prelude::EditorEvent::Save(
+        prelude::EditorPrefabPath::MemoryCahce,
+    ));
 }
 
-fn to_game_after_save(
-    mut state : ResMut<NextState<EditorState>>
-) {
+fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
     state.set(EditorState::Game);
 }
 
-fn set_start_state(
-    mut state : ResMut<NextState<EditorState>>
-) {
+fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
     state.set(EditorState::Editor);
 }
 
 fn clear_and_load_on_start(
-    mut load_server : ResMut<prelude::EditorLoader>,
-    save_confg : Res<crate::prefab::save::SaveConfig>,
-    assets : Res<AssetServer>,
-    cache : Res<PrefabMemoryCache>,
+    mut load_server: ResMut<prelude::EditorLoader>,
+    save_confg: Res<crate::prefab::save::SaveConfig>,
+    assets: Res<AssetServer>,
+    cache: Res<PrefabMemoryCache>,
 ) {
     if save_confg.path.is_none() {
         return;
     }
     match save_confg.path.as_ref().unwrap() {
         prelude::EditorPrefabPath::File(path) => {
-            info!("Loading prefab from file {}",path);
-            load_server.scene = Some(
-                assets.load(format!("{}.scn.ron",path))
-            );
-        },
+            info!("Loading prefab from file {}", path);
+            load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
+        }
         prelude::EditorPrefabPath::MemoryCahce => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
-        },
+        }
     }
-    
 }
 
 /// Resource, which contains pan orbit camera state
 #[derive(Resource, Default)]
 pub struct PanOrbitEnabled(pub bool);
 
-
-pub fn reset_pan_orbit_state(
-    mut state : ResMut<PanOrbitEnabled>
-) {
+pub fn reset_pan_orbit_state(mut state: ResMut<PanOrbitEnabled>) {
     *state = PanOrbitEnabled(true);
 }
 
 pub fn update_pan_orbit(
     mut pan_orbit_query: Query<&mut PanOrbitCamera>,
-    state : Res<PanOrbitEnabled>,
+    state: Res<PanOrbitEnabled>,
 ) {
     for mut pan_orbit in pan_orbit_query.iter_mut() {
         pan_orbit.enabled = state.0;
-    }    
+    }
 }
 
-
-/// Sytem to block camera control if egui is using mouse 
+/// Sytem to block camera control if egui is using mouse
 pub fn ui_camera_block(
-    mut ctxs : Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut state : ResMut<PanOrbitEnabled>,
-    game_view : Res<GameViewTab>
+    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
+    mut state: ResMut<PanOrbitEnabled>,
+    game_view: Res<GameViewTab>,
 ) {
     let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
         return;
@@ -252,7 +272,6 @@ pub fn ui_camera_block(
         };
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
-
             } else {
                 *state = PanOrbitEnabled(false);
             }
@@ -262,10 +281,15 @@ pub fn ui_camera_block(
     }
 }
 
+type ChangeCameraQueryFilter = (With<EditorCameraMarker>, Without<CameraPlay>);
+
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
-    mut cameras : Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
-    mut play_cameras : Query<(&mut Camera, &CameraPlay), (Without<EditorCameraMarker>, With<CameraPlay>)>
+    mut cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
+    mut play_cameras: Query<
+        (&mut Camera, &CameraPlay),
+        ChangeCameraQueryFilter,
+    >,
 ) {
     if !play_cameras.is_empty() {
         let (mut some_camera, _) = play_cameras.iter_mut().next().unwrap();
@@ -276,8 +300,8 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut cameras : Query<&mut Camera, With<EditorCameraMarker>>,
-    mut play_cameras : Query<&mut Camera, Without<EditorCameraMarker>>
+    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
+    mut play_cameras: Query<&mut Camera, Without<EditorCameraMarker>>,
 ) {
     for mut ecam in cameras.iter_mut() {
         ecam.is_active = true;
@@ -288,17 +312,15 @@ pub fn change_camera_in_editor(
     }
 }
 
-fn disable_no_editor_cams(
-    mut cameras : Query<&mut Camera, Without<EditorCameraMarker>>,
-) {
+fn disable_no_editor_cams(mut cameras: Query<&mut Camera, Without<EditorCameraMarker>>) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
     }
 }
 
 fn draw_camera_gizmo(
-    mut gizom : Gizmos,
-    cameras : Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>
+    mut gizom: Gizmos,
+    cameras: Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>,
 ) {
     for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
@@ -306,15 +328,43 @@ fn draw_camera_gizmo(
         gizom.cuboid(cuboid_transform, Color::PINK);
 
         let scale = 1.5;
-        
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale + transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale + transform.up() * scale - transform.right() * scale, Color::PINK);
-        gizom.line(transform.translation, transform.translation + transform.forward() * scale - transform.up() * scale - transform.right() * scale, Color::PINK);
+
+        gizom.line(
+            transform.translation,
+            transform.translation
+                + transform.forward() * scale
+                + transform.up() * scale
+                + transform.right() * scale,
+            Color::PINK,
+        );
+        gizom.line(
+            transform.translation,
+            transform.translation + transform.forward() * scale - transform.up() * scale
+                + transform.right() * scale,
+            Color::PINK,
+        );
+        gizom.line(
+            transform.translation,
+            transform.translation + transform.forward() * scale + transform.up() * scale
+                - transform.right() * scale,
+            Color::PINK,
+        );
+        gizom.line(
+            transform.translation,
+            transform.translation + transform.forward() * scale
+                - transform.up() * scale
+                - transform.right() * scale,
+            Color::PINK,
+        );
 
         let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
         let rect_transform = transform.mul_transform(rect_transform);
 
-        gizom.rect(rect_transform.translation, rect_transform.rotation, Vec2::splat(scale * 2.0), Color::PINK);
+        gizom.rect(
+            rect_transform.translation,
+            rect_transform.rotation,
+            Vec2::splat(scale * 2.0),
+            Color::PINK,
+        );
     }
 }

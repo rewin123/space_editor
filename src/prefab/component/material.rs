@@ -1,4 +1,3 @@
-
 use crate::ext::*;
 
 /// Prefab component that store parameters and asset paths for creating StandardMaterial
@@ -11,7 +10,7 @@ pub struct MaterialPrefab {
     pub emissive_texture: String,
     pub perceptual_roughness: f32,
     pub metallic: f32,
-    pub metallic_roughness_texture:String,
+    pub metallic_roughness_texture: String,
     pub reflectance: f32,
     pub normal_map_texture: String,
     pub flip_normal_map_y: bool,
@@ -29,7 +28,7 @@ pub struct MaterialPrefab {
 
 impl Default for MaterialPrefab {
     fn default() -> Self {
-        Self { 
+        Self {
             base_color: Color::rgb(1.0, 1.0, 1.0),
             base_color_texture: String::default(),
             emissive: Color::BLACK,
@@ -59,7 +58,7 @@ impl Default for MaterialPrefab {
     }
 }
 
-fn try_image(path : &String, asset_server : &AssetServer) -> Option<Handle<Image>> {
+fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
     if path.is_empty() {
         None
     } else {
@@ -68,9 +67,8 @@ fn try_image(path : &String, asset_server : &AssetServer) -> Option<Handle<Image
 }
 
 impl MaterialPrefab {
-
     /// Convert MaterialPrefab to StandardMaterial
-    pub fn to_material(&self, asset_server : &AssetServer) -> StandardMaterial {
+    pub fn to_material(&self, asset_server: &AssetServer) -> StandardMaterial {
         let base_color_texture = try_image(&self.base_color_texture, asset_server);
         let emissive_texture = try_image(&self.emissive_texture, asset_server);
         let metallic_roughness_texture = try_image(&self.metallic_roughness_texture, asset_server);
@@ -78,12 +76,12 @@ impl MaterialPrefab {
         let occlusion_texture = try_image(&self.occlusion_texture, asset_server);
         let depth_map = try_image(&self.depth_map, asset_server);
         StandardMaterial {
-            base_color : self.base_color,
+            base_color: self.base_color,
             base_color_texture,
-            emissive : self.emissive,
+            emissive: self.emissive,
             emissive_texture,
-            perceptual_roughness : self.perceptual_roughness,
-            metallic : self.metallic,
+            perceptual_roughness: self.perceptual_roughness,
+            metallic: self.metallic,
             metallic_roughness_texture,
             reflectance: self.reflectance,
             normal_map_texture,
