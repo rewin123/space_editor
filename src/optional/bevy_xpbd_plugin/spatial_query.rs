@@ -42,9 +42,9 @@ impl Default for RayCasterPrefab {
     }
 }
 
-impl Into<RayCaster> for RayCasterPrefab {
-    fn into(self) -> RayCaster {
-        RayCaster::new(self.origin, self.direction)
+impl From<RayCasterPrefab> for RayCaster {
+    fn from(val: RayCasterPrefab) -> Self {
+        RayCaster::new(val.origin, val.direction)
     }
 }
 
@@ -87,13 +87,13 @@ pub struct ShapeCasterPrefab {
     pub shape_rotation: Quaternion,
 }
 
-impl Into<ShapeCaster> for ShapeCasterPrefab {
-    fn into(self) -> ShapeCaster {
+impl From<ShapeCasterPrefab> for ShapeCaster {
+    fn from(val: ShapeCasterPrefab) -> Self {
         ShapeCaster::new(
-            self.shape.to_collider(),
-            self.origin,
-            self.shape_rotation,
-            self.direction,
+            val.shape.to_collider(),
+            val.origin,
+            val.shape_rotation,
+            val.direction,
         )
         .with_ignore_origin_penetration(true)
     }
