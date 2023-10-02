@@ -6,7 +6,7 @@ pub use bevy_inspector_egui::prelude::*;
 
 use crate::prefab::component::MeshPrimitivePrefab;
 
-use super::{RigidBodyPrefab};
+use super::RigidBodyPrefab;
 
 
 

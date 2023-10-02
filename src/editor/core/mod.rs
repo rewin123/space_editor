@@ -47,8 +47,7 @@ fn editor_event_listener(
     mut save_state : ResMut<NextState<SaveState>>,
     mut save_config : ResMut<SaveConfig>,
     mut start_game_state : ResMut<NextState<EditorState>>,
-    mut scenes : ResMut<Assets<DynamicScene>>,
-    mut cache : ResMut<PrefabMemoryCache>,
+    cache : ResMut<PrefabMemoryCache>,
 ) {
     for event in events.iter() {
         match event {

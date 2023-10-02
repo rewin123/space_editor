@@ -2,10 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::*;
 
 use crate::{
-    prefab::{
-        save::{SaveConfig, SaveState},
-        PrefabPlugin,
-    },
+    prefab::PrefabPlugin,
     prelude::{EditorEvent, EditorPrefabPath},
     EditorSet, EditorState,
 };
@@ -63,8 +60,6 @@ pub struct BotMenuState {
 
 pub fn bot_menu(
     mut ctxs: EguiContexts,
-    assets: Res<AssetServer>,
-    mut load_server: ResMut<EditorLoader>,
     _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
     mut menu_state: ResMut<BotMenuState>,
