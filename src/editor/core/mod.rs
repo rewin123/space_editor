@@ -4,6 +4,8 @@ pub use selected::*;
 mod load;
 use load::*;
 
+pub mod tile;
+
 use bevy::prelude::*;
 
 use crate::{
