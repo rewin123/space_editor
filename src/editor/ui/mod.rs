@@ -19,6 +19,9 @@ pub use editor_tab::*;
 pub mod game_view;
 pub use game_view::*;
 
+pub mod settings;
+pub use settings::*;
+
 pub mod debug_panels;
 
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};

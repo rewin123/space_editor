@@ -4,7 +4,11 @@ pub use selected::*;
 mod load;
 use load::*;
 
-pub mod tile;
+pub mod tool;
+pub use tool::*;
+
+pub mod settings;
+pub use settings::*;
 
 use bevy::prelude::*;
 
