@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Resource, Reflect, Clone, Debug)]
-pub struct SelectedTool {
-    pub tool: ToolName,
-}
+use crate::prelude::GameViewTab;
 
 pub trait EditorTool {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, world: &mut World);
@@ -35,3 +32,12 @@ impl ToolName {
     }
 }
 
+pub trait ToolExt {
+    fn editor_tool<T>(&mut self, tool : T) where T : EditorTool + Send + Sync + 'static;
+}
+
+impl ToolExt for App {
+    fn editor_tool<T>(&mut self, tool : T) where T : EditorTool + Send + Sync + 'static {
+        self.world.resource_mut::<GameViewTab>().tools.push(Box::new(tool));
+    }
+}
