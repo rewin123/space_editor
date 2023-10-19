@@ -107,3 +107,9 @@ impl Default for EntityLink {
         }
     }
 }
+
+#[derive(Component, Reflect, Clone, Default)]
+#[reflect(Component, Default)]
+pub struct AssetMesh {
+    pub path : String
+}

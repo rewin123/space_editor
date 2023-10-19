@@ -133,6 +133,12 @@ pub fn bot_menu(
                 // );
             }
 
+            if ui.button("Open gltf as prefab").clicked() {
+                editor_events.send(EditorEvent::LoadGltfAsPrefab(
+                    "low_poly_fighter_2.gltf".to_string()
+                ));
+            }
+
             if ui.button("▶").clicked() {
                 editor_events.send(EditorEvent::StartGame);
             }

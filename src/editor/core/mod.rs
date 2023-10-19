@@ -10,6 +10,8 @@ pub use tool::*;
 pub mod settings;
 pub use settings::*;
 
+pub mod gltf_unpack;
+
 use bevy::prelude::*;
 
 use crate::{
@@ -22,6 +24,9 @@ pub struct EditorCore;
 
 impl Plugin for EditorCore {
     fn build(&self, app: &mut App) {
+
+        app.add_plugins(gltf_unpack::UnpackGltfPlugin);
+
         app.add_event::<EditorEvent>();
 
         app.init_resource::<PrefabMemoryCache>();
@@ -52,6 +57,7 @@ pub enum EditorPrefabPath {
 pub enum EditorEvent {
     Load(EditorPrefabPath),
     Save(EditorPrefabPath),
+    LoadGltfAsPrefab(String),
     StartGame,
 }
 
@@ -63,6 +69,7 @@ fn editor_event_listener(
     mut save_config: ResMut<SaveConfig>,
     mut start_game_state: ResMut<NextState<EditorState>>,
     cache: ResMut<PrefabMemoryCache>,
+    mut gltf_events : EventWriter<gltf_unpack::EditorUnpackGltf>
 ) {
     for event in events.iter() {
         match event {
@@ -81,6 +88,11 @@ fn editor_event_listener(
             EditorEvent::StartGame => {
                 start_game_state.set(EditorState::GamePrepare);
             }
+            EditorEvent::LoadGltfAsPrefab(path) => {
+                gltf_events.send(gltf_unpack::EditorUnpackGltf {
+                    path: path.clone()
+                })
+            },
         }
     }
 }

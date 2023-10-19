@@ -78,6 +78,10 @@ impl Plugin for PrefabPlugin {
         app.register_type::<RegularPolygonPrefab>();
         app.register_type::<TorusPrefab>();
 
+        app.editor_registry::<AssetMesh>();
+        app.add_systems(Update, sync_asset_mesh.in_set(PrefabSet::DetectPrefabChange));
+
+
         //material registration
         app.register_type::<Color>();
         app.register_type::<AlphaMode>();
@@ -195,5 +199,23 @@ fn remove_computed_visibility(
 ) {
     for e in query.iter() {
         commands.entity(e).remove::<ComputedVisibility>();
+    }
+}
+
+fn sync_asset_mesh(
+    mut commands : Commands,
+    changed : Query<(Entity, &AssetMesh), Changed<AssetMesh>>,
+    mut deleted : RemovedComponents<AssetMesh>,
+    assets : Res<AssetServer>
+) {
+    for (e, mesh) in changed.iter() {
+        commands.entity(e).insert(
+            assets.load::<Mesh, _>(&mesh.path)
+        );
+    }
+
+    for e in deleted.iter() {
+        commands.entity(e).remove::<Handle<Mesh>>();
+        info!("Removed mesh handle for {:?}", e);
     }
 }

@@ -91,6 +91,7 @@ pub fn editor_remove_mesh(
     for e in query.iter() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<Mesh>>();
+            info!("Removed mesh handle for {:?}", e);
         }
     }
 }
