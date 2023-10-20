@@ -134,6 +134,7 @@ pub fn bot_menu(
             }
 
             if ui.button("Open gltf as prefab").clicked() {
+                info!("Open gltf as prefab");
                 editor_events.send(EditorEvent::LoadGltfAsPrefab(
                     "low_poly_fighter_2.gltf".to_string()
                 ));
