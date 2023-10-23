@@ -197,7 +197,7 @@ fn select_listener(
 }
 
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(mut value: ListenerInput<Pointer<Down>>) -> Self {
+    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
         SelectEvent {
             e: value.target(),
             event: value,

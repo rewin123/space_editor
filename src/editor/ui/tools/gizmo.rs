@@ -115,6 +115,8 @@ impl EditorTool for GizmoTool {
                     loc_transform.push(global_transform.reparented_to(&global_mean));
                 }
 
+                let mut gizmo_interacted = false;
+
                 if let Some(result) =
                     egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
@@ -123,35 +125,33 @@ impl EditorTool for GizmoTool {
                         .mode(self.gizmo_mode)
                         .interact(ui)
                 {
-                    if ui.input(|s| s.modifiers.alt) {
-
-                    } else {
-                        
-                        mean_transform = Transform {
-                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                            scale: Vec3::from(<[f32; 3]>::from(result.scale)),
-                        };
-                    }
+                    gizmo_interacted = true;
+                    mean_transform = Transform {
+                        translation: Vec3::from(<[f32; 3]>::from(result.translation)),
+                        rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
+                        scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                    };
                     disable_pan_orbit = true;
                 }
 
                 global_mean = GlobalTransform::from(mean_transform);
 
-                if ui.input(|s| s.modifiers.alt) {
-                    if self.is_move_cloned_entities {
+                if gizmo_interacted {
+                    if ui.input(|s| s.modifiers.alt) {
+                        if self.is_move_cloned_entities {
 
-                    } else {
-                        for (_, e) in selected.iter().enumerate() {
-                            cell.world_mut().send_event(CloneEvent {
-                                id: *e,
-                            });
+                        } else {
+                            for (_, e) in selected.iter().enumerate() {
+                                cell.world_mut().send_event(CloneEvent {
+                                    id: *e,
+                                });
+                            }
+                            self.is_move_cloned_entities = true;
+                            return;
                         }
-                        self.is_move_cloned_entities = true;
-                        return;
-                    }
-                } else {
+                    } else {
 
+                    }
                 }
 
                 for (idx, e) in selected.iter().enumerate() {
