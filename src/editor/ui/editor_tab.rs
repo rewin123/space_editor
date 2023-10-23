@@ -16,6 +16,7 @@ pub enum EditorTabName {
     GameView,
     Inspector,
     ToolBox,
+    Settings,
     Other(String),
 }
 

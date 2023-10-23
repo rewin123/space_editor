@@ -89,6 +89,8 @@ impl Plugin for EditorUiPlugin {
         app.editor_tool(GizmoTool::default());
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
 
+        app.add_plugins(settings::SettingsWindowPlugin);
+
         if self.use_standart_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
             editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
