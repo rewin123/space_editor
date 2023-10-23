@@ -269,6 +269,7 @@ pub fn ui_camera_block(
         };
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
+                
             } else {
                 *state = PanOrbitEnabled(false);
             }

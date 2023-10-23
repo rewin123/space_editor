@@ -157,19 +157,18 @@ impl EditorTool for GizmoTool {
                         if let Some(parent) = cell.get_entity(parent.get()) {
                             if let Some(parent_global) = parent.get::<GlobalTransform>() {
                                 if let Some(global) = ecell.get::<GlobalTransform>() {
-                                    if let Some(result) =
-                                        egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                                            .projection_matrix(
-                                                cam_proj.get_projection_matrix().to_cols_array_2d(),
-                                            )
-                                            .view_matrix(view_matrix.to_cols_array_2d())
-                                            .model_matrix(
-                                                global.compute_matrix().to_cols_array_2d(),
-                                            )
-                                            .mode(self.gizmo_mode)
-                                            .interact(ui)
-                                    {
-                                        let new_transform = Transform {
+                                    if let Some(result) = egui_gizmo::Gizmo::new(
+                                                format!("Selected gizmo {:?}", *e))
+                                                .projection_matrix(
+                                                    cam_proj.get_projection_matrix().to_cols_array_2d(),
+                                                )
+                                                .view_matrix(view_matrix.to_cols_array_2d())
+                                                .model_matrix(
+                                                    global.compute_matrix().to_cols_array_2d(),
+                                                )
+                                                .mode(self.gizmo_mode)
+                                                .interact(ui) {
+                                            let new_transform = Transform {
                                             translation: Vec3::from(<[f32; 3]>::from(
                                                 result.translation,
                                             )),
@@ -182,20 +181,19 @@ impl EditorTool for GizmoTool {
                                         let new_transform = GlobalTransform::from(new_transform);
                                         *transform = new_transform.reparented_to(parent_global);
                                         transform.set_changed();
+                                        disable_pan_orbit = true;
                                     }
-                                    disable_pan_orbit = true;
                                     continue;
                                 }
                             }
                         }
                     }
                     if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                        .view_matrix(view_matrix.to_cols_array_2d())
-                        .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                        .mode(self.gizmo_mode)
-                        .interact(ui)
-                    {
+                            .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
+                            .view_matrix(view_matrix.to_cols_array_2d())
+                            .model_matrix(transform.compute_matrix().to_cols_array_2d())
+                            .mode(self.gizmo_mode)
+                            .interact(ui) {
                         *transform = Transform {
                             translation: Vec3::from(<[f32; 3]>::from(result.translation)),
                             rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
