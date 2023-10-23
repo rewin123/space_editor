@@ -6,7 +6,7 @@ use crate::prelude::EditorTab;
 pub struct SettingsWindow {}
 
 impl EditorTab for SettingsWindow {
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _world: &mut World) {
         ui.label("Settings");
     }
 

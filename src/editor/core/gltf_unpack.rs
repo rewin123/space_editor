@@ -1,12 +1,11 @@
-use std::{arch::x86_64::_MM_FROUND_NEARBYINT, future, path::Path};
+
 
 use bevy::{
     asset::{AssetPath, LoadState},
-    ecs::{entity::EntityMap, system::CommandQueue},
+    ecs::{system::CommandQueue},
     gltf::{Gltf, GltfMesh, GltfNode},
     prelude::*,
-    tasks::AsyncComputeTaskPool,
-    utils::{futures, HashMap},
+    utils::{HashMap},
 };
 
 use crate::{
@@ -63,10 +62,8 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() {
-        if assets.get_load_state(&queue.0[0]) == LoadState::Loaded {
-            events.send(GltfLoaded(queue.0.remove(0)));
-        }
+    if !queue.0.is_empty() && assets.get_load_state(&queue.0[0]) == LoadState::Loaded {
+        events.send(GltfLoaded(queue.0.remove(0)));
     }
 }
 
@@ -83,8 +80,7 @@ fn unpack_gltf(world: &mut World) {
         let mut events = world.resource_mut::<Events<GltfLoaded>>();
         let mut reader = events.get_reader();
         let loaded = reader
-            .iter(&events)
-            .map(|e| e.clone())
+            .iter(&events).cloned()
             .collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
@@ -107,7 +103,7 @@ fn unpack_gltf(world: &mut World) {
             continue;
         };
 
-        let mut commands = Commands::new(&mut command_queue, &world);
+        let mut commands = Commands::new(&mut command_queue, world);
 
         let gltf_nodes = world.resource::<Assets<GltfNode>>();
         let gltf_meshs = world.resource::<Assets<GltfMesh>>();
@@ -152,13 +148,13 @@ fn unpack_gltf(world: &mut World) {
             let ctx = UnpackContext {
                 material_map: &material_map,
                 mesh_map: &mesh_map,
-                gltf_meshs: &gltf_meshs,
+                gltf_meshs,
                 default_material: default_material.clone(),
                 gltf_path: &gltf_path,
             };
 
             for root in roots.iter() {
-                spawn_node(&mut commands, root, &gltf, &ctx);
+                spawn_node(&mut commands, root, gltf, &ctx);
             }
 
             // for e in scene.world.iter_entities() {
@@ -290,7 +286,7 @@ fn spawn_node(
     let id = commands
         .spawn((
             SpatialBundle {
-                transform: node.transform.clone(),
+                transform: node.transform,
                 ..default()
             },
             PrefabMarker,
@@ -325,7 +321,7 @@ fn spawn_node(
     }
 
     for child in &node.children {
-        let child_id = spawn_node(commands, &child, gltf, ctx);
+        let child_id = spawn_node(commands, child, gltf, ctx);
         commands.entity(id).add_child(child_id);
     }
 

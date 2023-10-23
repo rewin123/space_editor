@@ -8,18 +8,16 @@ pub trait EditorTool {
 }
 
 #[derive(Reflect, Clone, Debug)]
+#[derive(Default)]
 pub enum ToolName {
+    #[default]
     Gizmo,
     #[cfg(feature = "floor_plan")]
     FloorMap,
     Other(String),
 }
 
-impl Default for ToolName {
-    fn default() -> Self {
-        ToolName::Gizmo
-    }
-}
+
 
 impl ToolName {
     pub fn as_str(&self) -> &str {

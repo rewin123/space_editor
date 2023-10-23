@@ -1,10 +1,9 @@
-use bevy::{prelude::*, render::camera::CameraProjection, utils::HashMap, window::PrimaryWindow};
-use bevy_egui::egui::{self, Key, RichText};
+use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
 
 use crate::{
-    editor::PanOrbitEnabled,
-    prelude::{EditorTab, EditorTool, Selected},
+    prelude::{EditorTab, EditorTool},
     EditorCameraMarker,
 };
 
@@ -42,7 +41,7 @@ impl EditorTab for GameViewTab {
         );
 
         //Tool processing
-        if self.tools.len() == 0 {
+        if self.tools.is_empty() {
             return;
         }
 
