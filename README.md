@@ -30,7 +30,7 @@ To run platformer example, use the following command:
 
 Add this line to your Cargo.toml file
 ```toml
-space_editor = { git = "https://github.com/rewin123/space_editor.git", tag="v0.1.1" }
+space_editor = { git = "https://github.com/rewin123/space_editor.git", tag="v0.2" }
 ```
 
 ### Prefab spawn system
