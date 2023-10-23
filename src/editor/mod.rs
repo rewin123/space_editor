@@ -37,6 +37,8 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
 
+        app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
+
         app.add_plugins(DefaultInspectorConfigPlugin)
             .add_plugins(EditorUiPlugin::default())
             .add_plugins(PanOrbitCameraPlugin);
@@ -124,8 +126,9 @@ impl Plugin for EditorPlugin {
     }
 }
 
-#[derive(Event)]
+#[derive(Event, Clone, EntityEvent)]
 struct SelectEvent {
+    #[target]
     e: Entity,
     event: ListenerInput<Pointer<Down>>,
 }
@@ -167,14 +170,14 @@ fn auto_add_picking_dummy(mut commands: Commands, query: Query<Entity, AutoAddQu
 fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<core::Selected>>,
-    mut events: EventReader<SelectEvent>,
+    mut events : EventReader<SelectEvent>,
     _ctxs: EguiContexts,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    if !pan_orbit_state.0 {
-        return;
-    }
+    // if !pan_orbit_state.0 {
+    //     return;
+    // }
     for event in events.iter() {
         match event.event.button {
             PointerButton::Primary => {
@@ -192,9 +195,9 @@ fn select_listener(
 }
 
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
+    fn from(mut value: ListenerInput<Pointer<Down>>) -> Self {
         SelectEvent {
-            e: value.listener(),
+            e: value.target(),
             event: value,
         }
     }
