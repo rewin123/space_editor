@@ -13,7 +13,7 @@ homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
 [dependencies]
-bevy = "0.11.2"
+bevy = "0.11"
 bevy_egui = "0.21"
 egui-gizmo = "0.11.0"
 bevy-scene-hook = "7"

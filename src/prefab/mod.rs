@@ -81,6 +81,8 @@ impl Plugin for PrefabPlugin {
         app.editor_registry::<AssetMesh>();
         app.add_systems(Update, sync_asset_mesh.in_set(PrefabSet::DetectPrefabChange));
 
+        app.editor_registry::<AssetMaterial>();
+        app.add_systems(Update, sync_asset_material.in_set(PrefabSet::DetectPrefabChange));
 
         //material registration
         app.register_type::<Color>();
@@ -217,5 +219,23 @@ fn sync_asset_mesh(
     for e in deleted.iter() {
         commands.entity(e).remove::<Handle<Mesh>>();
         info!("Removed mesh handle for {:?}", e);
+    }
+}
+
+fn sync_asset_material(
+    mut commands : Commands,
+    changed : Query<(Entity, &AssetMaterial), Changed<AssetMaterial>>,
+    mut deleted : RemovedComponents<AssetMaterial>,
+    assets : Res<AssetServer>
+) {
+    for (e, material) in changed.iter() {
+        commands.entity(e).insert(
+            assets.load::<StandardMaterial, _>(&material.path)
+        );
+    }
+
+    for e in deleted.iter() {
+        commands.entity(e).remove::<Handle<StandardMaterial>>();
+        info!("Removed material handle for {:?}", e);
     }
 }

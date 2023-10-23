@@ -1,8 +1,8 @@
-use std::arch::x86_64::_MM_FROUND_NEARBYINT;
+use std::{arch::x86_64::_MM_FROUND_NEARBYINT, future, path::Path};
 
-use bevy::{prelude::*, gltf::{Gltf, GltfNode, GltfMesh}, asset::LoadState, ecs::{entity::EntityMap, system::CommandQueue}, utils::HashMap};
+use bevy::{prelude::*, gltf::{Gltf, GltfNode, GltfMesh}, asset::{LoadState, AssetPath}, ecs::{entity::EntityMap, system::CommandQueue}, utils::{HashMap, futures}, tasks::AsyncComputeTaskPool};
 
-use crate::PrefabMarker;
+use crate::{PrefabMarker, prefab::component::{AssetMesh, AssetMaterial, MaterialPrefab}};
 
 #[derive(Event)]
 pub struct EditorUnpackGltf {
@@ -67,6 +67,14 @@ fn queue_push(
     }
 }
 
+struct UnpackContext<'a> {
+    material_map : &'a HashMap<Handle<StandardMaterial>, usize>,
+    mesh_map : &'a HashMap<Handle<GltfMesh>, usize>,
+    gltf_meshs : &'a Assets<GltfMesh>,
+    default_material : Handle<StandardMaterial>,
+    gltf_path : &'a AssetPath<'a>
+}
+
 fn unpack_gltf(
     world : &mut World
 ) {
@@ -82,6 +90,7 @@ fn unpack_gltf(
 
     let mut command_queue = CommandQueue::default();
     for gltf in loaded_scenes.iter() {
+        
         let handle: Handle<Gltf> = gltf.0.clone();
         let gltf_path = world.resource::<AssetServer>().get_handle_path(&handle).unwrap();
         info!("Path: {:?}", &gltf_path);
@@ -89,8 +98,6 @@ fn unpack_gltf(
         let Some(gltf) = world.resource::<Assets<Gltf>>().get(&gltf.0) else {
             continue;
         };
-
-        // let mut spawned = vec![];
 
         let mut commands = Commands::new(&mut command_queue, &world);
 
@@ -103,62 +110,212 @@ fn unpack_gltf(
             mesh_map.insert(gltf.meshes[idx].clone(), idx);
         }
 
-        let mut spawned = vec![];
+        let mut material_map = HashMap::new();
+        for idx in 0..gltf.materials.len() {
+            info!("Material: {:?}", &gltf.materials[idx]);
+            material_map.insert(gltf.materials[idx].clone(), idx);
+        }
 
         for idx in 0..gltf.scenes.len() {
             let Some(scene) = scenes.get(&gltf.scenes[idx]) else {
                 continue;
             };
 
-            let mut new_scene = Scene::new(World::default());
-            // new_scene.world.insert_resource(world.resource::<AppTypeRegistry>().clone());
-            // scene.write_to_world_with(&mut new_scene.world, world.resource::<AppTypeRegistry>());
-            // let dyn_scene = DynamicScene::from_scene(&new_scene);
-            // for e in dyn_scene.entities {
-            //     for c in e.components {
-            //         info!("{}", c.type_name());
-            //     }
-            // }
-            // for e in scene.world.iter_entities() {
-            //     if let Some(mesh) = e.get::<Handle<Mesh>>() {
-            //         info!("Mesh: {:?} : {:?}", mesh, world.resource::<AssetServer>().get_handle_path(mesh));
-            //     }
-            // }
-            // info!("Scene: {:?}", dyn_scene.entities);
-        }
-
-        for idx in 0..gltf.nodes.len() {
-            spawned.push(commands.spawn((SpatialBundle::default(), PrefabMarker)).id());
-        }
-
-        for idx in 0..gltf.nodes.len() {
-            let Some(node) = gltf_nodes.get(&gltf.nodes[idx]) else {
-                continue;
-            };
-
-            commands.entity(spawned[idx]).insert(node.transform.clone());
-
-            
-            if let Some(mesh_handle) = &node.mesh {
-                let mesh_idx = mesh_map.get(mesh_handle).unwrap();
-                if let Some(mesh) = gltf_meshs.get(mesh_handle) {
-                    for primitive_idx in 0..mesh.primitives.len() {
-                        let id = commands.spawn((
-                            PbrBundle {
-                                mesh: world.resource::<AssetServer>().load(format!("{}#Mesh{}/Primitive{}", gltf_path.path().display(), mesh_idx, primitive_idx)),
-                                material : default_material.clone(),
-                                ..default()
-                            },
-                            PrefabMarker
-                        )).id();
-                        commands.entity(spawned[idx]).add_child(id);
+            //find roots nodes
+            let mut roots = vec![];
+            for e in scene.world.iter_entities() {
+                if !e.contains::<Parent>() && e.contains::<Children>() {
+                    let children = e.get::<Children>().unwrap();
+                    for child in children.iter() {
+                        if let Some(name) = scene.world.entity(*child).get::<Name>() {
+                            info!("Name: {:?}", &name);
+                            if let Some(node_handle) = gltf.named_nodes.get(name.as_str()) {
+                                if let Some(node) = gltf_nodes.get(node_handle) {
+                                    roots.push(node.clone());
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+            info!("Roots: {:?}", &roots);
+
+            let ctx = UnpackContext {
+                material_map : &material_map,
+                mesh_map : &mesh_map,
+                gltf_meshs : &gltf_meshs,
+                default_material : default_material.clone(),
+                gltf_path : &gltf_path
+            };
+
+            for root in roots.iter() {
+                spawn_node(&mut commands, root, &gltf, &ctx);
+            }
+
+            
+            
+            // for e in scene.world.iter_entities() {
+            //     let new_id = spawned_map[&e.id()];
+            //     {
+            //         let mut cmds = commands.entity(new_id);
+
+            //         spawned_map.insert(e.id(), cmds.id());
+
+            //         if let Some(transform) = e.get::<Transform>() {
+            //             cmds.insert(transform.clone());
+            //         }
+
+            //         if let Some(children) = e.get::<Children>() {
+            //             for child in children.iter() {
+            //                 cmds.add_child(spawned_map[child].clone());
+            //             }
+            //         }
+            //     }
+
+            //     // if let Some(name) = e.get::<Name>() {
+            //     //     commands.entity(new_id).insert(name.clone());
+
+            //     //     if let Some(node_handle) = gltf.named_nodes.get(name.as_str()) {
+            //     //         if let Some(node) = gltf_nodes.get(node_handle) {
+            //     //             //setup mesh
+            //     //             if let Some(mesh_handle) = &node.mesh {
+            //     //                 if let Some(mesh) = gltf_meshs.get(mesh_handle) {
+            //     //                     if mesh.primitives.len() == 1 {
+            //     //                         commands.entity(new_id).insert(AssetMesh {
+            //     //                             path : format!("{}#Mesh{}/Primitive{}", gltf_path.path().display(), mesh_map.get(mesh_handle).unwrap(), 0),
+            //     //                         });
+
+            //     //                         if let Some(material_handle) = &mesh.primitives[0].material {
+            //     //                             if let Some(idx) = material_map.get(material_handle) {
+            //     //                                 commands.entity(new_id).insert(
+            //     //                                     AssetMaterial {
+            //     //                                         path : format!("{}#Material{}", gltf_path.path().display(), idx),
+            //     //                                     }
+            //     //                                 );
+            //     //                             } else {
+            //     //                                 commands.entity(new_id).insert(AssetMaterial {
+            //     //                                     path : format!("{}#MaterialDefault", gltf_path.path().display()),
+            //     //                                 });
+            //     //                             }
+            //     //                         } else {
+            //     //                             commands.entity(new_id).insert(MaterialPrefab::default());
+            //     //                         }
+            //     //                     } else {
+            //     //                         //create childs for every primitive
+            //     //                         for idx in 0..mesh.primitives.len() {
+            //     //                             let id = commands.spawn((
+            //     //                                 PbrBundle {
+            //     //                                     material : default_material.clone(),
+            //     //                                     ..default()
+            //     //                                 },
+            //     //                                 AssetMesh {
+            //     //                                     path : format!("{}#Mesh{}/Primitive{}", gltf_path.path().display(), mesh_map.get(mesh_handle).unwrap(), idx),
+            //     //                                 },
+            //     //                                 PrefabMarker
+            //     //                             )).id();
+            //     //                             commands.entity(new_id).add_child(id);
+
+            //     //                             if let Some(material_handle) = &mesh.primitives[idx].material {
+            //     //                                 if let Some(idx) = material_map.get(material_handle) {
+            //     //                                     commands.entity(new_id).insert(
+            //     //                                         AssetMaterial {
+            //     //                                             path : format!("{}#Material{}", gltf_path.path().display(), idx),
+            //     //                                         }
+            //     //                                     );
+            //     //                                 } else {
+            //     //                                     commands.entity(new_id).insert(MaterialPrefab::default());
+            //     //                                 }
+            //     //                             } else {
+            //     //                                 commands.entity(new_id).insert(MaterialPrefab::default());
+            //     //                             }
+            //     //                         }
+            //     //                     }
+            //     //                 }
+            //     //             }
+            //     //         }
+            //     //     }
+            //     }
+            // }
         }
+
+        // for idx in 0..gltf.nodes.len() {
+        //     spawned.push(commands.spawn((SpatialBundle::default(), PrefabMarker)).id());
+        // }
+
+        // for idx in 0..gltf.nodes.len() {
+        //     let Some(node) = gltf_nodes.get(&gltf.nodes[idx]) else {
+        //         continue;
+        //     };
+
+        //     commands.entity(spawned[idx]).insert(node.transform.clone());
+        //     info!("Node: {:?}", node);
+
+            
+        //     if let Some(mesh_handle) = &node.mesh {
+        //         let mesh_idx = mesh_map.get(mesh_handle).unwrap();
+        //         if let Some(mesh) = gltf_meshs.get(mesh_handle) {
+        //             for primitive_idx in 0..mesh.primitives.len() {
+        //                 let id = commands.spawn((
+        //                     PbrBundle {
+        //                         mesh: world.resource::<AssetServer>().load(format!("{}#Mesh{}/Primitive{}", gltf_path.path().display(), mesh_idx, primitive_idx)),
+        //                         material : default_material.clone(),
+        //                         ..default()
+        //                     },
+        //                     PrefabMarker
+        //                 )).id();
+        //                 commands.entity(spawned[idx]).add_child(id);
+        //             }
+        //         }
+        //     }
+        // }
 
         break;
     }
 
     command_queue.apply(world);
+}
+
+fn spawn_node(
+    commands : &mut Commands,
+    node : &GltfNode,
+    gltf : &Gltf,
+    ctx : &UnpackContext<'_>
+) -> Entity {
+    let id = commands.spawn((SpatialBundle {
+            transform : node.transform.clone(),
+            ..default()
+        }, 
+        PrefabMarker
+    )).id();
+
+
+    if let Some(handle) = &node.mesh {
+        if let Some(mesh) = ctx.gltf_meshs.get(handle) {
+            if mesh.primitives.len() == 1 {
+                commands.entity(id).insert(AssetMesh {
+                    path : format!("{}#Mesh{}/Primitive{}", ctx.gltf_path.path().display(), ctx.mesh_map.get(handle).unwrap(), 0),
+                });
+
+                if let Some(material_handle) = &mesh.primitives[0].material {
+                    if let Some(idx) = ctx.material_map.get(material_handle) {
+                        commands.entity(id).insert(AssetMaterial {
+                            path : format!("{}#Material{}", ctx.gltf_path.path().display(), idx),
+                        });
+                    } else {
+                        commands.entity(id).insert(MaterialPrefab::default());
+                    }
+                } else {
+                    commands.entity(id).insert(MaterialPrefab::default());
+                }
+            }
+        }
+    }
+
+    for child in &node.children {
+        let child_id = spawn_node(commands, &child, gltf, ctx);
+        commands.entity(id).add_child(child_id);
+    }
+
+    id
 }
