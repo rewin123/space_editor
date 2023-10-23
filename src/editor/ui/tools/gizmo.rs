@@ -3,8 +3,9 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    editor::core::{EditorTool, Selected, EditorEvent},
-    EditorCameraMarker, prelude::CloneEvent,
+    editor::core::{EditorEvent, EditorTool, Selected},
+    prelude::CloneEvent,
+    EditorCameraMarker,
 };
 
 pub struct GizmoTool {
@@ -139,18 +140,14 @@ impl EditorTool for GizmoTool {
                 if gizmo_interacted {
                     if ui.input(|s| s.modifiers.alt) {
                         if self.is_move_cloned_entities {
-
                         } else {
                             for (_, e) in selected.iter().enumerate() {
-                                cell.world_mut().send_event(CloneEvent {
-                                    id: *e,
-                                });
+                                cell.world_mut().send_event(CloneEvent { id: *e });
                             }
                             self.is_move_cloned_entities = true;
                             return;
                         }
                     } else {
-
                     }
                 }
 
@@ -186,18 +183,19 @@ impl EditorTool for GizmoTool {
                         if let Some(parent) = cell.get_entity(parent.get()) {
                             if let Some(parent_global) = parent.get::<GlobalTransform>() {
                                 if let Some(global) = ecell.get::<GlobalTransform>() {
-                                    if let Some(result) = egui_gizmo::Gizmo::new(
-                                                format!("Selected gizmo {:?}", *e))
-                                                .projection_matrix(
-                                                    cam_proj.get_projection_matrix().to_cols_array_2d(),
-                                                )
-                                                .view_matrix(view_matrix.to_cols_array_2d())
-                                                .model_matrix(
-                                                    global.compute_matrix().to_cols_array_2d(),
-                                                )
-                                                .mode(self.gizmo_mode)
-                                                .interact(ui) {
-                                            let new_transform = Transform {
+                                    if let Some(result) =
+                                        egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
+                                            .projection_matrix(
+                                                cam_proj.get_projection_matrix().to_cols_array_2d(),
+                                            )
+                                            .view_matrix(view_matrix.to_cols_array_2d())
+                                            .model_matrix(
+                                                global.compute_matrix().to_cols_array_2d(),
+                                            )
+                                            .mode(self.gizmo_mode)
+                                            .interact(ui)
+                                    {
+                                        let new_transform = Transform {
                                             translation: Vec3::from(<[f32; 3]>::from(
                                                 result.translation,
                                             )),
@@ -209,18 +207,19 @@ impl EditorTool for GizmoTool {
 
                                         if ui.input(|s| s.modifiers.alt) {
                                             if self.is_move_cloned_entities {
-                                                let new_transform = GlobalTransform::from(new_transform);
-                                                *transform = new_transform.reparented_to(parent_global);
+                                                let new_transform =
+                                                    GlobalTransform::from(new_transform);
+                                                *transform =
+                                                    new_transform.reparented_to(parent_global);
                                                 transform.set_changed();
                                                 disable_pan_orbit = true;
                                             } else {
-                                                cell.world_mut().send_event(CloneEvent {
-                                                    id: *e,
-                                                });
+                                                cell.world_mut().send_event(CloneEvent { id: *e });
                                                 self.is_move_cloned_entities = true;
                                             }
                                         } else {
-                                            let new_transform = GlobalTransform::from(new_transform);
+                                            let new_transform =
+                                                GlobalTransform::from(new_transform);
                                             *transform = new_transform.reparented_to(parent_global);
                                             transform.set_changed();
                                             disable_pan_orbit = true;
@@ -232,11 +231,12 @@ impl EditorTool for GizmoTool {
                         }
                     }
                     if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                            .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                            .view_matrix(view_matrix.to_cols_array_2d())
-                            .model_matrix(transform.compute_matrix().to_cols_array_2d())
-                            .mode(self.gizmo_mode)
-                            .interact(ui) {
+                        .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
+                        .view_matrix(view_matrix.to_cols_array_2d())
+                        .model_matrix(transform.compute_matrix().to_cols_array_2d())
+                        .mode(self.gizmo_mode)
+                        .interact(ui)
+                    {
                         if ui.input(|s| s.modifiers.alt) {
                             if self.is_move_cloned_entities {
                                 *transform = Transform {
@@ -246,9 +246,7 @@ impl EditorTool for GizmoTool {
                                 };
                                 transform.set_changed();
                             } else {
-                                cell.world_mut().send_event(CloneEvent {
-                                    id: *e,
-                                });
+                                cell.world_mut().send_event(CloneEvent { id: *e });
                                 self.is_move_cloned_entities = true;
                             }
                         } else {

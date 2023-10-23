@@ -28,8 +28,6 @@ pub mod prelude {
     pub use super::ui::*;
 }
 
-
-
 /// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
 pub struct EditorPlugin;
 
@@ -109,7 +107,11 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet), auto_add_picking_dummy)
+            (
+                auto_add_picking,
+                select_listener.after(UiSystemSet),
+                auto_add_picking_dummy,
+            )
                 .run_if(in_state(EditorState::Editor)),
         );
 
@@ -124,7 +126,8 @@ impl Plugin for EditorPlugin {
 
         app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 
-        register_default_editor_bundles(app);
+        register_mesh_editor_bundles(app);
+        register_light_editor_bundles(app);
     }
 }
 
@@ -172,7 +175,7 @@ fn auto_add_picking_dummy(mut commands: Commands, query: Query<Entity, AutoAddQu
 fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<core::Selected>>,
-    mut events : EventReader<SelectEvent>,
+    mut events: EventReader<SelectEvent>,
     _ctxs: EguiContexts,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
@@ -271,7 +274,6 @@ pub fn ui_camera_block(
         };
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
-
             } else {
                 *state = PanOrbitEnabled(false);
             }

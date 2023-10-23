@@ -8,16 +8,18 @@ pub mod save;
 pub mod spawn_system;
 
 use bevy::{
+    a11y::accesskit::Point,
     core_pipeline::{
         core_3d::Camera3dDepthTextureUsage,
         tonemapping::{DebandDither, Tonemapping},
     },
+    pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
     prelude::*,
     render::{
         camera::CameraRenderGraph,
-        primitives::{Frustum, CubemapFrusta, CascadesFrusta},
+        primitives::{CascadesFrusta, CubemapFrusta, Frustum},
         view::{ColorGrading, VisibleEntities},
-    }, pbr::{CubemapVisibleEntities, CascadeShadowConfig, CascadesVisibleEntities, Cascades}, a11y::accesskit::Point,
+    },
 };
 use bevy_scene_hook::HookPlugin;
 

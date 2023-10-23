@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use space_editor::{prelude::*, editor::core::EditorEvent};
+use space_editor::{editor::core::EditorEvent, prelude::*};
 
 fn main() {
     App::default()
@@ -10,8 +10,8 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut editor_events : EventWriter<EditorEvent>
-) {
-    editor_events.send(EditorEvent::LoadGltfAsPrefab("low_poly_fighter_2.gltf".to_string()));
+fn setup(mut editor_events: EventWriter<EditorEvent>) {
+    editor_events.send(EditorEvent::LoadGltfAsPrefab(
+        "low_poly_fighter_2.gltf".to_string(),
+    ));
 }
