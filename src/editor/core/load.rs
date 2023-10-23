@@ -25,7 +25,9 @@ pub fn load_listener(world: &mut World) {
     let mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
     let mark_to_delete: Vec<_> = query.iter(world).collect();
     for entity in mark_to_delete {
-        world.entity_mut(entity).despawn_recursive();
+        if let Some(e) = world.get_entity_mut(entity) {
+            e.despawn_recursive();
+        }
     }
 
     for entity in &mut prefab.entities {
