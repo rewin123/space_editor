@@ -1,8 +1,18 @@
 use std::{arch::x86_64::_MM_FROUND_NEARBYINT, future, path::Path};
 
-use bevy::{prelude::*, gltf::{Gltf, GltfNode, GltfMesh}, asset::{LoadState, AssetPath}, ecs::{entity::EntityMap, system::CommandQueue}, utils::{HashMap, futures}, tasks::AsyncComputeTaskPool};
+use bevy::{
+    asset::{AssetPath, LoadState},
+    ecs::{entity::EntityMap, system::CommandQueue},
+    gltf::{Gltf, GltfMesh, GltfNode},
+    prelude::*,
+    tasks::AsyncComputeTaskPool,
+    utils::{futures, HashMap},
+};
 
-use crate::{PrefabMarker, prefab::component::{AssetMesh, AssetMaterial, MaterialPrefab}};
+use crate::{
+    prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab},
+    PrefabMarker,
+};
 
 #[derive(Event)]
 pub struct EditorUnpackGltf {
@@ -18,14 +28,7 @@ impl Plugin for UnpackGltfPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<EditorUnpackGltf>();
         app.add_event::<GltfLoaded>();
-        app.add_systems(
-            PreUpdate,
-            (
-                unpack_gltf_event,
-                queue_push,
-                unpack_gltf
-            )
-        );
+        app.add_systems(PreUpdate, (unpack_gltf_event, queue_push, unpack_gltf));
 
         app.init_resource::<GltfSceneQueue>();
 
@@ -44,9 +47,9 @@ struct NeedUnpackTag;
 struct GltfSceneQueue(Vec<Handle<Gltf>>);
 
 fn unpack_gltf_event(
-    mut events : EventReader<EditorUnpackGltf>,
-    assets : Res<AssetServer>,
-    mut queue : ResMut<GltfSceneQueue>,
+    mut events: EventReader<EditorUnpackGltf>,
+    assets: Res<AssetServer>,
+    mut queue: ResMut<GltfSceneQueue>,
 ) {
     for event in events.iter() {
         queue.0.push(assets.load(event.path.clone()));
@@ -56,9 +59,9 @@ fn unpack_gltf_event(
 
 // separated from unpack_gltf for reduce arguments count and ordered unpack
 fn queue_push(
-    mut queue : ResMut<GltfSceneQueue>,
-    mut events : EventWriter<GltfLoaded>,
-    assets : Res<AssetServer>
+    mut queue: ResMut<GltfSceneQueue>,
+    mut events: EventWriter<GltfLoaded>,
+    assets: Res<AssetServer>,
 ) {
     if !queue.0.is_empty() {
         if assets.get_load_state(&queue.0[0]) == LoadState::Loaded {
@@ -68,31 +71,36 @@ fn queue_push(
 }
 
 struct UnpackContext<'a> {
-    material_map : &'a HashMap<Handle<StandardMaterial>, usize>,
-    mesh_map : &'a HashMap<Handle<GltfMesh>, usize>,
-    gltf_meshs : &'a Assets<GltfMesh>,
-    default_material : Handle<StandardMaterial>,
-    gltf_path : &'a AssetPath<'a>
+    material_map: &'a HashMap<Handle<StandardMaterial>, usize>,
+    mesh_map: &'a HashMap<Handle<GltfMesh>, usize>,
+    gltf_meshs: &'a Assets<GltfMesh>,
+    default_material: Handle<StandardMaterial>,
+    gltf_path: &'a AssetPath<'a>,
 }
 
-fn unpack_gltf(
-    world : &mut World
-) {
+fn unpack_gltf(world: &mut World) {
     let loaded_scenes = {
         let mut events = world.resource_mut::<Events<GltfLoaded>>();
         let mut reader = events.get_reader();
-        let loaded = reader.iter(&events).map(|e| e.clone()).collect::<Vec<GltfLoaded>>();
+        let loaded = reader
+            .iter(&events)
+            .map(|e| e.clone())
+            .collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
     };
 
-    let default_material = world.resource_mut::<Assets<StandardMaterial>>().add(StandardMaterial::default());
+    let default_material = world
+        .resource_mut::<Assets<StandardMaterial>>()
+        .add(StandardMaterial::default());
 
     let mut command_queue = CommandQueue::default();
     for gltf in loaded_scenes.iter() {
-        
         let handle: Handle<Gltf> = gltf.0.clone();
-        let gltf_path = world.resource::<AssetServer>().get_handle_path(&handle).unwrap();
+        let gltf_path = world
+            .resource::<AssetServer>()
+            .get_handle_path(&handle)
+            .unwrap();
         info!("Path: {:?}", &gltf_path);
 
         let Some(gltf) = world.resource::<Assets<Gltf>>().get(&gltf.0) else {
@@ -142,19 +150,17 @@ fn unpack_gltf(
             info!("Roots: {:?}", &roots);
 
             let ctx = UnpackContext {
-                material_map : &material_map,
-                mesh_map : &mesh_map,
-                gltf_meshs : &gltf_meshs,
-                default_material : default_material.clone(),
-                gltf_path : &gltf_path
+                material_map: &material_map,
+                mesh_map: &mesh_map,
+                gltf_meshs: &gltf_meshs,
+                default_material: default_material.clone(),
+                gltf_path: &gltf_path,
             };
 
             for root in roots.iter() {
                 spawn_node(&mut commands, root, &gltf, &ctx);
             }
 
-            
-            
             // for e in scene.world.iter_entities() {
             //     let new_id = spawned_map[&e.id()];
             //     {
@@ -251,7 +257,6 @@ fn unpack_gltf(
         //     commands.entity(spawned[idx]).insert(node.transform.clone());
         //     info!("Node: {:?}", node);
 
-            
         //     if let Some(mesh_handle) = &node.mesh {
         //         let mesh_idx = mesh_map.get(mesh_handle).unwrap();
         //         if let Some(mesh) = gltf_meshs.get(mesh_handle) {
@@ -277,30 +282,37 @@ fn unpack_gltf(
 }
 
 fn spawn_node(
-    commands : &mut Commands,
-    node : &GltfNode,
-    gltf : &Gltf,
-    ctx : &UnpackContext<'_>
+    commands: &mut Commands,
+    node: &GltfNode,
+    gltf: &Gltf,
+    ctx: &UnpackContext<'_>,
 ) -> Entity {
-    let id = commands.spawn((SpatialBundle {
-            transform : node.transform.clone(),
-            ..default()
-        }, 
-        PrefabMarker
-    )).id();
-
+    let id = commands
+        .spawn((
+            SpatialBundle {
+                transform: node.transform.clone(),
+                ..default()
+            },
+            PrefabMarker,
+        ))
+        .id();
 
     if let Some(handle) = &node.mesh {
         if let Some(mesh) = ctx.gltf_meshs.get(handle) {
             if mesh.primitives.len() == 1 {
                 commands.entity(id).insert(AssetMesh {
-                    path : format!("{}#Mesh{}/Primitive{}", ctx.gltf_path.path().display(), ctx.mesh_map.get(handle).unwrap(), 0),
+                    path: format!(
+                        "{}#Mesh{}/Primitive{}",
+                        ctx.gltf_path.path().display(),
+                        ctx.mesh_map.get(handle).unwrap(),
+                        0
+                    ),
                 });
 
                 if let Some(material_handle) = &mesh.primitives[0].material {
                     if let Some(idx) = ctx.material_map.get(material_handle) {
                         commands.entity(id).insert(AssetMaterial {
-                            path : format!("{}#Material{}", ctx.gltf_path.path().display(), idx),
+                            path: format!("{}#Material{}", ctx.gltf_path.path().display(), idx),
                         });
                     } else {
                         commands.entity(id).insert(MaterialPrefab::default());

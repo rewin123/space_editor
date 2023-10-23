@@ -30,7 +30,10 @@ pub mod debug_panels;
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
-use crate::{prelude::{SelectedPlugin, ToolExt}, EditorSet};
+use crate::{
+    prelude::{SelectedPlugin, ToolExt},
+    EditorSet,
+};
 
 use self::tools::gizmo::GizmoTool;
 

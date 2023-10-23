@@ -24,7 +24,6 @@ pub struct EditorCore;
 
 impl Plugin for EditorCore {
     fn build(&self, app: &mut App) {
-
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
 
         app.add_event::<EditorEvent>();
@@ -69,7 +68,7 @@ fn editor_event_listener(
     mut save_config: ResMut<SaveConfig>,
     mut start_game_state: ResMut<NextState<EditorState>>,
     cache: ResMut<PrefabMemoryCache>,
-    mut gltf_events : EventWriter<gltf_unpack::EditorUnpackGltf>
+    mut gltf_events: EventWriter<gltf_unpack::EditorUnpackGltf>,
 ) {
     for event in events.iter() {
         match event {
@@ -89,10 +88,8 @@ fn editor_event_listener(
                 start_game_state.set(EditorState::GamePrepare);
             }
             EditorEvent::LoadGltfAsPrefab(path) => {
-                gltf_events.send(gltf_unpack::EditorUnpackGltf {
-                    path: path.clone()
-                })
-            },
+                gltf_events.send(gltf_unpack::EditorUnpackGltf { path: path.clone() })
+            }
         }
     }
 }

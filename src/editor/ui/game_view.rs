@@ -1,17 +1,17 @@
-use bevy::{prelude::*, render::camera::CameraProjection, window::PrimaryWindow, utils::HashMap};
+use bevy::{prelude::*, render::camera::CameraProjection, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::egui::{self, Key, RichText};
 use egui_gizmo::GizmoMode;
 
 use crate::{
     editor::PanOrbitEnabled,
-    prelude::{EditorTab, Selected, EditorTool},
+    prelude::{EditorTab, EditorTool, Selected},
     EditorCameraMarker,
 };
 
 #[derive(Resource)]
 pub struct GameViewTab {
     pub viewport_rect: Option<egui::Rect>,
-    pub tools : Vec<Box<dyn EditorTool + 'static + Send + Sync>>,
+    pub tools: Vec<Box<dyn EditorTool + 'static + Send + Sync>>,
     pub active_tool: Option<usize>,
     pub gizmo_mode: GizmoMode,
     pub smoothed_dt: f32,
@@ -46,8 +46,6 @@ impl EditorTab for GameViewTab {
             return;
         }
 
-
-
         let selected_tool_name = if let Some(tool_id) = self.active_tool {
             self.tools[tool_id].name()
         } else {
@@ -58,17 +56,19 @@ impl EditorTab for GameViewTab {
         egui::ComboBox::new("tool", "Tool")
             .selected_text(selected_tool_name)
             .show_ui(ui, |ui| {
-            for (i, tool) in self.tools.iter().enumerate() {
-                if ui.selectable_label(self.active_tool == Some(i), tool.name()).clicked() {
-                    self.active_tool = Some(i);
+                for (i, tool) in self.tools.iter().enumerate() {
+                    if ui
+                        .selectable_label(self.active_tool == Some(i), tool.name())
+                        .clicked()
+                    {
+                        self.active_tool = Some(i);
+                    }
                 }
-            }
-        });
+            });
 
         if let Some(tool_id) = self.active_tool {
             self.tools[tool_id].ui(ui, world);
         }
-        
     }
 
     fn title(&self) -> bevy_egui::egui::WidgetText {

@@ -2,7 +2,10 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
-use crate::{prelude::{EditorTool, Selected}, EditorCameraMarker};
+use crate::{
+    prelude::{EditorTool, Selected},
+    EditorCameraMarker,
+};
 
 pub struct GizmoTool {
     pub gizmo_mode: GizmoMode,
@@ -205,7 +208,9 @@ impl EditorTool for GizmoTool {
             }
 
             if disable_pan_orbit {
-                cell.get_resource_mut::<crate::editor::PanOrbitEnabled>().unwrap().0 = false;
+                cell.get_resource_mut::<crate::editor::PanOrbitEnabled>()
+                    .unwrap()
+                    .0 = false;
             }
         }
     }

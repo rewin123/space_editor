@@ -55,6 +55,7 @@ fn bot_menu_game(
 #[derive(Resource, Default)]
 pub struct BotMenuState {
     pub file_dialog: Option<egui_file::FileDialog>,
+    pub gltf_dialog: Option<egui_file::FileDialog>,
     pub path: String,
 }
 
@@ -116,6 +117,36 @@ pub fn bot_menu(
                 }
             }
 
+            if let Some(gltf_dialog) = &mut menu_state.gltf_dialog {
+                if gltf_dialog.show(ctx).selected() {
+                    if let Some(file) = gltf_dialog.path() {
+                        let mut path = file.to_str().unwrap().to_string();
+                        //remove assets/ from path
+                        if path.starts_with("assets/") {
+                            path = path.replace("assets/", "");
+
+                            editor_events.send(EditorEvent::LoadGltfAsPrefab(path.to_string()));
+                        }
+                    }
+                } else {
+                    let mut need_move_to_default_dir = false;
+                    if let Some(path) = gltf_dialog.path() {
+                        if let Some(path) = path.to_str() {
+                            if !path.contains("assets") {
+                                need_move_to_default_dir = true;
+                            }
+                        } else {
+                            need_move_to_default_dir = true;
+                        }
+                    } else {
+                        need_move_to_default_dir = true;
+                    }
+                    if need_move_to_default_dir {
+                        gltf_dialog.set_path("assets/");
+                    }
+                }
+            }
+
             if ui.button("Save").clicked() {
                 editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
                     "{}.scn.ron",
@@ -134,10 +165,17 @@ pub fn bot_menu(
             }
 
             if ui.button("Open gltf as prefab").clicked() {
-                info!("Open gltf as prefab");
-                editor_events.send(EditorEvent::LoadGltfAsPrefab(
-                    "low_poly_fighter_2.gltf".to_string()
-                ));
+                let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
+                    .filter(Box::new(|path| {
+                        path.to_str().unwrap().ends_with(".gltf")
+                            || path.to_str().unwrap().ends_with(".glb")
+                    }))
+                    .title("Open gltf scene");
+                gltf_dialog.open();
+                menu_state.gltf_dialog = Some(gltf_dialog);
+                // editor_events.send(EditorEvent::LoadGltfAsPrefab(
+                //     "low_poly_fighter_2.gltf".to_string()
+                // ));
             }
 
             if ui.button("▶").clicked() {

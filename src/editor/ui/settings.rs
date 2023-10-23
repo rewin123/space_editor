@@ -3,9 +3,7 @@ use bevy_egui::*;
 
 use crate::prelude::EditorTab;
 
-pub struct SettingsWindow {
-
-}
+pub struct SettingsWindow {}
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
