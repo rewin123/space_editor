@@ -7,8 +7,8 @@ use bevy::{
 use std::{any::TypeId, fs::File, io::Write};
 
 use crate::{
+    editor::core::{EditorPrefabPath, PrefabMemoryCache},
     editor_registry::{EditorRegistry, EditorRegistryExt},
-    prelude::{EditorPrefabPath, PrefabMemoryCache},
     PrefabMarker,
 };
 

@@ -2,8 +2,11 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
 
 use crate::{
-    editor::ui_registration::BundleReg,
-    prelude::{EditorRegistry, Selected, SelectedPlugin},
+    editor::{
+        core::{Selected, SelectedPlugin},
+        ui_registration::BundleReg,
+    },
+    prelude::EditorRegistry,
     EditorSet, PrefabMarker,
 };
 

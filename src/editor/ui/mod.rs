@@ -19,14 +19,25 @@ pub use editor_tab::*;
 pub mod game_view;
 pub use game_view::*;
 
+pub mod settings;
+pub use settings::*;
+
+pub mod tools;
+pub use tools::*;
+
 pub mod debug_panels;
 
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
-use crate::{prelude::SelectedPlugin, EditorSet};
+use crate::EditorSet;
 
-use super::update_pan_orbit;
+use self::tools::gizmo::GizmoTool;
+
+use super::{
+    core::{SelectedPlugin, ToolExt},
+    update_pan_orbit,
+};
 
 pub struct EditorUiPlugin {
     pub use_standart_layout: bool,
@@ -69,6 +80,9 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(SpaceHierarchyPlugin::default());
         app.add_plugins(SpaceInspectorPlugin);
+
+        app.editor_tool(GizmoTool::default());
+        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
 
         if self.use_standart_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
