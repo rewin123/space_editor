@@ -21,12 +21,14 @@ use crate::{
 
 use ui_registration::*;
 
-use self::prelude::EditorUiPlugin;
+use self::prelude::{EditorUiPlugin, UiSystemSet};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
     pub use super::ui::*;
 }
+
+
 
 /// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
 pub struct EditorPlugin;
@@ -107,7 +109,7 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             PostUpdate,
-            (auto_add_picking, select_listener, auto_add_picking_dummy)
+            (auto_add_picking, select_listener.after(UiSystemSet), auto_add_picking_dummy)
                 .run_if(in_state(EditorState::Editor)),
         );
 
@@ -175,9 +177,9 @@ fn select_listener(
     pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    // if !pan_orbit_state.0 {
-    //     return;
-    // }
+    if !pan_orbit_state.0 {
+        return;
+    }
     for event in events.iter() {
         match event.event.button {
             PointerButton::Primary => {
@@ -269,7 +271,7 @@ pub fn ui_camera_block(
         };
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
-                
+
             } else {
                 *state = PanOrbitEnabled(false);
             }

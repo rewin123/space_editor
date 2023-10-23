@@ -39,6 +39,9 @@ use super::{
     update_pan_orbit,
 };
 
+#[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
+pub struct UiSystemSet;
+
 pub struct EditorUiPlugin {
     pub use_standart_layout: bool,
 }
@@ -59,6 +62,8 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(bot_menu::BotMenuPlugin);
 
+        app.configure_set(Update, UiSystemSet.in_set(EditorSet::Editor));
+
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
@@ -69,7 +74,7 @@ impl Plugin for EditorUiPlugin {
                     .after(bot_menu::bot_menu),
                 set_camera_viewport,
             )
-                .in_set(EditorSet::Editor),
+                .in_set(UiSystemSet),
         );
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
