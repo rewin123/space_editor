@@ -21,7 +21,7 @@ use crate::{
 
 use ui_registration::*;
 
-use self::prelude::EditorUiPlugin;
+use self::prelude::{EditorUiPlugin, UiSystemSet};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -36,6 +36,8 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+
+        app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
         app.add_plugins(DefaultInspectorConfigPlugin)
             .add_plugins(EditorUiPlugin::default())
@@ -105,7 +107,11 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             PostUpdate,
-            (auto_add_picking, select_listener, auto_add_picking_dummy)
+            (
+                auto_add_picking,
+                select_listener.after(UiSystemSet),
+                auto_add_picking_dummy,
+            )
                 .run_if(in_state(EditorState::Editor)),
         );
 
@@ -120,12 +126,14 @@ impl Plugin for EditorPlugin {
 
         app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
 
-        register_default_editor_bundles(app);
+        register_mesh_editor_bundles(app);
+        register_light_editor_bundles(app);
     }
 }
 
-#[derive(Event)]
+#[derive(Event, Clone, EntityEvent)]
 struct SelectEvent {
+    #[target]
     e: Entity,
     event: ListenerInput<Pointer<Down>>,
 }
@@ -194,7 +202,7 @@ fn select_listener(
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     fn from(value: ListenerInput<Pointer<Down>>) -> Self {
         SelectEvent {
-            e: value.listener(),
+            e: value.target(),
             event: value,
         }
     }

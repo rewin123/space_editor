@@ -4,17 +4,20 @@ use egui_gizmo::*;
 
 use crate::{
     editor::core::{EditorTool, Selected},
+    prelude::CloneEvent,
     EditorCameraMarker,
 };
 
 pub struct GizmoTool {
     pub gizmo_mode: GizmoMode,
+    pub is_move_cloned_entities: bool,
 }
 
 impl Default for GizmoTool {
     fn default() -> Self {
         Self {
             gizmo_mode: GizmoMode::Translate,
+            is_move_cloned_entities: false,
         }
     }
 }
@@ -28,6 +31,8 @@ impl EditorTool for GizmoTool {
         // GIZMO DRAW
         // Draw gizmo per entity to individual move
         // If SHIFT pressed draw "mean" gizmo to move all selected entities together
+        // If ALT pressed, then entity will be cloned at interact
+        // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
 
         let mode2name = vec![
             (GizmoMode::Translate, "Translate"),
@@ -66,6 +71,10 @@ impl EditorTool for GizmoTool {
             };
             (*ref_tr, ref_cam.clone())
         };
+
+        if ui.input(|s| !s.modifiers.alt) {
+            self.is_move_cloned_entities = false;
+        }
 
         let selected = world
             .query_filtered::<Entity, With<Selected>>()
@@ -107,6 +116,8 @@ impl EditorTool for GizmoTool {
                     loc_transform.push(global_transform.reparented_to(&global_mean));
                 }
 
+                let mut gizmo_interacted = false;
+
                 if let Some(result) =
                     egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
                         .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
@@ -115,6 +126,7 @@ impl EditorTool for GizmoTool {
                         .mode(self.gizmo_mode)
                         .interact(ui)
                 {
+                    gizmo_interacted = true;
                     mean_transform = Transform {
                         translation: Vec3::from(<[f32; 3]>::from(result.translation)),
                         rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
@@ -124,6 +136,17 @@ impl EditorTool for GizmoTool {
                 }
 
                 global_mean = GlobalTransform::from(mean_transform);
+
+                if gizmo_interacted && ui.input(|s| s.modifiers.alt) {
+                    if self.is_move_cloned_entities {
+                    } else {
+                        for (_, e) in selected.iter().enumerate() {
+                            cell.world_mut().send_event(CloneEvent { id: *e });
+                        }
+                        self.is_move_cloned_entities = true;
+                        return;
+                    }
+                }
 
                 for (idx, e) in selected.iter().enumerate() {
                     let Some(ecell) = cell.get_entity(*e) else {
@@ -179,11 +202,26 @@ impl EditorTool for GizmoTool {
                                             scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                                         };
 
-                                        let new_transform = GlobalTransform::from(new_transform);
-                                        *transform = new_transform.reparented_to(parent_global);
-                                        transform.set_changed();
+                                        if ui.input(|s| s.modifiers.alt) {
+                                            if self.is_move_cloned_entities {
+                                                let new_transform =
+                                                    GlobalTransform::from(new_transform);
+                                                *transform =
+                                                    new_transform.reparented_to(parent_global);
+                                                transform.set_changed();
+                                                disable_pan_orbit = true;
+                                            } else {
+                                                cell.world_mut().send_event(CloneEvent { id: *e });
+                                                self.is_move_cloned_entities = true;
+                                            }
+                                        } else {
+                                            let new_transform =
+                                                GlobalTransform::from(new_transform);
+                                            *transform = new_transform.reparented_to(parent_global);
+                                            transform.set_changed();
+                                            disable_pan_orbit = true;
+                                        }
                                     }
-                                    disable_pan_orbit = true;
                                     continue;
                                 }
                             }
@@ -196,12 +234,26 @@ impl EditorTool for GizmoTool {
                         .mode(self.gizmo_mode)
                         .interact(ui)
                     {
-                        *transform = Transform {
-                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                            scale: Vec3::from(<[f32; 3]>::from(result.scale)),
-                        };
-                        transform.set_changed();
+                        if ui.input(|s| s.modifiers.alt) {
+                            if self.is_move_cloned_entities {
+                                *transform = Transform {
+                                    translation: Vec3::from(<[f32; 3]>::from(result.translation)),
+                                    rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
+                                    scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                                };
+                                transform.set_changed();
+                            } else {
+                                cell.world_mut().send_event(CloneEvent { id: *e });
+                                self.is_move_cloned_entities = true;
+                            }
+                        } else {
+                            *transform = Transform {
+                                translation: Vec3::from(<[f32; 3]>::from(result.translation)),
+                                rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
+                                scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                            };
+                            transform.set_changed();
+                        }
                         disable_pan_orbit = true;
                     }
                 }

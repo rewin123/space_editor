@@ -15,7 +15,7 @@ use super::{EditorUiAppExt, EditorUiRef};
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
 pub struct CloneEvent {
-    id: Entity,
+    pub id: Entity,
 }
 
 /// Plugin to activate hierarchy UI in editor UI

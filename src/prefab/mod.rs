@@ -12,10 +12,11 @@ use bevy::{
         core_3d::Camera3dDepthTextureUsage,
         tonemapping::{DebandDither, Tonemapping},
     },
+    pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
     prelude::*,
     render::{
         camera::CameraRenderGraph,
-        primitives::Frustum,
+        primitives::{CascadesFrusta, CubemapFrusta, Frustum},
         view::{ColorGrading, VisibleEntities},
     },
 };
@@ -120,6 +121,27 @@ impl Plugin for PrefabPlugin {
         app.editor_relation::<PlayerStart, ComputedVisibility>();
 
         app.editor_relation::<Transform, GlobalTransform>();
+
+        //Light
+        app.editor_registry::<PointLight>();
+        app.editor_relation::<PointLight, CubemapVisibleEntities>();
+        app.editor_relation::<PointLight, CubemapFrusta>();
+        app.editor_relation::<PointLight, Transform>();
+        app.editor_relation::<PointLight, Visibility>();
+
+        app.editor_registry::<DirectionalLight>();
+        app.editor_relation::<DirectionalLight, CascadesFrusta>();
+        app.editor_relation::<DirectionalLight, Cascades>();
+        app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
+        app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
+        app.editor_relation::<DirectionalLight, Transform>();
+        app.editor_relation::<DirectionalLight, Visibility>();
+
+        app.editor_registry::<SpotLight>();
+        app.editor_relation::<SpotLight, VisibleEntities>();
+        app.editor_relation::<SpotLight, Frustum>();
+        app.editor_relation::<SpotLight, Transform>();
+        app.editor_relation::<SpotLight, Visibility>();
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
