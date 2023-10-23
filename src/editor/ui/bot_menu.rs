@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy_egui::*;
 
 use crate::{
+    editor::core::{EditorEvent, EditorPrefabPath},
     prefab::PrefabPlugin,
-    prelude::{EditorEvent, EditorPrefabPath},
     EditorSet, EditorState,
 };
 

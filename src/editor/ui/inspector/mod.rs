@@ -17,9 +17,8 @@ use bevy_inspector_egui::{
 };
 
 use crate::{
-    editor_registry::EditorRegistry,
-    prefab::component::EntityLink,
-    prelude::{EditorTab, Selected},
+    editor::core::Selected, editor_registry::EditorRegistry, prefab::component::EntityLink,
+    prelude::EditorTab,
 };
 
 use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};

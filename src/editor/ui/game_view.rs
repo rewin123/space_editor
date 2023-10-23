@@ -2,10 +2,7 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
 
-use crate::{
-    prelude::{EditorTab, EditorTool},
-    EditorCameraMarker,
-};
+use crate::{editor::core::EditorTool, prelude::EditorTab, EditorCameraMarker};
 
 #[derive(Resource)]
 pub struct GameViewTab {

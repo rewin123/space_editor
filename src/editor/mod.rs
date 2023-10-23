@@ -15,17 +15,16 @@ use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraS
 
 use crate::{
     prefab::{component::CameraPlay, save::SaveState},
-    prelude::{GameViewTab, Selected},
+    prelude::GameViewTab,
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
 };
 
 use ui_registration::*;
 
-use self::prelude::{EditorUiPlugin, PrefabMemoryCache};
+use self::prelude::EditorUiPlugin;
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
-    pub use super::core::*;
     pub use super::ui::*;
 }
 
@@ -58,7 +57,7 @@ impl Plugin for EditorPlugin {
 
         app.insert_resource(PanOrbitEnabled(true));
 
-        app.add_plugins(prelude::EditorCore);
+        app.add_plugins(core::EditorCore);
 
         app.add_systems(
             Startup,
@@ -167,7 +166,7 @@ fn auto_add_picking_dummy(mut commands: Commands, query: Query<Entity, AutoAddQu
 
 fn select_listener(
     mut commands: Commands,
-    query: Query<Entity, With<Selected>>,
+    query: Query<Entity, With<core::Selected>>,
     mut events: EventReader<SelectEvent>,
     _ctxs: EguiContexts,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
@@ -179,10 +178,10 @@ fn select_listener(
     for event in events.iter() {
         match event.event.button {
             PointerButton::Primary => {
-                commands.entity(event.e).insert(Selected);
+                commands.entity(event.e).insert(core::Selected);
                 if !keyboard.pressed(KeyCode::ShiftLeft) {
                     for e in query.iter() {
-                        commands.entity(e).remove::<Selected>();
+                        commands.entity(e).remove::<core::Selected>();
                     }
                 }
             }
@@ -201,10 +200,8 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-fn save_prefab_before_play(mut editor_events: EventWriter<prelude::EditorEvent>) {
-    editor_events.send(prelude::EditorEvent::Save(
-        prelude::EditorPrefabPath::MemoryCahce,
-    ));
+fn save_prefab_before_play(mut editor_events: EventWriter<core::EditorEvent>) {
+    editor_events.send(core::EditorEvent::Save(core::EditorPrefabPath::MemoryCahce));
 }
 
 fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
@@ -219,17 +216,17 @@ fn clear_and_load_on_start(
     mut load_server: ResMut<prelude::EditorLoader>,
     save_confg: Res<crate::prefab::save::SaveConfig>,
     assets: Res<AssetServer>,
-    cache: Res<PrefabMemoryCache>,
+    cache: Res<core::PrefabMemoryCache>,
 ) {
     if save_confg.path.is_none() {
         return;
     }
     match save_confg.path.as_ref().unwrap() {
-        prelude::EditorPrefabPath::File(path) => {
+        core::EditorPrefabPath::File(path) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        prelude::EditorPrefabPath::MemoryCahce => {
+        core::EditorPrefabPath::MemoryCahce => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }

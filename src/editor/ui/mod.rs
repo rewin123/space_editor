@@ -30,14 +30,14 @@ pub mod debug_panels;
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
-use crate::{
-    prelude::{SelectedPlugin, ToolExt},
-    EditorSet,
-};
+use crate::EditorSet;
 
 use self::tools::gizmo::GizmoTool;
 
-use super::update_pan_orbit;
+use super::{
+    core::{SelectedPlugin, ToolExt},
+    update_pan_orbit,
+};
 
 pub struct EditorUiPlugin {
     pub use_standart_layout: bool,

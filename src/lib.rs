@@ -1,4 +1,5 @@
 #![allow(clippy::type_complexity)]
+#![allow(clippy::too_many_arguments)]
 
 #[cfg(all(feature = "f32", feature = "f64"))]
 compile_error!("feature \"f32\" and feature \"f64\" cannot be enabled at the same time");

@@ -3,7 +3,7 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    prelude::{EditorTool, Selected},
+    editor::core::{EditorTool, Selected},
     EditorCameraMarker,
 };
 

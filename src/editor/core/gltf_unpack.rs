@@ -1,11 +1,9 @@
-
-
 use bevy::{
     asset::{AssetPath, LoadState},
-    ecs::{system::CommandQueue},
+    ecs::system::CommandQueue,
     gltf::{Gltf, GltfMesh, GltfNode},
     prelude::*,
-    utils::{HashMap},
+    utils::HashMap,
 };
 
 use crate::{
@@ -71,7 +69,6 @@ struct UnpackContext<'a> {
     material_map: &'a HashMap<Handle<StandardMaterial>, usize>,
     mesh_map: &'a HashMap<Handle<GltfMesh>, usize>,
     gltf_meshs: &'a Assets<GltfMesh>,
-    default_material: Handle<StandardMaterial>,
     gltf_path: &'a AssetPath<'a>,
 }
 
@@ -79,16 +76,10 @@ fn unpack_gltf(world: &mut World) {
     let loaded_scenes = {
         let mut events = world.resource_mut::<Events<GltfLoaded>>();
         let mut reader = events.get_reader();
-        let loaded = reader
-            .iter(&events).cloned()
-            .collect::<Vec<GltfLoaded>>();
+        let loaded = reader.iter(&events).cloned().collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
     };
-
-    let default_material = world
-        .resource_mut::<Assets<StandardMaterial>>()
-        .add(StandardMaterial::default());
 
     let mut command_queue = CommandQueue::default();
     for gltf in loaded_scenes.iter() {
@@ -149,7 +140,6 @@ fn unpack_gltf(world: &mut World) {
                 material_map: &material_map,
                 mesh_map: &mesh_map,
                 gltf_meshs,
-                default_material: default_material.clone(),
                 gltf_path: &gltf_path,
             };
 
@@ -280,7 +270,7 @@ fn unpack_gltf(world: &mut World) {
 fn spawn_node(
     commands: &mut Commands,
     node: &GltfNode,
-    gltf: &Gltf,
+    _gltf: &Gltf,
     ctx: &UnpackContext<'_>,
 ) -> Entity {
     let id = commands
@@ -321,7 +311,7 @@ fn spawn_node(
     }
 
     for child in &node.children {
-        let child_id = spawn_node(commands, child, gltf, ctx);
+        let child_id = spawn_node(commands, child, _gltf, ctx);
         commands.entity(id).add_child(child_id);
     }
 

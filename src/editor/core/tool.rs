@@ -7,8 +7,7 @@ pub trait EditorTool {
     fn name(&self) -> &str;
 }
 
-#[derive(Reflect, Clone, Debug)]
-#[derive(Default)]
+#[derive(Reflect, Clone, Debug, Default)]
 pub enum ToolName {
     #[default]
     Gizmo,
@@ -16,8 +15,6 @@ pub enum ToolName {
     FloorMap,
     Other(String),
 }
-
-
 
 impl ToolName {
     pub fn as_str(&self) -> &str {
