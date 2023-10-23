@@ -3,7 +3,7 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    editor::core::{EditorEvent, EditorTool, Selected},
+    editor::core::{EditorTool, Selected},
     prelude::CloneEvent,
     EditorCameraMarker,
 };
@@ -137,17 +137,14 @@ impl EditorTool for GizmoTool {
 
                 global_mean = GlobalTransform::from(mean_transform);
 
-                if gizmo_interacted {
-                    if ui.input(|s| s.modifiers.alt) {
-                        if self.is_move_cloned_entities {
-                        } else {
-                            for (_, e) in selected.iter().enumerate() {
-                                cell.world_mut().send_event(CloneEvent { id: *e });
-                            }
-                            self.is_move_cloned_entities = true;
-                            return;
-                        }
+                if gizmo_interacted && ui.input(|s| s.modifiers.alt) {
+                    if self.is_move_cloned_entities {
                     } else {
+                        for (_, e) in selected.iter().enumerate() {
+                            cell.world_mut().send_event(CloneEvent { id: *e });
+                        }
+                        self.is_move_cloned_entities = true;
+                        return;
                     }
                 }
 

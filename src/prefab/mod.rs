@@ -8,7 +8,6 @@ pub mod save;
 pub mod spawn_system;
 
 use bevy::{
-    a11y::accesskit::Point,
     core_pipeline::{
         core_3d::Camera3dDepthTextureUsage,
         tonemapping::{DebandDither, Tonemapping},
