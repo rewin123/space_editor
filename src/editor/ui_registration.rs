@@ -78,11 +78,23 @@ impl EditorUiExt for App {
 }
 
 pub fn register_light_editor_bundles(app: &mut App) {
-    app.editor_bundle("Light", "Point light", (Name::new("Point light"), PointLight::default()));
+    app.editor_bundle(
+        "Light",
+        "Point light",
+        (Name::new("Point light"), PointLight::default()),
+    );
 
-    app.editor_bundle("Light", "Directional light", (Name::new("Directional light"), DirectionalLight::default()));
+    app.editor_bundle(
+        "Light",
+        "Directional light",
+        (Name::new("Directional light"), DirectionalLight::default()),
+    );
 
-    app.editor_bundle("Light", "Spot light", (Name::new("Spot light"), SpotLight::default()));
+    app.editor_bundle(
+        "Light",
+        "Spot light",
+        (Name::new("Spot light"), SpotLight::default()),
+    );
 }
 
 /// Register meshs
