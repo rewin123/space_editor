@@ -13,6 +13,9 @@ pub use player_start::*;
 pub mod path;
 pub use path::*;
 
+pub mod light;
+pub use light::*;
+
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
 pub trait AssetPath {
