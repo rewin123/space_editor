@@ -30,7 +30,7 @@ pub mod debug_panels;
 use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
-use crate::EditorSet;
+use crate::{EditorSet, EditorState};
 
 use self::tools::gizmo::GizmoTool;
 
@@ -62,7 +62,12 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(bot_menu::BotMenuPlugin);
 
-        app.configure_set(Update, UiSystemSet.in_set(EditorSet::Editor));
+        app.configure_set(
+            Update,
+            UiSystemSet
+                .in_set(EditorSet::Editor)
+                .run_if(in_state(EditorState::Editor)),
+        );
 
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -75,6 +80,10 @@ impl Plugin for EditorUiPlugin {
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),
+        );
+        app.add_systems(
+            Update,
+            reset_camera_viewport.run_if(in_state(EditorState::Game)),
         );
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
