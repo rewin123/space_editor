@@ -26,8 +26,10 @@ use prefab::PrefabPlugin;
 pub mod ext {
     pub use bevy::prelude::*;
     pub use bevy_egui::*;
+    pub use bevy_infinite_grid::*;
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_mod_picking::prelude::*;
+    pub use bevy_panorbit_camera::*;
 }
 
 /// All useful structure from this crate
