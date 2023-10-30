@@ -21,20 +21,17 @@ ron = "0.8.0"
 bevy_panorbit_camera = "0.7.0"
 bevy-inspector-egui = {version = "0.19.0", features = ["bevy_pbr", "highlight_changes"]}
 bevy_mod_picking = {version = "0.15.0", features = ["backend_egui"]}
-bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_infinite_grid", branch = "main" }
+bevy_infinite_grid = "0.8.1"
 egui_dock = "0.7"
 egui_file = "0.10.2"
 
 bevy_xpbd_3d = {git = "https://github.com/Jondolf/bevy_xpbd.git", rev = "2e257b2910233af44a5f6571f4cb0c3817d010f0", default-features = false, optional = true}
-building-blocks = {version = "0.7.1", optional = true}
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
 
 [features]
-default = ["floor_plan"]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32"]
-floor_plan = ["dep:building-blocks"]
 
 [[example]]
 name = "platformer"

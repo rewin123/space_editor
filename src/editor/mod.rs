@@ -283,7 +283,7 @@ pub fn ui_camera_block(
     }
 }
 
-type ChangeCameraQueryFilter = (With<EditorCameraMarker>, Without<CameraPlay>);
+type ChangeCameraQueryFilter = (Without<EditorCameraMarker>, With<CameraPlay>);
 
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
