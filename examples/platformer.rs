@@ -1,6 +1,6 @@
 // Simple platformer example
 // Run command:
-// cargo run run --example platformer --features bevy_xpbd_3d
+// cargo run --example platformer --features bevy_xpbd_3d
 
 use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
