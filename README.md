@@ -86,9 +86,3 @@ Any pull request is welcome too:)
 ### License
 MIT - https://choosealicense.com/licenses/mit/
 
-### Roadmap 🗺️
-
-Current target (v0.2):
-- Undo/Redo functionality
-- Light support
-
