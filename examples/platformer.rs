@@ -133,17 +133,20 @@ fn move_player(
 
             target_vel *= controller.speed;
 
-            if keyboard_input.pressed(KeyCode::Space) && !controller.jumped {
-                target_vel += up * controller.jump_speed;
+            
+
+            //smooth change vel
+            let mut cur_vel = vel.0;
+            cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
+
+            if keyboard_input.just_pressed(KeyCode::Space) && !controller.jumped {
+                cur_vel += up * controller.jump_speed / 6.0;
                 controller.jumped = true;
             }
-            if !keyboard_input.pressed(KeyCode::Space) {
+            if !keyboard_input.just_pressed(KeyCode::Space) {
                 controller.jumped = false;
             }
 
-            //smooth change vel
-            let cur_vel = vel.0;
-            let cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
             vel.0 = cur_vel;
         }
     }
