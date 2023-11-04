@@ -133,8 +133,6 @@ fn move_player(
 
             target_vel *= controller.speed;
 
-            
-
             //smooth change vel
             let mut cur_vel = vel.0;
             cur_vel = vel.0 + (target_vel - cur_vel) * 10.0 * time.delta_seconds();
