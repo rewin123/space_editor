@@ -23,7 +23,7 @@ use bevy::{
 use bevy_scene_hook::HookPlugin;
 
 use crate::{
-    editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorSet, EditorState,
+    editor_registry::EditorRegistryExt, prelude::{EditorRegistryPlugin, OptionalPlugin}, EditorSet, EditorState,
     PrefabMarker, PrefabSet,
 };
 
@@ -36,6 +36,16 @@ use spawn_system::*;
 pub struct PrefabPlugin;
 
 impl Plugin for PrefabPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(BasePrefabPlugin);
+        app.add_plugins(OptionalPlugin);
+    }
+}
+
+/// This plugin contains all components and logic of prefabs without optional dependecies
+pub struct BasePrefabPlugin;
+
+impl Plugin for BasePrefabPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<EditorState>();
 

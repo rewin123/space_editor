@@ -14,3 +14,4 @@ Cargo.lock
 *.pdb
 
 docs/.obsidian/*
+.vscode/launch.json

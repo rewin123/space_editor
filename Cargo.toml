@@ -36,3 +36,8 @@ bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3
 [[example]]
 name = "platformer"
 required-features = ["bevy_xpbd_3d"]
+
+
+[[example]]
+name = "spawn_prefab_with_physics"
+required-features = ["bevy_xpbd_3d"]

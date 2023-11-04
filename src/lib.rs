@@ -53,7 +53,6 @@ pub struct SpaceEditorPlugin {}
 impl Plugin for SpaceEditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(PrefabPlugin);
-        app.add_plugins(OptionalPlugin);
         app.add_plugins(EditorPlugin);
 
         app.configure_sets(
