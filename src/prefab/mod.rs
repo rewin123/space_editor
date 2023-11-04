@@ -23,8 +23,9 @@ use bevy::{
 use bevy_scene_hook::HookPlugin;
 
 use crate::{
-    editor_registry::EditorRegistryExt, prelude::{EditorRegistryPlugin, OptionalPlugin}, EditorSet, EditorState,
-    PrefabMarker, PrefabSet,
+    editor_registry::EditorRegistryExt,
+    prelude::{EditorRegistryPlugin, OptionalPlugin},
+    EditorSet, EditorState, PrefabMarker, PrefabSet,
 };
 
 use component::*;

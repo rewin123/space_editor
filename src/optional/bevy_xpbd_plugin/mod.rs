@@ -53,8 +53,7 @@ impl Plugin for BevyXpbdPlugin {
 
         app.add_systems(
             Update,
-            (collider::update_collider)
-                .in_set(PrefabSet::DetectPrefabChange),
+            (collider::update_collider).in_set(PrefabSet::DetectPrefabChange),
         );
 
         app.add_systems(
@@ -78,7 +77,6 @@ impl Plugin for BevyXpbdPlugin {
             Update,
             (sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
-
     }
 }
 
