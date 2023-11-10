@@ -70,7 +70,7 @@ pub fn sync_mesh(
     }
 }
 
-/// System to sync StandartMaterial and MaterialPrefab
+/// System to sync StandardMaterial and MaterialPrefab
 pub fn sync_material(
     mut commands: Commands,
     query: Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
