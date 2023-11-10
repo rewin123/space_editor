@@ -140,7 +140,7 @@ impl EditorTool for GizmoTool {
                 if gizmo_interacted && ui.input(|s| s.modifiers.alt) {
                     if self.is_move_cloned_entities {
                     } else {
-                        for (_, e) in selected.iter().enumerate() {
+                        for e in selected.iter() {
                             cell.world_mut().send_event(CloneEvent { id: *e });
                         }
                         self.is_move_cloned_entities = true;
