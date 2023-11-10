@@ -43,13 +43,13 @@ use super::{
 pub struct UiSystemSet;
 
 pub struct EditorUiPlugin {
-    pub use_standart_layout: bool,
+    pub use_standard_layout: bool,
 }
 
 impl Default for EditorUiPlugin {
     fn default() -> Self {
         Self {
-            use_standart_layout: true,
+            use_standard_layout: true,
         }
     }
 }
@@ -100,7 +100,7 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(settings::SettingsWindowPlugin);
 
-        if self.use_standart_layout {
+        if self.use_standard_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
             editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
 
