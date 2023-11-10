@@ -11,7 +11,7 @@ use bevy_inspector_egui::{
 
 use crate::prefab::component::EntityLink;
 
-/// Method from bevy_inspector_egui to make dummy reflection ui
+/// Method from `bevy_inspector_egui` to make dummy reflection ui
 pub fn many_unimplemented<T: Any>(
     _ui: &mut egui::Ui,
     _options: &dyn Any,
@@ -23,7 +23,7 @@ pub fn many_unimplemented<T: Any>(
     false
 }
 
-/// Custom UI for EntityLink struct
+/// Custom UI for [`EntityLink`] struct
 pub fn setup_ref_registry(reg: ResMut<AppTypeRegistry>) {
     let mut reg = reg.write();
     reg.get_mut(TypeId::of::<EntityLink>())
@@ -35,7 +35,7 @@ pub fn setup_ref_registry(reg: ResMut<AppTypeRegistry>) {
         ))
 }
 
-/// Custom UI for EntityLink struct
+/// Custom UI for [`EntityLink`] struct
 pub fn entity_ref_ui(
     value: &mut dyn Any,
     ui: &mut egui::Ui,
@@ -74,7 +74,7 @@ pub fn entity_ref_ui(
     }
 }
 
-/// Custom UI for EntityLink struct
+/// Custom UI for [`EntityLink`] struct
 pub fn entity_ref_ui_readonly(
     _value: &dyn Any,
     _ui: &mut egui::Ui,

@@ -96,7 +96,7 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
     }
 }
 
-/// This component used in prefab to determine links between entities. Its need to create custom UI in bevy_inspector_egui. You must implement MapEntities trait for your component to make it work. See FollowCamera struct from examples/platformer.rs
+/// This component used in prefab to determine links between entities. It is needed to create custom UI in `bevy_inspector_egui`. You must implement the [`MapEntities`](bevy::ecs::entity::MapEntities) trait for your component to make it work. See the `FollowCamera` struct from `examples/platformer.rs`.
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct EntityLink {

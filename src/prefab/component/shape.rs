@@ -28,7 +28,7 @@ impl Default for MeshPrimitivePrefab {
 }
 
 impl MeshPrimitivePrefab {
-    /// Convert MeshPrimitivePrefab to bevy Mesh
+    /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
             MeshPrimitivePrefab::Cube(s) => Mesh::from(shape::Cube::new(*s)),

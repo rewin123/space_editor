@@ -58,7 +58,7 @@ pub fn spawn_scene(
     }
 }
 
-/// System to sync Mesh and MeshPrimitivePrefab
+/// System to sync [`Mesh`] and [`MeshPrimitivePrefab`]
 pub fn sync_mesh(
     mut commands: Commands,
     query: Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
@@ -70,7 +70,7 @@ pub fn sync_mesh(
     }
 }
 
-/// System to sync StandardMaterial and MaterialPrefab
+/// System to sync [`StandardMaterial`] and [`MaterialPrefab`]
 pub fn sync_material(
     mut commands: Commands,
     query: Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
@@ -96,7 +96,9 @@ pub fn editor_remove_mesh(
     }
 }
 
-/// Spawn system on enter to EditorState::Game state
+/// Spawn system on enter to [`EditorState::Game`] state
+///
+/// [`EditorState::Game`]: crate::EditorState::Game
 pub fn spawn_player_start(
     mut commands: Commands,
     query: Query<(Entity, &PlayerStart)>,
