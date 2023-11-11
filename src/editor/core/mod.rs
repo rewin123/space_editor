@@ -70,7 +70,7 @@ fn editor_event_listener(
     cache: ResMut<PrefabMemoryCache>,
     mut gltf_events: EventWriter<gltf_unpack::EditorUnpackGltf>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         match event {
             EditorEvent::Load(path) => match path {
                 EditorPrefabPath::File(path) => {

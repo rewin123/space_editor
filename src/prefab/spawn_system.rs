@@ -88,7 +88,7 @@ pub fn editor_remove_mesh(
     mut commands: Commands,
     mut query: RemovedComponents<MeshPrimitivePrefab>,
 ) {
-    for e in query.iter() {
+    for e in query.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<Mesh>>();
             info!("Removed mesh handle for {:?}", e);

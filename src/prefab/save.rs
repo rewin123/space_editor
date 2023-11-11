@@ -96,7 +96,7 @@ pub fn serialize_prefab(world: &mut World) {
         .map(|a| a.type_id())
         .collect();
     let mut builder = DynamicSceneBuilder::from_world(world);
-    builder
+    builder = builder
         .allow_all()
         .with_filter(SceneFilter::Allowlist(HashSet::from_iter(
             allow_types.iter().cloned(),

@@ -12,7 +12,8 @@ pub struct PrefabBundle {
     global_transform: GlobalTransform,
 
     visiblity: Visibility,
-    computed_visiblity: ComputedVisibility,
+    computed_visiblity: ViewVisibility,
+    inherited_visibility: InheritedVisibility,
 }
 
 impl PrefabBundle {

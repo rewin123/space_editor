@@ -48,7 +48,7 @@ fn unpack_gltf_event(
     assets: Res<AssetServer>,
     mut queue: ResMut<GltfSceneQueue>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         queue.0.push(assets.load(event.path.clone()));
     }
     events.clear();
@@ -60,7 +60,7 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() && assets.get_load_state(&queue.0[0]) == LoadState::Loaded {
+    if !queue.0.is_empty() && assets.get_load_state(&queue.0[0]) == Some(LoadState::Loaded) {
         events.send(GltfLoaded(queue.0.remove(0)));
     }
 }
@@ -76,7 +76,7 @@ fn unpack_gltf(world: &mut World) {
     let loaded_scenes = {
         let mut events = world.resource_mut::<Events<GltfLoaded>>();
         let mut reader = events.get_reader();
-        let loaded = reader.iter(&events).cloned().collect::<Vec<GltfLoaded>>();
+        let loaded = reader.read(&events).cloned().collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
     };
@@ -84,10 +84,11 @@ fn unpack_gltf(world: &mut World) {
     let mut command_queue = CommandQueue::default();
     for gltf in loaded_scenes.iter() {
         let handle: Handle<Gltf> = gltf.0.clone();
-        let gltf_path = world
-            .resource::<AssetServer>()
-            .get_handle_path(&handle)
-            .unwrap();
+        let gltf_path = if let Some(path) = handle.path() {
+            path.clone()
+        } else {
+            continue;
+        };
         info!("Path: {:?}", &gltf_path);
 
         let Some(gltf) = world.resource::<Assets<Gltf>>().get(&gltf.0) else {

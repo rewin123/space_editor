@@ -181,7 +181,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     let e_id = e.id().index();
                     egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
                         for idx in 0..components_id.len() {
-                            let c_id = components_by_entity
+                            let c_id: ComponentId = components_by_entity
                                 .entry(e_id)
                                 .or_insert(Vec::new())
                                 .get(idx)
@@ -201,40 +201,34 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                 {
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                                    let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
+                                    let value = reflect_from_ptr.from_ptr_mut()(ptr);
+
+                                    let name = {
+                                        let info = cell.components().get_info(c_id).unwrap();
+                                        pretty_type_name::pretty_type_name_str(info.name())
+                                    };
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
-                                        ui.push_id(
-                                            format!("{:?}-{}", &e.id(), &registration.short_name()),
-                                            |ui| {
-                                                ui.collapsing(registration.short_name(), |ui| {
-                                                    ui.push_id(
-                                                        format!(
-                                                            "content-{:?}-{}",
-                                                            &e.id(),
-                                                            &registration.short_name()
-                                                        ),
-                                                        |ui| {
-                                                            if env.ui_for_reflect_with_options(
-                                                                value,
-                                                                ui,
-                                                                ui.id(),
-                                                                &(),
-                                                            ) {
-                                                                set_changed();
-                                                            }
-                                                        },
-                                                    );
-                                                });
-                                            },
-                                        );
+                                        ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+                                            ui.collapsing(&name, |ui| {
+                                                ui.push_id(
+                                                    format!("content-{:?}-{}", &e.id(), &name),
+                                                    |ui| {
+                                                        if env.ui_for_reflect_with_options(
+                                                            value,
+                                                            ui,
+                                                            ui.id(),
+                                                            &(),
+                                                        ) {
+                                                            set_changed();
+                                                        }
+                                                    },
+                                                );
+                                            });
+                                        });
 
                                         ui.push_id(
-                                            format!(
-                                                "del component {:?}-{}",
-                                                &e.id(),
-                                                &registration.short_name()
-                                            ),
+                                            format!("del component {:?}-{}", &e.id(), &name),
                                             |ui| {
                                                 //must be on top
                                                 ui.with_layout(
@@ -271,8 +265,10 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     let _counter = 0;
                     for idx in 0..components_id.len() {
                         let c_id = components_id[idx];
-                        let t_id = types_id[idx];
-                        let name = registry.get(t_id).unwrap().short_name();
+                        let _t_id = types_id[idx];
+                        let name = pretty_type_name::pretty_type_name_str(
+                            cell.components().get_info(c_id).unwrap().name(),
+                        );
 
                         if name.to_lowercase().contains(&lower_filter) {
                             ui.label(name);

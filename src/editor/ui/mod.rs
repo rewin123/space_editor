@@ -62,7 +62,7 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(bot_menu::BotMenuPlugin);
 
-        app.configure_set(
+        app.configure_sets(
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
@@ -251,7 +251,7 @@ impl EditorUiAppExt for App {
         tab_systesm: impl IntoSystemConfigs<T>,
     ) -> &mut Self {
         let mut tab = ScheduleEditorTab {
-            schedule: Schedule::new(),
+            schedule: Schedule::default(),
             title,
         };
 

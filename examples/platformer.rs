@@ -6,10 +6,7 @@ use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
     prelude::*,
 };
-use bevy_xpbd_3d::{
-    prelude::{AngularVelocity, LinearVelocity, Position, RayHits},
-    PhysicsSchedule, PhysicsStepSet,
-};
+use bevy_xpbd_3d::prelude::{AngularVelocity, LinearVelocity, Position, RayHits};
 use space_editor::prelude::{component::EntityLink, spatial_query::RayCasterPrefab, *};
 
 fn main() {
@@ -28,12 +25,7 @@ fn main() {
             "Simnple tab".into(),
             simple_tab_system,
         )
-        .add_systems(
-            PhysicsSchedule,
-            move_player
-                .run_if(in_state(EditorState::Game))
-                .before(PhysicsStepSet::BroadPhase),
-        )
+        .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
         .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
 }
@@ -105,7 +97,7 @@ fn move_player(
 ) {
     for (_e, mut vel, mut rot, mut controller, hits, tranform) in query.iter_mut() {
         //take 1th hit, because 0th hit is self hit
-        if let Some(hit) = hits.iter_sorted().nth(1) {
+        if let Some(hit) = hits.iter_sorted().next() {
             if hit.time_of_impact > 0.7 {
                 continue;
             }

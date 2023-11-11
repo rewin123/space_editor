@@ -54,7 +54,7 @@ pub struct AutoStruct<T: Reflect + FromReflect + Default + Clone> {
 }
 
 impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
-    pub fn new(data: &T, assets: &AssetServer) -> AutoStruct<T> {
+    pub fn new(data: &T, _assets: &AssetServer) -> AutoStruct<T> {
         let mut paths = HashMap::new();
 
         if let ReflectRef::Struct(s) = data.reflect_ref() {
@@ -62,7 +62,7 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
                 let field_name = s.name_at(idx).unwrap();
                 let field = s.field_at(idx).unwrap();
                 if let Some(handle) = field.downcast_ref::<Handle<Image>>() {
-                    if let Some(path) = assets.get_handle_path(handle) {
+                    if let Some(path) = handle.path() {
                         let path = path.path().to_str().unwrap().to_string();
                         paths.insert(field_name.to_string(), path);
                     }

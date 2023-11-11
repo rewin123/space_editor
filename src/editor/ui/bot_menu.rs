@@ -184,7 +184,7 @@ pub fn bot_menu(
         });
     });
 
-    for event in events.iter() {
+    for event in events.read() {
         menu_state.path = event.path.clone();
         editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
             "{}.scn.ron",

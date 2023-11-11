@@ -58,8 +58,8 @@ impl Plugin for BasePrefabPlugin {
             app.add_plugins(EditorRegistryPlugin);
         }
 
-        app.configure_set(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_set(
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
             Update,
             EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
@@ -129,7 +129,8 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<PlayerStart, Transform>();
         app.editor_relation::<PlayerStart, GlobalTransform>();
         app.editor_relation::<PlayerStart, Visibility>();
-        app.editor_relation::<PlayerStart, ComputedVisibility>();
+        app.editor_relation::<PlayerStart, ViewVisibility>();
+        app.editor_relation::<PlayerStart, InheritedVisibility>();
 
         app.editor_relation::<Transform, GlobalTransform>();
 
@@ -227,19 +228,25 @@ fn remove_global_transform(
 
 fn add_computed_visibility(
     mut commands: Commands,
-    query: Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>,
+    query: Query<Entity, (With<Visibility>, Without<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert(ComputedVisibility::default());
+        commands
+            .entity(e)
+            .insert(ViewVisibility::default())
+            .insert(InheritedVisibility::VISIBLE);
     }
 }
 
 fn remove_computed_visibility(
     mut commands: Commands,
-    query: Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>,
+    query: Query<Entity, (Without<Visibility>, With<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).remove::<ComputedVisibility>();
+        commands
+            .entity(e)
+            .remove::<ViewVisibility>()
+            .remove::<InheritedVisibility>();
     }
 }
 
@@ -250,12 +257,10 @@ fn sync_asset_mesh(
     assets: Res<AssetServer>,
 ) {
     for (e, mesh) in changed.iter() {
-        commands
-            .entity(e)
-            .insert(assets.load::<Mesh, _>(&mesh.path));
+        commands.entity(e).insert(assets.load::<Mesh>(&mesh.path));
     }
 
-    for e in deleted.iter() {
+    for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<Mesh>>();
             info!("Removed mesh handle for {:?}", e);
@@ -272,10 +277,10 @@ fn sync_asset_material(
     for (e, material) in changed.iter() {
         commands
             .entity(e)
-            .insert(assets.load::<StandardMaterial, _>(&material.path));
+            .insert(assets.load::<StandardMaterial>(&material.path));
     }
 
-    for e in deleted.iter() {
+    for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<StandardMaterial>>();
         }

@@ -141,13 +141,9 @@ pub fn update_collider(
     for (e, collider, mesh) in updated_meshes.iter() {
         if *collider == ColliderPrefab::FromMesh {
             if let Some(mesh) = meshes.get(mesh) {
-                if let Some(col) = Collider::convex_decomposition_from_bevy_mesh(mesh) {
-                    commands.entity(e).insert(col);
-                } else {
-                    commands
-                        .entity(e)
-                        .insert(Collider::trimesh_from_bevy_mesh(mesh).unwrap_or_default());
-                }
+                commands
+                    .entity(e)
+                    .insert(Collider::trimesh_from_mesh(mesh).unwrap_or_default());
             } else {
                 commands.entity(e).insert(Collider::default());
             }
@@ -172,7 +168,7 @@ fn get_collider(
         ColliderPrefab::FromMesh => {
             if let Some(mesh) = mesh {
                 if let Some(mesh) = meshes.get(mesh) {
-                    Collider::trimesh_from_bevy_mesh(mesh).unwrap_or_default()
+                    Collider::trimesh_from_mesh(mesh).unwrap_or_default()
                 } else {
                     Collider::default()
                 }
@@ -233,20 +229,20 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
         }
         MeshPrimitivePrefab::Capsule(val) => Collider::capsule(1.0, val.r as Scalar),
         MeshPrimitivePrefab::Circle(val) => {
-            Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default()
+            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
         MeshPrimitivePrefab::Cylinder(val) => Collider::cylinder(1.0, val.r as Scalar),
         MeshPrimitivePrefab::Icosphere(val) => {
-            Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default()
+            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
         MeshPrimitivePrefab::Plane(val) => {
             Collider::cuboid(val.size as Scalar, EPS as Scalar, val.size as Scalar)
         }
         MeshPrimitivePrefab::RegularPolygon(val) => {
-            Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default()
+            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
         MeshPrimitivePrefab::Torus(val) => {
-            Collider::trimesh_from_bevy_mesh(&val.to_mesh()).unwrap_or_default()
+            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
     }
 }

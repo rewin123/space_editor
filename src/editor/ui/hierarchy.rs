@@ -180,7 +180,7 @@ fn clone_enitites(
     mut events: EventReader<CloneEvent>,
     editor_registry: Res<EditorRegistry>,
 ) {
-    for event in events.into_iter() {
+    for event in events.read() {
         let mut queue = vec![(event.id, commands.spawn_empty().id())];
         let mut map = HashMap::new();
 
