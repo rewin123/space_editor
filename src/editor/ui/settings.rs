@@ -47,6 +47,10 @@ impl EditorTab for SettingsWindow {
                 ui.label("Clone object");
                 ui.label("Alt");
                 ui.end_row();
+
+                ui.label("Delete object");
+                ui.label("Delete or X");
+                ui.end_row();
             });
     }
 
