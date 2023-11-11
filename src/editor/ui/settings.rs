@@ -17,7 +17,7 @@ impl Plugin for SettingsWindowPlugin {
 pub struct SettingsWindow {}
 
 impl EditorTab for SettingsWindow {
-    fn ui(&mut self, ui: &mut egui::Ui, _world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _commands : &mut Commands, _world: &mut World) {
         ui.heading("Hotkeys in Game view tab");
 
         egui::Grid::new("hotkeys")

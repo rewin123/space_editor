@@ -27,7 +27,7 @@ pub use tools::*;
 
 pub mod debug_panels;
 
-use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow, ecs::system::CommandQueue};
 use bevy_egui::{egui, EguiContext};
 
 use crate::{EditorSet, EditorState};
@@ -180,33 +180,43 @@ impl EditorUi {
             }
         }
 
-        let mut tab_viewer = EditorTabViewer {
-            world,
-            registry: &mut self.registry,
-            visible,
-            commands: vec![],
-        };
+        let cell = world.as_unsafe_world_cell();
 
-        DockArea::new(&mut self.tree)
-            .show_add_buttons(true)
-            .show_add_popup(true)
-            .show(ctx, &mut tab_viewer);
+        unsafe {
+            let mut command_queue = CommandQueue::default();
+            let mut commands = Commands::new(&mut command_queue, cell.world());
 
-        for command in tab_viewer.commands {
-            match command {
-                EditorTabCommand::Add {
-                    name,
-                    surface,
-                    node,
-                } => {
-                    if let Some(surface) = self.tree.get_surface_mut(surface) {
-                        surface
-                            .node_tree_mut()
-                            .unwrap()
-                            .split_right(node, 0.5, vec![name]);
+            let mut tab_viewer = EditorTabViewer {
+                commands : &mut commands,
+                world : cell.world_mut(),
+                registry: &mut self.registry,
+                visible,
+                tab_commands: vec![],
+            };
+
+            DockArea::new(&mut self.tree)
+                .show_add_buttons(true)
+                .show_add_popup(true)
+                .show(ctx, &mut tab_viewer);
+
+            for command in tab_viewer.tab_commands {
+                match command {
+                    EditorTabCommand::Add {
+                        name,
+                        surface,
+                        node,
+                    } => {
+                        if let Some(surface) = self.tree.get_surface_mut(surface) {
+                            surface
+                                .node_tree_mut()
+                                .unwrap()
+                                .split_right(node, 0.5, vec![name]);
+                        }
                     }
                 }
             }
+
+            command_queue.apply(cell.world_mut());
         }
     }
 }
@@ -229,8 +239,8 @@ impl EditorUiAppExt for App {
         T: EditorTab + Resource + Send + Sync + 'static,
     {
         self.insert_resource(tab);
-        let show_fn = Box::new(|ui: &mut egui::Ui, world: &mut World| {
-            world.resource_scope(|scoped_world, mut data: Mut<T>| data.ui(ui, scoped_world));
+        let show_fn = Box::new(|ui: &mut egui::Ui, commands : &mut Commands, world: &mut World| {
+            world.resource_scope(|scoped_world, mut data: Mut<T>| data.ui(ui, commands, scoped_world));
         });
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,

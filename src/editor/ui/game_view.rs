@@ -26,7 +26,7 @@ impl Default for GameViewTab {
 }
 
 impl EditorTab for GameViewTab {
-    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands : &mut Commands, world: &mut World) {
         self.viewport_rect = Some(ui.clip_rect());
 
         //Draw FPS
@@ -63,7 +63,7 @@ impl EditorTab for GameViewTab {
             });
 
         if let Some(tool_id) = self.active_tool {
-            self.tools[tool_id].ui(ui, world);
+            self.tools[tool_id].ui(ui, commands, world);
         }
     }
 

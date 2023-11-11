@@ -55,7 +55,7 @@ impl Plugin for SpaceInspectorPlugin {
 pub struct InspectorTab {}
 
 impl EditorTab for InspectorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _ : &mut Commands, world: &mut World) {
         inspect(ui, world);
     }
 
