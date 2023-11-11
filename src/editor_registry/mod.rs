@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,
-    reflect::{GetTypeRegistration, TypePath, TypeRegistry},
+    reflect::{GetTypeRegistration, TypePath, TypeRegistry, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
 
@@ -84,7 +84,7 @@ impl AddDefaultComponent {
 /// Resource, which contains all custom editor registry
 #[derive(Default, Resource, Clone)]
 pub struct EditorRegistry {
-    pub registry: TypeRegistry,
+    pub registry: TypeRegistryArc,
     pub spawn_components: HashMap<TypeId, AddDefaultComponent>,
     pub clone_components: Vec<CloneComponent>,
     pub remove_components: HashMap<TypeId, RemoveComponent>,

@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow, render::render_resource::PrimitiveTopology};
 
 pub mod core;
 pub mod ui;
@@ -8,9 +8,8 @@ pub mod ui;
 pub mod ui_registration;
 
 use bevy_egui::{EguiContext, EguiContexts};
-use bevy_infinite_grid::{InfiniteGrid, InfiniteGridBundle};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
-use bevy_mod_picking::{prelude::*, PickableBundle};
+use bevy_mod_picking::{prelude::*, PickableBundle, backends::raycast::bevy_mod_raycast::prelude::RaycastSettings};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
@@ -53,10 +52,12 @@ impl Plugin for EditorPlugin {
                     .disable::<DebugPickingPlugin>()
                     .disable::<DefaultHighlightingPlugin>(),
             );
+
+            app.world.resource_mut::<backends::raycast::RaycastBackendSettings>().require_markers = true;
         }
 
-        if !app.is_plugin_added::<bevy_infinite_grid::InfiniteGridPlugin>() {
-            app.add_plugins(bevy_infinite_grid::InfiniteGridPlugin);
+        if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
+            app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
         }
         app.init_resource::<prelude::EditorLoader>();
 
@@ -113,10 +114,12 @@ impl Plugin for EditorPlugin {
             (
                 auto_add_picking,
                 select_listener.after(UiSystemSet),
-                auto_add_picking_dummy,
             )
                 .run_if(in_state(EditorState::Editor)),
         );
+        app.add_systems(
+            PostUpdate,
+            auto_add_picking_dummy);
 
         app.add_systems(
             Update,
@@ -142,10 +145,10 @@ struct SelectEvent {
 }
 
 fn create_grid_lines(mut commands: Commands) {
-    commands.spawn(InfiniteGridBundle::default());
+    bevy_debug_grid::spawn_floor_grid(commands);
 }
 
-fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<InfiniteGrid>>) {
+fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
     }
@@ -159,19 +162,30 @@ fn auto_add_picking(
         commands
             .entity(e)
             .insert(PickableBundle::default())
-            .insert(RaycastPickTarget::default())
             .insert(On::<Pointer<Down>>::send_event::<SelectEvent>());
     }
 }
 
-type AutoAddQueryFilter = (Without<PrefabMarker>, Without<Pickable>, With<Parent>);
+type AutoAddQueryFilter = (
+    Without<PrefabMarker>, 
+    Without<Pickable>, 
+    With<Parent>, 
+    Changed<Handle<Mesh>>);
 
-fn auto_add_picking_dummy(mut commands: Commands, query: Query<Entity, AutoAddQueryFilter>) {
-    for e in query.iter() {
-        commands
-            .entity(e)
-            .insert(PickableBundle::default())
-            .insert(RaycastPickTarget::default());
+//Auto add picking for each child to propagate picking event up to prefab entitiy
+fn auto_add_picking_dummy(
+        mut commands: Commands, 
+        query : Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
+        meshs : Res<Assets<Mesh>>) {
+    for (e, mesh) in query.iter() {
+        //Only meshed entity need to be pickable
+        if let Some(mesh) = meshs.get(mesh) {
+            if mesh.primitive_topology() == PrimitiveTopology::TriangleList {
+                commands
+                    .entity(e)
+                    .insert(PickableBundle::default());
+            }
+        }
     }
 }
 
@@ -370,3 +384,12 @@ fn draw_camera_gizmo(
         );
     }
 }
+
+// fn auto_remove_pickable(
+//     mut commands : Commands,
+//     grids : Query<Entity, (With<Pickable>, Or<(With<bevy_debug_grid::Grid>, With<bevy_debug_grid::GridChild>)>)>
+// ) {
+//     for e in grids.iter() {
+//         commands.entity(e).remove::<Pickable>();
+//     }
+// }

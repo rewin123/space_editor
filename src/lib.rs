@@ -26,7 +26,7 @@ use prefab::PrefabPlugin;
 pub mod ext {
     pub use bevy::prelude::*;
     pub use bevy_egui::*;
-    pub use bevy_infinite_grid::*;
+    pub use bevy_debug_grid::*;
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_mod_picking::prelude::*;
     pub use bevy_panorbit_camera::*;
@@ -124,15 +124,6 @@ pub fn simple_editor_setup(mut commands: Commands) {
         ..default()
     });
 
-    //grid
-    commands.spawn(bevy_infinite_grid::InfiniteGridBundle {
-        grid: bevy_infinite_grid::InfiniteGrid {
-            // shadow_color: None,
-            ..default()
-        },
-        ..default()
-    });
-
     // camera
     commands
         .spawn(Camera3dBundle {
@@ -140,6 +131,8 @@ pub fn simple_editor_setup(mut commands: Commands) {
             ..default()
         })
         .insert(bevy_panorbit_camera::PanOrbitCamera::default())
-        .insert(bevy_mod_picking::prelude::RaycastPickCamera::default())
         .insert(EditorCameraMarker);
+
+    
+    bevy_debug_grid::spawn_floor_grid(commands);
 }

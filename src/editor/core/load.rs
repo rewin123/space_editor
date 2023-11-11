@@ -1,4 +1,4 @@
-use bevy::{ecs::entity::EntityMap, prelude::*};
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{prelude::EditorLoader, PrefabMarker};
 
@@ -34,7 +34,7 @@ pub fn load_listener(world: &mut World) {
         entity.components.push(Box::new(PrefabMarker));
     }
 
-    let mut map = EntityMap::default();
+    let mut map = HashMap::new();
     let res = prefab.write_to_world(world, &mut map);
     match res {
         Ok(_) => { /*some info planned*/ }

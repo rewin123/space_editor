@@ -201,18 +201,30 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                 {
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                                    let value = reflect_from_ptr.as_reflect_ptr_mut(ptr);
+                                    let value = reflect_from_ptr.from_ptr_mut()(ptr);
+
+                                    let name = {
+                                        if let Some(c_id) = cell.components().get_resource_id(registration.type_id()) {
+                                            let info = cell.components().get_info(c_id).unwrap();
+                                            pretty_type_name::pretty_type_name_str(info.name())
+                                        } else {
+                                            "Unknown".to_string()
+                                        }
+                                    };
+
+                                    pretty_type_name::pretty_type_name_str(registration.type_info().type_path());
+
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(
-                                            format!("{:?}-{}", &e.id(), &registration.short_name()),
+                                            format!("{:?}-{}", &e.id(), &name),
                                             |ui| {
-                                                ui.collapsing(registration.short_name(), |ui| {
+                                                ui.collapsing(&name, |ui| {
                                                     ui.push_id(
                                                         format!(
                                                             "content-{:?}-{}",
                                                             &e.id(),
-                                                            &registration.short_name()
+                                                            &name
                                                         ),
                                                         |ui| {
                                                             if env.ui_for_reflect_with_options(
@@ -233,7 +245,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                             format!(
                                                 "del component {:?}-{}",
                                                 &e.id(),
-                                                &registration.short_name()
+                                                &name
                                             ),
                                             |ui| {
                                                 //must be on top
@@ -272,7 +284,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     for idx in 0..components_id.len() {
                         let c_id = components_id[idx];
                         let t_id = types_id[idx];
-                        let name = registry.get(t_id).unwrap().short_name();
+                        let name = pretty_type_name::pretty_type_name_str(
+                            cell.components().get_info(c_id).unwrap().name(),
+                        );
 
                         if name.to_lowercase().contains(&lower_filter) {
                             ui.label(name);

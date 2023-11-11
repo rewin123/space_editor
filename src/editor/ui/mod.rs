@@ -251,7 +251,7 @@ impl EditorUiAppExt for App {
         tab_systesm: impl IntoSystemConfigs<T>,
     ) -> &mut Self {
         let mut tab = ScheduleEditorTab {
-            schedule: Schedule::new(),
+            schedule: Schedule::default(),
             title,
         };
 

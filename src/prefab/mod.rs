@@ -129,7 +129,9 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<PlayerStart, Transform>();
         app.editor_relation::<PlayerStart, GlobalTransform>();
         app.editor_relation::<PlayerStart, Visibility>();
-        app.editor_relation::<PlayerStart, ComputedVisibility>();
+        app.editor_relation::<PlayerStart, ViewVisibility>();
+        app.editor_relation::<PlayerStart, InheritedVisibility>();
+
 
         app.editor_relation::<Transform, GlobalTransform>();
 
@@ -227,19 +229,19 @@ fn remove_global_transform(
 
 fn add_computed_visibility(
     mut commands: Commands,
-    query: Query<Entity, (With<Visibility>, Without<ComputedVisibility>)>,
+    query: Query<Entity, (With<Visibility>, Without<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert(ComputedVisibility::default());
+        commands.entity(e).insert(ViewVisibility::default()).insert(InheritedVisibility::default());
     }
 }
 
 fn remove_computed_visibility(
     mut commands: Commands,
-    query: Query<Entity, (Without<Visibility>, With<ComputedVisibility>)>,
+    query: Query<Entity, (Without<Visibility>, With<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).remove::<ComputedVisibility>();
+        commands.entity(e).remove::<ViewVisibility>().remove::<InheritedVisibility>();
     }
 }
 
@@ -252,10 +254,10 @@ fn sync_asset_mesh(
     for (e, mesh) in changed.iter() {
         commands
             .entity(e)
-            .insert(assets.load::<Mesh, _>(&mesh.path));
+            .insert(assets.load::<Mesh>(&mesh.path));
     }
 
-    for e in deleted.iter() {
+    for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<Mesh>>();
             info!("Removed mesh handle for {:?}", e);
@@ -272,7 +274,7 @@ fn sync_asset_material(
     for (e, material) in changed.iter() {
         commands
             .entity(e)
-            .insert(assets.load::<StandardMaterial, _>(&material.path));
+            .insert(assets.load::<StandardMaterial>(&material.path));
     }
 
     for e in deleted.iter() {
