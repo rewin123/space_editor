@@ -18,7 +18,7 @@ bevy_egui = "0.23"
 egui-gizmo = "0.12"
 bevy-scene-hook = "9"
 ron = "0.8"
-bevy_panorbit_camera = {version = "0.9", features=["bevy_egui"]}
+bevy_panorbit_camera = "0.9"
 bevy-inspector-egui = {version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
 pretty-type-name = "1.0"
 bevy_mod_picking = {version = "0.17", default-features = false, features = ["backend_raycast", "selection"]}
