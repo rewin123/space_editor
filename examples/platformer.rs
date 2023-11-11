@@ -6,9 +6,7 @@ use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
     prelude::*,
 };
-use bevy_xpbd_3d::{
-    prelude::{AngularVelocity, LinearVelocity, Position, RayHits},
-};
+use bevy_xpbd_3d::prelude::{AngularVelocity, LinearVelocity, Position, RayHits};
 use space_editor::prelude::{component::EntityLink, spatial_query::RayCasterPrefab, *};
 
 fn main() {

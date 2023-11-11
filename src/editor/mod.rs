@@ -9,11 +9,7 @@ pub mod ui_registration;
 
 use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
-use bevy_mod_picking::{
-    backends::raycast::{RaycastPickable},
-    prelude::*,
-    PickableBundle,
-};
+use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
