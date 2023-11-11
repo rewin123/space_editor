@@ -29,10 +29,9 @@ fn main() {
             simple_tab_system,
         )
         .add_systems(
-            PhysicsSchedule,
+            Update,
             move_player
-                .run_if(in_state(EditorState::Game))
-                .before(PhysicsStepSet::BroadPhase),
+                .run_if(in_state(EditorState::Game)),
         )
         .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
@@ -105,7 +104,7 @@ fn move_player(
 ) {
     for (_e, mut vel, mut rot, mut controller, hits, tranform) in query.iter_mut() {
         //take 1th hit, because 0th hit is self hit
-        if let Some(hit) = hits.iter_sorted().nth(1) {
+        if let Some(hit) = hits.iter_sorted().nth(0) {
             if hit.time_of_impact > 0.7 {
                 continue;
             }
