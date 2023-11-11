@@ -208,39 +208,27 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                         pretty_type_name::pretty_type_name_str(info.name())
                                     };
 
-
                                     if !editor_registry.silent.contains(&registration.type_id()) {
-                                        ui.push_id(
-                                            format!("{:?}-{}", &e.id(), &name),
-                                            |ui| {
-                                                ui.collapsing(&name, |ui| {
-                                                    ui.push_id(
-                                                        format!(
-                                                            "content-{:?}-{}",
-                                                            &e.id(),
-                                                            &name
-                                                        ),
-                                                        |ui| {
-                                                            if env.ui_for_reflect_with_options(
-                                                                value,
-                                                                ui,
-                                                                ui.id(),
-                                                                &(),
-                                                            ) {
-                                                                set_changed();
-                                                            }
-                                                        },
-                                                    );
-                                                });
-                                            },
-                                        );
+                                        ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+                                            ui.collapsing(&name, |ui| {
+                                                ui.push_id(
+                                                    format!("content-{:?}-{}", &e.id(), &name),
+                                                    |ui| {
+                                                        if env.ui_for_reflect_with_options(
+                                                            value,
+                                                            ui,
+                                                            ui.id(),
+                                                            &(),
+                                                        ) {
+                                                            set_changed();
+                                                        }
+                                                    },
+                                                );
+                                            });
+                                        });
 
                                         ui.push_id(
-                                            format!(
-                                                "del component {:?}-{}",
-                                                &e.id(),
-                                                &name
-                                            ),
+                                            format!("del component {:?}-{}", &e.id(), &name),
                                             |ui| {
                                                 //must be on top
                                                 ui.with_layout(

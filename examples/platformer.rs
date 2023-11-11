@@ -28,11 +28,7 @@ fn main() {
             "Simnple tab".into(),
             simple_tab_system,
         )
-        .add_systems(
-            Update,
-            move_player
-                .run_if(in_state(EditorState::Game)),
-        )
+        .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
         .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
 }

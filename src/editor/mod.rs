@@ -1,6 +1,6 @@
 //code only for editor gui
 
-use bevy::{prelude::*, window::PrimaryWindow, render::render_resource::PrimitiveTopology};
+use bevy::{prelude::*, render::render_resource::PrimitiveTopology, window::PrimaryWindow};
 
 pub mod core;
 pub mod ui;
@@ -9,7 +9,11 @@ pub mod ui_registration;
 
 use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
-use bevy_mod_picking::{prelude::*, PickableBundle, backends::raycast::{bevy_mod_raycast::prelude::RaycastSettings, RaycastPickable}};
+use bevy_mod_picking::{
+    backends::raycast::{bevy_mod_raycast::prelude::RaycastSettings, RaycastPickable},
+    prelude::*,
+    PickableBundle,
+};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
@@ -46,11 +50,11 @@ impl Plugin for EditorPlugin {
             .add_plugins(PanOrbitCameraPlugin);
 
         if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
-            app.add_plugins(
-                bevy_mod_picking::DefaultPickingPlugins
-            );
+            app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
-            app.world.resource_mut::<backends::raycast::RaycastBackendSettings>().require_markers = true;
+            app.world
+                .resource_mut::<backends::raycast::RaycastBackendSettings>()
+                .require_markers = true;
         }
 
         if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
@@ -108,15 +112,10 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             PostUpdate,
-            (
-                auto_add_picking,
-                select_listener.after(UiSystemSet),
-            )
+            (auto_add_picking, select_listener.after(UiSystemSet))
                 .run_if(in_state(EditorState::Editor)),
         );
-        app.add_systems(
-            PostUpdate,
-            auto_add_picking_dummy);
+        app.add_systems(PostUpdate, auto_add_picking_dummy);
 
         app.add_systems(
             Update,
@@ -165,16 +164,18 @@ fn auto_add_picking(
 }
 
 type AutoAddQueryFilter = (
-    Without<PrefabMarker>, 
-    Without<Pickable>, 
-    With<Parent>, 
-    Changed<Handle<Mesh>>);
+    Without<PrefabMarker>,
+    Without<Pickable>,
+    With<Parent>,
+    Changed<Handle<Mesh>>,
+);
 
 //Auto add picking for each child to propagate picking event up to prefab entitiy
 fn auto_add_picking_dummy(
-        mut commands: Commands, 
-        query : Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
-        meshs : Res<Assets<Mesh>>) {
+    mut commands: Commands,
+    query: Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
+    meshs: Res<Assets<Mesh>>,
+) {
     for (e, mesh) in query.iter() {
         //Only meshed entity need to be pickable
         if let Some(mesh) = meshs.get(mesh) {

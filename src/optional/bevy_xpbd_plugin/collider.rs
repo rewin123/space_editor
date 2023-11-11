@@ -141,7 +141,9 @@ pub fn update_collider(
     for (e, collider, mesh) in updated_meshes.iter() {
         if *collider == ColliderPrefab::FromMesh {
             if let Some(mesh) = meshes.get(mesh) {
-                commands.entity(e).insert(Collider::trimesh_from_mesh(mesh).unwrap_or_default());
+                commands
+                    .entity(e)
+                    .insert(Collider::trimesh_from_mesh(mesh).unwrap_or_default());
             } else {
                 commands.entity(e).insert(Collider::default());
             }

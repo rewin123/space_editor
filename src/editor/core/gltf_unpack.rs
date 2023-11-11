@@ -84,7 +84,7 @@ fn unpack_gltf(world: &mut World) {
     let mut command_queue = CommandQueue::default();
     for gltf in loaded_scenes.iter() {
         let handle: Handle<Gltf> = gltf.0.clone();
-        let gltf_path= if let Some(path) = handle.path() {
+        let gltf_path = if let Some(path) = handle.path() {
             path.clone()
         } else {
             continue;

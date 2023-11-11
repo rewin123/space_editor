@@ -132,7 +132,6 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<PlayerStart, ViewVisibility>();
         app.editor_relation::<PlayerStart, InheritedVisibility>();
 
-
         app.editor_relation::<Transform, GlobalTransform>();
 
         //Light
@@ -232,9 +231,10 @@ fn add_computed_visibility(
     query: Query<Entity, (With<Visibility>, Without<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e)
-        .insert(ViewVisibility::default())
-        .insert(InheritedVisibility::VISIBLE);
+        commands
+            .entity(e)
+            .insert(ViewVisibility::default())
+            .insert(InheritedVisibility::VISIBLE);
     }
 }
 
@@ -243,7 +243,10 @@ fn remove_computed_visibility(
     query: Query<Entity, (Without<Visibility>, With<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).remove::<ViewVisibility>().remove::<InheritedVisibility>();
+        commands
+            .entity(e)
+            .remove::<ViewVisibility>()
+            .remove::<InheritedVisibility>();
     }
 }
 
@@ -254,9 +257,7 @@ fn sync_asset_mesh(
     assets: Res<AssetServer>,
 ) {
     for (e, mesh) in changed.iter() {
-        commands
-            .entity(e)
-            .insert(assets.load::<Mesh>(&mesh.path));
+        commands.entity(e).insert(assets.load::<Mesh>(&mesh.path));
     }
 
     for e in deleted.read() {

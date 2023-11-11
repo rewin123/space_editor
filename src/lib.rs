@@ -26,8 +26,8 @@ use prefab::PrefabPlugin;
 /// Public usage of packages that used in this crate
 pub mod ext {
     pub use bevy::prelude::*;
-    pub use bevy_egui::*;
     pub use bevy_debug_grid::*;
+    pub use bevy_egui::*;
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_mod_picking::prelude::*;
     pub use bevy_panorbit_camera::*;
@@ -136,6 +136,5 @@ pub fn simple_editor_setup(mut commands: Commands) {
         .insert(PickableBundle::default())
         .insert(RaycastPickable);
 
-    
     bevy_debug_grid::spawn_floor_grid(commands);
 }
