@@ -9,7 +9,7 @@ pub mod ui_registration;
 
 use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
-use bevy_mod_picking::{prelude::*, PickableBundle, backends::raycast::bevy_mod_raycast::prelude::RaycastSettings};
+use bevy_mod_picking::{prelude::*, PickableBundle, backends::raycast::{bevy_mod_raycast::prelude::RaycastSettings, RaycastPickable}};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
@@ -48,9 +48,6 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
             app.add_plugins(
                 bevy_mod_picking::DefaultPickingPlugins
-                    .build()
-                    .disable::<DebugPickingPlugin>()
-                    .disable::<DefaultHighlightingPlugin>(),
             );
 
             app.world.resource_mut::<backends::raycast::RaycastBackendSettings>().require_markers = true;
@@ -162,7 +159,8 @@ fn auto_add_picking(
         commands
             .entity(e)
             .insert(PickableBundle::default())
-            .insert(On::<Pointer<Down>>::send_event::<SelectEvent>());
+            .insert(On::<Pointer<Down>>::send_event::<SelectEvent>())
+            .insert(RaycastPickable);
     }
 }
 
@@ -183,7 +181,8 @@ fn auto_add_picking_dummy(
             if mesh.primitive_topology() == PrimitiveTopology::TriangleList {
                 commands
                     .entity(e)
-                    .insert(PickableBundle::default());
+                    .insert(PickableBundle::default())
+                    .insert(RaycastPickable);
             }
         }
     }
@@ -200,7 +199,8 @@ fn select_listener(
     if !pan_orbit_state.0 {
         return;
     }
-    for event in events.iter() {
+    for event in events.read() {
+        info!("Select Event: {:?}", event.e);
         match event.event.button {
             PointerButton::Primary => {
                 commands.entity(event.e).insert(core::Selected);

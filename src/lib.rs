@@ -18,6 +18,7 @@ pub mod optional;
 
 use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
 
+use bevy_mod_picking::{backends::raycast::RaycastPickable, PickableBundle};
 use editor::EditorPlugin;
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
@@ -131,7 +132,9 @@ pub fn simple_editor_setup(mut commands: Commands) {
             ..default()
         })
         .insert(bevy_panorbit_camera::PanOrbitCamera::default())
-        .insert(EditorCameraMarker);
+        .insert(EditorCameraMarker)
+        .insert(PickableBundle::default())
+        .insert(RaycastPickable);
 
     
     bevy_debug_grid::spawn_floor_grid(commands);
