@@ -181,7 +181,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     let e_id = e.id().index();
                     egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
                         for idx in 0..components_id.len() {
-                            let c_id = components_by_entity
+                            let c_id: ComponentId = components_by_entity
                                 .entry(e_id)
                                 .or_insert(Vec::new())
                                 .get(idx)
@@ -204,15 +204,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                     let value = reflect_from_ptr.from_ptr_mut()(ptr);
 
                                     let name = {
-                                        if let Some(c_id) = cell.components().get_resource_id(registration.type_id()) {
-                                            let info = cell.components().get_info(c_id).unwrap();
-                                            pretty_type_name::pretty_type_name_str(info.name())
-                                        } else {
-                                            "Unknown".to_string()
-                                        }
+                                        let info = cell.components().get_info(c_id).unwrap();
+                                        pretty_type_name::pretty_type_name_str(info.name())
                                     };
-
-                                    pretty_type_name::pretty_type_name_str(registration.type_info().type_path());
 
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {

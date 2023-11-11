@@ -232,7 +232,9 @@ fn add_computed_visibility(
     query: Query<Entity, (With<Visibility>, Without<ViewVisibility>)>,
 ) {
     for e in query.iter() {
-        commands.entity(e).insert(ViewVisibility::default()).insert(InheritedVisibility::default());
+        commands.entity(e)
+        .insert(ViewVisibility::default())
+        .insert(InheritedVisibility::VISIBLE);
     }
 }
 
