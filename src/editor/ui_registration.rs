@@ -54,7 +54,7 @@ impl EditorBundleUntyped {
     }
 }
 
-/// Train to add editor_bundle(..) to App
+/// Trait to add `editor_bundle(..)` to App
 pub trait EditorUiExt {
     /// Register new bundle in editor ui
     fn editor_bundle<T: Bundle + Clone>(&mut self, category: &str, name: &str, bundle: T);

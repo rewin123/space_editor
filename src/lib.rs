@@ -13,7 +13,7 @@ pub mod prefab;
 /// Module contains custom registry options to store clone functions and bundles in UI
 pub mod editor_registry;
 
-/// Optional editor extensions (like activate bevy_xpbd support in editor)
+/// Optional editor extensions (like activate `bevy_xpbd` support in editor)
 pub mod optional;
 
 use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
@@ -82,7 +82,7 @@ pub struct PrefabMarker;
 #[reflect(Component)]
 pub struct EditorCameraMarker;
 
-/// Editor states (Editor, GamePrepare, Game)
+/// Editor states (`Editor`, `GamePrepare`, `Game`)
 #[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
 pub enum EditorState {
     Editor,

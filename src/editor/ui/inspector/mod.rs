@@ -76,7 +76,7 @@ fn register_custom_impls(registry: Res<AppTypeRegistry>) {
         ));
 }
 
-/// Function form bevy_inspector_egui to split component to data ptr and "set changed" function
+/// Function form `bevy_inspector_egui` to split component to data ptr and "set changed" function
 pub fn mut_untyped_split(mut mut_untyped: MutUntyped<'_>) -> (PtrMut<'_>, impl FnMut() + '_) {
     // bypass_change_detection returns a `&mut PtrMut` which is basically useless, because all its methods take `self`
     let ptr = mut_untyped.bypass_change_detection();

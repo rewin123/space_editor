@@ -28,7 +28,10 @@ pub mod prelude {
     pub use super::ui::*;
 }
 
-/// Editor UI plugin. Must be used with PrefabPlugin and EditorRegistryPlugin
+/// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
+///
+/// [`PrefabPlugin`]: crate::PrefabPlugin
+/// [`EditorRegistryPlugin`]: crate::editor_registry::EditorRegistryPlugin
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
