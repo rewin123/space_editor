@@ -62,7 +62,7 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(bot_menu::BotMenuPlugin);
 
-        app.configure_set(
+        app.configure_sets(
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)

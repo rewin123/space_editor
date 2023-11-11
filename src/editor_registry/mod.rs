@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,
-    reflect::{GetTypeRegistration, TypePath, TypeRegistry, TypeRegistryArc},
+    reflect::{GetTypeRegistration, TypePath, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
 

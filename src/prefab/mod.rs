@@ -58,8 +58,8 @@ impl Plugin for BasePrefabPlugin {
             app.add_plugins(EditorRegistryPlugin);
         }
 
-        app.configure_set(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_set(
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
             Update,
             EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
@@ -280,7 +280,7 @@ fn sync_asset_material(
             .insert(assets.load::<StandardMaterial>(&material.path));
     }
 
-    for e in deleted.iter() {
+    for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<StandardMaterial>>();
         }

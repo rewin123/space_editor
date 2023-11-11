@@ -26,7 +26,7 @@ use prefab::PrefabPlugin;
 /// Public usage of packages that used in this crate
 pub mod ext {
     pub use bevy::prelude::*;
-    pub use bevy_debug_grid::*;
+    pub use bevy_debug_grid;
     pub use bevy_egui::*;
     pub use bevy_inspector_egui::prelude::*;
     pub use bevy_mod_picking::prelude::*;

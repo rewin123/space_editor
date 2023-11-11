@@ -8,7 +8,6 @@ use bevy::{
 };
 use bevy_xpbd_3d::{
     prelude::{AngularVelocity, LinearVelocity, Position, RayHits},
-    PhysicsSchedule, PhysicsStepSet,
 };
 use space_editor::prelude::{component::EntityLink, spatial_query::RayCasterPrefab, *};
 
@@ -100,7 +99,7 @@ fn move_player(
 ) {
     for (_e, mut vel, mut rot, mut controller, hits, tranform) in query.iter_mut() {
         //take 1th hit, because 0th hit is self hit
-        if let Some(hit) = hits.iter_sorted().nth(0) {
+        if let Some(hit) = hits.iter_sorted().next() {
             if hit.time_of_impact > 0.7 {
                 continue;
             }

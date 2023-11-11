@@ -54,7 +54,7 @@ pub struct AutoStruct<T: Reflect + FromReflect + Default + Clone> {
 }
 
 impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
-    pub fn new(data: &T, assets: &AssetServer) -> AutoStruct<T> {
+    pub fn new(data: &T, _assets: &AssetServer) -> AutoStruct<T> {
         let mut paths = HashMap::new();
 
         if let ReflectRef::Struct(s) = data.reflect_ref() {

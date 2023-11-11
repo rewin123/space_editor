@@ -265,7 +265,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     let _counter = 0;
                     for idx in 0..components_id.len() {
                         let c_id = components_id[idx];
-                        let t_id = types_id[idx];
+                        let _t_id = types_id[idx];
                         let name = pretty_type_name::pretty_type_name_str(
                             cell.components().get_info(c_id).unwrap().name(),
                         );

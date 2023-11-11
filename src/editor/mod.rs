@@ -10,7 +10,7 @@ pub mod ui_registration;
 use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use bevy_mod_picking::{
-    backends::raycast::{bevy_mod_raycast::prelude::RaycastSettings, RaycastPickable},
+    backends::raycast::{RaycastPickable},
     prelude::*,
     PickableBundle,
 };
@@ -140,7 +140,7 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
-fn create_grid_lines(mut commands: Commands) {
+fn create_grid_lines(commands: Commands) {
     bevy_debug_grid::spawn_floor_grid(commands);
 }
 

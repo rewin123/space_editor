@@ -48,7 +48,7 @@ fn unpack_gltf_event(
     assets: Res<AssetServer>,
     mut queue: ResMut<GltfSceneQueue>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         queue.0.push(assets.load(event.path.clone()));
     }
     events.clear();
@@ -76,7 +76,7 @@ fn unpack_gltf(world: &mut World) {
     let loaded_scenes = {
         let mut events = world.resource_mut::<Events<GltfLoaded>>();
         let mut reader = events.get_reader();
-        let loaded = reader.iter(&events).cloned().collect::<Vec<GltfLoaded>>();
+        let loaded = reader.read(&events).cloned().collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
     };
