@@ -13,7 +13,6 @@ use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableB
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
-    optional::bevy_xpbd_plugin,
     prefab::{component::CameraPlay, save::SaveState},
     prelude::GameViewTab,
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
@@ -42,7 +41,7 @@ impl Plugin for EditorPlugin {
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            app.add_plugins(bevy_xpbd_plugin::BevyXpbdEditorPlugin);
+            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
         }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
