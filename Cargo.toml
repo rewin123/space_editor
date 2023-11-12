@@ -18,6 +18,7 @@ bevy_egui = "0.23"
 egui-gizmo = "0.12"
 bevy-scene-hook = "9"
 ron = "0.8"
+serde = "1"
 bevy_panorbit_camera = "0.9"
 bevy-inspector-egui = {version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
 pretty-type-name = "1.0"

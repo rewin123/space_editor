@@ -7,8 +7,8 @@ use load::*;
 pub mod tool;
 pub use tool::*;
 
-pub mod settings;
-pub use settings::*;
+pub mod persistance;
+pub use persistance::*;
 
 pub mod gltf_unpack;
 
