@@ -3,11 +3,10 @@ pub mod refl_impl;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, component::ComponentId, system::CommandQueue},
+    ecs::{change_detection::MutUntyped, system::CommandQueue},
     prelude::*,
     ptr::PtrMut,
     reflect::ReflectFromPtr,
-    utils::HashMap,
 };
 
 use bevy_egui::*;
@@ -241,8 +240,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 egui::Grid::new("Component grid").show(ui, |ui| {
                     let _counter = 0;
-                    for idx in 0..components_id.len() {
-                        let (c_id, _t_id, name) = &components_id[idx];
+                    for (c_id, _t_id, name) in &components_id {
                         if name.to_lowercase().contains(&lower_filter) {
                             ui.label(name);
                             if ui.button("+").clicked() {
