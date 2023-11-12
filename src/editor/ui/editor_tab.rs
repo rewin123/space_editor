@@ -6,7 +6,7 @@ use bevy_egui::egui::{self, WidgetText};
 use super::{EditorUiRef, EditorUiReg};
 
 pub trait EditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, commands : &mut Commands, world: &mut World);
+    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World);
     fn title(&self) -> egui::WidgetText;
 }
 
@@ -33,7 +33,7 @@ pub enum EditorTabCommand {
 
 pub struct EditorTabViewer<'a, 'w, 's> {
     pub world: &'a mut World,
-    pub commands : &'a mut Commands<'w,'s>,
+    pub commands: &'a mut Commands<'w, 's>,
     pub registry: &'a mut HashMap<EditorTabName, EditorUiReg>,
     pub visible: Vec<EditorTabName>,
     pub tab_commands: Vec<EditorTabCommand>,
@@ -140,7 +140,7 @@ pub struct ScheduleEditorTab {
 }
 
 impl EditorTab for ScheduleEditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, _ : &mut Commands, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
         world.insert_non_send_resource(EditorUiRef(inner_ui));
 

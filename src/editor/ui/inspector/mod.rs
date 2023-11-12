@@ -51,7 +51,7 @@ impl Plugin for SpaceInspectorPlugin {
 pub struct InspectorTab {}
 
 impl EditorTab for InspectorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, _ : &mut Commands, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         inspect(ui, world);
     }
 
@@ -136,17 +136,17 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let world_registry = app_registry.read();
     let disable_pan_orbit = false;
 
-
     //Collet data about all components
     let mut components_id = Vec::new();
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
-            let name = pretty_type_name::pretty_type_name_str(world.components().get_info(c_id).unwrap().name());
+            let name = pretty_type_name::pretty_type_name_str(
+                world.components().get_info(c_id).unwrap().name(),
+            );
             components_id.push((c_id, reg.type_id(), name));
         }
     }
     components_id.sort_by(|a, b| a.2.cmp(&b.2));
-    
 
     unsafe {
         let cell = world.as_unsafe_world_cell();
@@ -176,7 +176,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     ui.label("Components:");
                     let e_id = e.id().index();
                     egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                        for  (c_id, t_id, name) in &components_id {
+                        for (c_id, t_id, name) in &components_id {
                             if let Some(data) = e.get_mut_by_id(*c_id) {
                                 let registration = registry.get(*t_id).unwrap();
                                 if let Some(reflect_from_ptr) =
@@ -246,8 +246,12 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                         if name.to_lowercase().contains(&lower_filter) {
                             ui.label(name);
                             if ui.button("+").clicked() {
-                                let id =
-                                    cell.components().get_info(*c_id).unwrap().type_id().unwrap();
+                                let id = cell
+                                    .components()
+                                    .get_info(*c_id)
+                                    .unwrap()
+                                    .type_id()
+                                    .unwrap();
                                 for e in selected.iter() {
                                     commands.push(InspectCommand::AddComponent(*e, id));
                                 }

@@ -27,7 +27,7 @@ pub use tools::*;
 
 pub mod debug_panels;
 
-use bevy::{prelude::*, utils::HashMap, window::PrimaryWindow, ecs::system::CommandQueue};
+use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
 use crate::{EditorSet, EditorState};
@@ -187,8 +187,8 @@ impl EditorUi {
             let mut commands = Commands::new(&mut command_queue, cell.world());
 
             let mut tab_viewer = EditorTabViewer {
-                commands : &mut commands,
-                world : cell.world_mut(),
+                commands: &mut commands,
+                world: cell.world_mut(),
                 registry: &mut self.registry,
                 visible,
                 tab_commands: vec![],
@@ -239,9 +239,13 @@ impl EditorUiAppExt for App {
         T: EditorTab + Resource + Send + Sync + 'static,
     {
         self.insert_resource(tab);
-        let show_fn = Box::new(|ui: &mut egui::Ui, commands : &mut Commands, world: &mut World| {
-            world.resource_scope(|scoped_world, mut data: Mut<T>| data.ui(ui, commands, scoped_world));
-        });
+        let show_fn = Box::new(
+            |ui: &mut egui::Ui, commands: &mut Commands, world: &mut World| {
+                world.resource_scope(|scoped_world, mut data: Mut<T>| {
+                    data.ui(ui, commands, scoped_world)
+                });
+            },
+        );
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
             title_command: Box::new(|world| world.resource_mut::<T>().title()),

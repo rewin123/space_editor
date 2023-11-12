@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::camera::CameraProjection, ecs::system::CommandQueue};
+use bevy::{ecs::system::CommandQueue, prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
@@ -27,7 +27,7 @@ impl EditorTool for GizmoTool {
         "Gizmo"
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, commands : &mut Commands, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         // GIZMO DRAW
         // Draw gizmo per entity to individual move
         // If SHIFT pressed draw "mean" gizmo to move all selected entities together

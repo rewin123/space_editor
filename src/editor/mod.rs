@@ -13,9 +13,10 @@ use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableB
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 
 use crate::{
+    optional::bevy_xpbd_plugin,
     prefab::{component::CameraPlay, save::SaveState},
     prelude::GameViewTab,
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, optional::bevy_xpbd_plugin,
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
 };
 
 use ui_registration::*;
