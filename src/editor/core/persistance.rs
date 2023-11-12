@@ -2,7 +2,7 @@
 
 use std::any::TypeId;
 
-use bevy::{prelude::*, utils::HashMap, reflect::{TypeRegistry, serde::{ReflectSerializer, TypedReflectDeserializer, UntypedReflectDeserializer}, GetTypeRegistration}};
+use bevy::{prelude::*, utils::HashMap, reflect::{TypeRegistry, serde::{ReflectSerializer, TypedReflectDeserializer, UntypedReflectDeserializer}, GetTypeRegistration}, window::WindowCloseRequested};
 use ron::{*, ser::PrettyConfig};
 use serde::de::DeserializeSeed;
 
@@ -18,24 +18,55 @@ pub enum PersistanceSet {
 impl Plugin for PersistancePlugin {
     fn build(&self, app: &mut App) {
         app
-            .init_resource::<PersistanceRegistry>();
+            .init_resource::<PersistanceRegistry>()
+            .init_resource::<PersistanceSettings>();
 
         app.add_event::<PersistanceEvent>();
+        app.add_event::<PersistanceResourceBroadcastEvent>();
+
         app.configure_sets(Update, (
             PersistanceSet::EventReader,
             PersistanceSet::ResourceProcess,
             PersistanceSet::Collect
         ).chain());
 
+        app.add_systems(Startup, persistance_startup_load);
+        app.add_systems(PreUpdate, persistance_save_on_close);
+
         app.add_systems(Update, persistance_start.in_set(PersistanceSet::EventReader));
         app.add_systems(Update, persistance_end.in_set(PersistanceSet::Collect));
+
+        app.persistance_resource::<PersistanceSettings>();
     }
 }
+
+fn persistance_save_on_close(
+    mut events: EventWriter<PersistanceEvent>,
+    settings : Res<PersistanceSettings>,
+    mut close_events : EventReader<WindowCloseRequested>,
+) {
+    if settings.save_on_close {
+        if close_events.read().next().is_some() {
+            events.send(PersistanceEvent::Save);
+        }
+    }
+}
+
+fn persistance_startup_load(
+    mut events: EventWriter<PersistanceEvent>,
+    settings : Res<PersistanceSettings>,
+) {
+    if settings.load_on_startup {
+        events.send(PersistanceEvent::Load);
+    }
+}
+
+
 
 fn persistance_start(
     mut events: EventReader<PersistanceEvent>,
     mut broadcast : EventWriter<PersistanceResourceBroadcastEvent>,
-    mut persistance : ResMut<PersistanceRegistry>
+    mut persistance : ResMut<PersistanceRegistry>,
 ) {
     for event in events.read() {
         match event {
@@ -45,10 +76,12 @@ fn persistance_start(
                 persistance.save_counter = 0;
             },
             PersistanceEvent::Load => {
-
                 match &persistance.source {
                     PersistanceDataSource::File(path) => {
-                        let file = std::fs::File::open(path).unwrap();
+                        let Ok(file) = std::fs::File::open(path) else {
+                            warn!("Persistance file not found");
+                            continue;
+                        };
                         let data: HashMap<String, String> = ron::de::from_reader(file).unwrap();
                         persistance.data = data;
                     },
@@ -79,7 +112,10 @@ fn persistance_end(
             match &persistance.source {
                 PersistanceDataSource::File(path) => {
                     let mut file = std::fs::File::create(path).unwrap();
-                    ron::ser::to_writer_pretty(&mut file, &persistance.data, PrettyConfig::default()).unwrap();
+                    ron::ser::to_writer_pretty(
+                        &mut file, 
+                        &persistance.data, 
+                        PrettyConfig::default()).unwrap();
                 },
                 PersistanceDataSource::Memory => {
                     //do nothing
@@ -99,9 +135,21 @@ fn persistance_end(
     }
 }
 
-/// ['PersistanceResource'] implements the simple mechanics of saving and loading editor state between runs
-pub trait PersistanceResource : Default + Reflect + FromReflect + Resource + GetTypeRegistration {
 
+#[derive(Resource, Reflect)]
+#[reflect(Resource)]
+pub struct PersistanceSettings {
+    pub load_on_startup: bool,
+    pub save_on_close: bool,
+}
+
+impl Default for PersistanceSettings {
+    fn default() -> Self {
+        Self {
+            load_on_startup: true,
+            save_on_close: true,
+        }
+    }
 }
 
 #[derive(Default, Clone)]
@@ -146,6 +194,8 @@ enum PersistanceResourceBroadcastEvent {
     Pack,
 }
 
+#[derive(Reflect, Clone)]
+#[reflect(Default)]
 pub enum PersistanceDataSource {
     File(String),
     Memory
@@ -159,11 +209,11 @@ impl Default for PersistanceDataSource {
 
 
 pub trait AppPersistanceExt {
-    fn persistance_resource<T: PersistanceResource>(&mut self) -> &mut Self;
+    fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(&mut self) -> &mut Self;
 }
 
 impl AppPersistanceExt for App {
-    fn persistance_resource<T: PersistanceResource>(&mut self) -> &mut Self {
+    fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(&mut self) -> &mut Self {
         self.world.resource_mut::<PersistanceRegistry>().target_count += 1;
 
         self.register_type::<T>();
@@ -176,7 +226,7 @@ impl AppPersistanceExt for App {
 }
 
 
-fn persistance_resource_system<T: PersistanceResource>(
+fn persistance_resource_system<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
     mut events: EventReader<PersistanceResourceBroadcastEvent>,
     mut persistance : ResMut<PersistanceRegistry>,
     mut resource : ResMut<T>,
@@ -193,7 +243,10 @@ fn persistance_resource_system<T: PersistanceResource>(
                 persistance.save_counter += 1;
             },
             PersistanceResourceBroadcastEvent::Unpack => {
-                let data = persistance.data.get(T::get_type_registration().type_info().type_path()).unwrap();
+                let Some(data) = persistance.data.get(T::get_type_registration().type_info().type_path()) else {
+                    warn!("Persistance resource {} not found", T::get_type_registration().type_info().type_path());
+                    continue;
+                };
                 let type_registry = registry.read();
                 let deserializer = UntypedReflectDeserializer::new(&type_registry);
                 let reflected_value = deserializer.deserialize(
@@ -202,6 +255,8 @@ fn persistance_resource_system<T: PersistanceResource>(
 
                 let converted = <T as FromReflect>::from_reflect(&*reflected_value).unwrap();
                 *resource = converted;
+                resource.set_changed();
+                
                 persistance_loaded.send(PersistanceLoaded::<T>::default());
                 persistance.load_counter += 1;
             },

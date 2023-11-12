@@ -38,11 +38,8 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+        app.add_plugins(core::EditorCore);
 
-        #[cfg(feature = "bevy_xpbd_3d")]
-        {
-            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
-        }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
@@ -64,8 +61,6 @@ impl Plugin for EditorPlugin {
         app.init_resource::<prelude::EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
-
-        app.add_plugins(core::EditorCore);
 
         app.add_systems(
             Startup,
@@ -128,6 +123,12 @@ impl Plugin for EditorPlugin {
         app.init_resource::<BundleReg>();
 
         app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
+
+        
+        #[cfg(feature = "bevy_xpbd_3d")]
+        {
+            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
+        }
 
         register_mesh_editor_bundles(app);
         register_light_editor_bundles(app);

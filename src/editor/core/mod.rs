@@ -7,7 +7,9 @@ use load::*;
 pub mod tool;
 pub use tool::*;
 
+#[cfg(feature = "persistance_editor")]
 pub mod persistance;
+#[cfg(feature = "persistance_editor")]
 pub use persistance::*;
 
 pub mod gltf_unpack;
@@ -25,6 +27,9 @@ pub struct EditorCore;
 impl Plugin for EditorCore {
     fn build(&self, app: &mut App) {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
+
+        #[cfg(feature = "persistance_editor")]
+        app.add_plugins(PersistancePlugin);
 
         app.add_event::<EditorEvent>();
 
