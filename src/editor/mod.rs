@@ -39,6 +39,11 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
 
+        #[cfg(feature = "bevy_xpbd_3d")]
+        {
+            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
+        }
+
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
         app.add_plugins(DefaultInspectorConfigPlugin)

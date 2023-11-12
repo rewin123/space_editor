@@ -27,7 +27,7 @@ impl EditorTool for GizmoTool {
         "Gizmo"
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         // GIZMO DRAW
         // Draw gizmo per entity to individual move
         // If SHIFT pressed draw "mean" gizmo to move all selected entities together
@@ -48,6 +48,8 @@ impl EditorTool for GizmoTool {
             }
         }
 
+        let mut del = false;
+
         if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
@@ -61,6 +63,18 @@ impl EditorTool for GizmoTool {
                     self.gizmo_mode = mode;
                 }
             }
+
+            if ui.input(|s| s.key_pressed(Key::Delete) || s.key_pressed(Key::X)) {
+                del = true;
+            }
+        }
+
+        if del {
+            let mut query = world.query_filtered::<Entity, With<Selected>>();
+            for e in query.iter(world) {
+                commands.entity(e).despawn_recursive();
+            }
+            return;
         }
 
         let (cam_transform, cam_proj) = {
