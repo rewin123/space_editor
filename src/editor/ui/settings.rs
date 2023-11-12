@@ -17,7 +17,15 @@ impl Plugin for SettingsWindowPlugin {
 pub struct SettingsWindow {}
 
 impl EditorTab for SettingsWindow {
-    fn ui(&mut self, ui: &mut egui::Ui, _commands : &mut Commands, _world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _commands : &mut Commands, world: &mut World) {
+
+        #[cfg(feature = "bevy_xpbd_3d")]
+        {
+            ui.heading("Bevy XPBD 3D");
+            ui.checkbox(&mut world.resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>().enabled, "Show bevy xpbd debug render");
+            ui.checkbox(&mut world.resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>().hide_meshes, "Hide debug meshes");
+        }
+
         ui.heading("Hotkeys in Game view tab");
 
         egui::Grid::new("hotkeys")

@@ -15,7 +15,7 @@ use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraS
 use crate::{
     prefab::{component::CameraPlay, save::SaveState},
     prelude::GameViewTab,
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, optional::bevy_xpbd_plugin,
 };
 
 use ui_registration::*;
@@ -37,6 +37,11 @@ impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
+        }
+
+        #[cfg(feature = "bevy_xpbd_3d")]
+        {
+            app.add_plugins(bevy_xpbd_plugin::BevyXpbdEditorPlugin);
         }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
