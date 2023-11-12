@@ -3,10 +3,10 @@ pub mod refl_impl;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, system::CommandQueue},
+    ecs::{change_detection::MutUntyped, system::CommandQueue, component::ComponentId},
     prelude::*,
     ptr::PtrMut,
-    reflect::ReflectFromPtr,
+    reflect::ReflectFromPtr, utils::HashMap,
 };
 
 use bevy_egui::*;
@@ -47,11 +47,13 @@ impl Plugin for SpaceInspectorPlugin {
 }
 
 #[derive(Resource, Default)]
-pub struct InspectorTab {}
+pub struct InspectorTab {
+    default_opened : HashMap<ComponentId, bool>
+}
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        inspect(ui, world);
+        inspect(self, ui, world);
     }
 
     fn title(&self) -> egui::WidgetText {
@@ -122,7 +124,7 @@ fn execute_inspect_command(
 }
 
 /// System to show inspector panel
-pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
+pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
     let selected = world
         .query_filtered::<Entity, With<Selected>>()
         .iter(world)
@@ -187,7 +189,13 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
 
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                            ui.collapsing(name, |ui| {
+                                            let need_default_open = tab
+                                                .default_opened
+                                                .get(c_id)
+                                                .unwrap_or(&false)
+                                                .clone();
+                                            let responce = egui::CollapsingHeader::new(name)
+                                                .default_open(need_default_open).show(ui, |ui| {
                                                 ui.push_id(
                                                     format!("content-{:?}-{}", &e.id(), &name),
                                                     |ui| {
@@ -202,6 +210,11 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                                     },
                                                 );
                                             });
+                                            if responce.fully_open() && !need_default_open {
+                                                tab.default_opened.insert(*c_id, true);
+                                            } else if responce.fully_closed() && need_default_open {
+                                                tab.default_opened.insert(*c_id, false);
+                                            }
                                         });
 
                                         ui.push_id(
