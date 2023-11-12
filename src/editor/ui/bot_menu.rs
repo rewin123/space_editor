@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::*;
 
 use crate::{
-    editor::core::{EditorEvent, EditorPrefabPath},
+    editor::core::{EditorEvent, EditorPrefabPath, BackgroundTaskStorage, BackgroundTask},
     prefab::PrefabPlugin,
     EditorSet, EditorState,
 };
@@ -65,6 +65,7 @@ pub fn bot_menu(
     mut events: EventReader<MenuLoadEvent>,
     mut menu_state: ResMut<BotMenuState>,
     mut editor_events: EventWriter<EditorEvent>,
+    background_tasks : Res<BackgroundTaskStorage>
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot menu").show(ctx, |ui| {
@@ -181,6 +182,20 @@ pub fn bot_menu(
             if ui.button("▶").clicked() {
                 editor_events.send(EditorEvent::StartGame);
             }
+
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
+                if background_tasks.tasks.len() > 0 {
+                    //Spinning circle
+                    ui.spinner();
+
+                    match &background_tasks.tasks[0] {
+                        BackgroundTask::AssetLoading(path, _) => {
+                            ui.label(format!("Loading {}", path));
+                        }
+                        BackgroundTask::None => {}
+                    }
+                }
+            });
         });
     });
 

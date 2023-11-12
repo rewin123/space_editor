@@ -7,6 +7,9 @@ use load::*;
 pub mod tool;
 pub use tool::*;
 
+pub mod task_storage;
+pub use task_storage::*;
+
 #[cfg(feature = "persistance_editor")]
 pub mod persistance;
 #[cfg(feature = "persistance_editor")]
@@ -30,6 +33,8 @@ impl Plugin for EditorCore {
 
         #[cfg(feature = "persistance_editor")]
         app.add_plugins(PersistancePlugin);
+
+        app.add_plugins(BackgroundTaskStoragePlugin);
 
         app.add_event::<EditorEvent>();
 
@@ -74,12 +79,18 @@ fn editor_event_listener(
     mut start_game_state: ResMut<NextState<EditorState>>,
     cache: ResMut<PrefabMemoryCache>,
     mut gltf_events: EventWriter<gltf_unpack::EditorUnpackGltf>,
+    mut background_tasks : ResMut<BackgroundTaskStorage>,
 ) {
     for event in events.read() {
         match event {
             EditorEvent::Load(path) => match path {
                 EditorPrefabPath::File(path) => {
-                    load_server.scene = Some(assets.load(path.to_string()))
+                    let handle = assets.load(path.to_string());
+                    background_tasks.tasks.push(BackgroundTask::AssetLoading(
+                        path.to_string(),
+                        handle.clone().untyped(),
+                    ));
+                    load_server.scene = Some(handle);
                 }
                 EditorPrefabPath::MemoryCahce => {
                     load_server.scene = cache.scene.clone();

@@ -11,6 +11,8 @@ use crate::{
     PrefabMarker,
 };
 
+use super::{BackgroundTaskStorage, BackgroundTask};
+
 #[derive(Event)]
 pub struct EditorUnpackGltf {
     pub path: String,
@@ -47,9 +49,15 @@ fn unpack_gltf_event(
     mut events: EventReader<EditorUnpackGltf>,
     assets: Res<AssetServer>,
     mut queue: ResMut<GltfSceneQueue>,
+    mut background_tasks : ResMut<BackgroundTaskStorage>,
 ) {
     for event in events.read() {
-        queue.0.push(assets.load(event.path.clone()));
+        let handle = assets.load(event.path.clone());
+        background_tasks.tasks.push(BackgroundTask::AssetLoading(
+            event.path.clone(),
+            handle.clone().untyped(),
+        ));
+        queue.0.push(handle);
     }
     events.clear();
 }
