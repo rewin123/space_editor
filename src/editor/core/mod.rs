@@ -10,6 +10,9 @@ pub use tool::*;
 pub mod task_storage;
 pub use task_storage::*;
 
+pub mod undo;
+pub use undo::*;
+
 #[cfg(feature = "persistance_editor")]
 pub mod persistance;
 #[cfg(feature = "persistance_editor")]
