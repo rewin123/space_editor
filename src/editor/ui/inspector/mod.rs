@@ -147,122 +147,120 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     }
     components_id.sort_by(|a, b| a.2.cmp(&b.2));
 
-    unsafe {
-        let cell = world.as_unsafe_world_cell();
-        let mut state = cell.get_resource_mut::<InspectState>().unwrap();
+    let cell = world.as_unsafe_world_cell();
+    let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
 
-        let mut commands: Vec<InspectCommand> = vec![];
-        let mut queue = CommandQueue::default();
-        let mut cx = bevy_inspector_egui::reflect_inspector::Context {
+    let mut commands: Vec<InspectCommand> = vec![];
+    let mut queue = CommandQueue::default();
+    let mut cx = unsafe {
+        bevy_inspector_egui::reflect_inspector::Context {
             world: Some(cell.world_mut().into()),
             queue: Some(&mut queue),
-        };
-        let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
+        }
+    };
+    let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
-        egui::ScrollArea::vertical().show(ui, |ui| {
-            for e in selected.iter() {
-                if let Some(e) = cell.get_entity(*e) {
-                    let mut name;
-                    if let Some(name_struct) = e.get::<Name>() {
-                        name = name_struct.as_str().to_string();
-                        if name.is_empty() {
-                            name = format!("{:?} (empty name)", e.id());
-                        }
-                    } else {
-                        name = format!("{:?}", e.id());
+    egui::ScrollArea::vertical().show(ui, |ui| {
+        for e in selected.iter() {
+            if let Some(e) = cell.get_entity(*e) {
+                let mut name;
+                if let Some(name_struct) = unsafe { e.get::<Name>() } {
+                    name = name_struct.as_str().to_string();
+                    if name.is_empty() {
+                        name = format!("{:?} (empty name)", e.id());
                     }
-                    ui.heading(&name);
-                    ui.label("Components:");
-                    let e_id = e.id().index();
-                    egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                        for (c_id, t_id, name) in &components_id {
-                            if let Some(data) = e.get_mut_by_id(*c_id) {
-                                let registration = registry.get(*t_id).unwrap();
-                                if let Some(reflect_from_ptr) =
-                                    registration.data::<ReflectFromPtr>()
-                                {
-                                    let (ptr, mut set_changed) = mut_untyped_split(data);
-
-                                    let value = reflect_from_ptr.from_ptr_mut()(ptr);
-
-                                    if !editor_registry.silent.contains(&registration.type_id()) {
-                                        ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                            ui.collapsing(name, |ui| {
-                                                ui.push_id(
-                                                    format!("content-{:?}-{}", &e.id(), &name),
-                                                    |ui| {
-                                                        if env.ui_for_reflect_with_options(
-                                                            value,
-                                                            ui,
-                                                            ui.id(),
-                                                            &(),
-                                                        ) {
-                                                            set_changed();
-                                                        }
-                                                    },
-                                                );
-                                            });
-                                        });
-
-                                        ui.push_id(
-                                            format!("del component {:?}-{}", &e.id(), &name),
-                                            |ui| {
-                                                //must be on top
-                                                ui.with_layout(
-                                                    egui::Layout::top_down(egui::Align::Min),
-                                                    |ui| {
-                                                        if ui.button("X").clicked() {
-                                                            commands.push(
-                                                                InspectCommand::RemoveComponent(
-                                                                    e.id(),
-                                                                    *t_id,
-                                                                ),
-                                                            );
-                                                        }
-                                                    },
-                                                );
-                                            },
-                                        );
-                                        ui.end_row();
-                                    }
-                                }
-                            }
-                        }
-                    });
-
-                    ui.separator();
+                } else {
+                    name = format!("{:?}", e.id());
                 }
-            }
+                ui.heading(&name);
+                ui.label("Components:");
+                let e_id = e.id().index();
+                egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
+                    for (c_id, t_id, name) in &components_id {
+                        if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
+                            let registration = registry.get(*t_id).unwrap();
+                            if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
+                                let (ptr, mut set_changed) = mut_untyped_split(data);
 
-            ui.label("Add component");
-            ui.text_edit_singleline(&mut state.component_add_filter);
-            let lower_filter = state.component_add_filter.to_lowercase();
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                egui::Grid::new("Component grid").show(ui, |ui| {
-                    let _counter = 0;
-                    for (c_id, _t_id, name) in &components_id {
-                        if name.to_lowercase().contains(&lower_filter) {
-                            ui.label(name);
-                            if ui.button("+").clicked() {
-                                let id = cell
-                                    .components()
-                                    .get_info(*c_id)
-                                    .unwrap()
-                                    .type_id()
-                                    .unwrap();
-                                for e in selected.iter() {
-                                    commands.push(InspectCommand::AddComponent(*e, id));
+                                let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+
+                                if !editor_registry.silent.contains(&registration.type_id()) {
+                                    ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+                                        ui.collapsing(name, |ui| {
+                                            ui.push_id(
+                                                format!("content-{:?}-{}", &e.id(), &name),
+                                                |ui| {
+                                                    if env.ui_for_reflect_with_options(
+                                                        value,
+                                                        ui,
+                                                        ui.id(),
+                                                        &(),
+                                                    ) {
+                                                        set_changed();
+                                                    }
+                                                },
+                                            );
+                                        });
+                                    });
+
+                                    ui.push_id(
+                                        format!("del component {:?}-{}", &e.id(), &name),
+                                        |ui| {
+                                            //must be on top
+                                            ui.with_layout(
+                                                egui::Layout::top_down(egui::Align::Min),
+                                                |ui| {
+                                                    if ui.button("X").clicked() {
+                                                        commands.push(
+                                                            InspectCommand::RemoveComponent(
+                                                                e.id(),
+                                                                *t_id,
+                                                            ),
+                                                        );
+                                                    }
+                                                },
+                                            );
+                                        },
+                                    );
+                                    ui.end_row();
                                 }
                             }
-                                ui.end_row();
+                        }
+                    }
+                });
+
+                ui.separator();
+            }
+        }
+
+        ui.label("Add component");
+        ui.text_edit_singleline(&mut state.component_add_filter);
+        let lower_filter = state.component_add_filter.to_lowercase();
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            egui::Grid::new("Component grid").show(ui, |ui| {
+                let _counter = 0;
+                for (c_id, _t_id, name) in &components_id {
+                    if name.to_lowercase().contains(&lower_filter) {
+                        ui.label(name);
+                        if ui.button("+").clicked() {
+                            let id = cell
+                                .components()
+                                .get_info(*c_id)
+                                .unwrap()
+                                .type_id()
+                                .unwrap();
+                            for e in selected.iter() {
+                                commands.push(InspectCommand::AddComponent(*e, id));
                             }
                         }
-                    });
-                });
+                        ui.end_row();
+                    }
+                }
+            });
         });
+    });
 
-        state.commands = commands;
-    }
+    state.commands = commands;
 
     if disable_pan_orbit {
         world.resource_mut::<crate::editor::PanOrbitEnabled>().0 = false;
