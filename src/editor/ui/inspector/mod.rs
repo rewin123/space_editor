@@ -3,11 +3,10 @@ pub mod refl_impl;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, component::ComponentId, system::CommandQueue},
+    ecs::{change_detection::MutUntyped, system::CommandQueue},
     prelude::*,
     ptr::PtrMut,
     reflect::ReflectFromPtr,
-    utils::HashMap,
 };
 
 use bevy_egui::*;
@@ -40,10 +39,6 @@ impl Plugin for SpaceInspectorPlugin {
             crate::prelude::EditorTabName::Inspector,
             InspectorTab::default(),
         );
-        // app.add_systems(Update, (inspect, execute_inspect_command).chain()
-        //     .after(crate::editor::reset_pan_orbit_state)
-        //     .before(crate::editor::ui_camera_block)
-        //     .in_set(EditorSet::Editor).before(PrefabSet::DetectPrefabChange));
 
         app.add_systems(Update, execute_inspect_command);
 
@@ -55,7 +50,7 @@ impl Plugin for SpaceInspectorPlugin {
 pub struct InspectorTab {}
 
 impl EditorTab for InspectorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         inspect(ui, world);
     }
 
@@ -140,17 +135,17 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let world_registry = app_registry.read();
     let disable_pan_orbit = false;
 
+    //Collet data about all components
     let mut components_id = Vec::new();
-    let mut types_id = Vec::new();
-    let mut components_by_entity: HashMap<u32, Vec<ComponentId>> = HashMap::new();
-    let mut types_by_entity: HashMap<u32, Vec<TypeId>> = HashMap::new();
-
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
-            components_id.push(c_id);
-            types_id.push(reg.type_id());
+            let name = pretty_type_name::pretty_type_name_str(
+                world.components().get_info(c_id).unwrap().name(),
+            );
+            components_id.push((c_id, reg.type_id(), name));
         }
     }
+    components_id.sort_by(|a, b| a.2.cmp(&b.2));
 
     unsafe {
         let cell = world.as_unsafe_world_cell();
@@ -180,22 +175,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                     ui.label("Components:");
                     let e_id = e.id().index();
                     egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                        for idx in 0..components_id.len() {
-                            let c_id: ComponentId = components_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .copied()
-                                .unwrap_or(components_id[idx]);
-                            let t_id = types_by_entity
-                                .entry(e_id)
-                                .or_insert(Vec::new())
-                                .get(idx)
-                                .copied()
-                                .unwrap_or(types_id[idx]);
-
-                            if let Some(data) = e.get_mut_by_id(c_id) {
-                                let registration = registry.get(t_id).unwrap();
+                        for (c_id, t_id, name) in &components_id {
+                            if let Some(data) = e.get_mut_by_id(*c_id) {
+                                let registration = registry.get(*t_id).unwrap();
                                 if let Some(reflect_from_ptr) =
                                     registration.data::<ReflectFromPtr>()
                                 {
@@ -203,14 +185,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
 
                                     let value = reflect_from_ptr.from_ptr_mut()(ptr);
 
-                                    let name = {
-                                        let info = cell.components().get_info(c_id).unwrap();
-                                        pretty_type_name::pretty_type_name_str(info.name())
-                                    };
-
                                     if !editor_registry.silent.contains(&registration.type_id()) {
                                         ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                            ui.collapsing(&name, |ui| {
+                                            ui.collapsing(name, |ui| {
                                                 ui.push_id(
                                                     format!("content-{:?}-{}", &e.id(), &name),
                                                     |ui| {
@@ -238,7 +215,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                                             commands.push(
                                                                 InspectCommand::RemoveComponent(
                                                                     e.id(),
-                                                                    t_id,
+                                                                    *t_id,
                                                                 ),
                                                             );
                                                         }
@@ -260,31 +237,23 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             ui.label("Add component");
             ui.text_edit_singleline(&mut state.component_add_filter);
             let lower_filter = state.component_add_filter.to_lowercase();
-            egui::ScrollArea::vertical()
-                .auto_shrink([false, true])
-                .show(ui, |ui| {
-                    egui::Grid::new("Component grid").show(ui, |ui| {
-                        let _counter = 0;
-                        for idx in 0..components_id.len() {
-                            let c_id = components_id[idx];
-                            let _t_id = types_id[idx];
-                            let name = pretty_type_name::pretty_type_name_str(
-                                cell.components().get_info(c_id).unwrap().name(),
-                            );
-
-                            if name.to_lowercase().contains(&lower_filter) {
-                                ui.label(name);
-                                if ui.button("+").clicked() {
-                                    let id = cell
-                                        .components()
-                                        .get_info(c_id)
-                                        .unwrap()
-                                        .type_id()
-                                        .unwrap();
-                                    for e in selected.iter() {
-                                        commands.push(InspectCommand::AddComponent(*e, id));
-                                    }
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::Grid::new("Component grid").show(ui, |ui| {
+                    let _counter = 0;
+                    for (c_id, _t_id, name) in &components_id {
+                        if name.to_lowercase().contains(&lower_filter) {
+                            ui.label(name);
+                            if ui.button("+").clicked() {
+                                let id = cell
+                                    .components()
+                                    .get_info(*c_id)
+                                    .unwrap()
+                                    .type_id()
+                                    .unwrap();
+                                for e in selected.iter() {
+                                    commands.push(InspectCommand::AddComponent(*e, id));
                                 }
+                            }
                                 ui.end_row();
                             }
                         }

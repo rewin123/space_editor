@@ -80,6 +80,14 @@ impl Plugin for BevyXpbdPlugin {
     }
 }
 
+pub struct BevyXpbdEditorPlugin;
+
+impl Plugin for BevyXpbdEditorPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
+    }
+}
+
 fn sync_position_spawn(
     mut commands: Commands,
     query: Query<

@@ -6,7 +6,7 @@ use bevy_egui::egui::{self, WidgetText};
 use super::{EditorUiRef, EditorUiReg};
 
 pub trait EditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World);
+    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World);
     fn title(&self) -> egui::WidgetText;
 }
 
@@ -20,7 +20,7 @@ pub enum EditorTabName {
     Other(String),
 }
 
-pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut World) + Send + Sync>;
+pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
 pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> WidgetText + Send + Sync>;
 
 pub enum EditorTabCommand {
@@ -31,14 +31,15 @@ pub enum EditorTabCommand {
     },
 }
 
-pub struct EditorTabViewer<'a> {
+pub struct EditorTabViewer<'a, 'w, 's> {
     pub world: &'a mut World,
+    pub commands: &'a mut Commands<'w, 's>,
     pub registry: &'a mut HashMap<EditorTabName, EditorUiReg>,
     pub visible: Vec<EditorTabName>,
-    pub commands: Vec<EditorTabCommand>,
+    pub tab_commands: Vec<EditorTabCommand>,
 }
 
-impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
+impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     type Tab = EditorTabName;
 
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
@@ -48,13 +49,13 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
                     show_command,
                     title_command: _,
                 } => {
-                    show_command(ui, self.world);
+                    show_command(ui, self.commands, self.world);
                 }
                 EditorUiReg::Schedule => {
                     self.world.resource_scope(
                         |world, mut storage: Mut<ScheduleEditorTabStorage>| {
                             if let Some(tab) = storage.0.get_mut(tab_name) {
-                                tab.ui(ui, world);
+                                tab.ui(ui, self.commands, world);
                             } else {
                                 ui.colored_label(
                                     egui::Color32::RED,
@@ -111,7 +112,7 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
                     format_name = format!("{:?}", reg.0);
                 }
                 if ui.button(format_name).clicked() {
-                    self.commands.push(EditorTabCommand::Add {
+                    self.tab_commands.push(EditorTabCommand::Add {
                         name: reg.0.clone(),
                         surface: _surface,
                         node: _node,
@@ -133,7 +134,7 @@ pub struct ScheduleEditorTab {
 }
 
 impl EditorTab for ScheduleEditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, world: &mut World) {
+    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
         world.insert_non_send_resource(EditorUiRef(inner_ui));
 
