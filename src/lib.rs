@@ -1,3 +1,4 @@
+// Both will be deprecated soon
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
@@ -20,6 +21,7 @@ use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
 
 use bevy_mod_picking::{backends::raycast::RaycastPickable, PickableBundle};
 use editor::EditorPlugin;
+#[cfg(feature = "bevy_xpbd_3d")]
 use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
 
@@ -121,7 +123,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
             ..default()
         },
         transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        cascade_shadow_config: CascadeShadowConfigBuilder { ..default() }.into(),
+        cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
         ..default()
     });
 

@@ -260,30 +260,36 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             ui.label("Add component");
             ui.text_edit_singleline(&mut state.component_add_filter);
             let lower_filter = state.component_add_filter.to_lowercase();
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                egui::Grid::new("Component grid").show(ui, |ui| {
-                    let _counter = 0;
-                    for idx in 0..components_id.len() {
-                        let c_id = components_id[idx];
-                        let _t_id = types_id[idx];
-                        let name = pretty_type_name::pretty_type_name_str(
-                            cell.components().get_info(c_id).unwrap().name(),
-                        );
+            egui::ScrollArea::vertical()
+                .auto_shrink([false, true])
+                .show(ui, |ui| {
+                    egui::Grid::new("Component grid").show(ui, |ui| {
+                        let _counter = 0;
+                        for idx in 0..components_id.len() {
+                            let c_id = components_id[idx];
+                            let _t_id = types_id[idx];
+                            let name = pretty_type_name::pretty_type_name_str(
+                                cell.components().get_info(c_id).unwrap().name(),
+                            );
 
-                        if name.to_lowercase().contains(&lower_filter) {
-                            ui.label(name);
-                            if ui.button("+").clicked() {
-                                let id =
-                                    cell.components().get_info(c_id).unwrap().type_id().unwrap();
-                                for e in selected.iter() {
-                                    commands.push(InspectCommand::AddComponent(*e, id));
+                            if name.to_lowercase().contains(&lower_filter) {
+                                ui.label(name);
+                                if ui.button("+").clicked() {
+                                    let id = cell
+                                        .components()
+                                        .get_info(c_id)
+                                        .unwrap()
+                                        .type_id()
+                                        .unwrap();
+                                    for e in selected.iter() {
+                                        commands.push(InspectCommand::AddComponent(*e, id));
+                                    }
                                 }
+                                ui.end_row();
                             }
-                            ui.end_row();
                         }
-                    }
+                    });
                 });
-            });
         });
 
         state.commands = commands;

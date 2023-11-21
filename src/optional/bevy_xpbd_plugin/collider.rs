@@ -28,7 +28,7 @@ pub struct ColliderPrefabCompound {
 
 impl Default for ColliderPrefab {
     fn default() -> Self {
-        ColliderPrefab::Primitive {
+        Self::Primitive {
             pos: Vector::default(),
             rot: Vector::default(),
             primitive: ColliderPrimitive::Cuboid(Vector::ONE),
@@ -82,24 +82,22 @@ pub enum ColliderPrimitive {
 
 impl Default for ColliderPrimitive {
     fn default() -> Self {
-        ColliderPrimitive::Cuboid(Vector::new(1.0, 1.0, 1.0))
+        Self::Cuboid(Vector::new(1.0, 1.0, 1.0))
     }
 }
 
 impl ColliderPrimitive {
     pub fn to_collider(&self) -> Collider {
         match self {
-            ColliderPrimitive::Cuboid(bbox) => Collider::cuboid(bbox.x, bbox.y, bbox.z),
-            ColliderPrimitive::Capsule { height, radius } => Collider::capsule(*height, *radius),
-            ColliderPrimitive::CapsuleEndpoints { a, b, radius } => {
-                Collider::capsule_endpoints(*a, *b, *radius)
-            }
-            ColliderPrimitive::Cone { height, radius } => Collider::cone(*height, *radius),
-            ColliderPrimitive::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
-            ColliderPrimitive::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
-            ColliderPrimitive::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
-            ColliderPrimitive::Ball(radius) => Collider::ball(*radius),
-            ColliderPrimitive::Segment { a, b } => Collider::segment(*a, *b),
+            Self::Cuboid(bbox) => Collider::cuboid(bbox.x, bbox.y, bbox.z),
+            Self::Capsule { height, radius } => Collider::capsule(*height, *radius),
+            Self::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*a, *b, *radius),
+            Self::Cone { height, radius } => Collider::cone(*height, *radius),
+            Self::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
+            Self::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
+            Self::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
+            Self::Ball(radius) => Collider::ball(*radius),
+            Self::Segment { a, b } => Collider::segment(*a, *b),
         }
     }
 }
@@ -165,23 +163,13 @@ fn get_collider(
     prefab_mesh: Option<&MeshPrimitivePrefab>,
 ) -> Collider {
     match collider {
-        ColliderPrefab::FromMesh => {
-            if let Some(mesh) = mesh {
-                if let Some(mesh) = meshes.get(mesh) {
-                    Collider::trimesh_from_mesh(mesh).unwrap_or_default()
-                } else {
-                    Collider::default()
-                }
-            } else {
-                Collider::default()
-            }
-        }
+        ColliderPrefab::FromMesh => mesh.map_or_else(Collider::default, |mesh| {
+            meshes.get(mesh).map_or_else(Collider::default, |mesh| {
+                Collider::trimesh_from_mesh(mesh).unwrap_or_default()
+            })
+        }),
         ColliderPrefab::FromPrefabMesh => {
-            if let Some(mesh) = prefab_mesh {
-                get_prefab_mesh_collider(mesh)
-            } else {
-                Collider::default()
-            }
+            prefab_mesh.map_or_else(Collider::default, get_prefab_mesh_collider)
         }
         ColliderPrefab::Primitive {
             pos,

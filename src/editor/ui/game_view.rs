@@ -31,7 +31,7 @@ impl EditorTab for GameViewTab {
 
         //Draw FPS
         let dt = world.get_resource::<Time>().unwrap().delta_seconds();
-        self.smoothed_dt = self.smoothed_dt * 0.98 + dt * 0.02;
+        self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
         ui.colored_label(
             egui::Color32::WHITE,
             format!("FPS: {:.0}", 1.0 / self.smoothed_dt),

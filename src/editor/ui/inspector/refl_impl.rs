@@ -64,14 +64,11 @@ pub fn entity_ref_ui(
                     }
                     false
                 });
-            false
         } else {
             ui.label(format!("{:?}", &value.entity));
-            false
         }
-    } else {
-        false
     }
+    false
 }
 
 /// Custom UI for [`EntityLink`] struct

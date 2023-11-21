@@ -103,15 +103,15 @@ pub enum RigidBodyPrefab {
 }
 
 impl RigidBodyPrefab {
-    pub fn to_rigidbody(&self) -> RigidBody {
+    pub const fn to_rigidbody(&self) -> RigidBody {
         match self {
-            RigidBodyPrefab::Dynamic => RigidBody::Dynamic,
-            RigidBodyPrefab::Static => RigidBody::Static,
-            RigidBodyPrefab::Kinematic => RigidBody::Kinematic,
+            Self::Dynamic => RigidBody::Dynamic,
+            Self::Static => RigidBody::Static,
+            Self::Kinematic => RigidBody::Kinematic,
         }
     }
 
-    pub fn to_rigidbody_editor(&self) -> RigidBody {
+    pub const fn to_rigidbody_editor(&self) -> RigidBody {
         RigidBody::Static
     }
 }

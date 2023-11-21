@@ -77,18 +77,12 @@ impl<'a> egui_dock::TabViewer for EditorTabViewer<'a> {
                     show_command: _,
                     title_command,
                 } => title_command(self.world),
-                EditorUiReg::Schedule => {
-                    if let Some(tab) = self
-                        .world
-                        .resource_mut::<ScheduleEditorTabStorage>()
-                        .0
-                        .get(tab)
-                    {
-                        tab.title.clone()
-                    } else {
-                        format!("{tab:?}").into()
-                    }
-                }
+                EditorUiReg::Schedule => self
+                    .world
+                    .resource_mut::<ScheduleEditorTabStorage>()
+                    .0
+                    .get(tab)
+                    .map_or_else(|| format!("{tab:?}").into(), |tab| tab.title.clone()),
             }
         } else {
             format!("{tab:?}").into()
