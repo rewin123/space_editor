@@ -19,7 +19,7 @@ egui-gizmo = "0.12"
 bevy-scene-hook = "9"
 ron = "0.8"
 bevy_panorbit_camera = "0.9"
-bevy-inspector-egui = {version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
+bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
 pretty-type-name = "1.0"
 bevy_mod_picking = {version = "0.17", default-features = false, features = ["backend_raycast", "selection"]}
 bevy_debug_grid = "0.3"
@@ -28,11 +28,26 @@ egui_file = "0.11"
 
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
 
+# For versions 1.74+
+[lints.rust]
+future-incompatible = "warn"
+nonstandard_style = "deny"
+
+[lints.clippy]
+nursery = { level = "deny", priority = 0 }
+all = { level = "deny", priority = 1 }
+# Bevy Related
+cognitive_complexity = { level = "allow", priority = 2 }
+needless_pass_by_ref_mut = { level = "allow", priority = 2 }
+significant_drop_in_scrutinee = { level = "allow", priority = 2 }
+significant_drop_tightening = { level = "allow", priority = 2 }
+
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
 
 [features]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32"]
+default = ["bevy_xpbd_3d"]
 
 [[example]]
 name = "platformer"

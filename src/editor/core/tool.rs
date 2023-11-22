@@ -19,10 +19,10 @@ pub enum ToolName {
 impl ToolName {
     pub fn as_str(&self) -> &str {
         match self {
-            ToolName::Gizmo => "gizmo",
+            Self::Gizmo => "gizmo",
             #[cfg(feature = "floor_plan")]
-            ToolName::FloorMap => "floor map",
-            ToolName::Other(name) => name,
+            Self::FloorMap => "floor map",
+            Self::Other(name) => name,
         }
     }
 }

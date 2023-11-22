@@ -19,7 +19,7 @@ pub enum MeshPrimitivePrefab {
 
 impl Default for MeshPrimitivePrefab {
     fn default() -> Self {
-        MeshPrimitivePrefab::Box(BoxPrefab {
+        Self::Box(BoxPrefab {
             w: 1.0,
             h: 1.0,
             d: 1.0,
@@ -31,17 +31,17 @@ impl MeshPrimitivePrefab {
     /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
-            MeshPrimitivePrefab::Cube(s) => Mesh::from(shape::Cube::new(*s)),
-            MeshPrimitivePrefab::Box(b) => b.to_mesh(),
-            MeshPrimitivePrefab::Sphere(s) => s.to_mesh(),
-            MeshPrimitivePrefab::Quad(q) => q.to_mesh(),
-            MeshPrimitivePrefab::Capsule(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Circle(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Cylinder(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Icosphere(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Plane(c) => c.to_mesh(),
-            MeshPrimitivePrefab::RegularPolygon(c) => c.to_mesh(),
-            MeshPrimitivePrefab::Torus(c) => c.to_mesh(),
+            Self::Cube(s) => Mesh::from(shape::Cube::new(*s)),
+            Self::Box(b) => b.to_mesh(),
+            Self::Sphere(s) => s.to_mesh(),
+            Self::Quad(q) => q.to_mesh(),
+            Self::Capsule(c) => c.to_mesh(),
+            Self::Circle(c) => c.to_mesh(),
+            Self::Cylinder(c) => c.to_mesh(),
+            Self::Icosphere(c) => c.to_mesh(),
+            Self::Plane(c) => c.to_mesh(),
+            Self::RegularPolygon(c) => c.to_mesh(),
+            Self::Torus(c) => c.to_mesh(),
         }
     }
 }
@@ -237,11 +237,10 @@ impl IcospherePrefab {
             radius: self.r,
             subdivisions: self.subdivisions,
         };
-        if let Ok(mesh) = Mesh::try_from(data) {
-            mesh
-        } else {
-            Mesh::try_from(shape::Icosphere::default()).unwrap()
-        }
+        Mesh::try_from(data).map_or_else(
+            |_| Mesh::try_from(shape::Icosphere::default()).unwrap(),
+            |mesh| mesh,
+        )
     }
 }
 

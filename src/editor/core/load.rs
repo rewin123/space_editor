@@ -11,7 +11,7 @@ pub fn load_listener(world: &mut World) {
         if let Some(scene) = &load_server.scene {
             if let Some(scene) = assets.get(scene) {
                 let mut scene = Scene::from_dynamic_scene(scene, &app_registry).unwrap();
-                scene.world.insert_resource(app_registry.clone());
+                scene.world.insert_resource(app_registry);
                 prefab = DynamicScene::from_scene(&scene); //kill me, is it clone() analog for DynamicScene
             } else {
                 return;

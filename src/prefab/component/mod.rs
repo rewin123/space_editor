@@ -10,11 +10,8 @@ pub use camera::*;
 pub mod player_start;
 pub use player_start::*;
 
-pub mod path;
-pub use path::*;
-
 pub mod light;
-pub use light::*;
+pub mod path;
 
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
@@ -48,13 +45,13 @@ pub struct SceneAutoChild;
 /// Not used right now. Planned to be easy method for creating prefab structs from usual structs with assets
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component)]
-pub struct AutoStruct<T: Reflect + FromReflect + Default + Clone> {
+pub struct AutoStruct<T: Reflect + Default + Clone> {
     pub data: T,
     pub asset_paths: HashMap<String, String>,
 }
 
 impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
-    pub fn new(data: &T, _assets: &AssetServer) -> AutoStruct<T> {
+    pub fn new(data: &T, _assets: &AssetServer) -> Self {
         let mut paths = HashMap::new();
 
         if let ReflectRef::Struct(s) = data.reflect_ref() {
@@ -70,7 +67,7 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
             }
         }
 
-        AutoStruct::<T> {
+        Self {
             data: data.clone(),
             asset_paths: paths,
         }
@@ -83,6 +80,7 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
             if let ReflectMut::Struct(s) = res_reflect.reflect_mut() {
                 for (field_name, path) in self.asset_paths.iter() {
                     if let Some(field) = s.field_mut(field_name) {
+                        #[allow(clippy::option_if_let_else)]
                         if let Some(handle) = field.downcast_mut::<Handle<Image>>() {
                             *handle = assets.load(path);
                         } else if let Some(handle) = field.downcast_mut::<Handle<Mesh>>() {

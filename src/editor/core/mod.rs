@@ -7,10 +7,8 @@ use load::*;
 pub mod tool;
 pub use tool::*;
 
-pub mod settings;
-pub use settings::*;
-
 pub mod gltf_unpack;
+pub mod settings;
 
 use bevy::prelude::*;
 

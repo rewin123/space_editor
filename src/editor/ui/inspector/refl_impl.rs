@@ -48,30 +48,22 @@ pub fn entity_ref_ui(
             egui::ComboBox::new(id, "")
                 .selected_text(format!("{:?}", value.entity))
                 .show_ui(ui, |ui| {
-                    unsafe {
-                        for e in world.world().world().iter_entities() {
-                            if ui
-                                .selectable_value(
-                                    &mut value.entity,
-                                    e.id(),
-                                    format!("{:?}", e.id()),
-                                )
-                                .clicked()
-                            {
-                                return true;
-                            }
+                    let world_ref = unsafe { world.world().world() };
+                    for e in world_ref.iter_entities() {
+                        if ui
+                            .selectable_value(&mut value.entity, e.id(), format!("{:?}", e.id()))
+                            .clicked()
+                        {
+                            return true;
                         }
                     }
                     false
                 });
-            false
         } else {
             ui.label(format!("{:?}", &value.entity));
-            false
         }
-    } else {
-        false
     }
+    false
 }
 
 /// Custom UI for [`EntityLink`] struct

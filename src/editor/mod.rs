@@ -1,6 +1,9 @@
 //code only for editor gui
 
-use bevy::{prelude::*, render::render_resource::PrimitiveTopology, window::PrimaryWindow};
+use bevy::{
+    input::common_conditions::input_toggle_active, prelude::*,
+    render::render_resource::PrimitiveTopology, window::PrimaryWindow,
+};
 
 pub mod core;
 pub mod ui;
@@ -127,7 +130,11 @@ impl Plugin for EditorPlugin {
 
         app.init_resource::<BundleReg>();
 
-        app.add_plugins(WorldInspectorPlugin::default().run_if(in_state(EditorState::Game)));
+        app.add_plugins(
+            WorldInspectorPlugin::default()
+                .run_if(in_state(EditorState::Game))
+                .run_if(input_toggle_active(false, KeyCode::Escape)),
+        );
 
         register_mesh_editor_bundles(app);
         register_light_editor_bundles(app);
@@ -220,7 +227,7 @@ fn select_listener(
 
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        SelectEvent {
+        Self {
             e: value.target(),
             event: value,
         }
