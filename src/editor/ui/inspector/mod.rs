@@ -34,6 +34,7 @@ pub struct SpaceInspectorPlugin;
 impl Plugin for SpaceInspectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InspectState>();
+        app.init_resource::<FilterComponentState>();
 
         app.editor_tab_by_trait(
             crate::prelude::EditorTabName::Inspector,
@@ -82,19 +83,15 @@ pub fn mut_untyped_split(mut mut_untyped: MutUntyped<'_>) -> (PtrMut<'_>, impl F
 }
 
 /// Just state of inspector panel
-#[derive(Resource)]
+#[derive(Resource, Default)]
 struct InspectState {
-    component_add_filter: String,
     commands: Vec<InspectCommand>,
+    show_add_component_window: bool,
 }
 
-impl Default for InspectState {
-    fn default() -> Self {
-        Self {
-            component_add_filter: "".to_string(),
-            commands: vec![],
-        }
-    }
+#[derive(Resource, Default)]
+struct FilterComponentState {
+    component_add_filter: String,
 }
 
 enum InspectCommand {
@@ -123,10 +120,13 @@ fn execute_inspect_command(
 
 /// System to show inspector panel
 pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
-    let selected = world
+    let selected_entity = world
         .query_filtered::<Entity, With<Selected>>()
-        .iter(world)
-        .collect::<Vec<_>>();
+        .get_single(world);
+
+    let Ok(selected_entity) = selected_entity else {
+        return;
+    };
 
     let editor_registry = world.resource::<EditorRegistry>().clone();
     let all_registry = editor_registry.registry.clone();
@@ -160,83 +160,96 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     };
     let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
-    egui::ScrollArea::vertical().show(ui, |ui| {
-        for e in selected.iter() {
-            if let Some(e) = cell.get_entity(*e) {
-                let mut name;
-                if let Some(name_struct) = unsafe { e.get::<Name>() } {
-                    name = name_struct.as_str().to_string();
-                    if name.is_empty() {
-                        name = format!("{:?} (empty name)", e.id());
-                    }
-                } else {
-                    name = format!("{:?}", e.id());
+    let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
+        if let Some(e) = cell.get_entity(selected_entity) {
+            let mut name;
+            if let Some(name_struct) = unsafe { e.get::<Name>() } {
+                name = name_struct.as_str().to_string();
+                if name.is_empty() {
+                    name = format!("{:?} (empty name)", e.id());
                 }
-                ui.heading(&name);
-                ui.label("Components:");
-                let e_id = e.id().index();
-                egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                    for (c_id, t_id, name) in &components_id {
-                        if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
-                            let registration = registry.get(*t_id).unwrap();
-                            if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
-                                let (ptr, mut set_changed) = mut_untyped_split(data);
+            } else {
+                name = format!("{:?}", e.id());
+            }
+            ui.heading(&name);
+            ui.label("Components:");
+            let e_id = e.id().index();
+            egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
+                for (c_id, t_id, name) in &components_id {
+                    if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
+                        let registration = registry.get(*t_id).unwrap();
+                        if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
+                            let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                                let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                            let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
 
-                                if !editor_registry.silent.contains(&registration.type_id()) {
-                                    ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                        ui.collapsing(name, |ui| {
-                                            ui.push_id(
-                                                format!("content-{:?}-{}", &e.id(), &name),
-                                                |ui| {
-                                                    if env.ui_for_reflect_with_options(
-                                                        value,
-                                                        ui,
-                                                        ui.id(),
-                                                        &(),
-                                                    ) {
-                                                        set_changed();
-                                                    }
-                                                },
-                                            );
-                                        });
+                            if !editor_registry.silent.contains(&registration.type_id()) {
+                                ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+                                    ui.collapsing(name, |ui| {
+                                        ui.push_id(
+                                            format!("content-{:?}-{}", &e.id(), &name),
+                                            |ui| {
+                                                if env.ui_for_reflect_with_options(
+                                                    value,
+                                                    ui,
+                                                    ui.id(),
+                                                    &(),
+                                                ) {
+                                                    set_changed();
+                                                }
+                                            },
+                                        );
                                     });
+                                });
 
-                                    ui.push_id(
-                                        format!("del component {:?}-{}", &e.id(), &name),
-                                        |ui| {
-                                            //must be on top
-                                            ui.with_layout(
-                                                egui::Layout::top_down(egui::Align::Min),
-                                                |ui| {
-                                                    if ui.button("X").clicked() {
-                                                        commands.push(
-                                                            InspectCommand::RemoveComponent(
-                                                                e.id(),
-                                                                *t_id,
-                                                            ),
-                                                        );
-                                                    }
-                                                },
-                                            );
-                                        },
-                                    );
-                                    ui.end_row();
-                                }
+                                ui.push_id(
+                                    format!("del component {:?}-{}", &e.id(), &name),
+                                    |ui| {
+                                        //must be on top
+                                        ui.with_layout(
+                                            egui::Layout::top_down(egui::Align::Min),
+                                            |ui| {
+                                                if ui.button("X").clicked() {
+                                                    commands.push(InspectCommand::RemoveComponent(
+                                                        e.id(),
+                                                        *t_id,
+                                                    ));
+                                                }
+                                            },
+                                        );
+                                    },
+                                );
+                                ui.end_row();
                             }
                         }
                     }
-                });
+                }
+            });
 
-                ui.separator();
-            }
+            ui.separator();
         }
+    });
 
-        ui.label("Add component");
-        ui.text_edit_singleline(&mut state.component_add_filter);
-        let lower_filter = state.component_add_filter.to_lowercase();
-        egui::ScrollArea::vertical().show(ui, |ui| {
+    let response = ui.interact(
+        components_area.inner_rect,
+        components_area.id,
+        egui::Sense::click(),
+    );
+    if response.secondary_clicked() {
+        state.show_add_component_window = true;
+    }
+
+    egui::Window::new("Add component")
+        .open(&mut state.show_add_component_window)
+        .resizable(true)
+        .scroll2([false, true])
+        .default_width(120.)
+        .default_height(300.)
+        .default_pos(components_area.inner_rect.center_bottom())
+        .show(ui.ctx(), |ui: &mut egui::Ui| {
+            let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
+            ui.text_edit_singleline(&mut state.component_add_filter);
+            let lower_filter = state.component_add_filter.to_lowercase();
             egui::Grid::new("Component grid").show(ui, |ui| {
                 let _counter = 0;
                 for (c_id, _t_id, name) in &components_id {
@@ -249,16 +262,13 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                                 .unwrap()
                                 .type_id()
                                 .unwrap();
-                            for e in selected.iter() {
-                                commands.push(InspectCommand::AddComponent(*e, id));
-                            }
+                            commands.push(InspectCommand::AddComponent(selected_entity, id));
                         }
                         ui.end_row();
                     }
                 }
             });
         });
-    });
 
     state.commands = commands;
 
