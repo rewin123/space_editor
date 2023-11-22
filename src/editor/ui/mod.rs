@@ -33,7 +33,10 @@ use bevy_egui::{egui, EguiContext};
 
 use crate::{EditorSet, EditorState};
 
-use self::{tools::gizmo::GizmoTool, mouse_check::{MouseCheck, pointer_context_check}};
+use self::{
+    mouse_check::{pointer_context_check, MouseCheck},
+    tools::gizmo::GizmoTool,
+};
 
 use super::{
     core::{SelectedPlugin, ToolExt},
@@ -61,7 +64,7 @@ impl Plugin for EditorUiPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_plugins((bot_menu::BotMenuPlugin,  MouseCheck));
+        app.add_plugins((bot_menu::BotMenuPlugin, MouseCheck));
 
         app.configure_sets(
             Update,
