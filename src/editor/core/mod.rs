@@ -38,6 +38,7 @@ impl Plugin for EditorCore {
         app.add_plugins(PersistancePlugin);
 
         app.add_plugins(BackgroundTaskStoragePlugin);
+        app.add_plugins(UndoPlugin);
 
         app.add_event::<EditorEvent>();
 

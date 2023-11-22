@@ -6,7 +6,7 @@ use bevy::{
     ecs::{change_detection::MutUntyped, system::CommandQueue, component::ComponentId},
     prelude::*,
     ptr::PtrMut,
-    reflect::ReflectFromPtr, utils::HashMap,
+    reflect::{ReflectFromPtr, DynamicStruct}, utils::HashMap, scene::DynamicEntity,
 };
 
 use bevy_egui::*;
@@ -48,7 +48,8 @@ impl Plugin for SpaceInspectorPlugin {
 
 #[derive(Resource, Default)]
 pub struct InspectorTab {
-    default_opened : HashMap<ComponentId, bool>
+    default_opened : HashMap<ComponentId, bool>,
+    undo_cache : HashMap<Entity, DynamicEntity>
 }
 
 impl EditorTab for InspectorTab {
@@ -164,6 +165,25 @@ pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
         egui::ScrollArea::vertical().show(ui, |ui| {
             for e in selected.iter() {
                 if let Some(e) = cell.get_entity(*e) {
+
+                    let cache = if let Some(cache) = tab.undo_cache.get_mut(&e.id()) {
+                        cache
+                    } else {
+                        let mut dyn_e = DynamicEntity {
+                            entity: e.id(),
+                            components: vec![],
+                        };
+                        for c in e.archetype().components() {
+                            if let Some(mut component) = e.get_mut_by_id(c) {
+                                let type_id = cell.components().get_info(c).unwrap().type_id().unwrap();
+                                let reflected = registry.get(type_id).unwrap().data::<ReflectFromPtr>().unwrap().from_ptr_mut()(component.as_mut());
+                                dyn_e.components.push(reflected.clone_value());
+                            }
+                        }
+                        tab.undo_cache.insert(e.id(), dyn_e);
+                        tab.undo_cache.get_mut(&e.id()).unwrap()
+                    };
+
                     let mut name;
                     if let Some(name_struct) = e.get::<Name>() {
                         name = name_struct.as_str().to_string();
