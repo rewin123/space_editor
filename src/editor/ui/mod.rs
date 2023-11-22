@@ -1,4 +1,5 @@
 //This module contains ui logics, which will be work through events with editor core module and prefab module
+mod mouse_check;
 
 pub mod asset_inspector;
 pub use asset_inspector::*;
@@ -32,7 +33,7 @@ use bevy_egui::{egui, EguiContext};
 
 use crate::{EditorSet, EditorState};
 
-use self::tools::gizmo::GizmoTool;
+use self::{tools::gizmo::GizmoTool, mouse_check::{MouseCheck, pointer_context_check}};
 
 use super::{
     core::{SelectedPlugin, ToolExt},
@@ -60,7 +61,7 @@ impl Plugin for EditorUiPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_plugins(bot_menu::BotMenuPlugin);
+        app.add_plugins((bot_menu::BotMenuPlugin,  MouseCheck));
 
         app.configure_sets(
             Update,
@@ -77,7 +78,7 @@ impl Plugin for EditorUiPlugin {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .after(bot_menu::bot_menu),
-                set_camera_viewport,
+                set_camera_viewport.run_if(pointer_context_check()),
             )
                 .in_set(UiSystemSet),
         );
