@@ -13,7 +13,6 @@ env:
 
 jobs:
   # Run cargo test
-  # Run cargo test
   test_minimal:
     name: Test without features
     runs-on: ubuntu-latest

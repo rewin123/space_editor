@@ -28,6 +28,7 @@ egui_file = "0.11"
 
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
 
+# For versions 1.74+
 [lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
@@ -40,12 +41,6 @@ cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }
 significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
-
-
-[profile.dev]
-opt-level = 3             # Use slightly better optimizations.
-lto = "thin"
-codegen-units = 1
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
