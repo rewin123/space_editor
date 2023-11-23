@@ -133,7 +133,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let registry = all_registry.read();
     let app_registry = world.resource::<AppTypeRegistry>().clone();
     let world_registry = app_registry.read();
-    let disable_pan_orbit = false;
+    let mut disable_pan_orbit = false;
 
     //Collet data about all components
     let mut components_id = Vec::new();
@@ -239,7 +239,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
         state.show_add_component_window = true;
     }
 
-    egui::Window::new("Add component")
+    let add_responce = egui::Window::new("Add component")
         .open(&mut state.show_add_component_window)
         .resizable(true)
         .scroll2([false, true])
@@ -247,6 +247,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
         .default_height(300.)
         .default_pos(components_area.inner_rect.center_bottom())
         .show(ui.ctx(), |ui: &mut egui::Ui| {
+            // disable_pan_orbit = true;
             let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
             ui.text_edit_singleline(&mut state.component_add_filter);
             let lower_filter = state.component_add_filter.to_lowercase();
@@ -269,6 +270,10 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                 }
             });
         });
+
+    if ui.ui_contains_pointer() || ui.ctx().is_pointer_over_area() || ui.ctx().is_using_pointer() {
+        disable_pan_orbit = true;
+    }
 
     state.commands = commands;
 

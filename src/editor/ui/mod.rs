@@ -80,6 +80,7 @@ impl Plugin for EditorUiPlugin {
             (
                 show_editor_ui
                     .before(update_pan_orbit)
+                    .before(super::ui_camera_block)
                     .after(bot_menu::bot_menu),
                 set_camera_viewport.run_if(pointer_context_check()),
             )
