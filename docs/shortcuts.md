@@ -18,8 +18,8 @@ Shortcuts to manipulate the gizmo:
 - **LClick**: Move/Rotate/Scale one entity.
 - **Shift + LClick**: Move/Rotate/Scale multiple entities with the "geometric mean" gizmo.
 - **R**: Change gizmo mode to "Rotate".
-- **G**: Change gizmo mode to "Move".
-- **S**: Change gizmo mode to "Scale".
+- **T**: Change gizmo mode to "Translate/Move".
+- **Y**: Change gizmo mode to "Scale".
 
 # Hierarchy
 
