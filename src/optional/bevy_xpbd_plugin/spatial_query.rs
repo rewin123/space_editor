@@ -31,7 +31,7 @@ impl Default for RayCasterPrefab {
 
 impl From<RayCasterPrefab> for RayCaster {
     fn from(val: RayCasterPrefab) -> Self {
-        RayCaster::new(val.origin, val.direction)
+        Self::new(val.origin, val.direction)
     }
 }
 
@@ -46,7 +46,7 @@ pub struct ShapeCasterPrefab {
 
 impl From<ShapeCasterPrefab> for ShapeCaster {
     fn from(val: ShapeCasterPrefab) -> Self {
-        ShapeCaster::new(
+        Self::new(
             val.shape.to_collider(),
             val.origin,
             val.shape_rotation,

@@ -19,6 +19,7 @@ pub mod persistance;
 pub use persistance::*;
 
 pub mod gltf_unpack;
+pub mod settings;
 
 use bevy::prelude::*;
 

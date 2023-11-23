@@ -222,6 +222,8 @@ impl EditorUi {
 
             command_queue.apply(cell.world_mut());
         }
+
+        command_queue.apply(unsafe { cell.world_mut() });
     }
 }
 

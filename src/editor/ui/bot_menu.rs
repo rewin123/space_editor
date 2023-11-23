@@ -46,7 +46,7 @@ fn bot_menu_game(
                 state.set(EditorState::Editor);
             }
 
-            *smoothed_dt = *smoothed_dt * 0.98 + time.delta_seconds() * 0.02;
+            *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
             ui.label(format!("FPS: {:.0}", 1.0 / *smoothed_dt));
         });
     });
@@ -126,7 +126,7 @@ pub fn bot_menu(
                         if path.starts_with("assets/") {
                             path = path.replace("assets/", "");
 
-                            editor_events.send(EditorEvent::LoadGltfAsPrefab(path.to_string()));
+                            editor_events.send(EditorEvent::LoadGltfAsPrefab(path));
                         }
                     }
                 } else {

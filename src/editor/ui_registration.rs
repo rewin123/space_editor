@@ -17,7 +17,7 @@ impl BundleReg {
         self.bundles
             .entry(bundle.category)
             .or_default()
-            .insert(bundle.name.clone(), dyn_bundle);
+            .insert(bundle.name, dyn_bundle);
     }
 }
 

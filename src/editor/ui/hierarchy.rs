@@ -74,17 +74,18 @@ pub fn show_hierarchy(
             }
         }
         ui.vertical_centered(|ui| {
-            if ui.button("----- + -----").clicked() {
+            ui.separator();
+            if ui.button("+ Add new entity").clicked() {
                 commands.spawn_empty().insert(PrefabMarker);
             }
-            if ui.button("Clear all").clicked() {
+            if ui.button("Clear all entities").clicked() {
                 for (entity, _, _, _parent) in all.iter() {
                     commands.entity(*entity).despawn_recursive();
                 }
             }
         });
 
-        ui.label("Spawn bundle");
+        ui.label("Spawnable bundles");
         for (cat_name, cat) in ui_reg.bundles.iter() {
             ui.menu_button(cat_name, |ui| {
                 for (name, dyn_bundle) in cat {
