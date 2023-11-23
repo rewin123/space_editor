@@ -35,27 +35,38 @@ impl EditorTool for GizmoTool {
         // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
 
         let mode2name = vec![
-            (GizmoMode::Translate, "Translate"),
-            (GizmoMode::Rotate, "Rotate"),
-            (GizmoMode::Scale, "Scale"),
+            (GizmoMode::Translate, "⬌", "Translate"),
+            (GizmoMode::Rotate, "↺", "Rotate"),
+            (GizmoMode::Scale, "⛶", "Scale"),
         ];
 
-        for (mode, name) in mode2name {
-            if self.gizmo_mode == mode {
-                ui.button(egui::RichText::new(name).strong()).clicked();
-            } else if ui.button(name).clicked() {
-                self.gizmo_mode = mode;
+        ui.spacing();
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            for (mode, name, hint) in mode2name {
+                if self.gizmo_mode == mode {
+                    ui.button(egui::RichText::new(name).strong())
+                        .on_disabled_hover_text(hint)
+                        .on_hover_text(hint)
+                        .clicked();
+                } else if ui
+                    .button(name)
+                    .on_disabled_hover_text(hint)
+                    .on_hover_text(hint)
+                    .clicked()
+                {
+                    self.gizmo_mode = mode;
+                }
             }
-        }
+        });
 
         let mut del = false;
 
         if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
-                (GizmoMode::Translate, Key::G),
+                (GizmoMode::Translate, Key::T),
                 (GizmoMode::Rotate, Key::R),
-                (GizmoMode::Scale, Key::S),
+                (GizmoMode::Scale, Key::Y),
             ];
 
             for (mode, key) in mode2key {
