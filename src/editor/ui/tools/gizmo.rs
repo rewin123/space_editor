@@ -64,9 +64,9 @@ impl EditorTool for GizmoTool {
         if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
-                (GizmoMode::Translate, Key::T),
+                (GizmoMode::Translate, Key::G),
                 (GizmoMode::Rotate, Key::R),
-                (GizmoMode::Scale, Key::Y),
+                (GizmoMode::Scale, Key::S),
             ];
 
             for (mode, key) in mode2key {
