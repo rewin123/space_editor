@@ -16,7 +16,8 @@ impl Plugin for SettingsWindowPlugin {
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            #[cfg(feature = "persistance_editor")] {
+            #[cfg(feature = "persistance_editor")]
+            {
                 app.persistance_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
                 app.register_type::<Option<Vec3>>();
                 app.register_type::<Option<Color>>();

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::*;
 
 use crate::{
-    editor::core::{EditorEvent, EditorPrefabPath, BackgroundTaskStorage, BackgroundTask},
+    editor::core::{BackgroundTask, BackgroundTaskStorage, EditorEvent, EditorPrefabPath},
     prefab::PrefabPlugin,
     EditorSet, EditorState,
 };
@@ -65,7 +65,7 @@ pub fn bot_menu(
     mut events: EventReader<MenuLoadEvent>,
     mut menu_state: ResMut<BotMenuState>,
     mut editor_events: EventWriter<EditorEvent>,
-    background_tasks : Res<BackgroundTaskStorage>
+    background_tasks: Res<BackgroundTaskStorage>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bot menu").show(ctx, |ui| {

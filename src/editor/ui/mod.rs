@@ -186,44 +186,44 @@ impl EditorUi {
 
         let cell = world.as_unsafe_world_cell();
 
-        unsafe {
-            let mut command_queue = CommandQueue::default();
-            let mut commands = Commands::new(&mut command_queue, cell.world());
+        let mut command_queue = CommandQueue::default();
+        let mut commands = Commands::new(&mut command_queue, unsafe { cell.world() });
 
-            let mut tab_viewer = EditorTabViewer {
+        let mut tab_viewer = unsafe {
+            EditorTabViewer {
                 commands: &mut commands,
                 world: cell.world_mut(),
                 registry: &mut self.registry,
                 visible,
                 tab_commands: vec![],
-            };
+            }
+        };
 
-            DockArea::new(&mut self.tree)
-                .show_add_buttons(true)
-                .show_add_popup(true)
-                .show(ctx, &mut tab_viewer);
+        DockArea::new(&mut self.tree)
+            .show_add_buttons(true)
+            .show_add_popup(true)
+            .show(ctx, &mut tab_viewer);
 
-            for command in tab_viewer.tab_commands {
-                match command {
-                    EditorTabCommand::Add {
-                        name,
-                        surface,
-                        node,
-                    } => {
-                        if let Some(surface) = self.tree.get_surface_mut(surface) {
-                            surface
-                                .node_tree_mut()
-                                .unwrap()
-                                .split_right(node, 0.5, vec![name]);
-                        }
+        for command in tab_viewer.tab_commands {
+            match command {
+                EditorTabCommand::Add {
+                    name,
+                    surface,
+                    node,
+                } => {
+                    if let Some(surface) = self.tree.get_surface_mut(surface) {
+                        surface
+                            .node_tree_mut()
+                            .unwrap()
+                            .split_right(node, 0.5, vec![name]);
                     }
                 }
             }
-
-            command_queue.apply(cell.world_mut());
         }
 
-        command_queue.apply(unsafe { cell.world_mut() });
+        unsafe {
+            command_queue.apply(cell.world_mut());
+        }
     }
 }
 

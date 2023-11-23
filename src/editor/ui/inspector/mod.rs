@@ -3,10 +3,10 @@ pub mod refl_impl;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, system::CommandQueue, component::ComponentId},
+    ecs::{change_detection::MutUntyped, system::CommandQueue},
     prelude::*,
     ptr::PtrMut,
-    reflect::{ReflectFromPtr, DynamicStruct}, utils::HashMap, scene::DynamicEntity,
+    reflect::ReflectFromPtr,
 };
 
 use bevy_egui::*;
@@ -47,14 +47,11 @@ impl Plugin for SpaceInspectorPlugin {
 }
 
 #[derive(Resource, Default)]
-pub struct InspectorTab {
-    default_opened : HashMap<ComponentId, bool>,
-    undo_cache : HashMap<Entity, DynamicEntity>
-}
+pub struct InspectorTab {}
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        inspect(self, ui, world);
+        inspect(ui, world);
     }
 
     fn title(&self) -> egui::WidgetText {
@@ -125,7 +122,7 @@ fn execute_inspect_command(
 }
 
 /// System to show inspector panel
-pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
+pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let selected = world
         .query_filtered::<Entity, With<Selected>>()
         .iter(world)
@@ -139,7 +136,6 @@ pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
     let disable_pan_orbit = false;
 
     //Collet data about all components
-    //Collet data about all components
     let mut components_id = Vec::new();
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
@@ -147,17 +143,8 @@ pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
                 world.components().get_info(c_id).unwrap().name(),
             );
             components_id.push((c_id, reg.type_id(), name));
-            let name = pretty_type_name::pretty_type_name_str(
-                world.components().get_info(c_id).unwrap().name(),
-            );
-            components_id.push((c_id, reg.type_id(), name));
         }
     }
-    components_id.sort_by(|a, b| a.2.cmp(&b.2));
-
-    unsafe {
-        let cell = world.as_unsafe_world_cell();
-        let mut state = cell.get_resource_mut::<InspectState>().unwrap();
     components_id.sort_by(|a, b| a.2.cmp(&b.2));
 
     let cell = world.as_unsafe_world_cell();

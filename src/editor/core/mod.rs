@@ -19,7 +19,6 @@ pub mod persistance;
 pub use persistance::*;
 
 pub mod gltf_unpack;
-pub mod settings;
 
 use bevy::prelude::*;
 
@@ -84,7 +83,7 @@ fn editor_event_listener(
     mut start_game_state: ResMut<NextState<EditorState>>,
     cache: ResMut<PrefabMemoryCache>,
     mut gltf_events: EventWriter<gltf_unpack::EditorUnpackGltf>,
-    mut background_tasks : ResMut<BackgroundTaskStorage>,
+    mut background_tasks: ResMut<BackgroundTaskStorage>,
 ) {
     for event in events.read() {
         match event {

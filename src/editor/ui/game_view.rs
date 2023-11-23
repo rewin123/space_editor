@@ -2,7 +2,11 @@ use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
 
-use crate::{editor::core::{EditorTool, UndoRedo}, prelude::EditorTab, EditorCameraMarker};
+use crate::{
+    editor::core::{EditorTool, UndoRedo},
+    prelude::EditorTab,
+    EditorCameraMarker,
+};
 
 #[derive(Resource)]
 pub struct GameViewTab {
@@ -27,8 +31,8 @@ impl Default for GameViewTab {
 
 impl EditorTab for GameViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
-
-        if ui.input_mut(|i| i.key_released(egui::Key::Z) && i.modifiers.ctrl && !i.modifiers.shift) {
+        if ui.input_mut(|i| i.key_released(egui::Key::Z) && i.modifiers.ctrl && !i.modifiers.shift)
+        {
             world.send_event(UndoRedo::Undo);
             info!("Undo command");
         }

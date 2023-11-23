@@ -43,7 +43,6 @@ impl Plugin for EditorPlugin {
         }
         app.add_plugins(core::EditorCore);
 
-
         #[cfg(feature = "bevy_xpbd_3d")]
         {
             app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
@@ -135,12 +134,6 @@ impl Plugin for EditorPlugin {
                 .run_if(in_state(EditorState::Game))
                 .run_if(input_toggle_active(false, KeyCode::Escape)),
         );
-
-        
-        #[cfg(feature = "bevy_xpbd_3d")]
-        {
-            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
-        }
 
         register_mesh_editor_bundles(app);
         register_light_editor_bundles(app);
