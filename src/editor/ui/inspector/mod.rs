@@ -160,6 +160,13 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     };
     let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
+    
+    //Open context window by right mouse button click
+    //ui.interact blocks all control of inspector window
+    if ui.interact(ui.min_rect(), "painter".into(), egui::Sense::click()).secondary_clicked() {
+        state.show_add_component_window = true;
+    }
+
     let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
         if let Some(e) = cell.get_entity(selected_entity) {
             let mut name;
@@ -230,14 +237,12 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
         }
     });
 
-    let response = ui.interact(
-        components_area.inner_rect,
-        components_area.id,
-        egui::Sense::click(),
-    );
-    if response.secondary_clicked() {
+    //Open context window by button
+    if ui.button("Add component").clicked() {
         state.show_add_component_window = true;
     }
+
+
 
     let add_responce = egui::Window::new("Add component")
         .open(&mut state.show_add_component_window)
