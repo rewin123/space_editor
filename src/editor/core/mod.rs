@@ -7,8 +7,18 @@ use load::*;
 pub mod tool;
 pub use tool::*;
 
+pub mod task_storage;
+pub use task_storage::*;
+
+pub mod undo;
+pub use undo::*;
+
+#[cfg(feature = "persistance_editor")]
+pub mod persistance;
+#[cfg(feature = "persistance_editor")]
+pub use persistance::*;
+
 pub mod gltf_unpack;
-pub mod settings;
 
 use bevy::prelude::*;
 
@@ -23,6 +33,12 @@ pub struct EditorCore;
 impl Plugin for EditorCore {
     fn build(&self, app: &mut App) {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
+
+        #[cfg(feature = "persistance_editor")]
+        app.add_plugins(PersistancePlugin);
+
+        app.add_plugins(BackgroundTaskStoragePlugin);
+        app.add_plugins(UndoPlugin);
 
         app.add_event::<EditorEvent>();
 
@@ -67,12 +83,18 @@ fn editor_event_listener(
     mut start_game_state: ResMut<NextState<EditorState>>,
     cache: ResMut<PrefabMemoryCache>,
     mut gltf_events: EventWriter<gltf_unpack::EditorUnpackGltf>,
+    mut background_tasks: ResMut<BackgroundTaskStorage>,
 ) {
     for event in events.read() {
         match event {
             EditorEvent::Load(path) => match path {
                 EditorPrefabPath::File(path) => {
-                    load_server.scene = Some(assets.load(path.to_string()))
+                    let handle = assets.load(path.to_string());
+                    background_tasks.tasks.push(BackgroundTask::AssetLoading(
+                        path.to_string(),
+                        handle.clone().untyped(),
+                    ));
+                    load_server.scene = Some(handle);
                 }
                 EditorPrefabPath::MemoryCahce => {
                     load_server.scene = cache.scene.clone();

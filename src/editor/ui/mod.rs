@@ -25,6 +25,9 @@ pub use settings::*;
 pub mod tools;
 pub use tools::*;
 
+pub mod change_chain;
+pub use change_chain::*;
+
 pub mod debug_panels;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
@@ -35,7 +38,7 @@ use crate::{EditorSet, EditorState};
 use self::tools::gizmo::GizmoTool;
 
 use super::{
-    core::{SelectedPlugin, ToolExt},
+    core::{SelectedPlugin, ToolExt, UndoRedo},
     update_pan_orbit,
 };
 
@@ -99,6 +102,7 @@ impl Plugin for EditorUiPlugin {
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
 
         app.add_plugins(settings::SettingsWindowPlugin);
+        app.add_plugins(ChangeChainViewPlugin);
 
         if self.use_standard_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();
@@ -183,14 +187,16 @@ impl EditorUi {
         let cell = world.as_unsafe_world_cell();
 
         let mut command_queue = CommandQueue::default();
-        let mut commands = unsafe { Commands::new(&mut command_queue, cell.world()) };
+        let mut commands = Commands::new(&mut command_queue, unsafe { cell.world() });
 
-        let mut tab_viewer = EditorTabViewer {
-            commands: &mut commands,
-            world: unsafe { cell.world_mut() },
-            registry: &mut self.registry,
-            visible,
-            tab_commands: vec![],
+        let mut tab_viewer = unsafe {
+            EditorTabViewer {
+                commands: &mut commands,
+                world: cell.world_mut(),
+                registry: &mut self.registry,
+                visible,
+                tab_commands: vec![],
+            }
         };
 
         DockArea::new(&mut self.tree)
@@ -215,7 +221,9 @@ impl EditorUi {
             }
         }
 
-        command_queue.apply(unsafe { cell.world_mut() });
+        unsafe {
+            command_queue.apply(cell.world_mut());
+        }
     }
 }
 

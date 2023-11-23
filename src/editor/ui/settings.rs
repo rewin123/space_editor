@@ -3,6 +3,9 @@ use bevy_egui::*;
 
 use crate::prelude::{EditorTab, EditorTabName};
 
+#[cfg(feature = "persistance_editor")]
+use crate::prelude::editor::core::AppPersistanceExt;
+
 use super::EditorUiAppExt;
 
 pub struct SettingsWindowPlugin;
@@ -10,6 +13,18 @@ pub struct SettingsWindowPlugin;
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+
+        #[cfg(feature = "bevy_xpbd_3d")]
+        {
+            #[cfg(feature = "persistance_editor")]
+            {
+                app.persistance_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
+                app.register_type::<Option<Vec3>>();
+                app.register_type::<Option<Color>>();
+                app.register_type::<Option<[f32; 4]>>();
+                app.register_type::<[f32; 4]>();
+            }
+        }
     }
 }
 

@@ -41,6 +41,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+        app.add_plugins(core::EditorCore);
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
@@ -67,8 +68,6 @@ impl Plugin for EditorPlugin {
         app.init_resource::<prelude::EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
-
-        app.add_plugins(core::EditorCore);
 
         app.add_systems(
             Startup,
