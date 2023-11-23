@@ -160,10 +160,12 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     };
     let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
 
-    
     //Open context window by right mouse button click
     //ui.interact blocks all control of inspector window
-    if ui.interact(ui.min_rect(), "painter".into(), egui::Sense::click()).secondary_clicked() {
+    if ui
+        .interact(ui.min_rect(), "painter".into(), egui::Sense::click())
+        .secondary_clicked()
+    {
         state.show_add_component_window = true;
     }
 
@@ -241,8 +243,6 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     if ui.button("Add component").clicked() {
         state.show_add_component_window = true;
     }
-
-
 
     let add_responce = egui::Window::new("Add component")
         .open(&mut state.show_add_component_window)
