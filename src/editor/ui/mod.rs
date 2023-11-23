@@ -25,6 +25,9 @@ pub use settings::*;
 pub mod tools;
 pub use tools::*;
 
+pub mod change_chain;
+pub use change_chain::*;
+
 pub mod debug_panels;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
@@ -35,7 +38,7 @@ use crate::{EditorSet, EditorState};
 use self::tools::gizmo::GizmoTool;
 
 use super::{
-    core::{SelectedPlugin, ToolExt},
+    core::{SelectedPlugin, ToolExt, UndoRedo},
     update_pan_orbit,
 };
 
@@ -99,6 +102,7 @@ impl Plugin for EditorUiPlugin {
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
 
         app.add_plugins(settings::SettingsWindowPlugin);
+        app.add_plugins(ChangeChainViewPlugin);
 
         if self.use_standard_layout {
             let mut editor = app.world.resource_mut::<EditorUi>();

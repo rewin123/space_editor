@@ -166,23 +166,23 @@ pub fn inspect(tab : &mut InspectorTab, ui: &mut egui::Ui, world: &mut World) {
             for e in selected.iter() {
                 if let Some(e) = cell.get_entity(*e) {
 
-                    let cache = if let Some(cache) = tab.undo_cache.get_mut(&e.id()) {
-                        cache
-                    } else {
-                        let mut dyn_e = DynamicEntity {
-                            entity: e.id(),
-                            components: vec![],
-                        };
-                        for c in e.archetype().components() {
-                            if let Some(mut component) = e.get_mut_by_id(c) {
-                                let type_id = cell.components().get_info(c).unwrap().type_id().unwrap();
-                                let reflected = registry.get(type_id).unwrap().data::<ReflectFromPtr>().unwrap().from_ptr_mut()(component.as_mut());
-                                dyn_e.components.push(reflected.clone_value());
-                            }
-                        }
-                        tab.undo_cache.insert(e.id(), dyn_e);
-                        tab.undo_cache.get_mut(&e.id()).unwrap()
-                    };
+                    // let cache = if let Some(cache) = tab.undo_cache.get_mut(&e.id()) {
+                    //     cache
+                    // } else {
+                    //     let mut dyn_e = DynamicEntity {
+                    //         entity: e.id(),
+                    //         components: vec![],
+                    //     };
+                    //     for c in e.archetype().components() {
+                    //         if let Some(mut component) = e.get_mut_by_id(c) {
+                    //             let type_id = cell.components().get_info(c).unwrap().type_id().unwrap();
+                    //             let reflected = registry.get(type_id).unwrap().data::<ReflectFromPtr>().unwrap().from_ptr_mut()(component.as_mut());
+                    //             dyn_e.components.push(reflected.clone_value());
+                    //         }
+                    //     }
+                    //     tab.undo_cache.insert(e.id(), dyn_e);
+                    //     tab.undo_cache.get_mut(&e.id()).unwrap()
+                    // };
 
                     let mut name;
                     if let Some(name_struct) = e.get::<Name>() {
