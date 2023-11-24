@@ -105,26 +105,26 @@ impl EditorTab for SettingsWindow {
                 });
         }
 
-        egui::Grid::new("hotkeys")
-            .num_columns(2)
-            .striped(true)
-            .show(ui, |ui| {
-                ui.label("Select object");
-                ui.label("Left mouse button");
-                ui.end_row();
+        // egui::Grid::new("hotkeys")
+        //     .num_columns(2)
+        //     .striped(true)
+        //     .show(ui, |ui| {
+        //         ui.label("Select object");
+        //         ui.label("Left mouse button");
+        //         ui.end_row();
 
-                ui.label("Move/rotate/scale/clone \nmany objects simultaneously");
-                ui.label("Shift");
-                ui.end_row();
+        //         ui.label("Move/rotate/scale/clone \nmany objects simultaneously");
+        //         ui.label("Shift");
+        //         ui.end_row();
 
-                ui.label("Clone object");
-                ui.label("Alt");
-                ui.end_row();
+        //         ui.label("Clone object");
+        //         ui.label("Alt");
+        //         ui.end_row();
 
-                ui.label("Delete object");
-                ui.label("Delete or X");
-                ui.end_row();
-            });
+        //         ui.label("Delete object");
+        //         ui.label("Delete or X");
+        //         ui.end_row();
+        //     });
     }
 
     fn title(&self) -> egui::WidgetText {
