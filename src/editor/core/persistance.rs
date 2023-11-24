@@ -1,17 +1,14 @@
 // This part of code is used for saving and loading settings and window state
-
-use std::any::TypeId;
-
 use bevy::{
     prelude::*,
     reflect::{
-        serde::{ReflectSerializer, TypedReflectDeserializer, UntypedReflectDeserializer},
-        GetTypeRegistration, TypeRegistry,
+        serde::{ReflectSerializer, UntypedReflectDeserializer},
+        GetTypeRegistration,
     },
     utils::HashMap,
     window::WindowCloseRequested,
 };
-use ron::{ser::PrettyConfig, *};
+use ron::ser::PrettyConfig;
 use serde::de::DeserializeSeed;
 
 pub struct PersistancePlugin;
@@ -59,10 +56,8 @@ fn persistance_save_on_close(
     settings: Res<PersistanceSettings>,
     mut close_events: EventReader<WindowCloseRequested>,
 ) {
-    if settings.save_on_close {
-        if close_events.read().next().is_some() {
-            events.send(PersistanceEvent::Save);
-        }
+    if settings.save_on_close && close_events.read().next().is_some() {
+        events.send(PersistanceEvent::Save);
     }
 }
 
