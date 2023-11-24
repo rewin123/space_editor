@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 use bevy_egui::*;
 
-use crate::{prelude::{EditorTab, EditorTabName}, editor::core::AllHotkeys};
+use crate::{
+    editor::core::AllHotkeys,
+    prelude::{EditorTab, EditorTabName},
+};
 
 #[cfg(feature = "persistance_editor")]
 use crate::prelude::editor::core::AppPersistanceExt;
@@ -30,7 +33,7 @@ impl Plugin for SettingsWindowPlugin {
 
 #[derive(Default, Resource)]
 pub struct SettingsWindow {
-    read_input_for_hotkey : Option<String>
+    read_input_for_hotkey: Option<String>,
 }
 
 impl EditorTab for SettingsWindow {
@@ -55,22 +58,36 @@ impl EditorTab for SettingsWindow {
         ui.heading("Hotkeys in Game view tab");
 
         if world.contains_resource::<AllHotkeys>() {
-            egui::Grid::new("hotkeys_grid").num_columns(2).show(ui, |ui| {
-                world.resource_scope::<AllHotkeys, _>(|world,all_hotkeys| {
-                    all_hotkeys.map(world, &mut |world, hotkey_name, bindings| {
-                        ui.label(&hotkey_name);
+            egui::Grid::new("hotkeys_grid")
+                .num_columns(2)
+                .show(ui, |ui| {
+                    world.resource_scope::<AllHotkeys, _>(|world, all_hotkeys| {
+                        all_hotkeys.map(world, &mut |world, hotkey_name, bindings| {
+                            ui.label(&hotkey_name);
 
-                        if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
-                            if hotkey_name == *read_input_for_hotkey {
-                                ui.button("Wait for input");
+                            if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
+                                if hotkey_name == *read_input_for_hotkey {
+                                    ui.button("Wait for input");
 
-                                world.resource_scope::<Input<KeyCode>, _>(|world, input| {
-                                    for key in input.get_just_pressed() {
-                                        bindings.clear();
-                                        bindings.push(*key);
-                                        self.read_input_for_hotkey = None;
+                                    world.resource_scope::<Input<KeyCode>, _>(|world, input| {
+                                        for key in input.get_just_pressed() {
+                                            bindings.clear();
+                                            bindings.push(*key);
+                                            self.read_input_for_hotkey = None;
+                                        }
+                                    });
+                                } else {
+                                    let mut binding_text = "".to_string();
+                                    if bindings.len() == 1 {
+                                        binding_text = format!("{:?}", &bindings[0]);
+                                    } else {
+                                        binding_text = format!("{:?}", bindings);
                                     }
-                                });
+
+                                    if ui.button(binding_text).clicked() {
+                                        self.read_input_for_hotkey = Some(hotkey_name);
+                                    }
+                                }
                             } else {
                                 let mut binding_text = "".to_string();
                                 if bindings.len() == 1 {
@@ -83,23 +100,11 @@ impl EditorTab for SettingsWindow {
                                     self.read_input_for_hotkey = Some(hotkey_name);
                                 }
                             }
-                        } else {
-                            let mut binding_text = "".to_string();
-                            if bindings.len() == 1 {
-                                binding_text = format!("{:?}", &bindings[0]);
-                            } else {
-                                binding_text = format!("{:?}", bindings);
-                            }
 
-                            if ui.button(binding_text).clicked() {
-                                self.read_input_for_hotkey = Some(hotkey_name);
-                            }
-                        }
-                        
-                        ui.end_row();
+                            ui.end_row();
+                        });
                     });
                 });
-            });
         }
 
         egui::Grid::new("hotkeys")
