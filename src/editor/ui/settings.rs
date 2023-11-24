@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_egui::*;
 
-use crate::prelude::{EditorTab, EditorTabName};
+use crate::{prelude::{EditorTab, EditorTabName}, editor::core::AllHotkeys};
 
 #[cfg(feature = "persistance_editor")]
 use crate::prelude::editor::core::AppPersistanceExt;
@@ -29,7 +29,9 @@ impl Plugin for SettingsWindowPlugin {
 }
 
 #[derive(Default, Resource)]
-pub struct SettingsWindow {}
+pub struct SettingsWindow {
+    read_input_for_hotkey : Option<String>
+}
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, _commands: &mut Commands, world: &mut World) {
@@ -52,24 +54,60 @@ impl EditorTab for SettingsWindow {
 
         ui.heading("Hotkeys in Game view tab");
 
+        if world.contains_resource::<AllHotkeys>() {
+            egui::Grid::new("hotkeys_grid").num_columns(2).show(ui, |ui| {
+                world.resource_scope::<AllHotkeys, _>(|world,all_hotkeys| {
+                    all_hotkeys.map(world, &mut |world, hotkey_name, bindings| {
+                        ui.label(&hotkey_name);
+
+                        if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
+                            if hotkey_name == *read_input_for_hotkey {
+                                ui.button("Wait for input");
+
+                                world.resource_scope::<Input<KeyCode>, _>(|world, input| {
+                                    for key in input.get_just_pressed() {
+                                        bindings.clear();
+                                        bindings.push(*key);
+                                        self.read_input_for_hotkey = None;
+                                    }
+                                });
+                            } else {
+                                let mut binding_text = "".to_string();
+                                if bindings.len() == 1 {
+                                    binding_text = format!("{:?}", &bindings[0]);
+                                } else {
+                                    binding_text = format!("{:?}", bindings);
+                                }
+
+                                if ui.button(binding_text).clicked() {
+                                    self.read_input_for_hotkey = Some(hotkey_name);
+                                }
+                            }
+                        } else {
+                            let mut binding_text = "".to_string();
+                            if bindings.len() == 1 {
+                                binding_text = format!("{:?}", &bindings[0]);
+                            } else {
+                                binding_text = format!("{:?}", bindings);
+                            }
+
+                            if ui.button(binding_text).clicked() {
+                                self.read_input_for_hotkey = Some(hotkey_name);
+                            }
+                        }
+                        
+                        ui.end_row();
+                    });
+                });
+            });
+        }
+
         egui::Grid::new("hotkeys")
             .num_columns(2)
             .striped(true)
             .show(ui, |ui| {
                 ui.label("Select object");
                 ui.label("Left mouse button");
-                ui.end_row();
-
-                ui.label("Move object");
-                ui.label("G");
-                ui.end_row();
-
-                ui.label("Rotate object");
-                ui.label("R");
-                ui.end_row();
-
-                ui.label("Scale object");
-                ui.label("S");
                 ui.end_row();
 
                 ui.label("Move/rotate/scale/clone \nmany objects simultaneously");

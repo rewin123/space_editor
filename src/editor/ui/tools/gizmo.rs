@@ -3,10 +3,37 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    editor::core::{EditorTool, Selected},
+    editor::core::{EditorTool, Selected, Hotkey, HotkeySet, HotkeyAppExt},
     prelude::CloneEvent,
     EditorCameraMarker,
 };
+
+pub struct GizmoToolPlugin;
+
+impl Plugin for GizmoToolPlugin {
+    fn build(&self, app: &mut App) {
+        app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
+        app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
+        app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
+pub enum GizmoHotkey {
+    Translate,
+    Rotate,
+    Scale,
+}
+
+impl Hotkey for GizmoHotkey {
+    fn name<'a>(&self) -> String {
+        match self {
+            GizmoHotkey::Translate => "Translate entity".to_string(),
+            GizmoHotkey::Rotate => "Rotate entity".to_string(),
+            GizmoHotkey::Scale => "Scale entity".to_string(),
+        }
+    }
+}
 
 pub struct GizmoTool {
     pub gizmo_mode: GizmoMode,
@@ -64,13 +91,15 @@ impl EditorTool for GizmoTool {
         if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
-                (GizmoMode::Translate, Key::G),
-                (GizmoMode::Rotate, Key::R),
-                (GizmoMode::Scale, Key::S),
+                (GizmoMode::Translate, GizmoHotkey::Translate),
+                (GizmoMode::Rotate, GizmoHotkey::Rotate),
+                (GizmoMode::Scale, GizmoHotkey::Scale),
             ];
 
+            let input = world.resource::<Input<GizmoHotkey>>();
+
             for (mode, key) in mode2key {
-                if ui.input(|s| s.key_pressed(key)) {
+                if input.just_pressed(key) {
                     self.gizmo_mode = mode;
                 }
             }
