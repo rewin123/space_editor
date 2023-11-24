@@ -1,6 +1,6 @@
 pub mod refl_impl;
 
-use std::any::TypeId;
+use std::{any::TypeId, cmp::Ordering};
 
 use bevy::{
     ecs::{change_detection::MutUntyped, system::CommandQueue},
@@ -145,8 +145,22 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             components_id.push((c_id, reg.type_id(), name));
         }
     }
-    components_id.sort_by(|a, b| a.2.cmp(&b.2));
-
+    components_id.sort_by(|(.., name_a), (.., name_b)| {
+        if name_a == "Name" {
+            Ordering::Less
+        } else if name_b == "Name" {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
+        .then(if name_a == "Transform" {
+            Ordering::Less
+        } else if name_b == "Transform" {
+            Ordering::Greater
+        } else {
+            name_a.cmp(name_b)
+        })
+    });
     let cell = world.as_unsafe_world_cell();
     let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
 
@@ -240,8 +254,8 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     });
 
     //Open context window by button
-    ui.centered_and_justified(|ui| {
-        ui.spacing();
+    ui.vertical_centered(|ui| {
+        ui.add_space(16.);
         if ui.button("Add component").clicked() {
             state.show_add_component_window = true;
         }
