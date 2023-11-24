@@ -61,7 +61,7 @@ pub fn show_hierarchy(
 
     let ui = &mut ui.0;
     egui::ScrollArea::vertical().show(ui, |ui| {
-        for (entity, _, _, parent) in all.iter() {
+        for (entity, _name, _children, parent) in all.iter() {
             if parent.is_none() {
                 draw_entity(
                     &mut commands,
@@ -118,8 +118,8 @@ fn draw_entity(
     };
 
     let entity_name = name.map_or_else(
-        || format!("Entity {:?}", entity),
-        |name| format!("Entity {:?}: {:?}", entity, name.as_str()),
+        || format!("Entity ({:?})", entity),
+        |name| format!("{} ({:?})", name.as_str(), entity),
     );
 
     ui.indent(entity_name.clone(), |ui| {
