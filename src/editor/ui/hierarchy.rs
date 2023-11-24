@@ -118,8 +118,8 @@ fn draw_entity(
     };
 
     let entity_name = name.map_or_else(
-        || format!("Entity {:?}", entity),
-        |name| format!("{} [{:?}]", name.as_str(), entity),
+        || format!("Entity ({:?})", entity),
+        |name| format!("{} ({:?})", name.as_str(), entity),
     );
 
     ui.indent(entity_name.clone(), |ui| {
