@@ -1,3 +1,4 @@
+pub mod components_order;
 pub mod refl_impl;
 
 use std::any::TypeId;
@@ -20,7 +21,10 @@ use crate::{
     prelude::EditorTab,
 };
 
-use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
+use self::{
+    components_order::{ComponentsOrder, ComponentsPriority},
+    refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
+};
 
 use super::EditorUiAppExt;
 
@@ -35,6 +39,9 @@ impl Plugin for SpaceInspectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InspectState>();
         app.init_resource::<FilterComponentState>();
+        app.init_resource::<ComponentsOrder>();
+        app.editor_component_priority::<Name>(0);
+        app.editor_component_priority::<Transform>(1);
 
         app.editor_tab_by_trait(
             crate::prelude::EditorTabName::Inspector,
@@ -136,16 +143,22 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let mut disable_pan_orbit = false;
 
     //Collet data about all components
+    let components_priority = world.resource::<ComponentsOrder>().clone().components;
     let mut components_id = Vec::new();
     for reg in registry.iter() {
         if let Some(c_id) = world.components().get_id(reg.type_id()) {
             let name = pretty_type_name::pretty_type_name_str(
                 world.components().get_info(c_id).unwrap().name(),
             );
-            components_id.push((c_id, reg.type_id(), name));
+            let priority = components_priority.get(&name).unwrap_or(&u8::MAX);
+            components_id.push((c_id, reg.type_id(), name, priority));
         }
     }
-    components_id.sort_by(|a, b| a.2.cmp(&b.2));
+    components_id.sort_by(|(.., name_a, priority_a), (.., name_b, priority_b)| {
+        priority_a.cmp(priority_b).then(name_a.cmp(name_b))
+    });
+
+    // println!("{:#?}\n", components_id);
 
     let cell = world.as_unsafe_world_cell();
     let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
@@ -184,7 +197,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             ui.label("Components:");
             let e_id = e.id().index();
             egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                for (c_id, t_id, name) in &components_id {
+                for (c_id, t_id, name, _) in &components_id {
                     if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
                         let registration = registry.get(*t_id).unwrap();
                         if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
@@ -240,11 +253,14 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     });
 
     //Open context window by button
-    if ui.button("Add component").clicked() {
-        state.show_add_component_window = true;
-    }
+    ui.vertical_centered(|ui| {
+        ui.add_space(8.);
+        if ui.button("Add component").clicked() {
+            state.show_add_component_window = true;
+        }
+    });
 
-    let add_responce = egui::Window::new("Add component")
+    egui::Window::new("Add component")
         .open(&mut state.show_add_component_window)
         .resizable(true)
         .scroll2([false, true])
@@ -258,7 +274,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             let lower_filter = state.component_add_filter.to_lowercase();
             egui::Grid::new("Component grid").show(ui, |ui| {
                 let _counter = 0;
-                for (c_id, _t_id, name) in &components_id {
+                for (c_id, _t_id, name, _) in &components_id {
                     if name.to_lowercase().contains(&lower_filter) {
                         ui.label(name);
                         if ui.button("+").clicked() {

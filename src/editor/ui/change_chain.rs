@@ -9,25 +9,19 @@ impl Plugin for ChangeChainViewPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(
             super::editor_tab::EditorTabName::Other("Change Chain".to_string()),
-            ChangeChainView::default(),
+            ChangeChainView,
         );
     }
 }
 
-#[derive(Resource)]
-pub struct ChangeChainView {}
-
-impl Default for ChangeChainView {
-    fn default() -> Self {
-        Self {}
-    }
-}
+#[derive(Resource, Default)]
+pub struct ChangeChainView;
 
 impl EditorTab for ChangeChainView {
     fn ui(
         &mut self,
         ui: &mut bevy_egui::egui::Ui,
-        commands: &mut bevy::prelude::Commands,
+        _commands: &mut bevy::prelude::Commands,
         world: &mut bevy::prelude::World,
     ) {
         let change_chain = world.resource::<ChangeChain>();
