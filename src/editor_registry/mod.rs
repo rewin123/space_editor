@@ -157,7 +157,7 @@ impl EditorRegistry {
 }
 
 pub trait EditorRegistryExt {
-    /// refister new component in editor UI and prefab systems
+    /// register new component in editor UI and prefab systems
     fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
         &mut self,
     ) -> &mut Self;

@@ -1,6 +1,7 @@
 pub mod refl_impl;
+pub mod components_order;
 
-use std::{any::TypeId, cmp::Ordering};
+use std::any::TypeId;
 
 use bevy::{
     ecs::{change_detection::MutUntyped, system::CommandQueue},
@@ -20,7 +21,7 @@ use crate::{
     prelude::EditorTab,
 };
 
-use self::refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented};
+use self::{refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented}, components_order::{get_priority_sort, ComponentsOrder, ComponentsPriority}};
 
 use super::EditorUiAppExt;
 
@@ -35,6 +36,9 @@ impl Plugin for SpaceInspectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<InspectState>();
         app.init_resource::<FilterComponentState>();
+        app.init_resource::<ComponentsOrder>();
+        app.editor_component_priority::<Name>(0);
+        app.editor_component_priority::<Transform>(1);
 
         app.editor_tab_by_trait(
             crate::prelude::EditorTabName::Inspector,
@@ -145,22 +149,8 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
             components_id.push((c_id, reg.type_id(), name));
         }
     }
-    components_id.sort_by(|(.., name_a), (.., name_b)| {
-        if name_a == "Name" {
-            Ordering::Less
-        } else if name_b == "Name" {
-            Ordering::Greater
-        } else {
-            Ordering::Equal
-        }
-        .then(if name_a == "Transform" {
-            Ordering::Less
-        } else if name_b == "Transform" {
-            Ordering::Greater
-        } else {
-            name_a.cmp(name_b)
-        })
-    });
+    components_id.sort_by(|a, b| (get_priority_sort(world))(a, b));
+
     let cell = world.as_unsafe_world_cell();
     let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
 
@@ -255,7 +245,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
 
     //Open context window by button
     ui.vertical_centered(|ui| {
-        ui.add_space(16.);
+        ui.add_space(8.);
         if ui.button("Add component").clicked() {
             state.show_add_component_window = true;
         }
