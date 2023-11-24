@@ -21,13 +21,13 @@ pub enum BackgroundTask {
 }
 
 fn update_storage(mut storage: ResMut<BackgroundTaskStorage>, assets: Res<AssetServer>) {
-    if storage.tasks.len() > 0 {
+    if !storage.tasks.is_empty() {
         let mut need_remove_task = false;
         match &storage.tasks[0] {
-            BackgroundTask::AssetLoading(path, handle) => {
+            BackgroundTask::AssetLoading(_path, handle) => {
                 let load_state = assets.get_load_state(handle.id());
                 if load_state == Some(LoadState::Loaded)
-                    || load_state == None
+                    || load_state.is_none()
                     || load_state == Some(LoadState::Failed)
                 {
                     need_remove_task = true;

@@ -240,11 +240,14 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     });
 
     //Open context window by button
-    if ui.button("Add component").clicked() {
-        state.show_add_component_window = true;
-    }
+    ui.centered_and_justified(|ui| {
+        ui.spacing();
+        if ui.button("Add component").clicked() {
+            state.show_add_component_window = true;
+        }
+    });
 
-    let add_responce = egui::Window::new("Add component")
+    egui::Window::new("Add component")
         .open(&mut state.show_add_component_window)
         .resizable(true)
         .scroll2([false, true])

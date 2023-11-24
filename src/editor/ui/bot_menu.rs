@@ -184,7 +184,7 @@ pub fn bot_menu(
             }
 
             ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
-                if background_tasks.tasks.len() > 0 {
+                if !background_tasks.tasks.is_empty() {
                     //Spinning circle
                     ui.spinner();
 

@@ -1,9 +1,6 @@
-use std::{fmt::format, sync::Arc};
+use std::sync::Arc;
 
-use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
-};
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::PrefabMarker;
 
@@ -120,11 +117,7 @@ impl ChangeChain {
     }
 }
 
-pub fn get_entity_with_remap(
-    entity: Entity,
-    world: &World,
-    entity_remap: &HashMap<Entity, Entity>,
-) -> Entity {
+pub fn get_entity_with_remap(entity: Entity, entity_remap: &HashMap<Entity, Entity>) -> Entity {
     *entity_remap.get(&entity).unwrap_or(&entity)
 }
 
@@ -170,7 +163,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, world, entity_remap);
+        let e = get_entity_with_remap(self.entity, entity_remap);
         world
             .entity_mut(e)
             .insert(self.old_value.clone())
@@ -184,7 +177,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         world
-            .entity_mut(get_entity_with_remap(self.entity, world, entity_remap))
+            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
             .insert(self.new_value.clone())
             .insert(OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
@@ -206,7 +199,7 @@ impl EditorChange for NewEntityChange {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         world
-            .entity_mut(get_entity_with_remap(self.entity, world, entity_remap))
+            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
             .despawn();
         Ok(ChangeResult::Success)
     }
@@ -214,7 +207,7 @@ impl EditorChange for NewEntityChange {
     fn apply(
         &self,
         world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
+        _entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let new_entity = world.spawn_empty().id();
         Ok(ChangeResult::SuccessWithRemap(vec![(
@@ -237,7 +230,7 @@ impl EditorChange for RemoveEntityChange {
     fn revert(
         &self,
         world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
+        _entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let mut entity_map = HashMap::new();
 
@@ -256,7 +249,7 @@ impl EditorChange for RemoveEntityChange {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         world
-            .entity_mut(get_entity_with_remap(self.entity, world, entity_remap))
+            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
             .despawn();
         Ok(ChangeResult::Success)
     }
@@ -335,7 +328,6 @@ fn auto_undo_add_init<T: Component + Clone>(
 
 fn auto_undo_system_changed<T: Component + Clone>(
     mut commands: Commands,
-    mut storage: ResMut<AutoUndoStorage<T>>,
     query: Query<Entity, (With<PrefabMarker>, Changed<T>, Without<OneFrameUndoIgnore>)>,
 ) {
     for entity in query.iter() {
@@ -364,7 +356,6 @@ fn auto_undo_system<T: Component + Clone>(
                     }),
                 });
                 info!("Auto undo change for entity {:?}", e);
-            } else {
             }
 
             storage.storage.insert(e, data.clone());

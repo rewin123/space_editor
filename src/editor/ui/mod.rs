@@ -42,7 +42,7 @@ use self::{
 };
 
 use super::{
-    core::{SelectedPlugin, ToolExt, UndoRedo},
+    core::{SelectedPlugin, ToolExt},
     update_pan_orbit,
 };
 
