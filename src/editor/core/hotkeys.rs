@@ -1,7 +1,7 @@
-use bevy::ecs::change_detection::MutUntyped;
+
 use bevy::prelude::*;
 use bevy::reflect::GetTypeRegistration;
-use bevy::utils::{HashMap, HashSet};
+use bevy::utils::HashMap;
 
 use super::AppPersistanceExt;
 
@@ -19,7 +19,7 @@ pub trait Hotkey:
     + std::hash::Hash
     + 'static
 {
-    fn name<'a>(&self) -> String;
+    fn name(&self) -> String;
 }
 
 #[derive(Resource, Reflect, Deref)]

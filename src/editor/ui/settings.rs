@@ -67,9 +67,9 @@ impl EditorTab for SettingsWindow {
 
                             if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
                                 if hotkey_name == *read_input_for_hotkey {
-                                    ui.button("Wait for input");
+                                    let _ = ui.button("Wait for input");
 
-                                    world.resource_scope::<Input<KeyCode>, _>(|world, input| {
+                                    world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
                                         for key in input.get_just_pressed() {
                                             bindings.clear();
                                             bindings.push(*key);
@@ -77,24 +77,22 @@ impl EditorTab for SettingsWindow {
                                         }
                                     });
                                 } else {
-                                    let mut binding_text = "".to_string();
-                                    if bindings.len() == 1 {
-                                        binding_text = format!("{:?}", &bindings[0]);
+                                    let binding_text =if bindings.len() == 1 {
+                                        format!("{:?}", &bindings[0])
                                     } else {
-                                        binding_text = format!("{:?}", bindings);
-                                    }
+                                        format!("{:?}", bindings)
+                                    };
 
                                     if ui.button(binding_text).clicked() {
                                         self.read_input_for_hotkey = Some(hotkey_name);
                                     }
                                 }
                             } else {
-                                let mut binding_text = "".to_string();
-                                if bindings.len() == 1 {
-                                    binding_text = format!("{:?}", &bindings[0]);
+                                let binding_text = if bindings.len() == 1 {
+                                    format!("{:?}", &bindings[0])
                                 } else {
-                                    binding_text = format!("{:?}", bindings);
-                                }
+                                    format!("{:?}", bindings)
+                                };
 
                                 if ui.button(binding_text).clicked() {
                                     self.read_input_for_hotkey = Some(hotkey_name);

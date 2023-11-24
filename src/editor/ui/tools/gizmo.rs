@@ -3,7 +3,7 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    editor::core::{EditorTool, Hotkey, HotkeyAppExt, HotkeySet, Selected},
+    editor::core::{EditorTool, Hotkey, HotkeyAppExt, Selected},
     prelude::CloneEvent,
     EditorCameraMarker,
 };
