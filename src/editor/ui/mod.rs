@@ -189,6 +189,7 @@ impl EditorUi {
             }
         }
 
+        let settings_res = world.resource::<SettingsWindow>().clone();
         let cell = world.as_unsafe_world_cell();
 
         let mut command_queue = CommandQueue::default();
@@ -215,14 +216,29 @@ impl EditorUi {
                     name,
                     surface,
                     node,
-                } => {
-                    if let Some(surface) = self.tree.get_surface_mut(surface) {
-                        surface
-                            .node_tree_mut()
-                            .unwrap()
-                            .split_right(node, 0.5, vec![name]);
+                } => match settings_res.new_tab {
+                    NewTabBehaviour::Pop => {
+                        self.tree.add_window(vec![name]);
                     }
-                }
+                    NewTabBehaviour::SameNode => {
+                        if let Some(tree) = self
+                            .tree
+                            .get_surface_mut(surface)
+                            .and_then(|surface| surface.node_tree_mut())
+                        {
+                            tree.set_focused_node(node);
+                            tree.push_to_focused_leaf(name);
+                        }
+                    }
+                    NewTabBehaviour::SplitNode => {
+                        if let Some(surface) = self.tree.get_surface_mut(surface) {
+                            surface
+                                .node_tree_mut()
+                                .unwrap()
+                                .split_right(node, 0.5, vec![name]);
+                        }
+                    }
+                },
             }
         }
 

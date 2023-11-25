@@ -28,11 +28,38 @@ impl Plugin for SettingsWindowPlugin {
     }
 }
 
-#[derive(Default, Resource)]
-pub struct SettingsWindow {}
+#[derive(Default, Reflect, PartialEq, Eq, Clone)]
+pub enum NewTabBehaviour {
+    Pop,
+    #[default]
+    SameNode,
+    SplitNode,
+}
+
+impl ToString for NewTabBehaviour {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Pop => "New window",
+            Self::SameNode => "Same Node",
+            Self::SplitNode => "Splits Node",
+        }
+        .to_string()
+    }
+}
+
+#[derive(Default, Resource, Clone)]
+pub struct SettingsWindow {
+    pub new_tab: NewTabBehaviour,
+}
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, _commands: &mut Commands, world: &mut World) {
+        let tab_modes: Vec<NewTabBehaviour> = vec![
+            NewTabBehaviour::Pop,
+            NewTabBehaviour::SameNode,
+            NewTabBehaviour::SplitNode,
+        ];
+
         #[cfg(feature = "bevy_xpbd_3d")]
         {
             ui.heading("Bevy XPBD 3D");
@@ -50,6 +77,22 @@ impl EditorTab for SettingsWindow {
             );
         }
 
+        ui.spacing();
+        ui.heading("New Tab Behaviour");
+        egui::ComboBox::new("new_tab", "")
+            .selected_text(self.new_tab.to_string())
+            .show_ui(ui, |ui| {
+                for (_, mode) in tab_modes.into_iter().enumerate() {
+                    if ui
+                        .selectable_label(self.new_tab == mode, mode.to_string())
+                        .clicked()
+                    {
+                        self.new_tab = mode;
+                    }
+                }
+            });
+
+        ui.spacing();
         ui.heading("Hotkeys in Game view tab");
 
         egui::Grid::new("hotkeys")
