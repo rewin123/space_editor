@@ -289,7 +289,7 @@ fn persistance_resource_system<T: Default + Reflect + FromReflect + Resource + G
     mut resource: ResMut<T>,
     registry: Res<AppTypeRegistry>,
     mut persistance_loaded: EventWriter<PersistanceLoaded<T>>,
-    mut pipeline : ResMut<PersistanceLoadPipeline<T>>,
+    pipeline : ResMut<PersistanceLoadPipeline<T>>,
 ) {
     for event in events.read() {
         match event {

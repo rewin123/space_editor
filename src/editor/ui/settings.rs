@@ -74,22 +74,21 @@ impl EditorTab for SettingsWindow {
 
                                         world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
                                             let all_pressed =
-                                                input.get_pressed().map(|k| *k).collect::<Vec<_>>();
+                                                input.get_pressed().copied().collect::<Vec<_>>();
                                             self.all_pressed_hotkeys.extend(all_pressed.iter());
                                             let all_pressed = self
                                                 .all_pressed_hotkeys
-                                                .iter()
-                                                .map(|k| *k)
+                                                .iter().copied()
                                                 .collect::<Vec<_>>();
 
-                                            if all_pressed.len() == 0 {
+                                            if all_pressed.is_empty() {
                                                 key_text = "Wait for input".to_string();
                                             } else {
                                                 key_text = format!("{:?}", all_pressed[0]);
-                                                for idx in 1..all_pressed.len() {
+                                                for key in all_pressed.iter().skip(1) {
                                                     key_text = format!(
                                                         "{} + {:?}",
-                                                        key_text, all_pressed[idx]
+                                                        key_text, key
                                                     );
                                                 }
                                             }
@@ -102,7 +101,7 @@ impl EditorTab for SettingsWindow {
                                             }
 
                                             ui.add(egui::Button::new(
-                                                egui::RichText::new(key_text).strong(),
+                                                egui::RichText::new(&key_text).strong(),
                                             ));
                                         });
                                     } else {
