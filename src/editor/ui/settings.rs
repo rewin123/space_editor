@@ -56,53 +56,66 @@ impl EditorTab for SettingsWindow {
             );
         }
 
-        ui.heading("Hotkeys in Game view tab");
-
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")
                 .num_columns(2)
                 .show(ui, |ui| {
                     world.resource_scope::<AllHotkeys, _>(|world, all_hotkeys| {
-                        all_hotkeys.map(world, &mut |world, hotkey_name, bindings| {
-                            ui.label(&hotkey_name);
+                        all_hotkeys.global_map(world, &mut |world, set| {
+                            ui.heading(set.get_name());
+                            ui.end_row();
+                            let all_bindings = set.get_flat_bindings();
+                            for (hotkey_name, bindings) in all_bindings {
+                                ui.label(&hotkey_name);
 
-                            if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
-                                if hotkey_name == *read_input_for_hotkey {
-                                    let mut key_text = String::new();
+                                if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
+                                    if hotkey_name == *read_input_for_hotkey {
+                                        let mut key_text = String::new();
 
-                                    world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
-                                        let all_pressed =
-                                            input.get_pressed().map(|k| *k).collect::<Vec<_>>();
-                                        self.all_pressed_hotkeys.extend(all_pressed.iter());
-                                        let all_pressed = self
-                                            .all_pressed_hotkeys
-                                            .iter()
-                                            .map(|k| *k)
-                                            .collect::<Vec<_>>();
+                                        world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
+                                            let all_pressed =
+                                                input.get_pressed().map(|k| *k).collect::<Vec<_>>();
+                                            self.all_pressed_hotkeys.extend(all_pressed.iter());
+                                            let all_pressed = self
+                                                .all_pressed_hotkeys
+                                                .iter()
+                                                .map(|k| *k)
+                                                .collect::<Vec<_>>();
 
-                                        if all_pressed.len() == 0 {
-                                            key_text = "Wait for input".to_string();
-                                        } else {
-                                            key_text = format!("{:?}", all_pressed[0]);
-                                            for idx in 1..all_pressed.len() {
-                                                key_text = format!(
-                                                    "{} + {:?}",
-                                                    key_text, all_pressed[idx]
-                                                );
+                                            if all_pressed.len() == 0 {
+                                                key_text = "Wait for input".to_string();
+                                            } else {
+                                                key_text = format!("{:?}", all_pressed[0]);
+                                                for idx in 1..all_pressed.len() {
+                                                    key_text = format!(
+                                                        "{} + {:?}",
+                                                        key_text, all_pressed[idx]
+                                                    );
+                                                }
                                             }
-                                        }
 
-                                        if input.get_just_released().len() > 0 {
-                                            bindings.clear();
-                                            *bindings = all_pressed;
-                                            self.read_input_for_hotkey = None;
-                                            self.all_pressed_hotkeys.clear();
-                                        }
+                                            if input.get_just_released().len() > 0 {
+                                                bindings.clear();
+                                                *bindings = all_pressed;
+                                                self.read_input_for_hotkey = None;
+                                                self.all_pressed_hotkeys.clear();
+                                            }
 
-                                        ui.add(egui::Button::new(
-                                            egui::RichText::new(key_text).strong(),
-                                        ));
-                                    });
+                                            ui.add(egui::Button::new(
+                                                egui::RichText::new(key_text).strong(),
+                                            ));
+                                        });
+                                    } else {
+                                        let binding_text = if bindings.len() == 1 {
+                                            format!("{:?}", &bindings[0])
+                                        } else {
+                                            format!("{:?}", bindings)
+                                        };
+
+                                        if ui.button(binding_text).clicked() {
+                                            self.read_input_for_hotkey = Some(hotkey_name);
+                                        }
+                                    }
                                 } else {
                                     let binding_text = if bindings.len() == 1 {
                                         format!("{:?}", &bindings[0])
@@ -114,19 +127,9 @@ impl EditorTab for SettingsWindow {
                                         self.read_input_for_hotkey = Some(hotkey_name);
                                     }
                                 }
-                            } else {
-                                let binding_text = if bindings.len() == 1 {
-                                    format!("{:?}", &bindings[0])
-                                } else {
-                                    format!("{:?}", bindings)
-                                };
 
-                                if ui.button(binding_text).clicked() {
-                                    self.read_input_for_hotkey = Some(hotkey_name);
-                                }
+                                ui.end_row();
                             }
-
-                            ui.end_row();
                         });
                     });
                 });

@@ -21,9 +21,10 @@ pub trait Hotkey:
     fn name(&self) -> String;
 }
 
-#[derive(Resource, Reflect, Deref)]
+#[derive(Resource, Reflect)]
 pub struct HotkeySet<T: Hotkey> {
     pub bindings: HashMap<T, Vec<KeyCode>>,
+    pub name : String
 }
 
 impl<T> Default for HotkeySet<T>
@@ -33,6 +34,7 @@ where
     fn default() -> Self {
         Self {
             bindings: HashMap::new(),
+            name : T::short_type_path().to_string()
         }
     }
 }
@@ -44,6 +46,9 @@ pub struct AllHotkeys {
             dyn Fn(&mut World, &mut dyn FnMut(&mut World, String, &mut Vec<KeyCode>)) + Send + Sync,
         >,
     >,
+    pub global_mapper : Vec<
+        Box<dyn Fn(&mut World, &mut dyn FnMut(&mut World, &mut dyn UntypedHotkeySet)) + Send + Sync>
+    >
 }
 
 impl AllHotkeys {
@@ -56,18 +61,36 @@ impl AllHotkeys {
             mapper(world, map_fun);
         }
     }
+
+    pub fn global_map(
+        &self,
+        world: &mut World,
+        map_fun: &mut dyn FnMut(&mut World, &mut dyn UntypedHotkeySet),
+    ) {
+        for mapper in &self.global_mapper {
+            mapper(world, map_fun);
+        }
+    }
 }
 
 pub trait UntypedHotkeySet {
     fn get_flat_bindings(&mut self) -> Vec<(String, &mut Vec<KeyCode>)>;
+    fn get_name(&self) -> &str;
 }
 
 impl<T: Hotkey> UntypedHotkeySet for HotkeySet<T> {
     fn get_flat_bindings(&mut self) -> Vec<(String, &mut Vec<KeyCode>)> {
-        self.bindings
+        let mut res = self.bindings
             .iter_mut()
             .map(|(k, v)| (k.name(), v))
-            .collect()
+            .collect::<Vec<_>>();
+            
+        res.sort_by(|a, b| a.0.cmp(&b.0));
+        res
+    }
+
+    fn get_name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -82,11 +105,13 @@ impl HotkeyAppExt for App {
         }
 
         if !self.world.contains_resource::<HotkeySet<T>>() {
-            self.insert_resource(HotkeySet::<T> {
-                bindings: HashMap::new(),
-            });
+            self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<Input<T>>();
-            self.persistance_resource::<HotkeySet<T>>();
+            self.persistance_resource_with_fn::<HotkeySet<T>>(
+                Box::new(|dst : &mut HotkeySet<T>, src : HotkeySet<T>| {
+                    dst.bindings.extend(src.bindings);
+                })
+            );
             self.add_systems(PreUpdate, hotkey_mapper::<T>);
             self.register_type::<Vec<KeyCode>>();
             self.register_type::<HotkeySet<T>>();
@@ -102,6 +127,15 @@ impl HotkeyAppExt for App {
                         }
                     });
                 }));
+
+            self.world
+                .resource_mut::<AllHotkeys>()
+                .global_mapper
+                .push(Box::new(|w, map_fun| {
+                    w.resource_scope::<HotkeySet<T>, _>(|world, mut set| {
+                        map_fun(world, set.as_mut());
+                    })
+                }))
         }
 
         let mut set = self.world.get_resource_mut::<HotkeySet<T>>().unwrap();

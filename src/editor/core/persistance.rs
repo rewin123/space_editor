@@ -135,7 +135,7 @@ fn persistance_end(mut persistance: ResMut<PersistanceRegistry>) {
         }
         PersistanceMode::Loading => {
             persistance.mode = PersistanceMode::None;
-            if persistance.load_counter == persistance.target_count {
+            if persistance.load_counter != persistance.target_count {
                 error!(
                     "Persistance loading error: {} of {} resources were loaded",
                     persistance.load_counter, persistance.target_count
@@ -215,12 +215,30 @@ impl Default for PersistanceDataSource {
         Self::File("editor.ron".to_string())
     }
 }
+#[derive(Resource)]
+struct PersistanceLoadPipeline<T> {
+    pub load_fn : Box<dyn Fn(&mut T, T) + Send + Sync>
+}
+
+impl<T> Default for PersistanceLoadPipeline<T> {
+    fn default() -> Self {
+        Self {
+            load_fn: Box::new(|dst, src| {*dst = src;}),
+        }
+    }
+}
 
 pub trait AppPersistanceExt {
     fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self;
+
+    fn persistance_resource_with_fn<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+        &mut self,
+        load_function : Box<dyn Fn(&mut T, T) + Send + Sync>
+    ) -> &mut Self;
 }
+
 
 impl AppPersistanceExt for App {
     fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
@@ -233,6 +251,29 @@ impl AppPersistanceExt for App {
         self.register_type::<T>();
         self.add_event::<PersistanceLoaded<T>>();
 
+        self.init_resource::<PersistanceLoadPipeline<T>>();
+
+        self.add_systems(
+            Update,
+            persistance_resource_system::<T>.in_set(PersistanceSet::ResourceProcess),
+        );
+
+        self
+    }
+
+    fn persistance_resource_with_fn<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+        &mut self,
+        load_function : Box<dyn Fn(&mut T, T) + Send + Sync>
+    ) -> &mut Self {
+        self.world
+            .resource_mut::<PersistanceRegistry>()
+            .target_count += 1;
+
+        self.register_type::<T>();
+        self.add_event::<PersistanceLoaded<T>>();
+
+        self.insert_resource(PersistanceLoadPipeline{load_fn : load_function});
+
         self.add_systems(
             Update,
             persistance_resource_system::<T>.in_set(PersistanceSet::ResourceProcess),
@@ -242,14 +283,13 @@ impl AppPersistanceExt for App {
     }
 }
 
-fn persistance_resource_system<
-    T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
->(
+fn persistance_resource_system<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
     mut events: EventReader<PersistanceResourceBroadcastEvent>,
     mut persistance: ResMut<PersistanceRegistry>,
     mut resource: ResMut<T>,
     registry: Res<AppTypeRegistry>,
     mut persistance_loaded: EventWriter<PersistanceLoaded<T>>,
+    mut pipeline : ResMut<PersistanceLoadPipeline<T>>,
 ) {
     for event in events.read() {
         match event {
@@ -283,8 +323,14 @@ fn persistance_resource_system<
                     .deserialize(&mut ron::Deserializer::from_str(data).unwrap())
                     .unwrap();
 
-                let converted = <T as FromReflect>::from_reflect(&*reflected_value).unwrap();
-                *resource = converted;
+                let Some(converted) = <T as FromReflect>::from_reflect(&*reflected_value) else {
+                    warn!(
+                        "Persistance resource {} could not be converted",
+                        T::get_type_registration().type_info().type_path()
+                    );
+                    continue;
+                };
+                (pipeline.load_fn)(resource.as_mut(), converted);
                 resource.set_changed();
 
                 persistance_loaded.send(PersistanceLoaded::<T>::default());
