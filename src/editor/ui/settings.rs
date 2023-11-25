@@ -72,38 +72,41 @@ impl EditorTab for SettingsWindow {
                                     if hotkey_name == *read_input_for_hotkey {
                                         let mut key_text = String::new();
 
-                                        world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
-                                            let all_pressed =
-                                                input.get_pressed().copied().collect::<Vec<_>>();
-                                            self.all_pressed_hotkeys.extend(all_pressed.iter());
-                                            let all_pressed = self
-                                                .all_pressed_hotkeys
-                                                .iter().copied()
-                                                .collect::<Vec<_>>();
+                                        world.resource_scope::<Input<KeyCode>, _>(
+                                            |_world, input| {
+                                                let all_pressed = input
+                                                    .get_pressed()
+                                                    .copied()
+                                                    .collect::<Vec<_>>();
+                                                self.all_pressed_hotkeys.extend(all_pressed.iter());
+                                                let all_pressed = self
+                                                    .all_pressed_hotkeys
+                                                    .iter()
+                                                    .copied()
+                                                    .collect::<Vec<_>>();
 
-                                            if all_pressed.is_empty() {
-                                                key_text = "Wait for input".to_string();
-                                            } else {
-                                                key_text = format!("{:?}", all_pressed[0]);
-                                                for key in all_pressed.iter().skip(1) {
-                                                    key_text = format!(
-                                                        "{} + {:?}",
-                                                        key_text, key
-                                                    );
+                                                if all_pressed.is_empty() {
+                                                    key_text = "Wait for input".to_string();
+                                                } else {
+                                                    key_text = format!("{:?}", all_pressed[0]);
+                                                    for key in all_pressed.iter().skip(1) {
+                                                        key_text =
+                                                            format!("{} + {:?}", key_text, key);
+                                                    }
                                                 }
-                                            }
 
-                                            if input.get_just_released().len() > 0 {
-                                                bindings.clear();
-                                                *bindings = all_pressed;
-                                                self.read_input_for_hotkey = None;
-                                                self.all_pressed_hotkeys.clear();
-                                            }
+                                                if input.get_just_released().len() > 0 {
+                                                    bindings.clear();
+                                                    *bindings = all_pressed;
+                                                    self.read_input_for_hotkey = None;
+                                                    self.all_pressed_hotkeys.clear();
+                                                }
 
-                                            ui.add(egui::Button::new(
-                                                egui::RichText::new(&key_text).strong(),
-                                            ));
-                                        });
+                                                ui.add(egui::Button::new(
+                                                    egui::RichText::new(&key_text).strong(),
+                                                ));
+                                            },
+                                        );
                                     } else {
                                         let binding_text = if bindings.len() == 1 {
                                             format!("{:?}", &bindings[0])

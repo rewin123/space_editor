@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy::reflect::GetTypeRegistration;
 use bevy::utils::HashMap;
 
-
 #[cfg(feature = "persistance_editor")]
 use super::AppPersistanceExt;
 
@@ -26,7 +25,7 @@ pub trait Hotkey:
 #[derive(Resource, Reflect)]
 pub struct HotkeySet<T: Hotkey> {
     pub bindings: HashMap<T, Vec<KeyCode>>,
-    pub name : String
+    pub name: String,
 }
 
 impl<T> Default for HotkeySet<T>
@@ -36,7 +35,7 @@ where
     fn default() -> Self {
         Self {
             bindings: HashMap::new(),
-            name : T::short_type_path().to_string()
+            name: T::short_type_path().to_string(),
         }
     }
 }
@@ -48,9 +47,11 @@ pub struct AllHotkeys {
             dyn Fn(&mut World, &mut dyn FnMut(&mut World, String, &mut Vec<KeyCode>)) + Send + Sync,
         >,
     >,
-    pub global_mapper : Vec<
-        Box<dyn Fn(&mut World, &mut dyn FnMut(&mut World, &mut dyn UntypedHotkeySet)) + Send + Sync>
-    >
+    pub global_mapper: Vec<
+        Box<
+            dyn Fn(&mut World, &mut dyn FnMut(&mut World, &mut dyn UntypedHotkeySet)) + Send + Sync,
+        >,
+    >,
 }
 
 impl AllHotkeys {
@@ -82,11 +83,12 @@ pub trait UntypedHotkeySet {
 
 impl<T: Hotkey> UntypedHotkeySet for HotkeySet<T> {
     fn get_flat_bindings(&mut self) -> Vec<(String, &mut Vec<KeyCode>)> {
-        let mut res = self.bindings
+        let mut res = self
+            .bindings
             .iter_mut()
             .map(|(k, v)| (k.name(), v))
             .collect::<Vec<_>>();
-            
+
         res.sort_by(|a, b| a.0.cmp(&b.0));
         res
     }
@@ -109,12 +111,13 @@ impl HotkeyAppExt for App {
         if !self.world.contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<Input<T>>();
-            #[cfg(feature = "persistance_editor")] {
-                self.persistance_resource_with_fn::<HotkeySet<T>>(
-                    Box::new(|dst : &mut HotkeySet<T>, src : HotkeySet<T>| {
+            #[cfg(feature = "persistance_editor")]
+            {
+                self.persistance_resource_with_fn::<HotkeySet<T>>(Box::new(
+                    |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
                         dst.bindings.extend(src.bindings);
-                    })
-                );
+                    },
+                ));
             }
             self.add_systems(PreUpdate, hotkey_mapper::<T>);
             self.register_type::<Vec<KeyCode>>();

@@ -217,13 +217,15 @@ impl Default for PersistanceDataSource {
 }
 #[derive(Resource)]
 struct PersistanceLoadPipeline<T> {
-    pub load_fn : Box<dyn Fn(&mut T, T) + Send + Sync>
+    pub load_fn: Box<dyn Fn(&mut T, T) + Send + Sync>,
 }
 
 impl<T> Default for PersistanceLoadPipeline<T> {
     fn default() -> Self {
         Self {
-            load_fn: Box::new(|dst, src| {*dst = src;}),
+            load_fn: Box::new(|dst, src| {
+                *dst = src;
+            }),
         }
     }
 }
@@ -233,12 +235,13 @@ pub trait AppPersistanceExt {
         &mut self,
     ) -> &mut Self;
 
-    fn persistance_resource_with_fn<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+    fn persistance_resource_with_fn<
+        T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
+    >(
         &mut self,
-        load_function : Box<dyn Fn(&mut T, T) + Send + Sync>
+        load_function: Box<dyn Fn(&mut T, T) + Send + Sync>,
     ) -> &mut Self;
 }
-
 
 impl AppPersistanceExt for App {
     fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
@@ -261,9 +264,11 @@ impl AppPersistanceExt for App {
         self
     }
 
-    fn persistance_resource_with_fn<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+    fn persistance_resource_with_fn<
+        T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
+    >(
         &mut self,
-        load_function : Box<dyn Fn(&mut T, T) + Send + Sync>
+        load_function: Box<dyn Fn(&mut T, T) + Send + Sync>,
     ) -> &mut Self {
         self.world
             .resource_mut::<PersistanceRegistry>()
@@ -272,7 +277,9 @@ impl AppPersistanceExt for App {
         self.register_type::<T>();
         self.add_event::<PersistanceLoaded<T>>();
 
-        self.insert_resource(PersistanceLoadPipeline{load_fn : load_function});
+        self.insert_resource(PersistanceLoadPipeline {
+            load_fn: load_function,
+        });
 
         self.add_systems(
             Update,
@@ -283,13 +290,15 @@ impl AppPersistanceExt for App {
     }
 }
 
-fn persistance_resource_system<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+fn persistance_resource_system<
+    T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
+>(
     mut events: EventReader<PersistanceResourceBroadcastEvent>,
     mut persistance: ResMut<PersistanceRegistry>,
     mut resource: ResMut<T>,
     registry: Res<AppTypeRegistry>,
     mut persistance_loaded: EventWriter<PersistanceLoaded<T>>,
-    pipeline : ResMut<PersistanceLoadPipeline<T>>,
+    pipeline: ResMut<PersistanceLoadPipeline<T>>,
 ) {
     for event in events.read() {
         match event {
