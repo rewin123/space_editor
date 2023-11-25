@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy::reflect::GetTypeRegistration;
 use bevy::utils::HashMap;
 
+
+#[cfg(feature = "persistance_editor")]
 use super::AppPersistanceExt;
 
 //TODO: I think this must be a derive macro in future
@@ -107,11 +109,13 @@ impl HotkeyAppExt for App {
         if !self.world.contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<Input<T>>();
-            self.persistance_resource_with_fn::<HotkeySet<T>>(
-                Box::new(|dst : &mut HotkeySet<T>, src : HotkeySet<T>| {
-                    dst.bindings.extend(src.bindings);
-                })
-            );
+            #[cfg(feature = "persistance_editor")] {
+                self.persistance_resource_with_fn::<HotkeySet<T>>(
+                    Box::new(|dst : &mut HotkeySet<T>, src : HotkeySet<T>| {
+                        dst.bindings.extend(src.bindings);
+                    })
+                );
+            }
             self.add_systems(PreUpdate, hotkey_mapper::<T>);
             self.register_type::<Vec<KeyCode>>();
             self.register_type::<HotkeySet<T>>();
