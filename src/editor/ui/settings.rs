@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
 
 use crate::{
@@ -34,6 +34,7 @@ impl Plugin for SettingsWindowPlugin {
 #[derive(Default, Resource)]
 pub struct SettingsWindow {
     read_input_for_hotkey: Option<String>,
+    all_pressed_hotkeys: HashSet<KeyCode>,
 }
 
 impl EditorTab for SettingsWindow {
@@ -67,17 +68,43 @@ impl EditorTab for SettingsWindow {
 
                             if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
                                 if hotkey_name == *read_input_for_hotkey {
-                                    let _ = ui.button("Wait for input");
+                                    let mut key_text = String::new();
 
                                     world.resource_scope::<Input<KeyCode>, _>(|_world, input| {
-                                        for key in input.get_just_pressed() {
-                                            bindings.clear();
-                                            bindings.push(*key);
-                                            self.read_input_for_hotkey = None;
+                                        let all_pressed =
+                                            input.get_pressed().map(|k| *k).collect::<Vec<_>>();
+                                        self.all_pressed_hotkeys.extend(all_pressed.iter());
+                                        let all_pressed = self
+                                            .all_pressed_hotkeys
+                                            .iter()
+                                            .map(|k| *k)
+                                            .collect::<Vec<_>>();
+
+                                        if all_pressed.len() == 0 {
+                                            key_text = "Wait for input".to_string();
+                                        } else {
+                                            key_text = format!("{:?}", all_pressed[0]);
+                                            for idx in 1..all_pressed.len() {
+                                                key_text = format!(
+                                                    "{} + {:?}",
+                                                    key_text, all_pressed[idx]
+                                                );
+                                            }
                                         }
+
+                                        if input.get_just_released().len() > 0 {
+                                            bindings.clear();
+                                            *bindings = all_pressed;
+                                            self.read_input_for_hotkey = None;
+                                            self.all_pressed_hotkeys.clear();
+                                        }
+
+                                        ui.add(egui::Button::new(
+                                            egui::RichText::new(key_text).strong(),
+                                        ));
                                     });
                                 } else {
-                                    let binding_text =if bindings.len() == 1 {
+                                    let binding_text = if bindings.len() == 1 {
                                         format!("{:?}", &bindings[0])
                                     } else {
                                         format!("{:?}", bindings)
