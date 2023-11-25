@@ -38,7 +38,7 @@ use crate::{EditorSet, EditorState};
 
 use self::{
     mouse_check::{pointer_context_check, MouseCheck},
-    tools::gizmo::GizmoTool,
+    tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
 
 use super::{
@@ -104,6 +104,7 @@ impl Plugin for EditorUiPlugin {
         app.add_plugins(SpaceInspectorPlugin);
 
         app.editor_tool(GizmoTool::default());
+        app.add_plugins(GizmoToolPlugin);
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
 
         app.add_plugins(settings::SettingsWindowPlugin);

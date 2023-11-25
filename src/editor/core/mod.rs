@@ -13,6 +13,9 @@ pub use task_storage::*;
 pub mod undo;
 pub use undo::*;
 
+pub mod hotkeys;
+pub use hotkeys::*;
+
 #[cfg(feature = "persistance_editor")]
 pub mod persistance;
 #[cfg(feature = "persistance_editor")]
