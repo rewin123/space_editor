@@ -3,10 +3,46 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 
 use crate::{
-    editor::core::{EditorTool, Selected},
+    editor::core::{EditorTool, Hotkey, HotkeyAppExt, Selected},
     prelude::CloneEvent,
     EditorCameraMarker,
 };
+
+pub struct GizmoToolPlugin;
+
+impl Plugin for GizmoToolPlugin {
+    fn build(&self, app: &mut App) {
+        app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
+        app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
+        app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
+        app.editor_hotkey(GizmoHotkey::Delete, vec![KeyCode::X]);
+        app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
+        app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
+pub enum GizmoHotkey {
+    Translate,
+    Rotate,
+    Scale,
+    Delete,
+    Multiple,
+    Clone,
+}
+
+impl Hotkey for GizmoHotkey {
+    fn name<'a>(&self) -> String {
+        match self {
+            GizmoHotkey::Translate => "Translate entity".to_string(),
+            GizmoHotkey::Rotate => "Rotate entity".to_string(),
+            GizmoHotkey::Scale => "Scale entity".to_string(),
+            GizmoHotkey::Delete => "Delete entity".to_string(),
+            GizmoHotkey::Multiple => "Change multiple entities".to_string(),
+            GizmoHotkey::Clone => "Clone entity".to_string(),
+        }
+    }
+}
 
 pub struct GizmoTool {
     pub gizmo_mode: GizmoMode,
@@ -33,6 +69,7 @@ impl EditorTool for GizmoTool {
         // If SHIFT pressed draw "mean" gizmo to move all selected entities together
         // If ALT pressed, then entity will be cloned at interact
         // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
+        // All hotkeys can be changes in editor ui
 
         let mode2name = vec![
             (GizmoMode::Translate, "⬌", "Translate"),
@@ -60,23 +97,37 @@ impl EditorTool for GizmoTool {
         });
 
         let mut del = false;
+        let mut clone_pressed = false;
+        let mut multiple_pressed = false;
 
         if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
-                (GizmoMode::Translate, Key::G),
-                (GizmoMode::Rotate, Key::R),
-                (GizmoMode::Scale, Key::S),
+                (GizmoMode::Translate, GizmoHotkey::Translate),
+                (GizmoMode::Rotate, GizmoHotkey::Rotate),
+                (GizmoMode::Scale, GizmoHotkey::Scale),
             ];
 
+            let input = world.resource::<Input<GizmoHotkey>>();
+
             for (mode, key) in mode2key {
-                if ui.input(|s| s.key_pressed(key)) {
+                if input.just_pressed(key) {
                     self.gizmo_mode = mode;
                 }
             }
 
-            if ui.input(|s| s.key_pressed(Key::Delete) || s.key_pressed(Key::X)) {
+            if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
                 del = true;
+            }
+
+            if !input.pressed(GizmoHotkey::Clone) {
+                self.is_move_cloned_entities = false;
+            } else {
+                clone_pressed = true;
+            }
+
+            if input.pressed(GizmoHotkey::Multiple) {
+                multiple_pressed = true;
             }
         }
 
@@ -97,10 +148,6 @@ impl EditorTool for GizmoTool {
             (*ref_tr, ref_cam.clone())
         };
 
-        if ui.input(|s| !s.modifiers.alt) {
-            self.is_move_cloned_entities = false;
-        }
-
         let selected = world
             .query_filtered::<Entity, With<Selected>>()
             .iter(world)
@@ -111,7 +158,7 @@ impl EditorTool for GizmoTool {
         let cell = world.as_unsafe_world_cell();
 
         let view_matrix = Mat4::from(cam_transform.affine().inverse());
-        if ui.input(|s| s.modifiers.shift) {
+        if multiple_pressed {
             let mut mean_transform = Transform::IDENTITY;
             for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
@@ -160,7 +207,7 @@ impl EditorTool for GizmoTool {
 
             global_mean = GlobalTransform::from(mean_transform);
 
-            if gizmo_interacted && ui.input(|s| s.modifiers.alt) {
+            if gizmo_interacted && clone_pressed {
                 if self.is_move_cloned_entities {
                 } else {
                     for e in selected.iter() {
@@ -223,7 +270,7 @@ impl EditorTool for GizmoTool {
                                         scale: Vec3::from(<[f32; 3]>::from(result.scale)),
                                     };
 
-                                    if ui.input(|s| s.modifiers.alt) {
+                                    if clone_pressed {
                                         if self.is_move_cloned_entities {
                                             let new_transform =
                                                 GlobalTransform::from(new_transform);
@@ -255,7 +302,7 @@ impl EditorTool for GizmoTool {
                     .mode(self.gizmo_mode)
                     .interact(ui)
                 {
-                    if ui.input(|s| s.modifiers.alt) {
+                    if clone_pressed {
                         if self.is_move_cloned_entities {
                             *transform = Transform {
                                 translation: Vec3::from(<[f32; 3]>::from(result.translation)),

@@ -1,7 +1,10 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
 
-use crate::prelude::{EditorTab, EditorTabName};
+use crate::{
+    editor::core::AllHotkeys,
+    prelude::{EditorTab, EditorTabName},
+};
 
 #[cfg(feature = "persistance_editor")]
 use crate::prelude::editor::core::AppPersistanceExt;
@@ -50,6 +53,8 @@ impl ToString for NewTabBehaviour {
 #[derive(Default, Resource, Clone)]
 pub struct SettingsWindow {
     pub new_tab: NewTabBehaviour,
+    read_input_for_hotkey: Option<String>,
+    all_pressed_hotkeys: HashSet<KeyCode>,
 }
 
 impl EditorTab for SettingsWindow {
@@ -94,39 +99,107 @@ impl EditorTab for SettingsWindow {
 
         ui.spacing();
         ui.heading("Hotkeys in Game view tab");
+        if world.contains_resource::<AllHotkeys>() {
+            egui::Grid::new("hotkeys_grid")
+                .num_columns(2)
+                .show(ui, |ui| {
+                    world.resource_scope::<AllHotkeys, _>(|world, all_hotkeys| {
+                        all_hotkeys.global_map(world, &mut |world, set| {
+                            ui.heading(set.get_name());
+                            ui.end_row();
+                            let all_bindings = set.get_flat_bindings();
+                            for (hotkey_name, bindings) in all_bindings {
+                                ui.label(&hotkey_name);
 
-        egui::Grid::new("hotkeys")
-            .num_columns(2)
-            .striped(true)
-            .show(ui, |ui| {
-                ui.label("Select object");
-                ui.label("Left mouse button");
-                ui.end_row();
+                                if let Some(read_input_for_hotkey) = &self.read_input_for_hotkey {
+                                    if hotkey_name == *read_input_for_hotkey {
+                                        let mut key_text = String::new();
 
-                ui.label("Move object");
-                ui.label("G");
-                ui.end_row();
+                                        world.resource_scope::<Input<KeyCode>, _>(
+                                            |_world, input| {
+                                                let all_pressed = input
+                                                    .get_pressed()
+                                                    .copied()
+                                                    .collect::<Vec<_>>();
+                                                self.all_pressed_hotkeys.extend(all_pressed.iter());
+                                                let all_pressed = self
+                                                    .all_pressed_hotkeys
+                                                    .iter()
+                                                    .copied()
+                                                    .collect::<Vec<_>>();
 
-                ui.label("Rotate object");
-                ui.label("R");
-                ui.end_row();
+                                                if all_pressed.is_empty() {
+                                                    key_text = "Wait for input".to_string();
+                                                } else {
+                                                    key_text = format!("{:?}", all_pressed[0]);
+                                                    for key in all_pressed.iter().skip(1) {
+                                                        key_text =
+                                                            format!("{} + {:?}", key_text, key);
+                                                    }
+                                                }
 
-                ui.label("Scale object");
-                ui.label("S");
-                ui.end_row();
+                                                if input.get_just_released().len() > 0 {
+                                                    bindings.clear();
+                                                    *bindings = all_pressed;
+                                                    self.read_input_for_hotkey = None;
+                                                    self.all_pressed_hotkeys.clear();
+                                                }
 
-                ui.label("Move/rotate/scale/clone \nmany objects simultaneously");
-                ui.label("Shift");
-                ui.end_row();
+                                                ui.add(egui::Button::new(
+                                                    egui::RichText::new(&key_text).strong(),
+                                                ));
+                                            },
+                                        );
+                                    } else {
+                                        let binding_text = if bindings.len() == 1 {
+                                            format!("{:?}", &bindings[0])
+                                        } else {
+                                            format!("{:?}", bindings)
+                                        };
 
-                ui.label("Clone object");
-                ui.label("Alt");
-                ui.end_row();
+                                        if ui.button(binding_text).clicked() {
+                                            self.read_input_for_hotkey = Some(hotkey_name);
+                                        }
+                                    }
+                                } else {
+                                    let binding_text = if bindings.len() == 1 {
+                                        format!("{:?}", &bindings[0])
+                                    } else {
+                                        format!("{:?}", bindings)
+                                    };
 
-                ui.label("Delete object");
-                ui.label("Delete or X");
-                ui.end_row();
-            });
+                                    if ui.button(binding_text).clicked() {
+                                        self.read_input_for_hotkey = Some(hotkey_name);
+                                    }
+                                }
+
+                                ui.end_row();
+                            }
+                        });
+                    });
+                });
+        }
+
+        // egui::Grid::new("hotkeys")
+        //     .num_columns(2)
+        //     .striped(true)
+        //     .show(ui, |ui| {
+        //         ui.label("Select object");
+        //         ui.label("Left mouse button");
+        //         ui.end_row();
+
+        //         ui.label("Move/rotate/scale/clone \nmany objects simultaneously");
+        //         ui.label("Shift");
+        //         ui.end_row();
+
+        //         ui.label("Clone object");
+        //         ui.label("Alt");
+        //         ui.end_row();
+
+        //         ui.label("Delete object");
+        //         ui.label("Delete or X");
+        //         ui.end_row();
+        //     });
     }
 
     fn title(&self) -> egui::WidgetText {
