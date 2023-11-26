@@ -1,6 +1,6 @@
 [package]
 name = "space_editor"
-version = "0.2.2"
+version = "0.2.4"
 edition = "2021"
 default-run = "space_editor"
 license = "MIT OR Apache-2.0"
@@ -48,8 +48,8 @@ opt-level = 3
 
 [features]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32"]
-default = ["bevy_xpbd_3d", "persistance_editor"]
 persistance_editor = []
+default = ["bevy_xpbd_3d", "persistance_editor"]
 
 [[example]]
 name = "platformer"

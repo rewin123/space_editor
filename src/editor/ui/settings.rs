@@ -11,11 +11,21 @@ use crate::prelude::editor::core::AppPersistanceExt;
 
 use super::EditorUiAppExt;
 
+const TAB_MODES: [NewTabBehaviour; 3] = [
+    NewTabBehaviour::Pop,
+    NewTabBehaviour::SameNode,
+    NewTabBehaviour::SplitNode,
+];
+
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        #[cfg(feature = "persistance_editor")]
+        app.persistance_resource::<NewWindowSettings>();
+        #[cfg(not(feature = "persistance_editor"))]
+        app.init_resource::<NewWindowSettings>();
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
@@ -50,21 +60,37 @@ impl ToString for NewTabBehaviour {
     }
 }
 
-#[derive(Default, Resource, Clone)]
-pub struct SettingsWindow {
+#[derive(Default, Resource, Reflect)]
+#[reflect(Resource)]
+pub struct NewWindowSettings {
     pub new_tab: NewTabBehaviour,
+}
+
+impl NewWindowSettings {
+    fn ui(&mut self, ui: &mut egui::Ui) {
+        egui::ComboBox::new("new_tab", "")
+            .selected_text(self.new_tab.to_string())
+            .show_ui(ui, |ui| {
+                for (_, mode) in TAB_MODES.into_iter().enumerate() {
+                    if ui
+                        .selectable_label(self.new_tab == mode, mode.to_string())
+                        .clicked()
+                    {
+                        self.new_tab = mode;
+                    }
+                }
+            });
+    }
+}
+
+#[derive(Default, Resource)]
+pub struct SettingsWindow {
     read_input_for_hotkey: Option<String>,
     all_pressed_hotkeys: HashSet<KeyCode>,
 }
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, _commands: &mut Commands, world: &mut World) {
-        let tab_modes: Vec<NewTabBehaviour> = vec![
-            NewTabBehaviour::Pop,
-            NewTabBehaviour::SameNode,
-            NewTabBehaviour::SplitNode,
-        ];
-
         #[cfg(feature = "bevy_xpbd_3d")]
         {
             ui.heading("Bevy XPBD 3D");
@@ -82,22 +108,12 @@ impl EditorTab for SettingsWindow {
             );
         }
 
-        ui.spacing();
+        ui.add_space(8.);
         ui.heading("New Tab Behaviour");
-        egui::ComboBox::new("new_tab", "")
-            .selected_text(self.new_tab.to_string())
-            .show_ui(ui, |ui| {
-                for (_, mode) in tab_modes.into_iter().enumerate() {
-                    if ui
-                        .selectable_label(self.new_tab == mode, mode.to_string())
-                        .clicked()
-                    {
-                        self.new_tab = mode;
-                    }
-                }
-            });
+        let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
+        new_window_settings.ui(ui);
 
-        ui.spacing();
+        ui.add_space(8.);
         ui.heading("Hotkeys in Game view tab");
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")

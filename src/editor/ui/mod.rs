@@ -75,7 +75,6 @@ impl Plugin for EditorUiPlugin {
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor)),
         );
-
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
@@ -190,7 +189,6 @@ impl EditorUi {
             }
         }
 
-        let settings_res = world.resource::<SettingsWindow>().clone();
         let cell = world.as_unsafe_world_cell();
 
         let mut command_queue = CommandQueue::default();
@@ -211,13 +209,14 @@ impl EditorUi {
             .show_add_popup(true)
             .show(ctx, &mut tab_viewer);
 
+        let windows_setting = unsafe { cell.world_mut().resource_mut::<NewWindowSettings>() };
         for command in tab_viewer.tab_commands {
             match command {
                 EditorTabCommand::Add {
                     name,
                     surface,
                     node,
-                } => match settings_res.new_tab {
+                } => match windows_setting.new_tab {
                     NewTabBehaviour::Pop => {
                         self.tree.add_window(vec![name]);
                     }
