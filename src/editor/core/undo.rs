@@ -34,9 +34,16 @@ impl Default for OneFrameUndoIgnore {
 }
 
 fn update_change_chain(mut change_chain: ResMut<ChangeChain>, mut events: EventReader<NewChange>) {
+    let mut new_changes = vec![];
     for event in events.read() {
-        change_chain.changes.push(event.change.clone());
+        new_changes.push(event.change.clone());
         change_chain.changes_for_redo.clear();
+    }
+
+    if new_changes.len() == 1 {
+        change_chain.changes.push(new_changes[0].clone());
+    } else if new_changes.len() > 1 {
+        change_chain.changes.push(Arc::new(ManyChanges { changes: new_changes }));
     }
 }
 
@@ -188,59 +195,23 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
     }
 }
 
-pub struct NewEntityChange {
+pub struct AddedComponent<T: Component + Clone> {
+    new_value: T,
     entity: Entity,
 }
 
-impl EditorChange for NewEntityChange {
+impl<T: Component + Clone> EditorChange for AddedComponent<T> {
     fn revert(
         &self,
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
         world
-            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
-            .despawn();
+            .entity_mut(e)
+            .remove::<T>()
+            .insert(OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
-    }
-
-    fn apply(
-        &self,
-        world: &mut World,
-        _entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let new_entity = world.spawn_empty().id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(
-            self.entity,
-            new_entity,
-        )]))
-    }
-
-    fn debug_text(&self) -> String {
-        format!("NewEntityChange for entity {:?}", self.entity)
-    }
-}
-
-pub struct RemoveEntityChange {
-    entity: Entity,
-    scene: DynamicScene,
-}
-
-impl EditorChange for RemoveEntityChange {
-    fn revert(
-        &self,
-        world: &mut World,
-        _entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let mut entity_map = HashMap::new();
-
-        self.scene.write_to_world(world, &mut entity_map).unwrap();
-        let vec_changes = entity_map
-            .into_iter()
-            .map(|(prev, new)| (prev, new))
-            .collect::<Vec<_>>();
-
-        Ok(ChangeResult::SuccessWithRemap(vec_changes))
     }
 
     fn apply(
@@ -248,14 +219,104 @@ impl EditorChange for RemoveEntityChange {
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
         world
-            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
-            .despawn();
+            .get_or_spawn(e)
+            .unwrap()
+            .insert(self.new_value.clone())
+            .insert(OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
     }
 
     fn debug_text(&self) -> String {
-        format!("RemoveEntityChange for entity {:?}", self.entity)
+        format!("AddedComponent for entity {:?}", self.entity)
+    }
+}
+
+pub struct RemovedComponent<T: Component + Clone> {
+    old_value: T,
+    entity: Entity,
+}
+
+impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        let new_id = world
+            .get_or_spawn(e)
+            .unwrap()
+            .insert(self.old_value.clone())
+            .insert(OneFrameUndoIgnore::default())
+            .id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        let new_id = world
+            .get_or_spawn(e)
+            .unwrap()
+            .remove::<T>()
+            .insert(OneFrameUndoIgnore::default())
+            .id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+    }
+
+    fn debug_text(&self) -> String {
+        format!("RemovedComponent for entity {:?}", self.entity)
+    }
+}
+
+pub struct ManyChanges {
+    changes: Vec<Arc<dyn EditorChange + Send + Sync>>,
+}
+
+impl EditorChange for ManyChanges {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let mut remap = Vec::new();
+        for change in self.changes.iter() {
+            let res = change.revert(world, entity_remap)?;
+            match res {
+                ChangeResult::Success => {}
+                ChangeResult::SuccessWithRemap(new_remap) => {
+                    remap.extend(new_remap);
+                }
+            }
+        }
+        Ok(ChangeResult::SuccessWithRemap(remap))
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let mut remap = Vec::new();
+        for change in self.changes.iter() {
+            let res = change.apply(world, entity_remap)?;
+            match res {
+                ChangeResult::Success => {}
+                ChangeResult::SuccessWithRemap(new_remap) => {
+                    remap.extend(new_remap);
+                }
+            }
+        }
+        Ok(ChangeResult::SuccessWithRemap(remap))
+    }
+
+    fn debug_text(&self) -> String {
+        format!("ManyChanges")
     }
 }
 
@@ -298,6 +359,8 @@ impl AppAutoUndo for App {
             (
                 auto_undo_update_cache::<T>,
                 auto_undo_add_init::<T>,
+                auto_undo_remove_detect::<T>,
+                apply_deferred,
                 auto_undo_system_changed::<T>,
                 auto_undo_system::<T>,
             )
@@ -318,11 +381,38 @@ fn auto_undo_update_cache<T: Component + Clone>(
 }
 
 fn auto_undo_add_init<T: Component + Clone>(
+    mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    mut new_changes : EventWriter<NewChange>
 ) {
     for (e, data) in query.iter() {
         storage.storage.insert(e, data.clone());
+        commands.entity(e).insert(OneFrameUndoIgnore::default());
+        new_changes.send(NewChange {
+            change: Arc::new(AddedComponent {
+                new_value: data.clone(),
+                entity: e,
+            })
+        })
+    }
+}
+
+fn auto_undo_remove_detect<T: Component + Clone>(
+    mut commands: Commands,
+    mut storage: ResMut<AutoUndoStorage<T>>,
+    mut removed_query : RemovedComponents<T>,
+    mut new_changes : EventWriter<NewChange>) {
+    
+    for e in removed_query.read() {
+        if let Some(prev_value) = storage.storage.remove(&e) {
+            new_changes.send(NewChange {
+                change: Arc::new(RemovedComponent {
+                    old_value: prev_value,
+                    entity: e,
+                })
+            });
+        }
     }
 }
 
