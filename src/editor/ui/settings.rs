@@ -23,8 +23,10 @@ impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
         #[cfg(feature = "persistance_editor")]
-        app.persistance_resource::<NewWindowSettings>();
-        #[cfg(not(feature = "persistance_editor"))]
+        {
+            app.persistance_resource::<NewWindowSettings>();
+            app.register_type::<NewTabBehaviour>();
+        }
         app.init_resource::<NewWindowSettings>();
 
         #[cfg(feature = "bevy_xpbd_3d")]
