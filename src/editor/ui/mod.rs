@@ -75,7 +75,6 @@ impl Plugin for EditorUiPlugin {
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor)),
         );
-
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
@@ -210,20 +209,36 @@ impl EditorUi {
             .show_add_popup(true)
             .show(ctx, &mut tab_viewer);
 
+        let windows_setting = unsafe { cell.world_mut().resource_mut::<NewWindowSettings>() };
         for command in tab_viewer.tab_commands {
             match command {
                 EditorTabCommand::Add {
                     name,
                     surface,
                     node,
-                } => {
-                    if let Some(surface) = self.tree.get_surface_mut(surface) {
-                        surface
-                            .node_tree_mut()
-                            .unwrap()
-                            .split_right(node, 0.5, vec![name]);
+                } => match windows_setting.new_tab {
+                    NewTabBehaviour::Pop => {
+                        self.tree.add_window(vec![name]);
                     }
-                }
+                    NewTabBehaviour::SameNode => {
+                        if let Some(tree) = self
+                            .tree
+                            .get_surface_mut(surface)
+                            .and_then(|surface| surface.node_tree_mut())
+                        {
+                            tree.set_focused_node(node);
+                            tree.push_to_focused_leaf(name);
+                        }
+                    }
+                    NewTabBehaviour::SplitNode => {
+                        if let Some(surface) = self.tree.get_surface_mut(surface) {
+                            surface
+                                .node_tree_mut()
+                                .unwrap()
+                                .split_right(node, 0.5, vec![name]);
+                        }
+                    }
+                },
             }
         }
 

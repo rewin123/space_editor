@@ -97,8 +97,8 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     fn add_popup(
         &mut self,
         ui: &mut egui::Ui,
-        _surface: egui_dock::SurfaceIndex,
-        _node: egui_dock::NodeIndex,
+        surface: egui_dock::SurfaceIndex,
+        node: egui_dock::NodeIndex,
     ) {
         ui.set_min_width(120.0);
         ui.style_mut().visuals.button_frame = false;
@@ -111,11 +111,12 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                 } else {
                     format_name = format!("{:?}", reg.0);
                 }
+
                 if ui.button(format_name).clicked() {
                     self.tab_commands.push(EditorTabCommand::Add {
                         name: reg.0.clone(),
-                        surface: _surface,
-                        node: _node,
+                        surface,
+                        node,
                     });
                 }
                 counter += 1;
