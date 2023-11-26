@@ -55,6 +55,9 @@ impl Plugin for EditorCore {
                 .in_set(EditorSet::Editor),
         );
         app.add_systems(Update, editor_event_listener);
+
+        app.auto_reflected_undo::<Parent>();
+        app.auto_reflected_undo::<Children>();
     }
 }
 

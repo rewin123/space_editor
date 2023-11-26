@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap, ecs::entity::{EntityMapper, MapEntities}};
 
 use crate::{PrefabMarker, EditorSet};
+
+const MAX_REFLECT_RECURSION : i32 = 10;
 
 pub struct UndoPlugin;
 
@@ -17,9 +19,13 @@ impl Plugin for UndoPlugin {
             PostUpdate,
             (clear_one_frame_ignore, update_change_chain, undo_redo_logic).chain().in_set(EditorSet::Editor),
         );
-
-        app.auto_undo::<Transform>();
     }
+}
+
+#[derive(Event)]
+pub struct UndoRedoApplied<T> {
+    pub entity: Entity,
+    _phantom: std::marker::PhantomData<T>,
 }
 
 #[derive(Component)]
@@ -29,7 +35,7 @@ pub struct OneFrameUndoIgnore {
 
 impl Default for OneFrameUndoIgnore {
     fn default() -> Self {
-        Self { counter: 3 }
+        Self { counter: 4 }
     }
 }
 
@@ -158,7 +164,7 @@ pub struct NewChange {
     pub change: Arc<dyn EditorChange + Send + Sync>,
 }
 
-pub struct ComponentChange<T: Component + Clone> {
+pub struct ComponentChange<T: Component> {
     old_value: T,
     new_value: T,
     entity: Entity,
@@ -171,6 +177,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
+        
         world
             .entity_mut(e)
             .insert(self.old_value.clone())
@@ -195,7 +202,46 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
     }
 }
 
-pub struct AddedComponent<T: Component + Clone> {
+pub struct ReflectedComponentChange<T: Component + Reflect + FromReflect> {
+    old_value: T,
+    new_value: T,
+    entity: Entity,
+}
+
+impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentChange<T> {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        
+        world
+            .entity_mut(e)
+            .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
+            .insert(OneFrameUndoIgnore::default());
+        Ok(ChangeResult::Success)
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        world
+            .entity_mut(e)
+            .insert(<T as FromReflect>::from_reflect(&self.new_value).unwrap())
+            .insert(OneFrameUndoIgnore::default());
+        Ok(ChangeResult::Success)
+    }
+
+    fn debug_text(&self) -> String {
+        format!("ReflectedComponentChange for entity {:?}", self.entity)
+    }
+}
+
+pub struct AddedComponent<T: Component> {
     new_value: T,
     entity: Entity,
 }
@@ -230,6 +276,44 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
 
     fn debug_text(&self) -> String {
         format!("AddedComponent for entity {:?}", self.entity)
+    }
+}
+
+pub struct ReflectedAddedComponent<T: Component + Reflect + FromReflect> {
+    new_value: T,
+    entity: Entity,
+}
+
+impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedComponent<T> {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        world
+            .entity_mut(e)
+            .remove::<T>()
+            .insert(OneFrameUndoIgnore::default());
+        Ok(ChangeResult::Success)
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        let id = world
+            .get_or_spawn(e)
+            .unwrap()
+            .insert(<T as FromReflect>::from_reflect(&self.new_value).unwrap())
+            .insert(OneFrameUndoIgnore::default()).id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(e, id)]))
+    }
+
+    fn debug_text(&self) -> String {
+        format!("ReflectedAddedComponent for entity {:?}", self.entity)
     }
 }
 
@@ -271,6 +355,47 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
 
     fn debug_text(&self) -> String {
         format!("RemovedComponent for entity {:?}", self.entity)
+    }
+}
+
+pub struct ReflectedRemovedComponent<T: Component + Reflect> {
+    old_value: T,
+    entity: Entity,
+}
+
+impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComponent<T> {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        let new_id = world
+            .get_or_spawn(e)
+            .unwrap()
+            .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
+            .insert(OneFrameUndoIgnore::default())
+            .id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        let new_id = world
+            .get_or_spawn(e)
+            .unwrap()
+            .remove::<T>()
+            .insert(OneFrameUndoIgnore::default())
+            .id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+    }
+
+    fn debug_text(&self) -> String {
+        format!("ReflectedRemovedComponent for entity {:?}", self.entity)
     }
 }
 
@@ -334,11 +459,11 @@ impl<T> Default for ChangedMarker<T> {
 }
 
 #[derive(Resource)]
-pub struct AutoUndoStorage<T: Component + Clone> {
+pub struct AutoUndoStorage<T: Component> {
     pub storage: HashMap<Entity, T>,
 }
 
-impl<T: Component + Clone> Default for AutoUndoStorage<T> {
+impl<T: Component> Default for AutoUndoStorage<T> {
     fn default() -> Self {
         Self {
             storage: HashMap::new(),
@@ -348,11 +473,16 @@ impl<T: Component + Clone> Default for AutoUndoStorage<T> {
 
 pub trait AppAutoUndo {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self;
+
+    //Allow more complex undo and auto entity remaping
+    fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self; 
 }
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
+
         self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.add_event::<UndoRedoApplied<T>>();
 
         self.add_systems(
             PostUpdate,
@@ -364,10 +494,137 @@ impl AppAutoUndo for App {
                 auto_undo_system_changed::<T>,
                 auto_undo_system::<T>,
             )
-                .chain(),
+                .chain().in_set(EditorSet::Editor),
         );
 
         self
+    }
+
+    fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
+        
+        self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.add_event::<UndoRedoApplied<T>>();
+
+        self.add_systems(
+            PostUpdate,
+            (
+                auto_undo_reflected_update_cache::<T>,
+                auto_undo_reflected_add_init::<T>,
+                auto_undo_reflected_remove_detect::<T>,
+                apply_deferred,
+                auto_remap_undo_redo::<T>,
+                auto_undo_system_changed::<T>,
+                auto_undo_reflected_system::<T>,
+            )
+                .chain().in_set(EditorSet::Editor),
+        );
+
+        self
+    }
+}
+
+fn apply_for_every_typed_field<D : Reflect>(
+    value : &mut dyn Reflect,
+    applyer : &dyn Fn(&mut D),
+    max_recursion : i32
+) {
+    if max_recursion < 0 {
+        return;
+    }
+    if let Some(v) = value.as_any_mut().downcast_mut::<D>() {
+        applyer(v);
+    } else {
+        match value.reflect_mut() {
+            bevy::reflect::ReflectMut::Struct(s) => {
+                for field_idx in 0..s.field_len() {
+                    apply_for_every_typed_field(
+                        s.field_at_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::TupleStruct(s) => {
+                for field_idx in 0..s.field_len() {
+                    apply_for_every_typed_field(
+                        s.field_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::Tuple(s) => {
+                for field_idx in 0..s.field_len() {
+                    apply_for_every_typed_field(
+                        s.field_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::List(s) => {
+                for field_idx in 0..s.len() {
+                    apply_for_every_typed_field(
+                        s.get_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    )
+                }
+            },
+            bevy::reflect::ReflectMut::Array(s) => {
+                for field_idx in 0..s.len() {
+                    apply_for_every_typed_field(
+                        s.get_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::Map(s) => {
+                for field_idx in 0..s.len() {
+                    let (key, value) = s.get_at_mut(field_idx).unwrap();
+                    apply_for_every_typed_field(
+                        value,
+                        applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::Enum(s) => {
+                for field_idx in 0..s.field_len() {
+                    apply_for_every_typed_field(
+                        s.field_at_mut(field_idx).unwrap(),
+                         applyer,
+                        max_recursion - 1
+                    );
+                }
+            },
+            bevy::reflect::ReflectMut::Value(v) => {
+                //do nothing. Value was checked before
+            },
+        }
+    }
+}
+
+fn auto_remap_undo_redo<T: Component + Reflect>(
+    mut change_chain : ResMut<ChangeChain>,
+    mut query : Query<&mut T>,
+    mut undoredo_applied : EventReader<UndoRedoApplied<T>>,
+) {
+    for event in undoredo_applied.read() {
+        if let Ok(mut data) = query.get_mut(event.entity) {
+            let reflect = data.as_reflect_mut();
+            
+            apply_for_every_typed_field::<Entity>(
+                reflect,
+                &|v| {
+                    if let Some(e) = change_chain.entity_remap.get(v) {
+                        *v = *e;
+                    }
+                },
+                MAX_REFLECT_RECURSION
+            );
+        }
     }
 }
 
@@ -377,6 +634,15 @@ fn auto_undo_update_cache<T: Component + Clone>(
 ) {
     for (e, data) in ignored_query.iter() {
         storage.storage.insert(e, data.clone());
+    }
+}
+
+fn auto_undo_reflected_update_cache<T: Component + Reflect + FromReflect>(
+    mut storage: ResMut<AutoUndoStorage<T>>,
+    ignored_query: Query<(Entity, &T), With<OneFrameUndoIgnore>>,
+) {
+    for (e, data) in ignored_query.iter() {
+        storage.storage.insert(e, <T as FromReflect>::from_reflect(data).unwrap());
     }
 }
 
@@ -392,6 +658,24 @@ fn auto_undo_add_init<T: Component + Clone>(
         new_changes.send(NewChange {
             change: Arc::new(AddedComponent {
                 new_value: data.clone(),
+                entity: e,
+            })
+        })
+    }
+}
+
+fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
+    mut commands: Commands,
+    mut storage: ResMut<AutoUndoStorage<T>>,
+    query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    mut new_changes : EventWriter<NewChange>
+) {
+    for (e, data) in query.iter() {
+        storage.storage.insert(e, <T as FromReflect>::from_reflect(data).unwrap());
+        commands.entity(e).insert(OneFrameUndoIgnore::default());
+        new_changes.send(NewChange {
+            change: Arc::new(ReflectedAddedComponent {
+                new_value: <T as FromReflect>::from_reflect(data).unwrap(),
                 entity: e,
             })
         })
@@ -416,7 +700,25 @@ fn auto_undo_remove_detect<T: Component + Clone>(
     }
 }
 
-fn auto_undo_system_changed<T: Component + Clone>(
+fn auto_undo_reflected_remove_detect<T: Component + Reflect + FromReflect>(
+    mut commands: Commands,
+    mut storage: ResMut<AutoUndoStorage<T>>,
+    mut removed_query : RemovedComponents<T>,
+    mut new_changes : EventWriter<NewChange>) {
+    
+    for e in removed_query.read() {
+        if let Some(prev_value) = storage.storage.remove(&e) {
+            new_changes.send(NewChange {
+                change: Arc::new(ReflectedRemovedComponent {
+                    old_value: prev_value,
+                    entity: e,
+                })
+            });
+        }
+    }
+}
+
+fn auto_undo_system_changed<T: Component>(
     mut commands: Commands,
     query: Query<Entity, (With<PrefabMarker>, Changed<T>, Without<OneFrameUndoIgnore>)>,
 ) {
@@ -449,6 +751,32 @@ fn auto_undo_system<T: Component + Clone>(
             }
 
             storage.storage.insert(e, data.clone());
+        }
+    }
+}
+
+fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
+    mut commands: Commands,
+    mut storage: ResMut<AutoUndoStorage<T>>,
+    mut query: Query<(Entity, &mut T), With<ChangedMarker<T>>>,
+    mut new_change: EventWriter<NewChange>,
+) {
+    for (e, data) in query.iter_mut() {
+        if !data.is_changed() {
+            commands.entity(e).remove::<ChangedMarker<T>>();
+
+            if let Some(prev_value) = storage.storage.get(&e) {
+                new_change.send(NewChange {
+                    change: Arc::new(ReflectedComponentChange {
+                        old_value: <T as FromReflect>::from_reflect(prev_value).unwrap(),
+                        new_value: <T as FromReflect>::from_reflect(data.as_ref()).unwrap(),
+                        entity: e,
+                    }),
+                });
+                info!("Auto undo change for entity {:?}", e);
+            }
+
+            storage.storage.insert(e, <T as FromReflect>::from_reflect(data.as_ref()).unwrap());
         }
     }
 }

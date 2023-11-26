@@ -158,7 +158,7 @@ impl EditorRegistry {
 
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
+    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect>(
         &mut self,
     ) -> &mut Self;
     /// register new component inly in prefab systems (will be no shown in editor UI)
@@ -200,13 +200,13 @@ pub trait EditorRegistryExt {
 }
 
 impl EditorRegistryExt for App {
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
+    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect>(
         &mut self,
     ) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
         self.world.init_component::<T>();
         self.register_type::<T>();
-        self.auto_undo::<T>();
+        self.auto_reflected_undo::<T>();
         self
     }
 
@@ -219,7 +219,6 @@ impl EditorRegistryExt for App {
             .resource_mut::<EditorRegistry>()
             .only_clone_register::<T>();
         self.register_type::<T>();
-        self.auto_undo::<T>();
         self
     }
 
