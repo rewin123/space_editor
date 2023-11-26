@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use crate::PrefabMarker;
+use crate::{PrefabMarker, EditorSet};
 
 pub struct UndoPlugin;
 
@@ -15,7 +15,7 @@ impl Plugin for UndoPlugin {
 
         app.add_systems(
             PostUpdate,
-            (clear_one_frame_ignore, update_change_chain, undo_redo_logic).chain(),
+            (clear_one_frame_ignore, update_change_chain, undo_redo_logic).chain().in_set(EditorSet::Editor),
         );
 
         app.auto_undo::<Transform>();

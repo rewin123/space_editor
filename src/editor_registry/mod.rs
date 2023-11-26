@@ -11,7 +11,7 @@ use std::any::TypeId;
 
 use crate::{
     prefab::{component::AutoStruct, save::SaveState},
-    PrefabMarker, PrefabSet,
+    PrefabMarker, PrefabSet, editor::core::AppAutoUndo,
 };
 
 /// Plugin to activate custom registry
@@ -206,6 +206,7 @@ impl EditorRegistryExt for App {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
         self.world.init_component::<T>();
         self.register_type::<T>();
+        self.auto_undo::<T>();
         self
     }
 
@@ -218,6 +219,7 @@ impl EditorRegistryExt for App {
             .resource_mut::<EditorRegistry>()
             .only_clone_register::<T>();
         self.register_type::<T>();
+        self.auto_undo::<T>();
         self
     }
 
@@ -245,6 +247,7 @@ impl EditorRegistryExt for App {
         self
     }
 
+    //Not used now
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component
