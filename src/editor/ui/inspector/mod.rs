@@ -231,7 +231,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                                         let open_name =
                                             open_components.entry(name.clone()).or_default();
                                         //At click header not opened simultaneously so its need to check percent of opened
-                                        *open_name = header.openness < 0.5; 
+                                        *open_name = header.openness < 0.5;
                                     }
                                 });
 
