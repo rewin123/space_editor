@@ -164,6 +164,69 @@ pub struct NewChange {
     pub change: Arc<dyn EditorChange + Send + Sync>,
 }
 
+pub struct AddedEntity {
+    pub entity: Entity,
+}
+
+impl EditorChange for AddedEntity {
+    fn revert(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        world.entity_mut(e).despawn_recursive();
+        Ok(ChangeResult::Success)
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        _: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let new_id = world
+            .spawn_empty()
+            .insert(OneFrameUndoIgnore::default())
+            .id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, new_id)]))
+    }
+
+    fn debug_text(&self) -> String {
+        format!("Added Entity: {}", self.entity.index())
+    }
+}
+
+pub struct RemovedEntity {
+    pub entity: Entity,
+}
+
+impl EditorChange for RemovedEntity {
+    fn revert(
+        &self,
+        world: &mut World,
+        _: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let id = world.spawn_empty().insert(OneFrameUndoIgnore::default()).id();
+        Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
+    }
+
+    fn apply(
+        &self,
+        world: &mut World,
+        entity_remap: &HashMap<Entity, Entity>,
+    ) -> Result<ChangeResult, String> {
+        let e = get_entity_with_remap(self.entity, entity_remap);
+        world.entity_mut(e).despawn_recursive();
+        Ok(ChangeResult::Success)
+    }
+
+    fn debug_text(&self) -> String {
+        format!("Removed Entity: {}", self.entity.index())
+    }
+}
+
+
+
 pub struct ComponentChange<T: Component> {
     old_value: T,
     new_value: T,
@@ -329,9 +392,12 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
-        let new_id = world
-            .get_or_spawn(e)
-            .unwrap()
+        let mut new_id = if let Some(e) = world.get_entity_mut(e) {
+            e
+        } else {
+            world.spawn_empty()
+        };
+        let new_id = new_id
             .insert(self.old_value.clone())
             .insert(OneFrameUndoIgnore::default())
             .id();
@@ -370,9 +436,12 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
-        let new_id = world
-            .get_or_spawn(e)
-            .unwrap()
+        let mut new_id = if let Some(e) = world.get_entity_mut(e) {
+            e
+        } else {
+            world.spawn_empty()
+        };
+        let new_id = new_id
             .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
             .insert(OneFrameUndoIgnore::default())
             .id();
@@ -607,7 +676,7 @@ fn apply_for_every_typed_field<D : Reflect>(
 }
 
 fn auto_remap_undo_redo<T: Component + Reflect>(
-    mut change_chain : ResMut<ChangeChain>,
+    change_chain : Res<ChangeChain>,
     mut query : Query<&mut T>,
     mut undoredo_applied : EventReader<UndoRedoApplied<T>>,
 ) {

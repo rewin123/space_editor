@@ -28,7 +28,7 @@ use bevy::prelude::*;
 use crate::{
     prefab::save::{SaveConfig, SaveState},
     prelude::EditorLoader,
-    EditorSet, EditorState,
+    EditorSet, EditorState, PrefabMarker,
 };
 
 pub struct EditorCore;
@@ -58,6 +58,7 @@ impl Plugin for EditorCore {
 
         app.auto_reflected_undo::<Parent>();
         app.auto_reflected_undo::<Children>();
+        app.auto_undo::<PrefabMarker>();
     }
 }
 
