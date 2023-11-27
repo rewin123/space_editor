@@ -216,10 +216,19 @@ impl EditorChange for RemovedEntity {
     fn revert(
         &self,
         world: &mut World,
-        _: &HashMap<Entity, Entity>,
+        remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let id = world.spawn_empty().insert(OneFrameUndoIgnore::default()).id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
+        if let Some(e) = remap.get(&self.entity) {
+            if world.get_entity(*e).is_none() {
+                let id = world.spawn_empty().insert(OneFrameUndoIgnore::default()).id();
+                return Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]));
+            } else {
+                return Ok(ChangeResult::Success);
+            }
+        } else {
+            let id = world.spawn_empty().insert(OneFrameUndoIgnore::default()).id();
+            Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
+        }
     }
 
     fn apply(
@@ -233,7 +242,7 @@ impl EditorChange for RemovedEntity {
         world.resource_mut::<UndoIngnoreStorage>()
             .storage
             .insert(e, OneFrameUndoIgnore::default());
-        
+
         Ok(ChangeResult::Success)
     }
 
@@ -378,15 +387,19 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
+        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
+            *remaped
+        } else {
+            self.entity
+        };
         world
-            .entity_mut(e)
+            .entity_mut(dst)
             .remove::<T>()
             .insert(OneFrameUndoIgnore::default());
         world
             .resource_mut::<UndoIngnoreStorage>()
             .storage
-            .insert(e, OneFrameUndoIgnore::default());
+            .insert(dst, OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
     }
 
@@ -420,17 +433,20 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        let mut new_id = if let Some(e) = world.get_entity_mut(e) {
-            e
+        let mut remap = vec![];
+        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
+            remap.push((self.entity, *remaped));
+            *remaped
         } else {
-            world.spawn_empty()
+            world.spawn_empty().id()
         };
-        let new_id = new_id
+
+        world
+            .entity_mut(dst)
             .insert(self.old_value.clone())
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+            .insert(OneFrameUndoIgnore::default());
+
+        Ok(ChangeResult::SuccessWithRemap(remap))
     }
 
     fn apply(
@@ -470,17 +486,20 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        let mut new_id = if let Some(e) = world.get_entity_mut(e) {
-            e
+        let mut remap = vec![];
+        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
+            remap.push((self.entity, *remaped));
+            *remaped
         } else {
-            world.spawn_empty()
+            world.spawn_empty().id()
         };
-        let new_id = new_id
+
+        world
+            .entity_mut(dst)
             .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
+            .insert(OneFrameUndoIgnore::default());
+
+        Ok(ChangeResult::SuccessWithRemap(remap))
     }
 
     fn apply(
@@ -518,9 +537,9 @@ impl EditorChange for ManyChanges {
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let mut remap = Vec::new();
+        let mut remap = entity_remap.clone();
         for change in self.changes.iter() {
-            let res = change.revert(world, entity_remap)?;
+            let res = change.revert(world, &remap)?;
             match res {
                 ChangeResult::Success => {}
                 ChangeResult::SuccessWithRemap(new_remap) => {
@@ -528,7 +547,7 @@ impl EditorChange for ManyChanges {
                 }
             }
         }
-        Ok(ChangeResult::SuccessWithRemap(remap))
+        Ok(ChangeResult::SuccessWithRemap(remap.iter().map(|(key, value)| (*key, *value)).collect()))
     }
 
     fn apply(
