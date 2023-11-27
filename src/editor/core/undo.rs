@@ -83,17 +83,21 @@ fn undo_redo_logic(world: &mut World) {
                     match event {
                         UndoRedo::Undo => {
                             if let Some(change) = change_chain.changes.pop() {
-                                change.revert(world, &change_chain.entity_remap).unwrap();
+                                let res = change.revert(world, &change_chain.entity_remap).unwrap();
+                                if let ChangeResult::SuccessWithRemap(remap) = res {
+                                    change_chain.entity_remap.extend(remap);
+                                }
                                 change_chain.changes_for_redo.push(change);
                             }
                         }
                         UndoRedo::Redo => {
-                            if let Some(redo_change) = change_chain.changes_for_redo.pop() {
-                                redo_change
-                                    .apply(world, &change_chain.entity_remap)
-                                    .unwrap();
-                                change_chain.changes.push(redo_change);
-                            }
+                            // TODO in 0.4
+                            // if let Some(redo_change) = change_chain.changes_for_redo.pop() {
+                            //     redo_change
+                            //         .apply(world, &change_chain.entity_remap)
+                            //         .unwrap();
+                            //     change_chain.changes.push(redo_change);
+                            // }
                         }
                     }
                 }
@@ -435,10 +439,11 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
     ) -> Result<ChangeResult, String> {
         let mut remap = vec![];
         let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
-            remap.push((self.entity, *remaped));
             *remaped
         } else {
-            world.spawn_empty().id()
+            let id = world.spawn_empty().id();
+            remap.push((self.entity, id));
+            id
         };
 
         world
@@ -488,10 +493,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
     ) -> Result<ChangeResult, String> {
         let mut remap = vec![];
         let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
-            remap.push((self.entity, *remaped));
             *remaped
         } else {
-            world.spawn_empty().id()
+            let id = world.spawn_empty().id();
+            remap.push((self.entity, id));
+            id
         };
 
         world
