@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, f32::consts::E};
 
 use bevy::{prelude::*, utils::HashMap, ecs::entity::{EntityMapper, MapEntities}};
 
@@ -8,16 +8,25 @@ const MAX_REFLECT_RECURSION : i32 = 10;
 
 pub struct UndoPlugin;
 
+#[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
+pub enum UndoSet {
+    PerType,
+    Global
+}
+
 impl Plugin for UndoPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ChangeChain>();
+        app.init_resource::<UndoIngnoreStorage>();
 
         app.add_event::<NewChange>();
         app.add_event::<UndoRedo>();
 
+        app.configure_sets(PostUpdate, (UndoSet::PerType, UndoSet::Global).chain().in_set(EditorSet::Editor));
+
         app.add_systems(
             PostUpdate,
-            (clear_one_frame_ignore, update_change_chain, undo_redo_logic).chain().in_set(EditorSet::Editor),
+            (clear_one_frame_ignore, update_change_chain, undo_redo_logic, undo_ignore_tick).chain().in_set( UndoSet::Global),
         );
     }
 }
@@ -176,6 +185,9 @@ impl EditorChange for AddedEntity {
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
         world.entity_mut(e).despawn_recursive();
+        world.resource_mut::<UndoIngnoreStorage>()
+            .storage
+            .insert(e, OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
     }
 
@@ -217,6 +229,11 @@ impl EditorChange for RemovedEntity {
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
         world.entity_mut(e).despawn_recursive();
+        
+        world.resource_mut::<UndoIngnoreStorage>()
+            .storage
+            .insert(e, OneFrameUndoIgnore::default());
+        
         Ok(ChangeResult::Success)
     }
 
@@ -316,10 +333,18 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
-        world
-            .entity_mut(e)
-            .remove::<T>()
-            .insert(OneFrameUndoIgnore::default());
+        let mut add_to_ignore = false;
+        if let Some(mut e) = world.get_entity_mut(e) {
+            e.remove::<T>().insert(OneFrameUndoIgnore::default());
+            add_to_ignore = true;
+        }
+        if add_to_ignore {
+            world
+                .resource_mut::<UndoIngnoreStorage>()
+                .storage
+                .insert(e, OneFrameUndoIgnore::default());
+        }
+
         Ok(ChangeResult::Success)
     }
 
@@ -358,6 +383,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
             .entity_mut(e)
             .remove::<T>()
             .insert(OneFrameUndoIgnore::default());
+        world
+            .resource_mut::<UndoIngnoreStorage>()
+            .storage
+            .insert(e, OneFrameUndoIgnore::default());
         Ok(ChangeResult::Success)
     }
 
@@ -416,6 +445,12 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
             .remove::<T>()
             .insert(OneFrameUndoIgnore::default())
             .id();
+        
+        world
+            .resource_mut::<UndoIngnoreStorage>()
+            .storage
+            .insert(new_id, OneFrameUndoIgnore::default());
+
         Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
     }
 
@@ -460,6 +495,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
             .remove::<T>()
             .insert(OneFrameUndoIgnore::default())
             .id();
+        world
+            .resource_mut::<UndoIngnoreStorage>()
+            .storage
+            .insert(new_id, OneFrameUndoIgnore::default());
+
         Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
     }
 
@@ -527,6 +567,11 @@ impl<T> Default for ChangedMarker<T> {
     }
 }
 
+#[derive(Resource, Default)]
+pub struct UndoIngnoreStorage {
+    pub storage: HashMap<Entity, OneFrameUndoIgnore>,
+}
+
 #[derive(Resource)]
 pub struct AutoUndoStorage<T: Component> {
     pub storage: HashMap<Entity, T>,
@@ -563,7 +608,7 @@ impl AppAutoUndo for App {
                 auto_undo_system_changed::<T>,
                 auto_undo_system::<T>,
             )
-                .chain().in_set(EditorSet::Editor),
+                .chain().in_set(UndoSet::PerType),
         );
 
         self
@@ -585,7 +630,7 @@ impl AppAutoUndo for App {
                 auto_undo_system_changed::<T>,
                 auto_undo_reflected_system::<T>,
             )
-                .chain().in_set(EditorSet::Editor),
+                .chain().in_set(UndoSet::PerType),
         );
 
         self
@@ -751,20 +796,32 @@ fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
     }
 }
 
+fn undo_ignore_tick(
+    mut ignore_storage : ResMut<UndoIngnoreStorage>
+) {
+    for (_, frame) in ignore_storage.storage.iter_mut() {
+        frame.counter -= 1;
+    }
+    ignore_storage.storage.retain(|_, frame| frame.counter > 0);
+}
+
 fn auto_undo_remove_detect<T: Component + Clone>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query : RemovedComponents<T>,
-    mut new_changes : EventWriter<NewChange>) {
+    mut new_changes : EventWriter<NewChange>,
+    mut ignore_storage : ResMut<UndoIngnoreStorage>) {
     
     for e in removed_query.read() {
-        if let Some(prev_value) = storage.storage.remove(&e) {
-            new_changes.send(NewChange {
-                change: Arc::new(RemovedComponent {
-                    old_value: prev_value,
-                    entity: e,
-                })
-            });
+        if !ignore_storage.storage.contains_key(&e) {
+            if let Some(prev_value) = storage.storage.remove(&e) {
+                new_changes.send(NewChange {
+                    change: Arc::new(RemovedComponent {
+                        old_value: prev_value,
+                        entity: e,
+                    })
+                });
+            }
         }
     }
 }
@@ -773,18 +830,23 @@ fn auto_undo_reflected_remove_detect<T: Component + Reflect + FromReflect>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query : RemovedComponents<T>,
-    mut new_changes : EventWriter<NewChange>) {
+    mut new_changes : EventWriter<NewChange>,
+    mut ignore_storage : ResMut<UndoIngnoreStorage>) {
     
     for e in removed_query.read() {
-        if let Some(prev_value) = storage.storage.remove(&e) {
-            new_changes.send(NewChange {
-                change: Arc::new(ReflectedRemovedComponent {
-                    old_value: prev_value,
-                    entity: e,
-                })
-            });
+        if !ignore_storage.storage.contains_key(&e) {
+            if let Some(prev_value) = storage.storage.remove(&e) {
+                new_changes.send(NewChange {
+                    change: Arc::new(ReflectedRemovedComponent {
+                        old_value: prev_value,
+                        entity: e,
+                    })
+                });
+            }
         }
     }
+
+
 }
 
 fn auto_undo_system_changed<T: Component>(
