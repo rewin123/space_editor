@@ -18,6 +18,9 @@ impl Plugin for UndoPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ChangeChain>();
         app.init_resource::<UndoIngnoreStorage>();
+        app.init_resource::<ChangeChainSettings>();
+        #[cfg(feature = "persistence_editor")]
+        app.persistance_resource::<ChangeChainSettings>();
 
         app.add_event::<NewChange>();
         app.add_event::<UndoRedo>();
@@ -48,7 +51,10 @@ impl Default for OneFrameUndoIgnore {
     }
 }
 
-fn update_change_chain(mut change_chain: ResMut<ChangeChain>, mut events: EventReader<NewChange>) {
+fn update_change_chain(
+        settings : Res<ChangeChainSettings>,
+        mut change_chain: ResMut<ChangeChain>, 
+        mut events: EventReader<NewChange>) {
     let mut new_changes = vec![];
     for event in events.read() {
         new_changes.push(event.change.clone());
@@ -59,6 +65,11 @@ fn update_change_chain(mut change_chain: ResMut<ChangeChain>, mut events: EventR
         change_chain.changes.push(new_changes[0].clone());
     } else if new_changes.len() > 1 {
         change_chain.changes.push(Arc::new(ManyChanges { changes: new_changes }));
+    }
+
+    if change_chain.changes.len() > settings.max_change_chain_size {
+        let count = change_chain.changes.len() - settings.max_change_chain_size;
+        change_chain.changes.drain(0..count);
     }
 }
 
@@ -114,6 +125,18 @@ pub struct ChangeChain {
     entity_remap: HashMap<Entity, Entity>,
 }
 
+#[derive(Resource, Reflect)]
+#[reflect(Resource, Default)]
+pub struct ChangeChainSettings {
+    pub max_change_chain_size: usize,
+}
+
+impl Default for ChangeChainSettings {
+    fn default() -> Self {
+        Self { max_change_chain_size: 200 }
+    }
+}
+
 impl ChangeChain {
     pub fn undo(&mut self, world: &mut World) {
         if let Some(change) = self.changes.pop() {
@@ -124,11 +147,12 @@ impl ChangeChain {
     }
 
     pub fn redo(&mut self, world: &mut World) {
-        if let Some(change) = self.changes_for_redo.pop() {
-            let res = change.apply(world, &self.entity_remap).unwrap();
-            self.changes.push(change);
-            self.update_remap(res);
-        }
+        todo!()
+        // if let Some(change) = self.changes_for_redo.pop() {
+        //     let res = change.apply(world, &self.entity_remap).unwrap();
+        //     self.changes.push(change);
+        //     self.update_remap(res);
+        // }
     }
 
     fn update_remap(&mut self, result: ChangeResult) {
@@ -169,6 +193,7 @@ pub enum ChangeResult {
 #[derive(Event)]
 pub enum UndoRedo {
     Undo,
+    // TODO in 0.4
     Redo,
 }
 
