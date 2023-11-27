@@ -230,7 +230,8 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                                     if header.header_response.clicked() {
                                         let open_name =
                                             open_components.entry(name.clone()).or_default();
-                                        *open_name = header.fully_open();
+                                        //At click header not opened simultaneously so its need to check percent of opened
+                                        *open_name = header.openness < 0.5; 
                                     }
                                 });
 
