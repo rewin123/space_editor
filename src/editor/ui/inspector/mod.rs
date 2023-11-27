@@ -8,6 +8,7 @@ use bevy::{
     prelude::*,
     ptr::PtrMut,
     reflect::ReflectFromPtr,
+    utils::HashMap,
 };
 
 use bevy_egui::*;
@@ -55,11 +56,13 @@ impl Plugin for SpaceInspectorPlugin {
 }
 
 #[derive(Resource, Default)]
-pub struct InspectorTab {}
+pub struct InspectorTab {
+    open_components: HashMap<String, bool>,
+}
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        inspect(ui, world);
+        inspect(ui, world, &mut self.open_components);
     }
 
     fn title(&self) -> egui::WidgetText {
@@ -126,7 +129,7 @@ fn execute_inspect_command(
 }
 
 /// System to show inspector panel
-pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
+pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashMap<String, bool>) {
     let selected_entity = world
         .query_filtered::<Entity, With<Selected>>()
         .get_single(world);
@@ -207,21 +210,29 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
 
                             if !editor_registry.silent.contains(&registration.type_id()) {
                                 ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                    ui.collapsing(name, |ui| {
-                                        ui.push_id(
-                                            format!("content-{:?}-{}", &e.id(), &name),
-                                            |ui| {
-                                                if env.ui_for_reflect_with_options(
-                                                    value,
-                                                    ui,
-                                                    ui.id(),
-                                                    &(),
-                                                ) {
-                                                    set_changed();
-                                                }
-                                            },
-                                        );
-                                    });
+                                    let header = egui::CollapsingHeader::new(name)
+                                        .default_open(*open_components.get(name).unwrap_or(&false))
+                                        .show(ui, |ui| {
+                                            ui.push_id(
+                                                format!("content-{:?}-{}", &e.id(), &name),
+                                                |ui| {
+                                                    if env.ui_for_reflect_with_options(
+                                                        value,
+                                                        ui,
+                                                        ui.id(),
+                                                        &(),
+                                                    ) {
+                                                        set_changed();
+                                                    }
+                                                },
+                                            );
+                                        });
+                                    if header.header_response.clicked() {
+                                        let open_name =
+                                            open_components.entry(name.clone()).or_default();
+                                        //At click header not opened simultaneously so its need to check percent of opened
+                                        *open_name = header.openness < 0.5;
+                                    }
                                 });
 
                                 ui.push_id(
