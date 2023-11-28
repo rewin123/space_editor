@@ -12,6 +12,7 @@ pub struct UndoPlugin;
 pub enum UndoSet {
     PerType,
     Global,
+    Remaping
 }
 
 impl Plugin for UndoPlugin {
@@ -27,7 +28,7 @@ impl Plugin for UndoPlugin {
 
         app.configure_sets(
             PostUpdate,
-            (UndoSet::PerType, UndoSet::Global)
+            (UndoSet::PerType, UndoSet::Global, UndoSet::Remaping)
                 .chain()
                 .in_set(EditorSet::Editor),
         );
@@ -365,6 +366,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
             .entity_mut(e)
             .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
             .insert(OneFrameUndoIgnore::default());
+        world.send_event(UndoRedoApplied::<T> {
+            entity: e,
+            _phantom: std::marker::PhantomData,
+        });
         Ok(ChangeResult::Success)
     }
 
@@ -455,6 +460,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
             .resource_mut::<UndoIngnoreStorage>()
             .storage
             .insert(dst, OneFrameUndoIgnore::default());
+        world.send_event(UndoRedoApplied::<T> {
+            entity: dst,
+            _phantom: std::marker::PhantomData,
+        });
         Ok(ChangeResult::Success)
     }
 
@@ -492,6 +501,8 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         let mut remap = vec![];
         let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
             *remaped
+        } else if world.get_entity(self.entity).is_some() {
+            self.entity
         } else {
             let id = world.spawn_empty().id();
             remap.push((self.entity, id));
@@ -546,6 +557,8 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         let mut remap = vec![];
         let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
             *remaped
+        } else if world.get_entity(self.entity).is_some() {
+            self.entity
         } else {
             let id = world.spawn_empty().id();
             remap.push((self.entity, id));
@@ -556,6 +569,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
             .entity_mut(dst)
             .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
             .insert(OneFrameUndoIgnore::default());
+        world.send_event(UndoRedoApplied::<T> {
+            entity: dst,
+            _phantom: std::marker::PhantomData,
+        });
 
         Ok(ChangeResult::SuccessWithRemap(remap))
     }
@@ -704,12 +721,17 @@ impl AppAutoUndo for App {
                 auto_undo_reflected_add_init::<T>,
                 auto_undo_reflected_remove_detect::<T>,
                 apply_deferred,
-                auto_remap_undo_redo::<T>,
                 auto_undo_system_changed::<T>,
                 auto_undo_reflected_system::<T>,
             )
                 .chain()
                 .in_set(UndoSet::PerType),
+        );
+
+        self.add_systems(
+            PostUpdate,
+            auto_remap_undo_redo::<T>
+                .in_set(UndoSet::Remaping),
         );
 
         self
@@ -801,6 +823,7 @@ fn auto_remap_undo_redo<T: Component + Reflect>(
     mut undoredo_applied: EventReader<UndoRedoApplied<T>>,
 ) {
     for event in undoredo_applied.read() {
+        println!("remapping {:?}", event.entity);
         if let Ok(mut data) = query.get_mut(event.entity) {
             let reflect = data.as_reflect_mut();
 
@@ -808,6 +831,7 @@ fn auto_remap_undo_redo<T: Component + Reflect>(
                 reflect,
                 &|v| {
                     if let Some(e) = change_chain.entity_remap.get(v) {
+                        println!("remap {:?} to {:?}", v, e);
                         *v = *e;
                     }
                 },
@@ -1058,9 +1082,6 @@ mod tests {
         app.world.send_event(NewChange {
             change: Arc::new(RemovedEntity { entity: test_id_1 }),
         });
-        app.world.send_event(NewChange {
-            change: Arc::new(RemovedEntity { entity: test_id_2 }),
-        });
 
         app.update();
         app.update();
@@ -1075,7 +1096,7 @@ mod tests {
         assert!(app.world.get_entity(test_id_2).is_none());
         assert_eq!(app.world.entities().len(), 2);
 
-        let mut query = app.world.query::<&Parent>();
+        let mut query = app.world.query::<&Children>();
         assert!(query.get_single(&app.world).is_ok());
     }
 }
