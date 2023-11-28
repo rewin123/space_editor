@@ -10,8 +10,9 @@ use bevy::{
 use std::any::TypeId;
 
 use crate::{
+    editor::core::AppAutoUndo,
     prefab::{component::AutoStruct, save::SaveState},
-    PrefabMarker, PrefabSet, editor::core::AppAutoUndo,
+    PrefabMarker, PrefabSet,
 };
 
 /// Plugin to activate custom registry
@@ -158,7 +159,9 @@ impl EditorRegistry {
 
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect>(
+    fn editor_registry<
+        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+    >(
         &mut self,
     ) -> &mut Self;
     /// register new component inly in prefab systems (will be no shown in editor UI)
@@ -200,7 +203,9 @@ pub trait EditorRegistryExt {
 }
 
 impl EditorRegistryExt for App {
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect>(
+    fn editor_registry<
+        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+    >(
         &mut self,
     ) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().register::<T>();

@@ -5,7 +5,7 @@ use bevy_egui::*;
 
 use crate::{
     editor::{
-        core::{Selected, SelectedPlugin, NewChange, AddedEntity, RemovedEntity, UndoSet},
+        core::{AddedEntity, NewChange, RemovedEntity, Selected, SelectedPlugin, UndoSet},
         ui_registration::BundleReg,
     },
     prelude::EditorRegistry,
@@ -38,7 +38,12 @@ impl Plugin for SpaceHierarchyPlugin {
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
         app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
-        app.add_systems(PostUpdate, detect_cloned_entities.in_set(EditorSet::Editor).before(UndoSet::PerType));
+        app.add_systems(
+            PostUpdate,
+            detect_cloned_entities
+                .in_set(EditorSet::Editor)
+                .before(UndoSet::PerType),
+        );
         app.add_event::<CloneEvent>();
     }
 }
@@ -58,7 +63,7 @@ pub fn show_hierarchy(
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
-    mut changes : EventWriter<NewChange>
+    mut changes: EventWriter<NewChange>,
 ) {
     let mut all: Vec<_> = query.iter().collect();
     all.sort_by_key(|a| a.0);
@@ -74,7 +79,7 @@ pub fn show_hierarchy(
                     *entity,
                     &mut selected,
                     &mut clone_events,
-                    &mut changes
+                    &mut changes,
                 );
             }
         }
@@ -83,16 +88,15 @@ pub fn show_hierarchy(
             if ui.button("+ Add new entity").clicked() {
                 let id = commands.spawn_empty().insert(PrefabMarker).id();
                 changes.send(NewChange {
-                    change : Arc::new(AddedEntity { entity : id})
+                    change: Arc::new(AddedEntity { entity: id }),
                 });
-
             }
             if ui.button("Clear all entities").clicked() {
                 for (entity, _, _, _parent) in all.iter() {
                     commands.entity(*entity).despawn_recursive();
 
                     changes.send(NewChange {
-                        change : Arc::new(RemovedEntity { entity : *entity})
+                        change: Arc::new(RemovedEntity { entity: *entity }),
                     });
                 }
             }
@@ -105,7 +109,7 @@ pub fn show_hierarchy(
                     if ui.button(name).clicked() {
                         let entity = dyn_bundle.spawn(&mut commands);
                         changes.send(NewChange {
-                            change : Arc::new(AddedEntity { entity })
+                            change: Arc::new(AddedEntity { entity }),
                         });
                     }
                 }
@@ -128,7 +132,7 @@ fn draw_entity(
     entity: Entity,
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
-    changes : &mut EventWriter<NewChange>
+    changes: &mut EventWriter<NewChange>,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -149,14 +153,14 @@ fn draw_entity(
                     let new_id = commands.spawn_empty().insert(PrefabMarker).id();
                     commands.entity(entity).add_child(new_id);
                     changes.send(NewChange {
-                        change : Arc::new(AddedEntity { entity : new_id})
+                        change: Arc::new(AddedEntity { entity: new_id }),
                     });
                     ui.close_menu();
                 }
                 if ui.button("Delete").clicked() {
                     commands.entity(entity).despawn_recursive();
                     changes.send(NewChange {
-                        change : Arc::new(RemovedEntity { entity })
+                        change: Arc::new(RemovedEntity { entity }),
                     });
                     ui.close_menu();
                 }
@@ -205,7 +209,7 @@ fn clone_enitites(
     mut commands: Commands,
     query: Query<EntityRef>,
     mut events: EventReader<CloneEvent>,
-    editor_registry: Res<EditorRegistry>
+    editor_registry: Res<EditorRegistry>,
 ) {
     for event in events.read() {
         let mut queue = vec![(event.id, commands.spawn_empty().id())];
@@ -243,12 +247,12 @@ fn clone_enitites(
 fn detect_cloned_entities(
     mut commands: Commands,
     query: Query<Entity, Added<ClonedEntity>>,
-    mut changes : EventWriter<NewChange>
+    mut changes: EventWriter<NewChange>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).remove::<ClonedEntity>();
         changes.send(NewChange {
-            change : Arc::new(AddedEntity { entity })
+            change: Arc::new(AddedEntity { entity }),
         });
     }
 }
