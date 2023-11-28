@@ -57,7 +57,7 @@ impl EditorTab for SettingsWindow {
         }
 
         ui.heading("Undo");
-        world.resource_scope::<ChangeChainSettings, _>(|world, mut settings| {
+        world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
             ui.add(
                 egui::DragValue::new(&mut settings.max_change_chain_size)
                     .prefix("Max change chain size: "),

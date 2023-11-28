@@ -1,10 +1,6 @@
-use std::{f32::consts::E, sync::Arc};
+use std::sync::Arc;
 
-use bevy::{
-    ecs::entity::{EntityMapper, MapEntities},
-    prelude::*,
-    utils::HashMap,
-};
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{EditorSet, PrefabMarker};
 
@@ -78,13 +74,17 @@ fn update_change_chain(
         change_chain.changes_for_redo.clear();
     }
 
-    if new_changes.len() == 1 {
-        change_chain.changes.push(new_changes[0].clone());
-    } else if new_changes.len() > 1 {
-        change_chain.changes.push(Arc::new(ManyChanges {
-            changes: new_changes,
-        }));
-    }
+    match new_changes.len().cmp(&1) {
+        std::cmp::Ordering::Less => {}
+        std::cmp::Ordering::Equal => {
+            change_chain.changes.push(new_changes[0].clone());
+        }
+        std::cmp::Ordering::Greater => {
+            change_chain.changes.push(Arc::new(ManyChanges {
+                changes: new_changes,
+            }));
+        }
+    };
 
     if change_chain.changes.len() > settings.max_change_chain_size {
         let count = change_chain.changes.len() - settings.max_change_chain_size;
@@ -167,7 +167,7 @@ impl ChangeChain {
         }
     }
 
-    pub fn redo(&mut self, world: &mut World) {
+    pub fn redo(&mut self, _world: &mut World) {
         todo!()
         // if let Some(change) = self.changes_for_redo.pop() {
         //     let res = change.apply(world, &self.entity_remap).unwrap();
@@ -275,9 +275,9 @@ impl EditorChange for RemovedEntity {
                     .spawn_empty()
                     .insert(OneFrameUndoIgnore::default())
                     .id();
-                return Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]));
+                Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
             } else {
-                return Ok(ChangeResult::Success);
+                Ok(ChangeResult::Success)
             }
         } else {
             let id = world
@@ -629,7 +629,7 @@ impl EditorChange for ManyChanges {
     }
 
     fn debug_text(&self) -> String {
-        format!("ManyChanges")
+        "ManyChanges".to_string()
     }
 }
 
@@ -775,7 +775,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             }
             bevy::reflect::ReflectMut::Map(s) => {
                 for field_idx in 0..s.len() {
-                    let (key, value) = s.get_at_mut(field_idx).unwrap();
+                    let (_key, value) = s.get_at_mut(field_idx).unwrap();
                     apply_for_every_typed_field(value, applyer, max_recursion - 1);
                 }
             }
@@ -788,7 +788,7 @@ fn apply_for_every_typed_field<D: Reflect>(
                     );
                 }
             }
-            bevy::reflect::ReflectMut::Value(v) => {
+            bevy::reflect::ReflectMut::Value(_v) => {
                 //do nothing. Value was checked before
             }
         }
@@ -883,11 +883,11 @@ fn undo_ignore_tick(mut ignore_storage: ResMut<UndoIngnoreStorage>) {
 }
 
 fn auto_undo_remove_detect<T: Component + Clone>(
-    mut commands: Commands,
+    _commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query: RemovedComponents<T>,
     mut new_changes: EventWriter<NewChange>,
-    mut ignore_storage: ResMut<UndoIngnoreStorage>,
+    ignore_storage: ResMut<UndoIngnoreStorage>,
 ) {
     for e in removed_query.read() {
         if !ignore_storage.storage.contains_key(&e) {
@@ -904,11 +904,11 @@ fn auto_undo_remove_detect<T: Component + Clone>(
 }
 
 fn auto_undo_reflected_remove_detect<T: Component + Reflect + FromReflect>(
-    mut commands: Commands,
+    _commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query: RemovedComponents<T>,
     mut new_changes: EventWriter<NewChange>,
-    mut ignore_storage: ResMut<UndoIngnoreStorage>,
+    ignore_storage: ResMut<UndoIngnoreStorage>,
 ) {
     for e in removed_query.read() {
         if !ignore_storage.storage.contains_key(&e) {
@@ -1028,5 +1028,54 @@ mod tests {
         app.update();
 
         assert!(app.world.get_entity(test_id).is_none());
+    }
+
+    #[test]
+    fn test_undo_with_remap() {
+        let mut app = configure_app();
+        app.auto_reflected_undo::<Parent>();
+        app.auto_reflected_undo::<Children>();
+
+        let test_id_1 = app.world.spawn_empty().id();
+        let test_id_2 = app.world.spawn_empty().id();
+
+        app.world.send_event(NewChange {
+            change: Arc::new(AddedEntity { entity: test_id_1 }),
+        });
+        app.world.send_event(NewChange {
+            change: Arc::new(AddedEntity { entity: test_id_2 }),
+        });
+
+        app.update();
+        app.update();
+
+        app.world.entity_mut(test_id_1).add_child(test_id_2);
+
+        app.update();
+        app.update();
+
+        app.world.entity_mut(test_id_1).despawn_recursive();
+        app.world.send_event(NewChange {
+            change: Arc::new(RemovedEntity { entity: test_id_1 }),
+        });
+        app.world.send_event(NewChange {
+            change: Arc::new(RemovedEntity { entity: test_id_2 }),
+        });
+
+        app.update();
+        app.update();
+
+        app.world.send_event(UndoRedo::Undo);
+
+        app.update();
+        app.update();
+        app.update();
+
+        assert!(app.world.get_entity(test_id_1).is_none());
+        assert!(app.world.get_entity(test_id_2).is_none());
+        assert_eq!(app.world.entities().len(), 2);
+
+        let mut query = app.world.query::<&Parent>();
+        assert!(query.get_single(&app.world).is_ok());
     }
 }
