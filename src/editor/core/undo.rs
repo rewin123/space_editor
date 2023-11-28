@@ -421,10 +421,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
         } else {
             self.entity
         };
-        world
-            .entity_mut(dst)
-            .remove::<T>()
-            .insert(OneFrameUndoIgnore::default());
+        if let Some(mut e) = world.get_entity_mut(dst) {
+            e.remove::<T>()
+                .insert(OneFrameUndoIgnore::default());
+        }
         world
             .resource_mut::<UndoIngnoreStorage>()
             .storage

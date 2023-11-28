@@ -5,7 +5,7 @@ use bevy_egui::*;
 
 use crate::{
     editor::{
-        core::{Selected, SelectedPlugin, NewChange, AddedEntity, RemovedEntity},
+        core::{Selected, SelectedPlugin, NewChange, AddedEntity, RemovedEntity, UndoSet},
         ui_registration::BundleReg,
     },
     prelude::EditorRegistry,
@@ -38,6 +38,7 @@ impl Plugin for SpaceHierarchyPlugin {
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
         app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
+        app.add_systems(PostUpdate, detect_cloned_entities.in_set(EditorSet::Editor).before(UndoSet::PerType));
         app.add_event::<CloneEvent>();
     }
 }
@@ -197,6 +198,9 @@ fn draw_entity(
     });
 }
 
+#[derive(Component)]
+pub struct ClonedEntity;
+
 fn clone_enitites(
     mut commands: Commands,
     query: Query<EntityRef>,
@@ -212,6 +216,7 @@ fn clone_enitites(
             if let Ok(entity) = query.get(src_id) {
                 if entity.contains::<PrefabMarker>() {
                     let mut cmds = commands.entity(dst_id);
+                    cmds.insert(ClonedEntity);
 
                     editor_registry.clone_entity_flat(&mut cmds, &entity);
 
@@ -233,4 +238,17 @@ fn clone_enitites(
         }
     }
     events.clear();
+}
+
+fn detect_cloned_entities(
+    mut commands: Commands,
+    query: Query<Entity, Added<ClonedEntity>>,
+    mut changes : EventWriter<NewChange>
+) {
+    for entity in query.iter() {
+        commands.entity(entity).remove::<ClonedEntity>();
+        changes.send(NewChange {
+            change : Arc::new(AddedEntity { entity })
+        });
+    }
 }
