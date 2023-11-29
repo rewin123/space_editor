@@ -187,14 +187,6 @@ impl ChangeChain {
             }
         }
     }
-
-    fn debug_text(&self) -> String {
-        let mut text = String::new();
-        for change in &self.changes {
-            text.push_str(&format!("{}\n", change.debug_text()));
-        }
-        text
-    }
 }
 
 pub fn get_entity_with_remap(entity: Entity, entity_remap: &HashMap<Entity, Entity>) -> Entity {
@@ -1058,8 +1050,6 @@ mod tests {
         app.update();
         app.update();
         app.update();
-
-        println!("{}", app.world.resource::<ChangeChain>().debug_text());
 
         assert!(app.world.get_entity(test_id).is_some());
 
