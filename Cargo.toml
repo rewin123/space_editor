@@ -26,6 +26,7 @@ bevy_mod_picking = {version = "0.17", default-features = false, features = ["bac
 bevy_debug_grid = "0.3"
 egui_dock = "0.8"
 egui_file = "0.11"
+prefab = {path = "crates/prefab"}
 
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
 
@@ -42,6 +43,11 @@ cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }
 significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
+
+[workspace]
+members = [
+  "crates/*"
+]
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3

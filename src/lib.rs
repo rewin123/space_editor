@@ -2,14 +2,10 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
-#[cfg(all(feature = "f32", feature = "f64"))]
-compile_error!("feature \"f32\" and feature \"f64\" cannot be enabled at the same time");
-
 /// Module contains all editor UI logic and components
 pub mod editor;
 
-/// Module contains all prefab logic and components
-pub mod prefab;
+use prefab;
 
 /// Module contains custom registry options to store clone functions and bundles in UI
 pub mod editor_registry;
@@ -97,11 +93,6 @@ impl Plugin for SpaceEditorPlugin {
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
     }
 }
-
-/// Editor work only with entities with this marker
-#[derive(Component, Default, Clone, Reflect)]
-#[reflect(Component)]
-pub struct PrefabMarker;
 
 /// Marker for editor camera to disable in play mode
 #[derive(Component, Default, Clone, Reflect)]
