@@ -22,7 +22,7 @@ fn main() {
         .editor_relation::<FollowCamera, Camera3d>()
         .editor_tab(
             EditorTabName::Other("simple_tab".to_string()),
-            "Simnple tab".into(),
+            "Simple tab".into(),
             simple_tab_system,
         )
         .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))

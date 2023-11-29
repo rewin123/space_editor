@@ -34,12 +34,12 @@ pub enum GizmoHotkey {
 impl Hotkey for GizmoHotkey {
     fn name<'a>(&self) -> String {
         match self {
-            GizmoHotkey::Translate => "Translate entity".to_string(),
-            GizmoHotkey::Rotate => "Rotate entity".to_string(),
-            GizmoHotkey::Scale => "Scale entity".to_string(),
-            GizmoHotkey::Delete => "Delete entity".to_string(),
-            GizmoHotkey::Multiple => "Change multiple entities".to_string(),
-            GizmoHotkey::Clone => "Clone entity".to_string(),
+            Self::Translate => "Translate entity".to_string(),
+            Self::Rotate => "Rotate entity".to_string(),
+            Self::Scale => "Scale entity".to_string(),
+            Self::Delete => "Delete entity".to_string(),
+            Self::Multiple => "Change multiple entities".to_string(),
+            Self::Clone => "Clone entity".to_string(),
         }
     }
 }

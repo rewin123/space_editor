@@ -1,3 +1,4 @@
+#[cfg(feature = "bevy_xpbd_3d")]
 use bevy::prelude::*;
 
 #[cfg(feature = "bevy_xpbd_3d")]

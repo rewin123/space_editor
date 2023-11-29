@@ -11,11 +11,23 @@ use crate::prelude::editor::core::AppPersistanceExt;
 
 use super::EditorUiAppExt;
 
+const TAB_MODES: [NewTabBehaviour; 3] = [
+    NewTabBehaviour::Pop,
+    NewTabBehaviour::SameNode,
+    NewTabBehaviour::SplitNode,
+];
+
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        #[cfg(feature = "persistance_editor")]
+        {
+            app.persistance_resource::<NewWindowSettings>();
+            app.register_type::<NewTabBehaviour>();
+        }
+        app.init_resource::<NewWindowSettings>();
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
@@ -28,6 +40,48 @@ impl Plugin for SettingsWindowPlugin {
                 app.register_type::<[f32; 4]>();
             }
         }
+    }
+}
+
+#[derive(Default, Reflect, PartialEq, Eq, Clone)]
+pub enum NewTabBehaviour {
+    Pop,
+    #[default]
+    SameNode,
+    SplitNode,
+}
+
+impl ToString for NewTabBehaviour {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Pop => "New window",
+            Self::SameNode => "Same Node",
+            Self::SplitNode => "Splits Node",
+        }
+        .to_string()
+    }
+}
+
+#[derive(Default, Resource, Reflect)]
+#[reflect(Resource)]
+pub struct NewWindowSettings {
+    pub new_tab: NewTabBehaviour,
+}
+
+impl NewWindowSettings {
+    fn ui(&mut self, ui: &mut egui::Ui) {
+        egui::ComboBox::new("new_tab", "")
+            .selected_text(self.new_tab.to_string())
+            .show_ui(ui, |ui| {
+                for (_, mode) in TAB_MODES.into_iter().enumerate() {
+                    if ui
+                        .selectable_label(self.new_tab == mode, mode.to_string())
+                        .clicked()
+                    {
+                        self.new_tab = mode;
+                    }
+                }
+            });
     }
 }
 
@@ -64,6 +118,21 @@ impl EditorTab for SettingsWindow {
             );
         });
 
+        ui.heading("Undo");
+        world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
+            ui.add(
+                egui::DragValue::new(&mut settings.max_change_chain_size)
+                    .prefix("Max change chain size: "),
+            );
+        });
+
+        ui.add_space(8.);
+        ui.heading("New Tab Behaviour");
+        let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
+        new_window_settings.ui(ui);
+
+        ui.add_space(8.);
+        ui.heading("Hotkeys in Game view tab");
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")
                 .num_columns(2)
