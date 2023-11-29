@@ -10,6 +10,7 @@ use bevy::{
 use std::any::TypeId;
 
 use crate::{
+    editor::core::AppAutoUndo,
     prefab::{component::AutoStruct, save::SaveState},
     PrefabMarker, PrefabSet,
 };
@@ -158,7 +159,9 @@ impl EditorRegistry {
 
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
+    fn editor_registry<
+        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+    >(
         &mut self,
     ) -> &mut Self;
     /// register new component inly in prefab systems (will be no shown in editor UI)
@@ -200,12 +203,15 @@ pub trait EditorRegistryExt {
 }
 
 impl EditorRegistryExt for App {
-    fn editor_registry<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
+    fn editor_registry<
+        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+    >(
         &mut self,
     ) -> &mut Self {
         self.world.resource_mut::<EditorRegistry>().register::<T>();
         self.world.init_component::<T>();
         self.register_type::<T>();
+        self.auto_reflected_undo::<T>();
         self
     }
 
@@ -245,6 +251,7 @@ impl EditorRegistryExt for App {
         self
     }
 
+    //Not used now
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component

@@ -59,6 +59,29 @@ impl Plugin for SpaceEditorPlugin {
         app.add_plugins(EditorPlugin);
 
         app.configure_sets(
+            PreUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+
+        app.configure_sets(
+            PreUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
+            Update,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+
+        app.configure_sets(
             Update,
             (
                 PrefabSet::PrefabLoad,

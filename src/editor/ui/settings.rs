@@ -2,7 +2,7 @@ use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
 
 use crate::{
-    editor::core::AllHotkeys,
+    editor::core::{AllHotkeys, ChangeChainSettings},
     prelude::{EditorTab, EditorTabName},
 };
 
@@ -110,6 +110,22 @@ impl EditorTab for SettingsWindow {
             );
         }
 
+        ui.heading("Undo");
+        world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
+            ui.add(
+                egui::DragValue::new(&mut settings.max_change_chain_size)
+                    .prefix("Max change chain size: "),
+            );
+        });
+
+        ui.heading("Undo");
+        world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
+            ui.add(
+                egui::DragValue::new(&mut settings.max_change_chain_size)
+                    .prefix("Max change chain size: "),
+            );
+        });
+
         ui.add_space(8.);
         ui.heading("New Tab Behaviour");
         let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
@@ -197,27 +213,6 @@ impl EditorTab for SettingsWindow {
                     });
                 });
         }
-
-        // egui::Grid::new("hotkeys")
-        //     .num_columns(2)
-        //     .striped(true)
-        //     .show(ui, |ui| {
-        //         ui.label("Select object");
-        //         ui.label("Left mouse button");
-        //         ui.end_row();
-
-        //         ui.label("Move/rotate/scale/clone \nmany objects simultaneously");
-        //         ui.label("Shift");
-        //         ui.end_row();
-
-        //         ui.label("Clone object");
-        //         ui.label("Alt");
-        //         ui.end_row();
-
-        //         ui.label("Delete object");
-        //         ui.label("Delete or X");
-        //         ui.end_row();
-        //     });
     }
 
     fn title(&self) -> egui::WidgetText {
