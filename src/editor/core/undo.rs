@@ -12,7 +12,7 @@ pub struct UndoPlugin;
 pub enum UndoSet {
     PerType,
     Global,
-    Remaping
+    Remaping,
 }
 
 impl Plugin for UndoPlugin {
@@ -186,6 +186,14 @@ impl ChangeChain {
                 }
             }
         }
+    }
+
+    fn debug_text(&self) -> String {
+        let mut text = String::new();
+        for change in &self.changes {
+            text.push_str(&format!("{}\n", change.debug_text()));
+        }
+        text
     }
 }
 
@@ -730,8 +738,7 @@ impl AppAutoUndo for App {
 
         self.add_systems(
             PostUpdate,
-            auto_remap_undo_redo::<T>
-                .in_set(UndoSet::Remaping),
+            auto_remap_undo_redo::<T>.in_set(UndoSet::Remaping),
         );
 
         self
@@ -1020,12 +1027,16 @@ mod tests {
     fn configure_app() -> App {
         let mut app = App::new();
         app.add_plugins(MinimalPlugins).add_plugins(UndoPlugin);
+        app.configure_sets(PostUpdate, EditorSet::Editor);
         app
     }
 
     #[test]
     fn test_undo() {
         let mut app = configure_app();
+        app.auto_undo::<Name>();
+
+        app.update();
 
         let test_id = app.world.spawn_empty().id();
         app.world.send_event(NewChange {
@@ -1035,17 +1046,34 @@ mod tests {
         app.update();
         app.update();
 
-        app.world.entity_mut(test_id).insert(Name::default());
+        app.world
+            .entity_mut(test_id)
+            .insert(Name::default())
+            .insert(PrefabMarker);
+        app.world.get_mut::<Name>(test_id).unwrap().set_changed();
 
         app.update();
         app.update();
+        app.update();
+        app.update();
+        app.update();
+        app.update();
+
+        println!("{}", app.world.resource::<ChangeChain>().debug_text());
+
+        assert!(app.world.get_entity(test_id).is_some());
 
         app.world.send_event(UndoRedo::Undo);
 
         app.update();
         app.update();
 
+        app.update();
+        app.update();
+        app.update();
+
         assert!(app.world.get::<Name>(test_id).is_none());
+        assert!(app.world.get_entity(test_id).is_some());
 
         app.world.send_event(UndoRedo::Undo);
         app.update();
@@ -1057,11 +1085,13 @@ mod tests {
     #[test]
     fn test_undo_with_remap() {
         let mut app = configure_app();
+        app.add_plugins(HierarchyPlugin);
+
         app.auto_reflected_undo::<Parent>();
         app.auto_reflected_undo::<Children>();
 
-        let test_id_1 = app.world.spawn_empty().id();
-        let test_id_2 = app.world.spawn_empty().id();
+        let test_id_1 = app.world.spawn(PrefabMarker).id();
+        let test_id_2 = app.world.spawn(PrefabMarker).id();
 
         app.world.send_event(NewChange {
             change: Arc::new(AddedEntity { entity: test_id_1 }),
@@ -1077,6 +1107,7 @@ mod tests {
 
         app.update();
         app.update();
+        app.cleanup();
 
         app.world.entity_mut(test_id_1).despawn_recursive();
         app.world.send_event(NewChange {
