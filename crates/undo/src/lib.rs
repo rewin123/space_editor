@@ -448,11 +448,9 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
-        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
-            *remaped
-        } else {
-            self.entity
-        };
+        let dst = entity_remap
+            .get(&self.entity)
+            .map_or(self.entity, |remaped| *remaped);
         if let Some(mut e) = world.get_entity_mut(dst) {
             e.remove::<T>().insert(OneFrameUndoIgnore::default());
         }
@@ -499,15 +497,18 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let mut remap = vec![];
-        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
-            *remaped
-        } else if world.get_entity(self.entity).is_some() {
-            self.entity
-        } else {
-            let id = world.spawn_empty().id();
-            remap.push((self.entity, id));
-            id
-        };
+        let dst = entity_remap.get(&self.entity).map_or_else(
+            || {
+                if world.get_entity(self.entity).is_some() {
+                    self.entity
+                } else {
+                    let id = world.spawn_empty().id();
+                    remap.push((self.entity, id));
+                    id
+                }
+            },
+            |remaped| *remaped,
+        );
 
         world
             .entity_mut(dst)
@@ -555,15 +556,18 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         let mut remap = vec![];
-        let dst = if let Some(remaped) = entity_remap.get(&self.entity) {
-            *remaped
-        } else if world.get_entity(self.entity).is_some() {
-            self.entity
-        } else {
-            let id = world.spawn_empty().id();
-            remap.push((self.entity, id));
-            id
-        };
+        let dst = entity_remap.get(&self.entity).map_or_else(
+            || {
+                if world.get_entity(self.entity).is_some() {
+                    self.entity
+                } else {
+                    let id = world.spawn_empty().id();
+                    remap.push((self.entity, id));
+                    id
+                }
+            },
+            |remaped| *remaped,
+        );
 
         world
             .entity_mut(dst)
@@ -745,6 +749,7 @@ fn apply_for_every_typed_field<D: Reflect>(
     if max_recursion < 0 {
         return;
     }
+    #[allow(clippy::option_if_let_else)]
     if let Some(v) = value.as_any_mut().downcast_mut::<D>() {
         applyer(v);
     } else {

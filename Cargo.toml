@@ -65,6 +65,7 @@ cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }
 significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
+type_complexity = { level = "allow", priority = 2 }
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3
