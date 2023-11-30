@@ -1,6 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
+use shared::*;
 
-use crate::{prelude::EditorLoader, PrefabMarker};
+use crate::editor::prelude::EditorLoader;
 
 pub fn load_listener(world: &mut World) {
     let app_registry = world.resource::<AppTypeRegistry>().clone();

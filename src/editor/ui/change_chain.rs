@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{editor_tab::EditorTab, EditorUiAppExt};
-use crate::editor::core::ChangeChain;
+use undo::ChangeChain;
 
 pub struct ChangeChainViewPlugin;
 

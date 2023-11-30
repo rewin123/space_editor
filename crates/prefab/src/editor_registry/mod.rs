@@ -6,13 +6,14 @@ use bevy::{
     reflect::{GetTypeRegistration, TypePath, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
+use shared::*;
 
 use std::any::TypeId;
+use undo::AppAutoUndo;
 
 use crate::{
-    editor::core::AppAutoUndo,
     prefab::{component::AutoStruct, save::SaveState},
-    PrefabMarker, PrefabSet,
+    PrefabSet,
 };
 
 /// Plugin to activate custom registry

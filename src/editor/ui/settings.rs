@@ -1,15 +1,16 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
+use undo::ChangeChainSettings;
 
-use crate::{
-    editor::core::{AllHotkeys, ChangeChainSettings},
-    prelude::{EditorTab, EditorTabName},
-};
+use crate::editor::core::AllHotkeys;
 
 #[cfg(feature = "persistance_editor")]
-use crate::prelude::editor::core::AppPersistanceExt;
+use crate::editor::core::AppPersistanceExt;
 
-use super::EditorUiAppExt;
+use super::{
+    editor_tab::{EditorTab, EditorTabName},
+    EditorUiAppExt,
+};
 
 const TAB_MODES: [NewTabBehaviour; 3] = [
     NewTabBehaviour::Pop,

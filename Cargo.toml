@@ -12,7 +12,7 @@ readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
-[dependencies]
+[workspace.dependencies]
 bevy = "0.12"
 bevy_egui = "0.23"
 egui-gizmo = "0.12"
@@ -26,6 +26,29 @@ bevy_mod_picking = {version = "0.17", default-features = false, features = ["bac
 bevy_debug_grid = "0.3"
 egui_dock = "0.8"
 egui_file = "0.11"
+
+prefab = { path = "crates/prefab" }
+shared = { path = "crates/shared" }
+undo = { path = "crates/undo" }
+
+[dependencies]
+bevy.workspace = true
+bevy_egui.workspace = true
+egui-gizmo.workspace = true
+bevy-scene-hook.workspace = true
+ron.workspace = true
+serde.workspace = true
+bevy_panorbit_camera.workspace = true
+bevy-inspector-egui.workspace = true
+pretty-type-name.workspace = true
+bevy_mod_picking.workspace = true
+bevy_debug_grid.workspace = true
+egui_dock.workspace = true
+egui_file.workspace = true
+
+prefab.workspace = true
+shared.workspace = true
+undo.workspace = true
 
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
 

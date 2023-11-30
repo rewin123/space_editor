@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use crate::{EditorSet, PrefabMarker};
+use shared::{EditorSet, PrefabMarker};
 
 const MAX_REFLECT_RECURSION: i32 = 10;
 

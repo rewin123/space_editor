@@ -1,12 +1,12 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
+use undo::UndoRedo;
 
-use crate::{
-    editor::core::{EditorTool, UndoRedo},
-    prelude::EditorTab,
-    EditorCameraMarker,
-};
+use crate::editor::core::EditorTool;
+use shared::*;
+
+use super::editor_tab::EditorTab;
 
 #[derive(Resource)]
 pub struct GameViewTab {

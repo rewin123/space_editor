@@ -16,18 +16,19 @@ use bevy_egui::*;
 use bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
+use prefab::{editor_registry::EditorRegistry, prefab::component::EntityLink};
 
-use crate::{
-    editor::core::Selected, editor_registry::EditorRegistry, prefab::component::EntityLink,
-    prelude::EditorTab,
-};
+use crate::editor::core::Selected;
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
 };
 
-use super::EditorUiAppExt;
+use super::{
+    editor_tab::{EditorTab, EditorTabName},
+    EditorUiAppExt,
+};
 
 /// Entities with this marker will be skiped in inspector
 #[derive(Component)]
@@ -44,10 +45,7 @@ impl Plugin for SpaceInspectorPlugin {
         app.editor_component_priority::<Name>(0);
         app.editor_component_priority::<Transform>(1);
 
-        app.editor_tab_by_trait(
-            crate::prelude::EditorTabName::Inspector,
-            InspectorTab::default(),
-        );
+        app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 

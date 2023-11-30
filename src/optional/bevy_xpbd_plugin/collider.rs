@@ -3,7 +3,7 @@ pub use bevy_inspector_egui::prelude::*;
 use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 
-use crate::prefab::component::MeshPrimitivePrefab;
+use prefab::prefab::component::MeshPrimitivePrefab;
 
 use super::RigidBodyPrefab;
 

@@ -21,10 +21,11 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
+use shared::PrefabMarker;
 
 use crate::{
     editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorSet, EditorState,
-    PrefabMarker, PrefabSet,
+    PrefabSet,
 };
 
 #[cfg(feature = "bevy_xpbd_3d")]

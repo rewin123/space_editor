@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::EditorSet;
+use shared::EditorSet;
 
 /// This struct used as marked for all selected entities
 #[derive(Component, Default, Clone)]

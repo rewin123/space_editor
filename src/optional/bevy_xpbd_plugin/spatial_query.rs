@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::*;
 use bevy_xpbd_3d::{math::Quaternion, prelude::*};
 
-use crate::prelude::EditorRegistryExt;
+use prefab::editor_registry::EditorRegistryExt;
 
 use super::{collider::ColliderPrimitive, Vector};
 

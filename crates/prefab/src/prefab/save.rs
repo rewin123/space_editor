@@ -4,13 +4,10 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
+use shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs::File, io::Write};
 
-use crate::{
-    editor::core::{EditorPrefabPath, PrefabMemoryCache},
-    editor_registry::{EditorRegistry, EditorRegistryExt},
-    PrefabMarker,
-};
+use crate::prelude::{EditorRegistry, EditorRegistryExt};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]

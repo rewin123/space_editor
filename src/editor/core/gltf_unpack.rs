@@ -6,10 +6,8 @@ use bevy::{
     utils::HashMap,
 };
 
-use crate::{
-    prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab},
-    PrefabMarker,
-};
+use prefab::prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab};
+use shared::PrefabMarker;
 
 use super::{BackgroundTask, BackgroundTaskStorage};
 

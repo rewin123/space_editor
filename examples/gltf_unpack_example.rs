@@ -1,9 +1,11 @@
 use bevy::prelude::*;
-use space_editor::{editor::core::EditorEvent, prelude::*};
+use prefab::SpaceEditorPlugin;
+use shared::EditorEvent;
+use space_editor::{editor::EditorPlugin, simple_editor_setup};
 
 fn main() {
     App::default()
-        .add_plugins(DefaultPlugins)
+        .add_plugins((DefaultPlugins, EditorPlugin))
         .add_plugins(SpaceEditorPlugin::default())
         .add_systems(Startup, simple_editor_setup)
         .add_systems(Startup, setup)

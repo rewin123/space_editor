@@ -1,0 +1,24 @@
+[package]
+name = "prefab"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true
+bevy_egui.workspace = true
+egui-gizmo.workspace = true
+bevy-scene-hook.workspace = true
+ron.workspace = true
+serde.workspace = true
+bevy_panorbit_camera.workspace = true
+bevy-inspector-egui.workspace = true
+pretty-type-name.workspace = true
+bevy_mod_picking.workspace = true
+bevy_debug_grid.workspace = true
+egui_dock.workspace = true
+egui_file.workspace = true
+
+shared.workspace = true
+undo.workspace = true

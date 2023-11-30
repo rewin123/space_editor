@@ -1,12 +1,13 @@
-use crate::{EditorState, PrefabSet};
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
+use prefab::PrefabSet;
+use shared::EditorState;
 
 pub mod collider;
 
 pub mod spatial_query;
 
-use crate::prelude::EditorRegistryExt;
+use prefab::editor_registry::EditorRegistryExt;
 
 use self::collider::{ColliderPart, ColliderPrefabCompound, ColliderPrimitive};
 use self::spatial_query::register_xpbd_spatial_types;
