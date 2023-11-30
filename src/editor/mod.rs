@@ -16,7 +16,7 @@ use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableB
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use prefab::prefab::{
     component::CameraPlay,
-    save::{SaveConfig, SaveState},
+    save::{SaveConfig, SaveState}, PrefabPlugin,
 };
 use shared::*;
 
@@ -40,11 +40,14 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+        if !app.is_plugin_added::<PrefabPlugin>() {
+            app.add_plugins(PrefabPlugin);
+        }
         app.add_plugins(core::EditorCore);
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
+            app.add_plugins(crate::optional::OptionalPlugin);
         }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());

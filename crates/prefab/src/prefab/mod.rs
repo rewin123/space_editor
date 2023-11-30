@@ -42,8 +42,6 @@ pub struct PrefabPlugin;
 impl Plugin for PrefabPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(BasePrefabPlugin);
-        #[cfg(feature = "bevy_xpbd_3d")]
-        app.add_plugins(OptionalPlugin);
     }
 }
 
