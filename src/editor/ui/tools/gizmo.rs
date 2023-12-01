@@ -1,11 +1,11 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
+use shared::EditorCameraMarker;
 
-use crate::{
-    editor::core::{EditorTool, Hotkey, HotkeyAppExt, Selected},
+use crate::editor::{
+    core::{EditorTool, Hotkey, HotkeyAppExt, Selected},
     prelude::CloneEvent,
-    EditorCameraMarker,
 };
 
 pub struct GizmoToolPlugin;

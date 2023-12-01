@@ -10,7 +10,6 @@ pub use camera::*;
 pub mod player_start;
 pub use player_start::*;
 
-pub mod light;
 pub mod path;
 
 use bevy::{prelude::*, reflect::*, utils::HashMap};

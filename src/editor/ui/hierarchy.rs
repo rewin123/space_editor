@@ -2,17 +2,16 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
+use prefab::editor_registry::EditorRegistry;
+use undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::{
-    editor::{
-        core::{AddedEntity, NewChange, RemovedEntity, Selected, SelectedPlugin, UndoSet},
-        ui_registration::BundleReg,
-    },
-    prelude::EditorRegistry,
-    EditorSet, PrefabMarker,
+use crate::editor::{
+    core::{Selected, SelectedPlugin},
+    ui_registration::BundleReg,
 };
+use shared::*;
 
-use super::{EditorUiAppExt, EditorUiRef};
+use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -30,11 +29,7 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.editor_tab(
-            crate::prelude::EditorTabName::Hierarchy,
-            "Hierarchy".into(),
-            show_hierarchy,
-        );
+        app.editor_tab(EditorTabName::Hierarchy, "Hierarchy".into(), show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
         app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));

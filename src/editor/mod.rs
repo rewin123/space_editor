@@ -14,16 +14,16 @@ use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
-
-use crate::{
-    prefab::{component::CameraPlay, save::SaveState},
-    prelude::GameViewTab,
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker,
+use prefab::prefab::{
+    component::CameraPlay,
+    save::{SaveConfig, SaveState},
+    PrefabPlugin,
 };
+use shared::*;
 
 use ui_registration::*;
 
-use self::prelude::{EditorUiPlugin, UiSystemSet};
+use self::prelude::{EditorUiPlugin, GameViewTab, UiSystemSet};
 
 /// All useful structs and functions from editor UI
 pub mod prelude {
@@ -32,7 +32,7 @@ pub mod prelude {
 
 /// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
 ///
-/// [`PrefabPlugin`]: crate::PrefabPlugin
+/// [`PrefabPlugin`]: prefab::prefabPlugin
 /// [`EditorRegistryPlugin`]: crate::editor_registry::EditorRegistryPlugin
 pub struct EditorPlugin;
 
@@ -41,11 +41,14 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+        if !app.is_plugin_added::<PrefabPlugin>() {
+            app.add_plugins(PrefabPlugin);
+        }
         app.add_plugins(core::EditorCore);
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            app.add_plugins(crate::optional::bevy_xpbd_plugin::BevyXpbdEditorPlugin);
+            app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);
         }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
@@ -233,8 +236,10 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-fn save_prefab_before_play(mut editor_events: EventWriter<core::EditorEvent>) {
-    editor_events.send(core::EditorEvent::Save(core::EditorPrefabPath::MemoryCahce));
+fn save_prefab_before_play(mut editor_events: EventWriter<shared::EditorEvent>) {
+    editor_events.send(shared::EditorEvent::Save(
+        shared::EditorPrefabPath::MemoryCahce,
+    ));
 }
 
 fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
@@ -247,19 +252,19 @@ fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
 
 fn clear_and_load_on_start(
     mut load_server: ResMut<prelude::EditorLoader>,
-    save_confg: Res<crate::prefab::save::SaveConfig>,
+    save_confg: Res<SaveConfig>,
     assets: Res<AssetServer>,
-    cache: Res<core::PrefabMemoryCache>,
+    cache: Res<PrefabMemoryCache>,
 ) {
     if save_confg.path.is_none() {
         return;
     }
     match save_confg.path.as_ref().unwrap() {
-        core::EditorPrefabPath::File(path) => {
+        shared::EditorPrefabPath::File(path) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        core::EditorPrefabPath::MemoryCahce => {
+        shared::EditorPrefabPath::MemoryCahce => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }

@@ -1,12 +1,13 @@
-use crate::{EditorState, PrefabSet};
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
+use prefab::PrefabSet;
+use shared::EditorState;
 
 pub mod collider;
 
 pub mod spatial_query;
 
-use crate::prelude::EditorRegistryExt;
+use prefab::editor_registry::EditorRegistryExt;
 
 use self::collider::{ColliderPart, ColliderPrefabCompound, ColliderPrimitive};
 use self::spatial_query::register_xpbd_spatial_types;
@@ -18,10 +19,9 @@ pub struct BevyXpbdPlugin;
 
 impl Plugin for BevyXpbdPlugin {
     fn build(&self, app: &mut App) {
-        // if !app.is_plugin_added::<bevy_xpbd_3d::prelude::D() {
-
-        // }
+        println!("BevyXpbdPlugin::build");
         app.add_plugins(PhysicsPlugins::default());
+        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
 
         app.editor_registry::<collider::ColliderPrefab>();
         app.editor_registry::<RigidBodyPrefab>();
@@ -77,14 +77,6 @@ impl Plugin for BevyXpbdPlugin {
             Update,
             (sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
-    }
-}
-
-pub struct BevyXpbdEditorPlugin;
-
-impl Plugin for BevyXpbdEditorPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
     }
 }
 

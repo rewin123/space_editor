@@ -1,4 +1,5 @@
 pub mod selected;
+use bot_menu::EditorLoader;
 pub use selected::*;
 
 mod load;
@@ -9,9 +10,6 @@ pub use tool::*;
 
 pub mod task_storage;
 pub use task_storage::*;
-
-pub mod undo;
-pub use undo::*;
 
 pub mod hotkeys;
 pub use hotkeys::*;
@@ -25,11 +23,11 @@ pub mod gltf_unpack;
 
 use bevy::prelude::*;
 
-use crate::{
-    prefab::save::{SaveConfig, SaveState},
-    prelude::EditorLoader,
-    EditorSet, EditorState, PrefabMarker,
-};
+use prefab::prefab::save::{SaveConfig, SaveState};
+use shared::*;
+use undo::{AppAutoUndo, UndoPlugin};
+
+use super::prelude::bot_menu;
 
 pub struct EditorCore;
 
@@ -51,7 +49,7 @@ impl Plugin for EditorCore {
             Update,
             (apply_deferred, load_listener)
                 .chain()
-                .after(crate::prelude::bot_menu)
+                .after(bot_menu)
                 .in_set(EditorSet::Editor),
         );
         app.add_systems(Update, editor_event_listener);
@@ -60,25 +58,6 @@ impl Plugin for EditorCore {
         app.auto_reflected_undo::<Children>();
         app.auto_undo::<PrefabMarker>();
     }
-}
-
-#[derive(Resource, Default)]
-pub struct PrefabMemoryCache {
-    pub scene: Option<Handle<DynamicScene>>,
-}
-
-#[derive(Clone, Debug)]
-pub enum EditorPrefabPath {
-    File(String),
-    MemoryCahce,
-}
-
-#[derive(Event)]
-pub enum EditorEvent {
-    Load(EditorPrefabPath),
-    Save(EditorPrefabPath),
-    LoadGltfAsPrefab(String),
-    StartGame,
 }
 
 fn editor_event_listener(

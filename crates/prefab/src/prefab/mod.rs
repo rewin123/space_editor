@@ -21,14 +21,12 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
+use shared::PrefabMarker;
 
 use crate::{
     editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorSet, EditorState,
-    PrefabMarker, PrefabSet,
+    PrefabSet,
 };
-
-#[cfg(feature = "bevy_xpbd_3d")]
-use crate::prelude::OptionalPlugin;
 
 use component::*;
 use load::*;
@@ -41,8 +39,6 @@ pub struct PrefabPlugin;
 impl Plugin for PrefabPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(BasePrefabPlugin);
-        #[cfg(feature = "bevy_xpbd_3d")]
-        app.add_plugins(OptionalPlugin);
     }
 }
 

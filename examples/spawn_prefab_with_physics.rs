@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_panorbit_camera::PanOrbitCameraPlugin;
-use space_editor::prelude::*;
+use prefab::prefab::{load::PrefabBundle, PrefabPlugin};
 
 //This example loading prefab with bevy_xpbd types
 

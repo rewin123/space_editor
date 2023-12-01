@@ -1,11 +1,9 @@
 use bevy::prelude::*;
 use bevy_egui::*;
+use prefab::prefab::PrefabPlugin;
 
-use crate::{
-    editor::core::{BackgroundTask, BackgroundTaskStorage, EditorEvent, EditorPrefabPath},
-    prefab::PrefabPlugin,
-    EditorSet, EditorState,
-};
+use crate::editor::core::{BackgroundTask, BackgroundTaskStorage};
+use shared::*;
 
 #[derive(Resource, Default, Clone)]
 pub struct EditorLoader {

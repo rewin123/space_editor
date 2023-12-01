@@ -34,7 +34,7 @@ pub mod debug_panels;
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
-use crate::{EditorSet, EditorState};
+use shared::{EditorSet, EditorState};
 
 use self::{
     mouse_check::{pointer_context_check, MouseCheck},
