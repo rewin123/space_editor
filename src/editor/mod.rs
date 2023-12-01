@@ -16,7 +16,8 @@ use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableB
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use prefab::prefab::{
     component::CameraPlay,
-    save::{SaveConfig, SaveState}, PrefabPlugin,
+    save::{SaveConfig, SaveState},
+    PrefabPlugin,
 };
 use shared::*;
 
