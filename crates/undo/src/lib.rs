@@ -1,3 +1,5 @@
+// Remove after update to newer rust version
+#![allow(clippy::type_complexity)]
 use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
