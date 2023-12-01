@@ -2,7 +2,6 @@
 name = "space_editor"
 version = "0.2.4"
 edition = "2021"
-default-run = "space_editor"
 license = "MIT OR Apache-2.0"
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
@@ -27,9 +26,13 @@ bevy_debug_grid = "0.3"
 egui_dock = "0.8"
 egui_file = "0.11"
 
+# Editor Crates
 prefab = { path = "crates/prefab" }
 shared = { path = "crates/shared" }
 undo = { path = "crates/undo" }
+
+# Community Modules
+bevy_xpbd_plugin ={ path = "modules/bevy_xpbd_plugin"}
 
 [dependencies]
 bevy.workspace = true
@@ -50,12 +53,14 @@ prefab.workspace = true
 shared.workspace = true
 undo.workspace = true
 
+bevy_xpbd_plugin = { workspace = true, optional = true }
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
 
 # For versions 1.74+
 [lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
+# Remove once fully deprecated
 type_complexity = { level = "allow", priority = 2 }
 
 [lints.clippy]
@@ -73,7 +78,7 @@ too_many_arguments = { level = "allow", priority = 2 }
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32"]
+bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32", "dep:bevy_xpbd_plugin"]
 persistance_editor = []
 default = ["bevy_xpbd_3d", "persistance_editor"]
 

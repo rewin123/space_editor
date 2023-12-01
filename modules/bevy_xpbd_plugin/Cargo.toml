@@ -1,0 +1,13 @@
+[package]
+name = "bevy_xpbd_plugin"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true 
+prefab.workspace = true 
+shared.workspace = true
+bevy_xpbd_3d = {version="0.3", default-features = false}
+bevy-inspector-egui.workspace = true

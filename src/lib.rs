@@ -4,8 +4,6 @@ use shared::EditorCameraMarker;
 
 /// Module contains all editor UI logic and components
 pub mod editor;
-/// Optional editor extensions (like activate `bevy_xpbd` support in editor)
-pub mod optional;
 
 /// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
 pub fn simple_editor_setup(mut commands: Commands) {

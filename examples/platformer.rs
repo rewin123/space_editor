@@ -7,6 +7,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_xpbd_3d::prelude::{AngularVelocity, LinearVelocity, Position, RayHits};
+use bevy_xpbd_plugin::bevy_xpbd_plugin::{spatial_query::RayCasterPrefab, RigidBodyPrefab, Vector};
 use prefab::{
     editor_registry::EditorRegistryExt, prefab::component::EntityLink, SpaceEditorPlugin,
 };
@@ -16,7 +17,6 @@ use space_editor::{
         ui::{EditorTabName, EditorUiAppExt, EditorUiRef, MenuLoadEvent},
         EditorPlugin,
     },
-    optional::bevy_xpbd_plugin::{spatial_query::RayCasterPrefab, RigidBodyPrefab, Vector},
     simple_editor_setup,
 };
 

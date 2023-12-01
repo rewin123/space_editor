@@ -13,8 +13,6 @@ pub mod editor_registry;
 
 use bevy::prelude::*;
 
-#[cfg(feature = "bevy_xpbd_3d")]
-use optional::OptionalPlugin;
 use prefab::PrefabPlugin;
 use shared::{EditorSet, EditorState};
 
@@ -36,9 +34,6 @@ pub mod prelude {
     pub use super::SpaceEditorPlugin;
     pub use super::*;
     pub use shared::PrefabMarker;
-
-    #[cfg(feature = "bevy_xpbd_3d")]
-    pub use super::optional::bevy_xpbd_plugin::*;
 }
 
 /// Plugin to activate editor UI and prefab plugin

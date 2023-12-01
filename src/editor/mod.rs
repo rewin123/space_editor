@@ -48,7 +48,7 @@ impl Plugin for EditorPlugin {
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            app.add_plugins(crate::optional::OptionalPlugin);
+            app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);
         }
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());

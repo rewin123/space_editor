@@ -28,9 +28,6 @@ use crate::{
     PrefabSet,
 };
 
-#[cfg(feature = "bevy_xpbd_3d")]
-use crate::prelude::OptionalPlugin;
-
 use component::*;
 use load::*;
 use save::*;
