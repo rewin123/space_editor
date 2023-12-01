@@ -1,11 +1,11 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
+#[cfg(feature = "persistence_editor")]
+use persistence::AppPersistenceExt;
 use undo::ChangeChainSettings;
 
 use crate::editor::core::AllHotkeys;
 
-#[cfg(feature = "persistance_editor")]
-use crate::editor::core::AppPersistanceExt;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -23,18 +23,18 @@ pub struct SettingsWindowPlugin;
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
-        #[cfg(feature = "persistance_editor")]
+        #[cfg(feature = "persistence_editor")]
         {
-            app.persistance_resource::<NewWindowSettings>();
+            app.persistence_resource::<NewWindowSettings>();
             app.register_type::<NewTabBehaviour>();
         }
         app.init_resource::<NewWindowSettings>();
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
-            #[cfg(feature = "persistance_editor")]
+            #[cfg(feature = "persistence_editor")]
             {
-                app.persistance_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
+                app.persistence_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
                 app.register_type::<Option<Vec3>>();
                 app.register_type::<Option<Color>>();
                 app.register_type::<Option<[f32; 4]>>();

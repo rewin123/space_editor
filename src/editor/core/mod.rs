@@ -14,10 +14,10 @@ pub use task_storage::*;
 pub mod hotkeys;
 pub use hotkeys::*;
 
-#[cfg(feature = "persistance_editor")]
-pub mod persistance;
-#[cfg(feature = "persistance_editor")]
-pub use persistance::*;
+// #[cfg(feature = "persistence_editor")]
+// pub mod persistence;
+// #[cfg(feature = "persistence_editor")]
+// pub use persistence::*;
 
 pub mod gltf_unpack;
 
@@ -35,8 +35,8 @@ impl Plugin for EditorCore {
     fn build(&self, app: &mut App) {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
 
-        #[cfg(feature = "persistance_editor")]
-        app.add_plugins(PersistancePlugin);
+        #[cfg(feature = "persistence_editor")]
+        app.add_plugins(persistence::PersistencePlugin);
 
         app.add_plugins(BackgroundTaskStoragePlugin);
         app.add_plugins(UndoPlugin);

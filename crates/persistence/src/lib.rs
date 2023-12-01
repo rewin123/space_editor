@@ -11,134 +11,134 @@ use bevy::{
 use ron::ser::PrettyConfig;
 use serde::de::DeserializeSeed;
 
-pub struct PersistancePlugin;
+pub struct PersistencePlugin;
 
 #[derive(SystemSet, Hash, PartialEq, Clone, Debug, Eq)]
-pub enum PersistanceSet {
+pub enum PersistenceSet {
     EventReader,
     ResourceProcess,
     Collect,
 }
 
-impl Plugin for PersistancePlugin {
+impl Plugin for PersistencePlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<PersistanceRegistry>()
-            .init_resource::<PersistanceSettings>();
+        app.init_resource::<PersistenceRegistry>()
+            .init_resource::<PersistenceSettings>();
 
-        app.add_event::<PersistanceEvent>();
-        app.add_event::<PersistanceResourceBroadcastEvent>();
+        app.add_event::<PersistenceEvent>();
+        app.add_event::<PersistenceResourceBroadcastEvent>();
 
         app.configure_sets(
             Update,
             (
-                PersistanceSet::EventReader,
-                PersistanceSet::ResourceProcess,
-                PersistanceSet::Collect,
+                PersistenceSet::EventReader,
+                PersistenceSet::ResourceProcess,
+                PersistenceSet::Collect,
             )
                 .chain(),
         );
 
-        app.add_systems(Startup, persistance_startup_load);
-        app.add_systems(PreUpdate, persistance_save_on_close);
+        app.add_systems(Startup, persistence_startup_load);
+        app.add_systems(PreUpdate, persistence_save_on_close);
 
         app.add_systems(
             Update,
-            persistance_start.in_set(PersistanceSet::EventReader),
+            persistence_start.in_set(PersistenceSet::EventReader),
         );
-        app.add_systems(Update, persistance_end.in_set(PersistanceSet::Collect));
+        app.add_systems(Update, persistence_end.in_set(PersistenceSet::Collect));
 
-        app.persistance_resource::<PersistanceSettings>();
+        app.persistence_resource::<PersistenceSettings>();
     }
 }
 
-fn persistance_save_on_close(
-    mut events: EventWriter<PersistanceEvent>,
-    settings: Res<PersistanceSettings>,
+fn persistence_save_on_close(
+    mut events: EventWriter<PersistenceEvent>,
+    settings: Res<PersistenceSettings>,
     mut close_events: EventReader<WindowCloseRequested>,
 ) {
     if settings.save_on_close && close_events.read().next().is_some() {
-        events.send(PersistanceEvent::Save);
+        events.send(PersistenceEvent::Save);
     }
 }
 
-fn persistance_startup_load(
-    mut events: EventWriter<PersistanceEvent>,
-    settings: Res<PersistanceSettings>,
+fn persistence_startup_load(
+    mut events: EventWriter<PersistenceEvent>,
+    settings: Res<PersistenceSettings>,
 ) {
     if settings.load_on_startup {
-        events.send(PersistanceEvent::Load);
+        events.send(PersistenceEvent::Load);
     }
 }
 
-fn persistance_start(
-    mut events: EventReader<PersistanceEvent>,
-    mut broadcast: EventWriter<PersistanceResourceBroadcastEvent>,
-    mut persistance: ResMut<PersistanceRegistry>,
+fn persistence_start(
+    mut events: EventReader<PersistenceEvent>,
+    mut broadcast: EventWriter<PersistenceResourceBroadcastEvent>,
+    mut persistence: ResMut<PersistenceRegistry>,
 ) {
     for event in events.read() {
         match event {
-            PersistanceEvent::Save => {
-                broadcast.send(PersistanceResourceBroadcastEvent::Pack);
-                persistance.mode = PersistanceMode::Saving;
-                persistance.save_counter = 0;
+            PersistenceEvent::Save => {
+                broadcast.send(PersistenceResourceBroadcastEvent::Pack);
+                persistence.mode = PersistenceMode::Saving;
+                persistence.save_counter = 0;
             }
-            PersistanceEvent::Load => {
-                match &persistance.source {
-                    PersistanceDataSource::File(path) => {
+            PersistenceEvent::Load => {
+                match &persistence.source {
+                    PersistenceDataSource::File(path) => {
                         let Ok(file) = std::fs::File::open(path) else {
-                            warn!("Persistance file not found");
+                            warn!("Persistence file not found");
                             continue;
                         };
                         let data: HashMap<String, String> = ron::de::from_reader(file).unwrap();
-                        persistance.data = data;
+                        persistence.data = data;
                     }
-                    PersistanceDataSource::Memory => {
+                    PersistenceDataSource::Memory => {
                         //do nothing
                     }
                 }
 
-                broadcast.send(PersistanceResourceBroadcastEvent::Unpack);
-                persistance.mode = PersistanceMode::Loading;
-                persistance.load_counter = 0;
+                broadcast.send(PersistenceResourceBroadcastEvent::Unpack);
+                persistence.mode = PersistenceMode::Loading;
+                persistence.load_counter = 0;
             }
         }
     }
 }
 
-fn persistance_end(mut persistance: ResMut<PersistanceRegistry>) {
-    let mode = persistance.mode.clone();
+fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
+    let mode = persistence.mode.clone();
     match mode {
-        PersistanceMode::Saving => {
-            persistance.mode = PersistanceMode::None;
-            if persistance.save_counter != persistance.target_count {
+        PersistenceMode::Saving => {
+            persistence.mode = PersistenceMode::None;
+            if persistence.save_counter != persistence.target_count {
                 error!(
-                    "Persistance saving error: {} of {} resources were saved",
-                    persistance.save_counter, persistance.target_count
+                    "Persistence saving error: {} of {} resources were saved",
+                    persistence.save_counter, persistence.target_count
                 );
             }
 
-            match &persistance.source {
-                PersistanceDataSource::File(path) => {
+            match &persistence.source {
+                PersistenceDataSource::File(path) => {
                     let mut file = std::fs::File::create(path).unwrap();
                     ron::ser::to_writer_pretty(
                         &mut file,
-                        &persistance.data,
+                        &persistence.data,
                         PrettyConfig::default(),
                     )
                     .unwrap();
                 }
-                PersistanceDataSource::Memory => {
+                PersistenceDataSource::Memory => {
                     //do nothing
                 }
             }
             {}
         }
-        PersistanceMode::Loading => {
-            persistance.mode = PersistanceMode::None;
-            if persistance.load_counter != persistance.target_count {
+        PersistenceMode::Loading => {
+            persistence.mode = PersistenceMode::None;
+            if persistence.load_counter != persistence.target_count {
                 error!(
-                    "Persistance loading error: {} of {} resources were loaded",
-                    persistance.load_counter, persistance.target_count
+                    "Persistence loading error: {} of {} resources were loaded",
+                    persistence.load_counter, persistence.target_count
                 );
             }
         }
@@ -148,12 +148,12 @@ fn persistance_end(mut persistance: ResMut<PersistanceRegistry>) {
 
 #[derive(Resource, Reflect)]
 #[reflect(Resource)]
-pub struct PersistanceSettings {
+pub struct PersistenceSettings {
     pub load_on_startup: bool,
     pub save_on_close: bool,
 }
 
-impl Default for PersistanceSettings {
+impl Default for PersistenceSettings {
     fn default() -> Self {
         Self {
             load_on_startup: true,
@@ -163,64 +163,65 @@ impl Default for PersistanceSettings {
 }
 
 #[derive(Default, Clone)]
-enum PersistanceMode {
+enum PersistenceMode {
     Saving,
     Loading,
     #[default]
     None,
 }
 
-/// ['PersistanceRegistry'] contains lambda functions for loading/unloading editor state
+/// ['PersistenceRegistry'] contains lambda functions for loading/unloading editor state
 /// At the moment of closing the window or starting the game mode,
 /// all necessary data is saved to a file/memory, and then restored when the editor mode is opened.
 /// When the restored resource is loaded, the ['PersistenceLoaded<T>'] event is generated
 ///
-/// ['PersistenceLoaded<T>']: crate::editor::core::persistance::PersistanceLoaded
+/// ['PersistenceLoaded<T>']: crate::editor::core::persistence::PersistenceLoaded
 #[derive(Resource, Default)]
-pub struct PersistanceRegistry {
-    source: PersistanceDataSource,
+pub struct PersistenceRegistry {
+    source: PersistenceDataSource,
     data: HashMap<String, String>,
     load_counter: usize,
     save_counter: usize,
     target_count: usize,
-    mode: PersistanceMode,
+    mode: PersistenceMode,
 }
 
 #[derive(Event, Default)]
-pub struct PersistanceLoaded<T> {
+pub struct PersistenceLoaded<T> {
     _phantom: std::marker::PhantomData<T>,
 }
 
 #[derive(Event)]
-pub enum PersistanceEvent {
+pub enum PersistenceEvent {
     Save,
     Load,
 }
 
 #[derive(Event)]
-enum PersistanceResourceBroadcastEvent {
+enum PersistenceResourceBroadcastEvent {
     Unpack,
     Pack,
 }
 
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
-pub enum PersistanceDataSource {
+pub enum PersistenceDataSource {
     File(String),
     Memory,
 }
 
-impl Default for PersistanceDataSource {
+// Persistence file has moved, FIX PATH
+impl Default for PersistenceDataSource {
     fn default() -> Self {
         Self::File("editor.ron".to_string())
     }
 }
 #[derive(Resource)]
-struct PersistanceLoadPipeline<T> {
+struct PersistenceLoadPipeline<T> {
     pub load_fn: Box<dyn Fn(&mut T, T) + Send + Sync>,
 }
 
-impl<T> Default for PersistanceLoadPipeline<T> {
+impl<T> Default for PersistenceLoadPipeline<T> {
     fn default() -> Self {
         Self {
             load_fn: Box::new(|dst, src| {
@@ -230,12 +231,12 @@ impl<T> Default for PersistanceLoadPipeline<T> {
     }
 }
 
-pub trait AppPersistanceExt {
-    fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+pub trait AppPersistenceExt {
+    fn persistence_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self;
 
-    fn persistance_resource_with_fn<
+    fn persistence_resource_with_fn<
         T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
     >(
         &mut self,
@@ -243,85 +244,85 @@ pub trait AppPersistanceExt {
     ) -> &mut Self;
 }
 
-impl AppPersistanceExt for App {
-    fn persistance_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
+impl AppPersistenceExt for App {
+    fn persistence_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self {
         self.world
-            .resource_mut::<PersistanceRegistry>()
+            .resource_mut::<PersistenceRegistry>()
             .target_count += 1;
 
         self.register_type::<T>();
-        self.add_event::<PersistanceLoaded<T>>();
+        self.add_event::<PersistenceLoaded<T>>();
 
-        self.init_resource::<PersistanceLoadPipeline<T>>();
+        self.init_resource::<PersistenceLoadPipeline<T>>();
 
         self.add_systems(
             Update,
-            persistance_resource_system::<T>.in_set(PersistanceSet::ResourceProcess),
+            persistence_resource_system::<T>.in_set(PersistenceSet::ResourceProcess),
         );
 
         self
     }
 
-    fn persistance_resource_with_fn<
+    fn persistence_resource_with_fn<
         T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
     >(
         &mut self,
         load_function: Box<dyn Fn(&mut T, T) + Send + Sync>,
     ) -> &mut Self {
         self.world
-            .resource_mut::<PersistanceRegistry>()
+            .resource_mut::<PersistenceRegistry>()
             .target_count += 1;
 
         self.register_type::<T>();
-        self.add_event::<PersistanceLoaded<T>>();
+        self.add_event::<PersistenceLoaded<T>>();
 
-        self.insert_resource(PersistanceLoadPipeline {
+        self.insert_resource(PersistenceLoadPipeline {
             load_fn: load_function,
         });
 
         self.add_systems(
             Update,
-            persistance_resource_system::<T>.in_set(PersistanceSet::ResourceProcess),
+            persistence_resource_system::<T>.in_set(PersistenceSet::ResourceProcess),
         );
 
         self
     }
 }
 
-fn persistance_resource_system<
+fn persistence_resource_system<
     T: Default + Reflect + FromReflect + Resource + GetTypeRegistration,
 >(
-    mut events: EventReader<PersistanceResourceBroadcastEvent>,
-    mut persistance: ResMut<PersistanceRegistry>,
+    mut events: EventReader<PersistenceResourceBroadcastEvent>,
+    mut persistence: ResMut<PersistenceRegistry>,
     mut resource: ResMut<T>,
     registry: Res<AppTypeRegistry>,
-    mut persistance_loaded: EventWriter<PersistanceLoaded<T>>,
-    pipeline: ResMut<PersistanceLoadPipeline<T>>,
+    mut persistence_loaded: EventWriter<PersistenceLoaded<T>>,
+    pipeline: ResMut<PersistenceLoadPipeline<T>>,
 ) {
     for event in events.read() {
         match event {
-            PersistanceResourceBroadcastEvent::Pack => {
+            PersistenceResourceBroadcastEvent::Pack => {
                 let type_registry = registry.read();
                 let serializer = ReflectSerializer::new(resource.as_ref(), &type_registry);
                 let data = ron::to_string(&serializer).unwrap();
-                persistance.data.insert(
+                persistence.data.insert(
                     T::get_type_registration()
                         .type_info()
                         .type_path()
                         .to_string(),
                     data,
                 );
-                persistance.save_counter += 1;
+                persistence.save_counter += 1;
             }
-            PersistanceResourceBroadcastEvent::Unpack => {
-                let Some(data) = persistance
+            PersistenceResourceBroadcastEvent::Unpack => {
+                let Some(data) = persistence
                     .data
                     .get(T::get_type_registration().type_info().type_path())
                 else {
                     warn!(
-                        "Persistance resource {} not found",
+                        "Persistence resource {} not found",
                         T::get_type_registration().type_info().type_path()
                     );
                     continue;
@@ -334,7 +335,7 @@ fn persistance_resource_system<
 
                 let Some(converted) = <T as FromReflect>::from_reflect(&*reflected_value) else {
                     warn!(
-                        "Persistance resource {} could not be converted",
+                        "Persistence resource {} could not be converted",
                         T::get_type_registration().type_info().type_path()
                     );
                     continue;
@@ -342,8 +343,8 @@ fn persistance_resource_system<
                 (pipeline.load_fn)(resource.as_mut(), converted);
                 resource.set_changed();
 
-                persistance_loaded.send(PersistanceLoaded::<T>::default());
-                persistance.load_counter += 1;
+                persistence_loaded.send(PersistenceLoaded::<T>::default());
+                persistence.load_counter += 1;
             }
         }
     }
