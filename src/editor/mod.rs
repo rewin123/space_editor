@@ -1,3 +1,5 @@
+#[warn(clippy::type_complexity)]
+
 //code only for editor gui
 
 use bevy::{
