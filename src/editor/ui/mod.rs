@@ -8,6 +8,7 @@ pub mod bot_menu;
 pub use bot_menu::*;
 
 pub mod hierarchy;
+use editor_core::SelectedPlugin;
 use egui_dock::DockArea;
 pub use hierarchy::*;
 
@@ -22,6 +23,9 @@ pub use game_view::*;
 
 pub mod settings;
 pub use settings::*;
+
+pub mod tool;
+pub use tool::*;
 
 pub mod tools;
 pub use tools::*;
@@ -41,10 +45,7 @@ use self::{
     tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
 
-use super::{
-    core::{SelectedPlugin, ToolExt},
-    update_pan_orbit,
-};
+use super::update_pan_orbit;
 
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct UiSystemSet;

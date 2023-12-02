@@ -1,12 +1,11 @@
+#![allow(clippy::type_complexity)]
+#![allow(clippy::too_many_arguments)]
+
 pub mod selected;
-use bot_menu::EditorLoader;
 pub use selected::*;
 
 mod load;
 use load::*;
-
-pub mod tool;
-pub use tool::*;
 
 pub mod task_storage;
 pub use task_storage::*;
@@ -27,8 +26,6 @@ use prefab::save::{SaveConfig, SaveState};
 use shared::*;
 use undo::{AppAutoUndo, UndoPlugin};
 
-use super::prelude::bot_menu;
-
 pub struct EditorCore;
 
 impl Plugin for EditorCore {
@@ -41,6 +38,8 @@ impl Plugin for EditorCore {
         app.add_plugins(BackgroundTaskStoragePlugin);
         app.add_plugins(UndoPlugin);
 
+        app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::Editor));
+
         app.add_event::<EditorEvent>();
 
         app.init_resource::<PrefabMemoryCache>();
@@ -49,8 +48,7 @@ impl Plugin for EditorCore {
             Update,
             (apply_deferred, load_listener)
                 .chain()
-                .after(bot_menu)
-                .in_set(EditorSet::Editor),
+                .in_set(EditorLoadSet),
         );
         app.add_systems(Update, editor_event_listener);
 
@@ -58,6 +56,14 @@ impl Plugin for EditorCore {
         app.auto_reflected_undo::<Children>();
         app.auto_undo::<PrefabMarker>();
     }
+}
+
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct EditorLoadSet;
+
+#[derive(Resource, Default, Clone)]
+pub struct EditorLoader {
+    pub scene: Option<Handle<DynamicScene>>,
 }
 
 fn editor_event_listener(

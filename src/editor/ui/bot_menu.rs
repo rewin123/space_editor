@@ -1,14 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::*;
+use editor_core::{BackgroundTask, BackgroundTaskStorage, EditorLoadSet, EditorLoader};
 use prefab::plugins::PrefabPlugin;
-
-use crate::editor::core::{BackgroundTask, BackgroundTaskStorage};
 use shared::*;
-
-#[derive(Resource, Default, Clone)]
-pub struct EditorLoader {
-    pub scene: Option<Handle<DynamicScene>>,
-}
 
 /// Plugin to activate bot menu in editor UI
 pub struct BotMenuPlugin;
@@ -21,7 +15,10 @@ impl Plugin for BotMenuPlugin {
         app.init_resource::<EditorLoader>();
         app.init_resource::<BotMenuState>();
 
-        app.add_systems(Update, bot_menu.in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            bot_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
+        );
         app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
         app.add_event::<MenuLoadEvent>();
     }

@@ -1,10 +1,9 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
+use editor_core::AllHotkeys;
 #[cfg(feature = "persistence_editor")]
 use persistence::AppPersistenceExt;
 use undo::ChangeChainSettings;
-
-use crate::editor::core::AllHotkeys;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},

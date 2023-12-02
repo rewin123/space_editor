@@ -16,9 +16,8 @@ use bevy_egui::*;
 use bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
+use editor_core::Selected;
 use prefab::{component::EntityLink, editor_registry::EditorRegistry};
-
-use crate::editor::core::Selected;
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
