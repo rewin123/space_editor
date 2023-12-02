@@ -33,7 +33,7 @@ undo = { path = "crates/undo" }
 persistence = { path = "crates/persistence" }
 
 # Community Modules
-bevy_xpbd_plugin ={ path = "modules/bevy_xpbd_plugin"}
+bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin" }
 
 [dependencies]
 bevy.workspace = true

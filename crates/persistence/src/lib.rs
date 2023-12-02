@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 // This part of code is used for saving and loading settings and window state
 use bevy::{
     prelude::*,
@@ -86,7 +88,7 @@ fn persistence_start(
                 match &persistence.source {
                     PersistenceDataSource::File(path) => {
                         let Ok(file) = std::fs::File::open(path) else {
-                            warn!("Persistence file not found");
+                            warn!("Persistence file not found at path {}", path);
                             continue;
                         };
                         let data: HashMap<String, String> = ron::de::from_reader(file).unwrap();
@@ -216,6 +218,7 @@ impl Default for PersistenceDataSource {
         Self::File("editor.ron".to_string())
     }
 }
+
 #[derive(Resource)]
 struct PersistenceLoadPipeline<T> {
     pub load_fn: Box<dyn Fn(&mut T, T) + Send + Sync>,
