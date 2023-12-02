@@ -3,10 +3,9 @@ use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
 use undo::UndoRedo;
 
-use crate::editor::core::EditorTool;
 use shared::*;
 
-use super::editor_tab::EditorTab;
+use super::{editor_tab::EditorTab, tool::EditorTool};
 
 #[derive(Resource)]
 pub struct GameViewTab {

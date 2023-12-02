@@ -5,7 +5,6 @@ use bevy::{
     render::render_resource::PrimitiveTopology, window::PrimaryWindow,
 };
 
-pub mod core;
 pub mod ui;
 
 pub mod ui_registration;
@@ -14,6 +13,7 @@ use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
+use editor_core::{EditorCore, EditorLoader, Selected};
 use prefab::{
     component::CameraPlay,
     plugins::PrefabPlugin,
@@ -44,7 +44,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }
-        app.add_plugins(core::EditorCore);
+        app.add_plugins(EditorCore);
 
         #[cfg(feature = "bevy_xpbd_3d")]
         {
@@ -68,7 +68,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
             app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
         }
-        app.init_resource::<prelude::EditorLoader>();
+        app.init_resource::<EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
 
@@ -201,7 +201,7 @@ fn auto_add_picking_dummy(
 
 fn select_listener(
     mut commands: Commands,
-    query: Query<Entity, With<core::Selected>>,
+    query: Query<Entity, With<Selected>>,
     mut events: EventReader<SelectEvent>,
     _ctxs: EguiContexts,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
@@ -214,10 +214,10 @@ fn select_listener(
         info!("Select Event: {:?}", event.e);
         match event.event.button {
             PointerButton::Primary => {
-                commands.entity(event.e).insert(core::Selected);
+                commands.entity(event.e).insert(Selected);
                 if !keyboard.pressed(KeyCode::ShiftLeft) {
                     for e in query.iter() {
-                        commands.entity(e).remove::<core::Selected>();
+                        commands.entity(e).remove::<Selected>();
                     }
                 }
             }
@@ -251,7 +251,7 @@ fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
 }
 
 fn clear_and_load_on_start(
-    mut load_server: ResMut<prelude::EditorLoader>,
+    mut load_server: ResMut<EditorLoader>,
     save_confg: Res<SaveConfig>,
     assets: Res<AssetServer>,
     cache: Res<PrefabMemoryCache>,

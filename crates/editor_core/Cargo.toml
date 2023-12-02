@@ -1,0 +1,17 @@
+[package]
+name = "editor_core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+prefab.workspace = true
+undo.workspace = true
+persistence.workspace = true
+shared.workspace = true
+
+bevy.workspace = true
+
+[features]
+persistence_editor = []
