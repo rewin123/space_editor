@@ -3,14 +3,12 @@ use bevy_xpbd_3d::prelude::*;
 use prefab::PrefabSet;
 use shared::EditorState;
 
-pub mod collider;
-
-pub mod spatial_query;
-
 use prefab::editor_registry::EditorRegistryExt;
 
-use self::collider::{ColliderPart, ColliderPrefabCompound, ColliderPrimitive};
-use self::spatial_query::register_xpbd_spatial_types;
+use crate::{
+    collider::{self, ColliderPart, ColliderPrefabCompound, ColliderPrimitive},
+    spatial_query::register_xpbd_spatial_types,
+};
 
 pub type Vector = bevy_xpbd_3d::math::Vector;
 pub type Scalar = bevy_xpbd_3d::math::Scalar;

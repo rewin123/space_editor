@@ -58,8 +58,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (8809.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -151,8 +151,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (8909.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -244,8 +244,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (8909.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -337,8 +337,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (8909.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -430,8 +430,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (8909.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -523,8 +523,8 @@
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (9009.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -615,12 +615,12 @@
         "space_editor::prefab::save::ChildrenPrefab": ([
           4294967310,
         ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Cuboid((
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": Cuboid((
           x: 1.0,
           y: 1.0,
           z: 1.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Dynamic,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Dynamic,
         "bevy_xpbd_3d::components::mass_properties::Mass": (93.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -789,12 +789,12 @@
         "space_editor::prefab::save::ChildrenPrefab": ([
           30064771087,
         ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Cuboid((
+        "bevy_xpbd_plugin::prelude::collider::ColliderPrefab": Cuboid((
           x: 1.0,
           y: 1.0,
           z: 1.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::prelude::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (1.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,

@@ -23,7 +23,7 @@ pub mod gltf_unpack;
 
 use bevy::prelude::*;
 
-use prefab::prefab::save::{SaveConfig, SaveState};
+use prefab::save::{SaveConfig, SaveState};
 use shared::*;
 use undo::{AppAutoUndo, UndoPlugin};
 

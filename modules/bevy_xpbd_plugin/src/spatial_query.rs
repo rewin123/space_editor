@@ -4,7 +4,7 @@ use bevy_xpbd_3d::{math::Quaternion, prelude::*};
 
 use prefab::editor_registry::EditorRegistryExt;
 
-use super::{collider::ColliderPrimitive, Vector};
+use crate::{collider::ColliderPrimitive, registry::Vector};
 
 pub fn register_xpbd_spatial_types(app: &mut App) {
     app.editor_registry::<RayCasterPrefab>();

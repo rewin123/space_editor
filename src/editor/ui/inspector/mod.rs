@@ -16,7 +16,7 @@ use bevy_egui::*;
 use bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
-use prefab::{editor_registry::EditorRegistry, prefab::component::EntityLink};
+use prefab::{component::EntityLink, editor_registry::EditorRegistry};
 
 use crate::editor::core::Selected;
 

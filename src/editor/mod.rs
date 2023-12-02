@@ -14,10 +14,10 @@ use bevy_egui::{EguiContext, EguiContexts};
 use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use bevy_mod_picking::{backends::raycast::RaycastPickable, prelude::*, PickableBundle};
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
-use prefab::prefab::{
+use prefab::{
     component::CameraPlay,
+    plugins::PrefabPlugin,
     save::{SaveConfig, SaveState},
-    PrefabPlugin,
 };
 use shared::*;
 

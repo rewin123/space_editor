@@ -6,7 +6,6 @@ use undo::ChangeChainSettings;
 
 use crate::editor::core::AllHotkeys;
 
-
 use super::{
     editor_tab::{EditorTab, EditorTabName},
     EditorUiAppExt,

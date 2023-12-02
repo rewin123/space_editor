@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_egui::*;
-use prefab::prefab::PrefabPlugin;
+use prefab::plugins::PrefabPlugin;
 
 use crate::editor::core::{BackgroundTask, BackgroundTaskStorage};
 use shared::*;

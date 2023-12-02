@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, utils::HashMap};
 
-use prefab::{ext::*, prefab::component::*};
+use prefab::{component::*, ext::*};
 use shared::PrefabMarker;
 
 pub const MESH_CATEGORY: &str = "mesh";

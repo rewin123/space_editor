@@ -3,9 +3,9 @@ pub use bevy_inspector_egui::prelude::*;
 use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 
-use prefab::prefab::component::MeshPrimitivePrefab;
+use prefab::component::MeshPrimitivePrefab;
 
-use super::RigidBodyPrefab;
+use crate::registry::RigidBodyPrefab;
 
 #[derive(Reflect, Debug, Clone, PartialEq, Component, InspectorOptions)]
 #[reflect(Component, Default)]

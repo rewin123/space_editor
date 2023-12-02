@@ -5,15 +5,23 @@
 #[cfg(all(feature = "f32", feature = "f64"))]
 compile_error!("feature \"f32\" and feature \"f64\" cannot be enabled at the same time");
 
-/// Module contains all prefab logic and components
-pub mod prefab;
+/// Contains all component for prefab logic
+pub mod component;
+/// Contains systems for loading prefab from file
+pub mod load;
+/// Module contains all prefab plugin extensions
+pub mod plugins;
+/// Contains systems for saving prefab
+pub mod save;
+/// Contains systems for spawning prefabs
+pub mod spawn_system;
 
 /// Module contains custom registry options to store clone functions and bundles in UI
 pub mod editor_registry;
 
 use bevy::prelude::*;
 
-use prefab::PrefabPlugin;
+use crate::plugins::PrefabPlugin;
 use shared::{EditorSet, EditorState};
 
 /// Public usage of packages that used in this crate
@@ -28,11 +36,11 @@ pub mod ext {
 
 /// All useful structure from this crate
 pub mod prelude {
-    pub use super::editor_registry::*;
-    pub use super::prefab::load::PrefabBundle;
-    pub use super::prefab::*;
-    pub use super::SpaceEditorPlugin;
-    pub use super::*;
+    pub use crate::editor_registry::*;
+    pub use crate::load::PrefabBundle;
+    pub use crate::plugins::*;
+    pub use crate::SpaceEditorPlugin;
+    pub use crate::*;
     pub use shared::PrefabMarker;
 }
 

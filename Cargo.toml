@@ -31,7 +31,6 @@ prefab = { path = "crates/prefab" }
 shared = { path = "crates/shared" }
 undo = { path = "crates/undo" }
 persistence = { path = "crates/persistence" }
-core = { path = "crates/core" }
 
 # Community Modules
 bevy_xpbd_plugin ={ path = "modules/bevy_xpbd_plugin"}
@@ -55,7 +54,6 @@ prefab.workspace = true
 shared.workspace = true
 undo.workspace = true
 persistence.workspace = true
-core.workspace = true
 
 bevy_xpbd_plugin = { workspace = true, optional = true }
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
