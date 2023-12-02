@@ -17,7 +17,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -49,10 +49,10 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::AssetMesh": (
+        "prefab::component::AssetMesh": (
           path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
         ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::save::ChildrenPrefab": ([
           4294967305,
         ]),
       },
@@ -73,10 +73,10 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::AssetMesh": (
+        "prefab::component::AssetMesh": (
           path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
         ),
-        "space_editor::prefab::component::AssetMaterial": (
+        "prefab::component::AssetMaterial": (
           path: "low_poly_fighter_2.gltf#Material0",
         ),
       },
@@ -97,7 +97,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -129,10 +129,10 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::AssetMesh": (
+        "prefab::component::AssetMesh": (
           path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
         ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::save::ChildrenPrefab": ([
           4294967307,
         ]),
       },
@@ -153,10 +153,10 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::AssetMesh": (
+        "prefab::component::AssetMesh": (
           path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
         ),
-        "space_editor::prefab::component::AssetMaterial": (
+        "prefab::component::AssetMaterial": (
           path: "low_poly_fighter_2.gltf#Material0",
         ),
       },
@@ -177,7 +177,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -209,10 +209,10 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::AssetMesh": (
+        "prefab::component::AssetMesh": (
           path: "low_poly_fighter_2.gltf#Mesh2/Primitive0",
         ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::save::ChildrenPrefab": ([
           4294967306,
           4294967304,
         ]),

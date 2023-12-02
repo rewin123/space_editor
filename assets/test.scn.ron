@@ -21,7 +21,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.5529412,
             green: 0.5529412,
@@ -53,13 +53,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 10.0,
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Dynamic,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Dynamic,
         "bevy_xpbd_3d::components::mass_properties::Mass": (509.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -114,7 +114,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.5529412,
             green: 0.5529412,
@@ -146,13 +146,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 10.0,
           h: 1.0,
           d: 10.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (409.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,

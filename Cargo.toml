@@ -30,9 +30,10 @@ egui_file = "0.11"
 prefab = { path = "crates/prefab" }
 shared = { path = "crates/shared" }
 undo = { path = "crates/undo" }
+persistence = { path = "crates/persistence" }
 
 # Community Modules
-bevy_xpbd_plugin ={ path = "modules/bevy_xpbd_plugin"}
+bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin" }
 
 [dependencies]
 bevy.workspace = true
@@ -52,6 +53,7 @@ egui_file.workspace = true
 prefab.workspace = true
 shared.workspace = true
 undo.workspace = true
+persistence.workspace = true
 
 bevy_xpbd_plugin = { workspace = true, optional = true }
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
@@ -79,8 +81,8 @@ opt-level = 3
 
 [features]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32", "dep:bevy_xpbd_plugin"]
-persistance_editor = []
-default = ["bevy_xpbd_3d", "persistance_editor"]
+persistence_editor = []
+default = ["bevy_xpbd_3d", "persistence_editor"]
 
 [[example]]
 name = "platformer"

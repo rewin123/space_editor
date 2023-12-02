@@ -21,7 +21,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.93333334,
             green: 0.0,
@@ -53,13 +53,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -114,7 +114,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
             green: 1.0,
@@ -146,13 +146,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -207,7 +207,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 0.972549,
@@ -239,13 +239,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -296,7 +296,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
             green: 0.0,
@@ -328,7 +328,7 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 0.2,
           h: 0.2,
           d: 0.2,
@@ -355,7 +355,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
             green: 0.25490198,
@@ -387,13 +387,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -444,14 +444,14 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::GltfPrefab": (
+        "prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::save::ChildrenPrefab": ([
           17179869206,
         ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
+        "bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
           pos: (
             x: -0.25,
             y: 1.75,
@@ -468,7 +468,7 @@
             z: 1.3,
           )),
         ),
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (697.96954),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -519,7 +519,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -551,7 +551,7 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 0.2,
           h: 0.2,
           d: 0.5,
@@ -578,7 +578,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
             green: 1.0,
@@ -610,13 +610,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -667,14 +667,14 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::GltfPrefab": (
+        "prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::save::ChildrenPrefab": ([
           23,
         ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
+        "bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
           pos: (
             x: -0.25,
             y: 1.75,
@@ -691,7 +691,7 @@
             z: 1.3,
           )),
         ),
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (692.05457),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -746,7 +746,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -778,13 +778,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3674.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -839,7 +839,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -871,13 +871,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -932,7 +932,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 0.0,
@@ -964,13 +964,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -1021,7 +1021,7 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 0.0,
             green: 0.0,
@@ -1053,7 +1053,7 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 0.2,
           h: 0.2,
           d: 0.2,
@@ -1080,7 +1080,7 @@
           name: "Cube",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 0.0,
@@ -1112,13 +1112,13 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Box((
+        "prefab::component::shape::MeshPrimitivePrefab": Box((
           w: 5.0,
           h: 1.0,
           d: 5.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Static,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
         "bevy_xpbd_3d::components::mass_properties::Mass": (3699.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -1173,7 +1173,7 @@
           name: "Player",
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "space_editor::prefab::component::material::MaterialPrefab": (
+        "prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
             red: 1.0,
             green: 1.0,
@@ -1205,14 +1205,14 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_editor::prefab::component::shape::MeshPrimitivePrefab": Cube(1.0),
-        "space_editor::prefab::save::ChildrenPrefab": ([
+        "prefab::component::shape::MeshPrimitivePrefab": Cube(1.0),
+        "prefab::save::ChildrenPrefab": ([
           9,
           12,
           18,
         ]),
-        "space_editor::optional::bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
-        "space_editor::optional::bevy_xpbd_plugin::RigidBodyPrefab": Dynamic,
+        "bevy_xpbd_plugin::collider::ColliderPrefab": FromPrefabMesh,
+        "bevy_xpbd_plugin::registry::RigidBodyPrefab": Dynamic,
         "bevy_xpbd_3d::components::mass_properties::Mass": (146.0),
         "bevy_xpbd_3d::components::Friction": (
           dynamic_coefficient: 0.3,
@@ -1245,7 +1245,7 @@
           y: 0.0,
           z: 0.0,
         )),
-        "space_editor::optional::bevy_xpbd_plugin::spatial_query::RayCasterPrefab": (
+        "bevy_xpbd_plugin::spatial_query::RayCasterPrefab": (
           direction: (
             x: 0.0,
             y: -1.0,
@@ -1302,7 +1302,7 @@
           near: 0.1,
           far: 1000.0,
         )),
-        "space_editor::prefab::component::camera::CameraPlay": (),
+        "prefab::component::camera::CameraPlay": (),
         "platformer::FollowCamera": (
           dist: 34.0,
           target: (

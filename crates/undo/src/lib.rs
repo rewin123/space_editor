@@ -23,7 +23,7 @@ impl Plugin for UndoPlugin {
         app.init_resource::<UndoIngnoreStorage>();
         app.init_resource::<ChangeChainSettings>();
         #[cfg(feature = "persistence_editor")]
-        app.persistance_resource::<ChangeChainSettings>();
+        app.persistence_resource::<ChangeChainSettings>();
 
         app.add_event::<NewChange>();
         app.add_event::<UndoRedo>();

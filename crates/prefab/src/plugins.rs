@@ -1,12 +1,3 @@
-/// Contains all component for prefab logic
-pub mod component;
-/// Contains systems for loading prefab from file
-pub mod load;
-/// Contains systems for saving prefab
-pub mod save;
-/// Contains systems for spawning prefabs
-pub mod spawn_system;
-
 use bevy::{
     core_pipeline::{
         core_3d::Camera3dDepthTextureUsage,
@@ -24,8 +15,8 @@ use bevy_scene_hook::HookPlugin;
 use shared::PrefabMarker;
 
 use crate::{
-    editor_registry::EditorRegistryExt, prelude::EditorRegistryPlugin, EditorSet, EditorState,
-    PrefabSet,
+    component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,
+    spawn_system, EditorSet, EditorState, PrefabSet,
 };
 
 use component::*;

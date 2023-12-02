@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use bevy::reflect::GetTypeRegistration;
 use bevy::utils::HashMap;
 
-#[cfg(feature = "persistance_editor")]
-use super::AppPersistanceExt;
+#[cfg(feature = "persistence_editor")]
+use persistence::AppPersistenceExt;
 
 //TODO: I think this must be a derive macro in future
 pub trait Hotkey:
@@ -111,9 +111,9 @@ impl HotkeyAppExt for App {
         if !self.world.contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<Input<T>>();
-            #[cfg(feature = "persistance_editor")]
+            #[cfg(feature = "persistence_editor")]
             {
-                self.persistance_resource_with_fn::<HotkeySet<T>>(Box::new(
+                self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
                     |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
                         dst.bindings.extend(src.bindings);
                     },

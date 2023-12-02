@@ -9,7 +9,7 @@ use bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use prefab::prefab::component::EntityLink;
+use prefab::component::EntityLink;
 
 /// Method from `bevy_inspector_egui` to make dummy reflection ui
 pub fn many_unimplemented<T: Any>(

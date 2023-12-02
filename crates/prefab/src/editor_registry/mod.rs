@@ -11,10 +11,7 @@ use shared::*;
 use std::any::TypeId;
 use undo::AppAutoUndo;
 
-use crate::{
-    prefab::{component::AutoStruct, save::SaveState},
-    PrefabSet,
-};
+use crate::{component::AutoStruct, save::SaveState, PrefabSet};
 
 /// Plugin to activate custom registry
 pub struct EditorRegistryPlugin;
