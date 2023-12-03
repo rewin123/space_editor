@@ -16,7 +16,6 @@ pub mod save;
 /// Contains systems for spawning prefabs
 pub mod spawn_system;
 
-/// Module contains custom registry options to store clone functions and bundles in UI
 pub mod editor_registry;
 
 use bevy::prelude::*;
@@ -27,11 +26,6 @@ use shared::{EditorSet, EditorState};
 /// Public usage of packages that used in this crate
 pub mod ext {
     pub use bevy::prelude::*;
-    pub use bevy_debug_grid;
-    pub use bevy_egui::*;
-    pub use bevy_inspector_egui::prelude::*;
-    pub use bevy_mod_picking::prelude::*;
-    pub use bevy_panorbit_camera::*;
 }
 
 /// All useful structure from this crate

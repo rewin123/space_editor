@@ -2,16 +2,20 @@
 #![allow(clippy::too_many_arguments)]
 
 pub mod selected;
-pub use selected::*;
-
 mod load;
-use load::*;
-
 pub mod task_storage;
-pub use task_storage::*;
-
 pub mod hotkeys;
-pub use hotkeys::*;
+pub mod editor_registry;
+
+pub mod prelude {
+    pub use super::{
+        editor_registry::*,
+        hotkeys::*,
+        load::*,
+        selected::*,
+        task_storage::*,
+    };
+}
 
 // #[cfg(feature = "persistence_editor")]
 // pub mod persistence;

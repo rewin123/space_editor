@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy.workspace = true
+
+
+bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
+egui_file = "0.11"

@@ -16,10 +16,8 @@ shared.workspace = true
 bevy_egui = "0.23"
 egui-gizmo = "0.12"
 egui_dock = "0.8"
-egui_file = "0.11"
 
 bevy_debug_grid = "0.3"
 
 bevy_mod_picking = {version = "0.17", default-features = false, features = ["backend_raycast", "selection"]}
-bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
 bevy_panorbit_camera = "0.9"
