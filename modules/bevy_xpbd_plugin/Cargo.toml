@@ -7,7 +7,5 @@ edition = "2021"
 
 [dependencies]
 bevy.workspace = true 
-prefab.workspace = true 
-shared.workspace = true
+editor.workspace = true
 bevy_xpbd_3d = {version="0.3", default-features = false}
-bevy-inspector-egui.workspace = true

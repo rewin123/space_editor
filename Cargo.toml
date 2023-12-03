@@ -13,18 +13,6 @@ repository = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
 bevy = "0.12"
-bevy_egui = "0.23"
-egui-gizmo = "0.12"
-bevy-scene-hook = "9"
-ron = "0.8"
-serde = "1"
-bevy_panorbit_camera = "0.9"
-bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
-pretty-type-name = "1.0"
-bevy_mod_picking = {version = "0.17", default-features = false, features = ["backend_raycast", "selection"]}
-bevy_debug_grid = "0.3"
-egui_dock = "0.8"
-egui_file = "0.11"
 
 # Editor Crates
 prefab = { path = "crates/prefab" }
@@ -33,34 +21,17 @@ undo = { path = "crates/undo" }
 persistence = { path = "crates/persistence" }
 editor_core = { path = "crates/editor_core", features = ["persistence_editor"] }
 editor = { path = "crates/editor" }
-
-# Community Modules
-bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin" }
+ron = "0.8"
+serde = "1"
 
 [dependencies]
 bevy.workspace = true
-bevy_egui.workspace = true
-egui-gizmo.workspace = true
-bevy-scene-hook.workspace = true
-ron.workspace = true
-serde.workspace = true
-bevy_panorbit_camera.workspace = true
-bevy-inspector-egui.workspace = true
-pretty-type-name.workspace = true
-bevy_mod_picking.workspace = true
-bevy_debug_grid.workspace = true
-egui_dock.workspace = true
-egui_file.workspace = true
-
-prefab.workspace = true
-shared.workspace = true
-undo.workspace = true
-persistence.workspace = true
-editor_core.workspace = true
 editor.workspace = true
+prefab.workspace = true
 
-bevy_xpbd_plugin = { workspace = true, optional = true }
-bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
+# Modules for external crates
+bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin", optional = true }
+
 
 # For versions 1.74+
 [lints.rust]
@@ -84,7 +55,7 @@ too_many_arguments = { level = "allow", priority = 2 }
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32", "dep:bevy_xpbd_plugin"]
+bevy_xpbd_3d = ["dep:bevy_xpbd_plugin"]
 persistence_editor = []
 default = ["bevy_xpbd_3d", "persistence_editor"]
 
