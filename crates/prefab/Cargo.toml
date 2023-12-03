@@ -10,5 +10,6 @@ bevy.workspace = true
 ron.workspace = true
 serde.workspace = true
 shared.workspace = true
+undo.workspace = true
 
 bevy-scene-hook = "9"

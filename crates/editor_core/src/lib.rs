@@ -5,11 +5,9 @@ pub mod selected;
 mod load;
 pub mod task_storage;
 pub mod hotkeys;
-pub mod editor_registry;
 
 pub mod prelude {
     pub use super::{
-        editor_registry::*,
         hotkeys::*,
         load::*,
         selected::*,
@@ -27,7 +25,9 @@ pub mod gltf_unpack;
 use bevy::prelude::*;
 
 use prefab::save::{SaveConfig, SaveState};
+use prelude::load_listener;
 use shared::*;
+use task_storage::{BackgroundTaskStoragePlugin, BackgroundTaskStorage, BackgroundTask};
 use undo::{AppAutoUndo, UndoPlugin};
 
 

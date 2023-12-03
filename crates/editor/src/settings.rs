@@ -1,9 +1,5 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
-use editor_core::AllHotkeys;
-#[cfg(feature = "persistence_editor")]
-use persistence::AppPersistenceExt;
-use undo::ChangeChainSettings;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -28,17 +24,17 @@ impl Plugin for SettingsWindowPlugin {
         }
         app.init_resource::<NewWindowSettings>();
 
-        #[cfg(feature = "bevy_xpbd_3d")]
-        {
-            #[cfg(feature = "persistence_editor")]
-            {
-                app.persistence_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
-                app.register_type::<Option<Vec3>>();
-                app.register_type::<Option<Color>>();
-                app.register_type::<Option<[f32; 4]>>();
-                app.register_type::<[f32; 4]>();
-            }
-        }
+        // #[cfg(feature = "bevy_xpbd_3d")]
+        // {
+        //     #[cfg(feature = "persistence_editor")]
+        //     {
+        //         app.persistence_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
+        //         app.register_type::<Option<Vec3>>();
+        //         app.register_type::<Option<Color>>();
+        //         app.register_type::<Option<[f32; 4]>>();
+        //         app.register_type::<[f32; 4]>();
+        //     }
+        // }
     }
 }
 
