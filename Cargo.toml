@@ -36,6 +36,7 @@ editor = { path = "crates/editor" }
 
 # Community Modules
 bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin" }
+terraingen = { path = "modules/terraingen" }
 
 [dependencies]
 bevy.workspace = true
@@ -61,6 +62,7 @@ editor.workspace = true
 
 bevy_xpbd_plugin = { workspace = true, optional = true }
 bevy_xpbd_3d = {version="0.3", default-features = false, optional = true}
+terraingen = { workspace = true, optional = true }
 
 # For versions 1.74+
 [lints.rust]

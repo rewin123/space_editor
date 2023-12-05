@@ -1,0 +1,13 @@
+[package]
+name = "terraingen"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true
+bevy-inspector-egui.workspace = true
+prefab.workspace = true
+shared.workspace = true
+noise = "0.8"
