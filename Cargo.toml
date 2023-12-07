@@ -88,7 +88,11 @@ opt-level = 3
 [features]
 bevy_xpbd_3d = ["dep:bevy_xpbd_3d", "bevy_xpbd_3d/debug-plugin", "bevy_xpbd_3d/3d", "bevy_xpbd_3d/collider-from-mesh", "bevy_xpbd_3d/f32", "dep:bevy_xpbd_plugin"]
 persistence_editor = []
-default = ["bevy_xpbd_3d", "persistence_editor"]
+terraingen = ["dep:terraingen"]
+default = ["bevy_xpbd_3d", "persistence_editor", "terraingen"]
+dev = [
+    "bevy/dynamic_linking",
+]
 
 [[example]]
 name = "platformer"

@@ -35,6 +35,9 @@ pub use change_chain::*;
 
 pub mod debug_panels;
 
+#[cfg(feature = "terraingen")]
+pub mod terraingen;
+
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui, EguiContext};
 
@@ -102,6 +105,8 @@ impl Plugin for EditorUiPlugin {
 
         app.add_plugins(SpaceHierarchyPlugin::default());
         app.add_plugins(SpaceInspectorPlugin);
+        #[cfg(feature = "terraingen")]
+        app.add_plugins(terraingen::TerraingenInspectorPlugin);
 
         app.editor_tool(GizmoTool::default());
         app.add_plugins(GizmoToolPlugin);
