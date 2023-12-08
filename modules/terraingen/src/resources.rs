@@ -1,22 +1,17 @@
-use std::collections::HashMap;
-
-use bevy::{prelude::*, render::mesh::Indices};
+use bevy::prelude::*;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use lerp::{num_traits::Pow, Lerp};
 use noise::{NoiseFn, OpenSimplex, Perlin};
 
-#[derive(Debug, Clone)]
-pub struct NoiseValues {
-    pub height: f64,
-    pub moisture: f64,
-    pub temperature: f64,
-}
+use crate::mesh::{NoiseValues, TerrainMesh};
 
 #[derive(Reflect, Debug, Clone, Resource, InspectorOptions)]
 #[reflect(Resource, Default, InspectorOptions)]
 pub struct TerrainMap {
     #[inspector(min = 0)]
     seed: u32,
+    #[inspector(min = -0.1)]
+    mesh_reduction_error: f32,
     #[inspector(min = 10)]
     grid_size: u32,
     #[inspector(min = 1.)]
@@ -55,6 +50,7 @@ impl Default for TerrainMap {
         Self {
             has_changes: false,
             seed: 0,
+            mesh_reduction_error: 0.,
             grid_size: 100,
             cell_size: 10f32,
             terrain_frequency: 5.,
@@ -84,6 +80,7 @@ impl TerrainMap {
         Self {
             has_changes: false,
             seed,
+            mesh_reduction_error: 0.,
             grid_size: 100,
             cell_size: 10.,
             terrain_frequency: 5.,
@@ -101,10 +98,11 @@ impl TerrainMap {
         }
     }
 
-    pub fn new_sized(seed: u32, grid_size: u32, cell_size: f32) -> Self {
+    pub fn new_sized(seed: u32, grid_size: u32, cell_size: f32, mesh_reduction_error: f32) -> Self {
         Self {
             has_changes: false,
             seed,
+            mesh_reduction_error,
             grid_size,
             cell_size,
             terrain_frequency: 5.,
@@ -128,9 +126,8 @@ impl TerrainMap {
         self.simplex = OpenSimplex::new(seed);
     }
 
-    pub fn terrain_mesh(&self) -> (Vec<Vec3>, Indices, Vec<[f32; 4]>, Vec<Vec3>) {
+    pub fn terrain_mesh(&self) -> TerrainMesh {
         let vertex_offset = self.cell_size * 0.5;
-        let mut point_tracker = HashMap::new();
         let mut vertices =
             Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1));
         let mut indices = Vec::with_capacity(self.grid_size as usize * self.grid_size as usize * 6);
@@ -140,7 +137,6 @@ impl TerrainMap {
             Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1) * 3);
 
         let mut v = 0usize;
-
         for x in 0..=self.grid_size {
             for y in 0..=self.grid_size {
                 let x_f64 = x as f64;
@@ -154,19 +150,17 @@ impl TerrainMap {
                     self.min_terrain_level.lerp(self.max_terrain_level, height) as f32,
                     y as f32 * self.cell_size - vertex_offset,
                 ));
-                colors.push([
-                    temperature as f32 / 1.1,
-                    height as f32 + 0.6,
-                    moisture as f32,
-                    1.0,
-                ]);
+                colors.push(NoiseValues {
+                    temperature,
+                    height,
+                    moisture,
+                });
 
-                point_tracker.insert([x, y], v);
                 v += 1;
             }
         }
 
-        v = 0;
+        v = 0usize;
         for _x in 0..self.grid_size {
             for _y in 0..self.grid_size {
                 indices.push(v as u32);
@@ -193,7 +187,7 @@ impl TerrainMap {
             normals.push(face_normal);
         }
 
-        (vertices, Indices::U32(indices), colors, normals)
+        TerrainMesh::new(vertices, indices, colors, normals)
     }
 
     fn get_height(&self, x: f64, y: f64) -> f64 {

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod mesh;
 mod resources;
 pub mod systems;
 
