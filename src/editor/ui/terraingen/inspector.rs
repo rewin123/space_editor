@@ -1,18 +1,16 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::prelude::*;
 
-use bevy_egui::*;
+use bevy_egui::{egui::RichText, *};
 use terraingen::TerrainMap;
 
 use crate::editor::ui::editor_tab::EditorTab;
 
 #[derive(Resource, Default)]
-pub struct TerrainGenView {
-    open_resources: HashMap<String, bool>,
-}
+pub struct TerrainGenView;
 
 impl EditorTab for TerrainGenView {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        inspect(ui, world, &mut self.open_resources);
+        inspect(ui, world);
     }
 
     fn title(&self) -> egui::WidgetText {
@@ -20,7 +18,7 @@ impl EditorTab for TerrainGenView {
     }
 }
 
-pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_resources: &mut HashMap<String, bool>) {
+pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let type_registry = world.resource::<AppTypeRegistry>().clone();
     let type_registry = type_registry.read();
 
@@ -40,26 +38,26 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_resources: &mut HashMa
         .find(|res| res.0 == "TerrainMap");
 
     if let Some((resource_name, type_id)) = resource {
-        let header = egui::CollapsingHeader::new(resource_name.clone())
-            .default_open(*open_resources.get(&resource_name).unwrap_or(&true))
-            .show(ui, |ui| {
-                ui.push_id(format!("content-{:?}-{}", &type_id, &resource_name), |ui| {
-                    bevy_inspector_egui::bevy_inspector::by_type_id::ui_for_resource(
-                        world,
-                        type_id,
-                        ui,
-                        &resource_name,
-                        &type_registry,
-                    );
-                });
-            });
-        if header.header_response.clicked() {
-            let open_name = open_resources.entry(resource_name.clone()).or_default();
-            //At click header not opened simultaneously so its need to check percent of opened
-            *open_name = header.openness < 0.5;
-        }
+        ui.heading("Terrain Map Generator");
+        ui.separator();
+        ui.push_id(format!("content-{:?}-{}", &type_id, &resource_name), |ui| {
+            bevy_inspector_egui::bevy_inspector::by_type_id::ui_for_resource(
+                world,
+                type_id,
+                ui,
+                &resource_name,
+                &type_registry,
+            );
+        });
 
-        if ui.button("Redraw Terrain").clicked() {
+        ui.add_space(8.0);
+        let redraw_button = ui.button(
+            RichText::new("Redraw Terrain")
+                .line_height(Some(20.))
+                .size(16.),
+        );
+
+        if redraw_button.clicked() {
             let mut map = world.resource_mut::<TerrainMap>();
             map.has_changes = true;
         }

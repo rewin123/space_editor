@@ -18,9 +18,11 @@ pub fn draw_terrain(
         Mesh::ATTRIBUTE_COLOR,
         VertexAttributeValues::from(mesh_data.2),
     );
+    mesh.insert_attribute(
+        Mesh::ATTRIBUTE_NORMAL,
+        VertexAttributeValues::from(mesh_data.3),
+    );
     mesh.set_indices(Some(mesh_data.1));
-    mesh.duplicate_vertices();
-    mesh.compute_flat_normals();
 
     let material = materials.add(StandardMaterial {
         base_color: Color::WHITE,
@@ -47,6 +49,7 @@ pub fn redraw_terrain(
         for entity in query.iter() {
             commands.entity(entity).despawn();
         }
+        res.update_seed();
 
         let mesh_data = res.terrain_mesh();
         let mut mesh = Mesh::new(bevy::render::render_resource::PrimitiveTopology::TriangleList);
@@ -58,14 +61,16 @@ pub fn redraw_terrain(
             Mesh::ATTRIBUTE_COLOR,
             VertexAttributeValues::from(mesh_data.2),
         );
+        mesh.insert_attribute(
+            Mesh::ATTRIBUTE_NORMAL,
+            VertexAttributeValues::from(mesh_data.3),
+        );
         mesh.set_indices(Some(mesh_data.1));
 
         let material = materials.add(StandardMaterial {
-            base_color: Color::WHITE,
+            base_color: Color::GRAY,
             ..default()
         });
-        mesh.duplicate_vertices();
-        mesh.compute_flat_normals();
 
         commands.spawn((
             PbrBundle {

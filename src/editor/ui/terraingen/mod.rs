@@ -15,7 +15,7 @@ impl Plugin for TerraingenInspectorPlugin {
         app.add_plugins(TerraingenPlugin)
             .editor_tab_by_trait(
                 EditorTabName::Other("Terrain Generator".to_string()),
-                TerrainGenView::default(),
+                TerrainGenView,
             )
             .add_systems(OnEnter(shared::EditorState::Editor), draw_terrain)
             .add_systems(Update, redraw_terrain);

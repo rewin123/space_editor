@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::{prelude::*, render::mesh::Indices};
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use lerp::{num_traits::Pow, Lerp};
@@ -16,7 +18,7 @@ pub struct TerrainMap {
     #[inspector(min = 0)]
     seed: u32,
     #[inspector(min = 10)]
-    size: [u32; 2],
+    grid_size: u32,
     #[inspector(min = 1.)]
     cell_size: f32,
     #[inspector(min = 0.01, max = 10.0)]
@@ -53,7 +55,7 @@ impl Default for TerrainMap {
         Self {
             has_changes: false,
             seed: 0,
-            size: [100; 2],
+            grid_size: 100,
             cell_size: 10f32,
             terrain_frequency: 5.,
             terrain_scale: 1.34,
@@ -82,7 +84,7 @@ impl TerrainMap {
         Self {
             has_changes: false,
             seed,
-            size: [100; 2],
+            grid_size: 100,
             cell_size: 10.,
             terrain_frequency: 5.,
             terrain_scale: 1.34,
@@ -99,11 +101,11 @@ impl TerrainMap {
         }
     }
 
-    pub fn new_sized(seed: u32, size: [u32; 2], cell_size: f32) -> Self {
+    pub fn new_sized(seed: u32, grid_size: u32, cell_size: f32) -> Self {
         Self {
             has_changes: false,
             seed,
-            size,
+            grid_size,
             cell_size,
             terrain_frequency: 5.,
             terrain_scale: 1.34,
@@ -120,19 +122,27 @@ impl TerrainMap {
         }
     }
 
-    pub fn terrain_mesh(&self) -> (Vec<Vec3>, Indices, Vec<[f32; 4]>) {
-        let vertex_offset = self.cell_size * 0.5;
+    pub fn update_seed(&mut self) {
+        let seed = self.seed;
+        self.perlin = Perlin::new(seed);
+        self.simplex = OpenSimplex::new(seed);
+    }
 
+    pub fn terrain_mesh(&self) -> (Vec<Vec3>, Indices, Vec<[f32; 4]>, Vec<Vec3>) {
+        let vertex_offset = self.cell_size * 0.5;
+        let mut point_tracker = HashMap::new();
         let mut vertices =
-            Vec::with_capacity((self.size[0] as usize + 1) * (self.size[1] as usize + 1));
-        let mut indices = Vec::with_capacity(self.size[0] as usize * self.size[1] as usize * 6);
+            Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1));
+        let mut indices = Vec::with_capacity(self.grid_size as usize * self.grid_size as usize * 6);
         let mut colors =
-            Vec::with_capacity((self.size[0] as usize + 1) * (self.size[1] as usize + 1));
+            Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1));
+        let mut normals =
+            Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1) * 3);
 
         let mut v = 0usize;
 
-        for x in 0..=self.size[0] {
-            for y in 0..=self.size[1] {
+        for x in 0..=self.grid_size {
+            for y in 0..=self.grid_size {
                 let x_f64 = x as f64;
                 let y_f64 = y as f64;
 
@@ -144,28 +154,46 @@ impl TerrainMap {
                     self.min_terrain_level.lerp(self.max_terrain_level, height) as f32,
                     y as f32 * self.cell_size - vertex_offset,
                 ));
-                colors.push([temperature as f32, height as f32, moisture as f32, 1.0]);
+                colors.push([
+                    temperature as f32 / 1.1,
+                    height as f32 + 0.6,
+                    moisture as f32,
+                    1.0,
+                ]);
 
+                point_tracker.insert([x, y], v);
                 v += 1;
             }
         }
 
         v = 0;
-        for _x in 0..self.size[0] {
-            for _y in 0..self.size[1] {
+        for _x in 0..self.grid_size {
+            for _y in 0..self.grid_size {
                 indices.push(v as u32);
                 indices.push(v as u32 + 1);
-                indices.push(v as u32 + self.size[0] + 1);
-                indices.push(v as u32 + self.size[1] + 1);
+                indices.push(v as u32 + self.grid_size + 1);
+                indices.push(v as u32 + self.grid_size + 1);
                 indices.push(v as u32 + 1);
-                indices.push(v as u32 + self.size[1] + 2);
+                indices.push(v as u32 + self.grid_size + 2);
 
                 v += 1;
             }
             v += 1;
         }
 
-        (vertices, Indices::U32(indices), colors)
+        for index in indices.chunks_exact(3) {
+            let i_0 = index[0] as usize;
+            let i_1 = index[1] as usize;
+            let i_2 = index[2] as usize;
+
+            let v1 = vertices[i_1] - vertices[i_0];
+            let v2 = vertices[i_2] - vertices[i_0];
+            let face_normal = v1.cross(v2).normalize();
+
+            normals.push(face_normal);
+        }
+
+        (vertices, Indices::U32(indices), colors, normals)
     }
 
     fn get_height(&self, x: f64, y: f64) -> f64 {
