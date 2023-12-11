@@ -10,6 +10,7 @@ bevy.workspace = true
 bevy-inspector-egui.workspace = true
 prefab.workspace = true
 shared.workspace = true
+persistence.workspace = true
 noise = "0.8"
 lerp = { version = "0.4", features = ["derive"] }
 morton-encoding = "2.0"

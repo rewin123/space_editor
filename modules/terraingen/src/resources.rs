@@ -5,13 +5,18 @@ use noise::{NoiseFn, OpenSimplex, Perlin};
 
 use crate::mesh::{NoiseValues, TerrainMesh};
 
+use self::smoothness::SmoothFunction;
+
+pub mod smoothness;
+
 #[derive(Reflect, Debug, Clone, Resource, InspectorOptions)]
 #[reflect(Resource, Default, InspectorOptions)]
 pub struct TerrainMap {
     #[inspector(min = 0)]
     seed: u32,
-    #[inspector(min = -0.1)]
-    mesh_reduction_error: f32,
+    #[inspector(min = 0.01)]
+    mesh_smoothness: f64,
+    mesh_smoothness_type: SmoothFunction,
     #[inspector(min = 10)]
     grid_size: u32,
     #[inspector(min = 1.)]
@@ -50,7 +55,8 @@ impl Default for TerrainMap {
         Self {
             has_changes: false,
             seed: 0,
-            mesh_reduction_error: 0.,
+            mesh_smoothness: 2.,
+            mesh_smoothness_type: SmoothFunction::default(),
             grid_size: 100,
             cell_size: 10f32,
             terrain_frequency: 5.,
@@ -80,7 +86,8 @@ impl TerrainMap {
         Self {
             has_changes: false,
             seed,
-            mesh_reduction_error: 0.,
+            mesh_smoothness: 2.,
+            mesh_smoothness_type: SmoothFunction::default(),
             grid_size: 100,
             cell_size: 10.,
             terrain_frequency: 5.,
@@ -98,11 +105,17 @@ impl TerrainMap {
         }
     }
 
-    pub fn new_sized(seed: u32, grid_size: u32, cell_size: f32, mesh_reduction_error: f32) -> Self {
+    pub fn new_parameterized(
+        seed: u32,
+        grid_size: u32,
+        cell_size: f32,
+        mesh_smoothness: f64,
+    ) -> Self {
         Self {
             has_changes: false,
             seed,
-            mesh_reduction_error,
+            mesh_smoothness,
+            mesh_smoothness_type: SmoothFunction::default(),
             grid_size,
             cell_size,
             terrain_frequency: 5.,
@@ -143,11 +156,18 @@ impl TerrainMap {
                 let y_f64 = y as f64;
 
                 let height = self.get_height(x_f64, y_f64);
+                let smoothed_height = if self.mesh_smoothness_type == SmoothFunction::Identity {
+                    height
+                } else {
+                    self.mesh_smoothness_type
+                        .get_smoothed(height, self.mesh_smoothness)
+                };
                 let moisture = self.get_moisture(x_f64, y_f64);
                 let temperature = self.get_temperature(x_f64, y_f64);
                 vertices.push(Vec3::new(
                     x as f32 * self.cell_size - vertex_offset,
-                    self.min_terrain_level.lerp(self.max_terrain_level, height) as f32,
+                    self.min_terrain_level
+                        .lerp(self.max_terrain_level, smoothed_height) as f32,
                     y as f32 * self.cell_size - vertex_offset,
                 ));
                 colors.push(NoiseValues {

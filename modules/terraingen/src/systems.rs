@@ -35,9 +35,7 @@ pub fn draw_terrain(
     });
 
     let mesh_handle = meshes.add(mesh);
-    commands.insert_resource(TerrainMeshId {
-        0: mesh_handle.id(),
-    });
+    commands.insert_resource(TerrainMeshId(mesh_handle.id()));
     commands.spawn((
         PbrBundle {
             mesh: mesh_handle,
@@ -58,7 +56,7 @@ pub fn redraw_terrain(
     query: Query<Entity, With<TerrainDrawTag>>,
 ) {
     if res.has_changes {
-        let previous_id = mesh_handle_res.0.clone();
+        let previous_id = mesh_handle_res.0;
         for entity in query.iter() {
             commands.entity(entity).despawn();
         }
@@ -101,5 +99,5 @@ pub fn redraw_terrain(
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone, Reflect)]
 pub struct TerrainDrawTag;
