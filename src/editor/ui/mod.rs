@@ -117,7 +117,7 @@ impl Plugin for EditorUiPlugin {
             let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
                 egui_dock::NodeIndex::root(),
                 0.8,
-                vec![EditorTabName::Inspector],
+                vec![EditorTabName::Inspector, EditorTabName::Resource],
             );
             let [_hierarchy, _game] = editor.tree.main_surface_mut().split_left(
                 _game,
