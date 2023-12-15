@@ -5,7 +5,6 @@ use shared::ext::bevy_inspector_egui;
 
 use crate::prelude::*;
 
-
 #[derive(Resource, Default)]
 pub struct ResourceTab {
     open_resources: HashMap<String, bool>,

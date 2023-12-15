@@ -63,12 +63,6 @@ impl Plugin for BasePrefabPlugin {
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
 
-        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_sets(
-            Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-
         app.register_type::<EntityLink>();
 
         app.editor_registry::<Transform>();

@@ -20,7 +20,6 @@ pub mod editor_registry;
 
 use bevy::prelude::*;
 
-
 use shared::{EditorSet, EditorState};
 
 /// Public usage of packages that used in this crate
