@@ -16,7 +16,7 @@ impl Plugin for BevyXpbdPlugin {
     fn build(&self, app: &mut App) {
         println!("BevyXpbdPlugin::build");
         app.add_plugins(PhysicsPlugins::default());
-        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsSetupPlugin::default());
+        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
 
         app.editor_registry::<collider::ColliderPrefab>();
         app.editor_registry::<RigidBodyPrefab>();

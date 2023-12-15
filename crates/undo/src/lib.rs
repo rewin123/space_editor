@@ -696,6 +696,11 @@ pub trait AppAutoUndo {
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
+
+        if !self.is_plugin_added::<UndoPlugin>() {
+            return self;
+        }
+
         self.world.insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 
@@ -717,6 +722,11 @@ impl AppAutoUndo for App {
     }
 
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
+
+        if !self.is_plugin_added::<UndoPlugin>() {
+            return self;
+        }
+
         self.world.insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 

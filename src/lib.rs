@@ -18,7 +18,7 @@ pub struct SpaceEditorPlugin;
 
 impl bevy::app::Plugin for SpaceEditorPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_plugins(SpaceEditorPlugin);
+        app.add_plugins(editor::EditorPlugin);
 
         #[cfg(feature = "bevy_xpbd_3d")]
         app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);

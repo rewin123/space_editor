@@ -92,11 +92,6 @@ impl Plugin for EditorPlugin {
         }
         app.add_plugins(EditorCore);
 
-        #[cfg(feature = "bevy_xpbd_3d")]
-        {
-            app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);
-        }
-
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }
@@ -129,6 +124,7 @@ impl Plugin for EditorPlugin {
             Update,
             EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
+
 
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
