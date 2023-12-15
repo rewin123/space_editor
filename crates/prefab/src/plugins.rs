@@ -48,6 +48,21 @@ impl Plugin for BasePrefabPlugin {
             app.add_plugins(EditorRegistryPlugin);
         }
 
+        app.configure_sets(
+            Update,
+            (
+                PrefabSet::PrefabLoad,
+                PrefabSet::Relation,
+                PrefabSet::RelationApply,
+                PrefabSet::DetectPrefabChange,
+                PrefabSet::PrefabChangeApply,
+            )
+                .chain(),
+        );
+
+        app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
+        app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
+
         app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
         app.configure_sets(
             Update,

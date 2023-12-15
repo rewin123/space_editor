@@ -3,24 +3,48 @@ mod mouse_check;
 
 pub mod asset_inspector;
 pub mod bot_menu;
-pub mod hierarchy;
-pub mod inspector;
+pub mod change_chain;
+pub mod debug_panels;
 pub mod editor_tab;
 pub mod game_view;
+pub mod hierarchy;
+pub mod inspector;
 pub mod settings;
 pub mod tool;
 pub mod tools;
-pub mod change_chain;
-pub mod debug_panels;
+pub mod ui_registration;
 
-use editor_core::{SelectedPlugin, EditorCore};
+use bevy_mod_picking::{
+    backends::raycast::RaycastPickable,
+    events::{Down, Pointer},
+    picking_core::Pickable,
+    pointer::PointerButton,
+    prelude::*,
+    PickableBundle,
+};
+use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
+use editor_core::prelude::*;
 use egui_dock::DockArea;
 
-use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{
+    ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
+    pbr::CascadeShadowConfigBuilder, prelude::*, render::render_resource::PrimitiveTopology,
+    utils::HashMap, window::PrimaryWindow,
+};
 use bevy_egui::{egui, EguiContext};
 
-use prefab::plugins::PrefabPlugin;
-use shared::{EditorSet, EditorState};
+use prefab::prelude::*;
+use prelude::{
+    reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
+    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
+    NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
+    SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
+};
+use shared::{
+    ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+};
+use ui_registration::BundleReg;
 
 use self::{
     mouse_check::{pointer_context_check, MouseCheck},
@@ -29,25 +53,27 @@ use self::{
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*,
-        bot_menu::*,
-        hierarchy::*,
-        inspector::*,
-        editor_tab::*,
-        game_view::*,
-        settings::*,
-        tool::*,
-        tools::*,
-        change_chain::*,
-        debug_panels::*,
+        asset_inspector::*, bot_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
+        game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
+        ui_registration::*,
     };
+
+    pub use editor_core::prelude::*;
+    pub use persistence::*;
+    pub use prefab::prelude::*;
+    pub use shared::*;
+
+    pub use crate::simple_editor_setup;
+    pub use crate::EditorPlugin;
+    pub use crate::EditorUiAppExt;
+    pub use crate::EditorUiRef;
 }
 
 pub mod ext {
-    pub use bevy_inspector_egui;
+    pub use bevy_egui;
     pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
-    pub use bevy_egui;
+    pub use shared::ext::*;
 }
 
 /// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
@@ -71,6 +97,39 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);
         }
 
+        if !app.is_plugin_added::<PrefabPlugin>() {
+            app.add_plugins(PrefabPlugin);
+        }
+
+        app.configure_sets(
+            PreUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+
+        app.configure_sets(
+            PreUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
+            Update,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            Update,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
         app.add_plugins(DefaultInspectorConfigPlugin)
@@ -81,7 +140,7 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
             app.world
-                .resource_mut::<backends::raycast::RaycastBackendSettings>()
+                .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
                 .require_markers = true;
         }
 
@@ -158,8 +217,8 @@ impl Plugin for EditorPlugin {
                 .run_if(input_toggle_active(false, KeyCode::Escape)),
         );
 
-        register_mesh_editor_bundles(app);
-        register_light_editor_bundles(app);
+        ui_registration::register_mesh_editor_bundles(app);
+        ui_registration::register_light_editor_bundles(app);
     }
 }
 
@@ -223,7 +282,6 @@ fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
     mut events: EventReader<SelectEvent>,
-    _ctxs: EguiContexts,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
@@ -418,7 +476,6 @@ fn draw_camera_gizmo(
     }
 }
 
-
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct UiSystemSet;
 
@@ -455,7 +512,7 @@ impl Plugin for EditorUiPlugin {
             (
                 show_editor_ui
                     .before(update_pan_orbit)
-                    .before(super::ui_camera_block)
+                    .before(ui_camera_block)
                     .after(bot_menu::bot_menu),
                 set_camera_viewport.run_if(pointer_context_check()),
             )
@@ -685,7 +742,6 @@ impl EditorUiAppExt for App {
 
 /// Temporary resource for pretty system, based tab registration
 pub struct EditorUiRef(pub egui::Ui);
-
 
 /// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
 pub fn simple_editor_setup(mut commands: Commands) {

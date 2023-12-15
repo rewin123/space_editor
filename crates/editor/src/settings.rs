@@ -1,5 +1,7 @@
 use bevy::{prelude::*, utils::HashSet};
 use bevy_egui::*;
+use editor_core::hotkeys::AllHotkeys;
+use undo::ChangeChainSettings;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},

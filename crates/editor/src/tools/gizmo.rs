@@ -1,10 +1,10 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use editor_core::{Hotkey, HotkeyAppExt, Selected};
+use editor_core::prelude::*;
 use egui_gizmo::*;
 use shared::EditorCameraMarker;
 
-use crate::editor::prelude::{CloneEvent, EditorTool};
+use crate::prelude::{CloneEvent, EditorTool};
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
@@ -325,11 +325,7 @@ impl EditorTool for GizmoTool {
         }
 
         if disable_pan_orbit {
-            unsafe {
-                cell.get_resource_mut::<crate::editor::PanOrbitEnabled>()
-                    .unwrap()
-                    .0 = false
-            };
+            unsafe { cell.get_resource_mut::<crate::PanOrbitEnabled>().unwrap().0 = false };
         }
     }
 }

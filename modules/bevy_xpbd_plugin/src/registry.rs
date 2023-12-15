@@ -1,9 +1,6 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
-use prefab::PrefabSet;
-use shared::EditorState;
-
-use prefab::editor_registry::EditorRegistryExt;
+use editor::prelude::{EditorRegistryExt, EditorState, PrefabSet};
 
 use crate::{
     collider::{self, ColliderPart, ColliderPrefabCompound, ColliderPrimitive},
@@ -19,7 +16,7 @@ impl Plugin for BevyXpbdPlugin {
     fn build(&self, app: &mut App) {
         println!("BevyXpbdPlugin::build");
         app.add_plugins(PhysicsPlugins::default());
-        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
+        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsSetupPlugin::default());
 
         app.editor_registry::<collider::ColliderPrefab>();
         app.editor_registry::<RigidBodyPrefab>();

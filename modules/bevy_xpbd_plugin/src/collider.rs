@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-pub use bevy_inspector_egui::prelude::*;
 use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 
-use prefab::component::MeshPrimitivePrefab;
+use editor::ext::bevy_inspector_egui;
+use editor::ext::bevy_inspector_egui::prelude::*;
+use editor::prelude::MeshPrimitivePrefab;
 
 use crate::registry::RigidBodyPrefab;
 

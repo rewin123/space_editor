@@ -30,62 +30,13 @@ pub mod ext {
 
 /// All useful structure from this crate
 pub mod prelude {
+    pub use crate::component::*;
     pub use crate::editor_registry::*;
     pub use crate::load::PrefabBundle;
     pub use crate::plugins::*;
-    pub use crate::SpaceEditorPlugin;
-    pub use crate::*;
+    pub use crate::save::*;
+    pub use crate::PrefabSet;
     pub use shared::PrefabMarker;
-}
-
-/// Plugin to activate editor UI and prefab plugin
-#[derive(Default)]
-pub struct SpaceEditorPlugin {}
-
-impl Plugin for SpaceEditorPlugin {
-    fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<PrefabPlugin>() {
-            app.add_plugins(PrefabPlugin);
-        }
-
-        app.configure_sets(
-            PreUpdate,
-            EditorSet::Game.run_if(in_state(EditorState::Game)),
-        );
-        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_sets(
-            PostUpdate,
-            EditorSet::Game.run_if(in_state(EditorState::Game)),
-        );
-
-        app.configure_sets(
-            PreUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-        app.configure_sets(
-            Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-        app.configure_sets(
-            PostUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-
-        app.configure_sets(
-            Update,
-            (
-                PrefabSet::PrefabLoad,
-                PrefabSet::Relation,
-                PrefabSet::RelationApply,
-                PrefabSet::DetectPrefabChange,
-                PrefabSet::PrefabChangeApply,
-            )
-                .chain(),
-        );
-
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
-    }
 }
 
 /// All prefab logics collected in this sets to allow easy extend prefab logic

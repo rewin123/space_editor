@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 bevy.workspace = true 
 editor.workspace = true
-bevy_xpbd_3d = {version="0.3", default-features = false}
+bevy_xpbd_3d = {version="0.3.2", default-features = false, features = ["3d", "f32", "collider-from-mesh"]}

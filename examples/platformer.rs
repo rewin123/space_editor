@@ -6,22 +6,13 @@ use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
     prelude::*,
 };
-use bevy_xpbd_3d::prelude::{AngularVelocity, LinearVelocity, Position, RayHits};
-use bevy_xpbd_plugin::prelude::{RayCasterPrefab, RigidBodyPrefab, Vector};
-use prefab::{component::EntityLink, editor_registry::EditorRegistryExt, SpaceEditorPlugin};
-use shared::EditorState;
-use space_editor::{
-    editor::{
-        ui::{EditorTabName, EditorUiAppExt, EditorUiRef, MenuLoadEvent},
-        EditorPlugin,
-    },
-    simple_editor_setup,
-};
+use space_editor::prelude::bevy_xpbd_3d::prelude::*;
+use space_editor::prelude::*;
 
 fn main() {
     App::default()
         .add_plugins((DefaultPlugins, EditorPlugin))
-        .add_plugins(SpaceEditorPlugin::default())
+        .add_plugins(SpaceEditorPlugin)
         .add_systems(Startup, simple_editor_setup)
         .add_systems(Startup, configure_editor)
         .editor_registry::<PlayerController>()

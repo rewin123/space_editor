@@ -1,18 +1,14 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
-pub mod selected;
-mod load;
-pub mod task_storage;
 pub mod hotkeys;
+mod load;
+pub mod selected;
+pub mod task_storage;
 
 pub mod prelude {
-    pub use super::{
-        hotkeys::*,
-        load::*,
-        selected::*,
-        task_storage::*,
-    };
+    pub use super::*;
+    pub use super::{hotkeys::*, load::*, selected::*, task_storage::*};
 }
 
 // #[cfg(feature = "persistence_editor")]
@@ -27,9 +23,8 @@ use bevy::prelude::*;
 use prefab::save::{SaveConfig, SaveState};
 use prelude::load_listener;
 use shared::*;
-use task_storage::{BackgroundTaskStoragePlugin, BackgroundTaskStorage, BackgroundTask};
+use task_storage::{BackgroundTask, BackgroundTaskStorage, BackgroundTaskStoragePlugin};
 use undo::{AppAutoUndo, UndoPlugin};
-
 
 pub struct EditorCore;
 
