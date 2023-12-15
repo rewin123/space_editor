@@ -57,9 +57,19 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
                 .line_height(Some(20.))
                 .size(16.),
         );
+        let reset_button = ui.button(
+            RichText::new("Reset Terrain")
+                .line_height(Some(20.))
+                .size(16.),
+        );
 
         if redraw_button.clicked() {
             let mut map = world.resource_mut::<TerrainMap>();
+            map.has_changes = true;
+        }
+        if reset_button.clicked() {
+            let mut map = world.resource_mut::<TerrainMap>();
+            *map = TerrainMap::default();
             map.has_changes = true;
         }
     }

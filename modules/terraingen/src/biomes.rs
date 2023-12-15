@@ -166,8 +166,7 @@ impl Biomes {
             NoiseValues { height, .. }
                 if height < water_level
                     && (below_zero_temp_lerp.map_or(false, |t| temp_lerp <= t)
-                        || map_lat > 0.9
-                        || map_lat < 0.1) =>
+                        || !(0.1..=0.9).contains(&map_lat)) =>
             {
                 Self::Permafrost
             }
