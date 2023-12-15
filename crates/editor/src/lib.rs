@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 //This module contains ui logics, which will be work through events with editor core module and prefab module
 mod mouse_check;
 
@@ -61,7 +63,7 @@ pub mod prelude {
     pub use editor_core::prelude::*;
     pub use persistence::*;
     pub use prefab::prelude::*;
-    pub use shared::*;
+    pub use shared::prelude::*;
 
     pub use crate::simple_editor_setup;
     pub use crate::EditorPlugin;
