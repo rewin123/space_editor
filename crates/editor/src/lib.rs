@@ -125,7 +125,6 @@ impl Plugin for EditorPlugin {
             EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
 
-
         app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
 
         app.add_plugins(DefaultInspectorConfigPlugin)

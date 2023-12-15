@@ -696,7 +696,6 @@ pub trait AppAutoUndo {
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
-
         if !self.is_plugin_added::<UndoPlugin>() {
             return self;
         }
@@ -722,7 +721,6 @@ impl AppAutoUndo for App {
     }
 
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
-
         if !self.is_plugin_added::<UndoPlugin>() {
             return self;
         }

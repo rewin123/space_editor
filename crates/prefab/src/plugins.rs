@@ -38,7 +38,6 @@ pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {
     fn build(&self, app: &mut App) {
-
         app.add_state::<EditorState>();
 
         if !app.is_plugin_added::<HookPlugin>() {
