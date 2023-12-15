@@ -1,6 +1,7 @@
 use super::editor_tab::*;
 use bevy::prelude::*;
-use bevy_inspector_egui::*;
+use bevy_egui::egui;
+use bevy_inspector_egui;
 
 #[derive(Resource)]
 pub struct DebugWorldInspector {}

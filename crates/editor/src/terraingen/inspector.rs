@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui::RichText, *};
 use terraingen::TerrainMap;
 
-use crate::editor::ui::editor_tab::EditorTab;
+use crate::prelude::EditorTab;
 
 #[derive(Resource, Default)]
 pub struct TerrainGenView;

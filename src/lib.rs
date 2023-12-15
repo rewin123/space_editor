@@ -1,34 +1,28 @@
-use bevy::{pbr::CascadeShadowConfigBuilder, prelude::*};
-use bevy_mod_picking::{backends::raycast::RaycastPickable, PickableBundle};
-use shared::EditorCameraMarker;
+//created just for loading together crates
 
-/// Module contains all editor UI logic and components
-pub mod editor;
+#[allow(ambiguous_glob_reexports)]
+pub mod prelude {
+    pub use crate::SpaceEditorPlugin;
+    #[cfg(feature = "bevy_xpbd_3d")]
+    pub use bevy_xpbd_plugin::prelude::*;
+    pub use editor::prelude::*;
+    pub use editor::*;
+    pub use prefab::prelude::*;
+    pub use prefab::*;
+    pub use shared::prelude::*;
+    pub use shared::*;
+}
 
-/// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
-pub fn simple_editor_setup(mut commands: Commands) {
-    commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
-    // light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
-            ..default()
-        },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
-        ..default()
-    });
+#[cfg(feature = "bevy_xpbd_3d")]
+pub use bevy_xpbd_plugin;
 
-    // camera
-    commands
-        .spawn(Camera3dBundle {
-            transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        })
-        .insert(bevy_panorbit_camera::PanOrbitCamera::default())
-        .insert(EditorCameraMarker)
-        .insert(PickableBundle::default())
-        .insert(RaycastPickable);
+pub struct SpaceEditorPlugin;
 
-    bevy_debug_grid::spawn_floor_grid(commands);
+impl bevy::app::Plugin for SpaceEditorPlugin {
+    fn build(&self, app: &mut bevy::app::App) {
+        app.add_plugins(editor::EditorPlugin);
+
+        #[cfg(feature = "bevy_xpbd_3d")]
+        app.add_plugins(bevy_xpbd_plugin::XpbdPlugin);
+    }
 }

@@ -1,4 +1,7 @@
-use crate::ext::*;
+use bevy::prelude::*;
+
+use bevy_inspector_egui;
+use bevy_inspector_egui::prelude::*;
 
 /// Component to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]

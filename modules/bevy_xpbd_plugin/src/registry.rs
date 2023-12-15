@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
-use prefab::PrefabSet;
+use editor::prelude::{EditorRegistryExt, PrefabSet};
 use shared::EditorState;
-
-use prefab::editor_registry::EditorRegistryExt;
 
 use crate::{
     collider::{self, ColliderPart, ColliderPrefabCompound, ColliderPrimitive},
