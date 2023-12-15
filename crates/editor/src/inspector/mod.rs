@@ -14,11 +14,11 @@ use bevy::{
 
 use bevy_egui::*;
 
-use bevy_inspector_egui::{
-    inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
-};
-use editor_core::Selected;
+use editor_core::prelude::*;
 use prefab::{component::EntityLink, editor_registry::EditorRegistry};
+use shared::ext::bevy_inspector_egui::{
+    self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+};
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -310,6 +310,6 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
     state.commands = commands;
 
     if disable_pan_orbit {
-        world.resource_mut::<crate::editor::PanOrbitEnabled>().0 = false;
+        world.resource_mut::<crate::PanOrbitEnabled>().0 = false;
     }
 }

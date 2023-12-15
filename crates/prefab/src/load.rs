@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
 use shared::PrefabMarker;
 
-use crate::editor_registry::EditorRegistryExt;
+use crate::prelude::EditorRegistryExt;
 
 use super::save::ChildrenPrefab;
 

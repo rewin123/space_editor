@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::*;
-use editor_core::{Selected, SelectedPlugin};
+use editor_core::prelude::*;
 use prefab::editor_registry::EditorRegistry;
 use undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::editor::ui_registration::BundleReg;
+use crate::ui_registration::BundleReg;
 use shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};

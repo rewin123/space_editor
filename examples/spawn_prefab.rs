@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy_panorbit_camera::PanOrbitCameraPlugin;
-use prefab::{load::PrefabBundle, plugins::PrefabPlugin};
+use editor::ext::bevy_panorbit_camera::{self, PanOrbitCameraPlugin};
+use space_editor::prelude::*;
 
 fn main() {
     App::default()

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy_panorbit_camera::PanOrbitCameraPlugin;
-use prefab::{load::PrefabBundle, plugins::PrefabPlugin};
+use editor::ext::bevy_panorbit_camera::{self, PanOrbitCameraPlugin};
+use space_editor::prelude::*;
 
 //This example loading prefab with bevy_xpbd types
 
@@ -8,6 +8,7 @@ fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
         .add_plugins(PrefabPlugin)
+        .add_plugins(XpbdPlugin)
         .add_plugins(PanOrbitCameraPlugin)
         .add_systems(Startup, setup)
         .run();

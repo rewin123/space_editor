@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::*;
-use editor_core::{BackgroundTask, BackgroundTaskStorage, EditorLoadSet, EditorLoader};
+use editor_core::prelude::*;
 use prefab::plugins::PrefabPlugin;
-use shared::*;
+use shared::{ext::egui_file, *};
 
 /// Plugin to activate bot menu in editor UI
 pub struct BotMenuPlugin;

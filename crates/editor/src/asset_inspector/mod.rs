@@ -21,10 +21,7 @@ impl Plugin for AssetDetectorPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DetectedAssets>();
 
-        app.add_systems(
-            Startup,
-            detect_assets.before(crate::editor::ui_camera_block),
-        );
+        app.add_systems(Startup, detect_assets.before(crate::ui_camera_block));
     }
 }
 

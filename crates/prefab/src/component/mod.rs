@@ -14,6 +14,12 @@ pub mod path;
 
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
+pub mod ext {
+    pub use shared::ext::*;
+}
+
+use ext::*;
+
 pub trait AssetPath {
     fn get_filter(&self) -> egui_file::Filter;
     fn set_path(&mut self, path: &str);

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::editor::prelude::GameViewTab;
+use crate::prelude::GameViewTab;
 
 pub trait EditorTool {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World);

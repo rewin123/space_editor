@@ -1,8 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui::*;
+use shared::ext::bevy_inspector_egui;
 
-use crate::editor::ui::editor_tab::EditorTab;
+use crate::prelude::*;
 
 #[derive(Resource, Default)]
 pub struct ResourceTab {
