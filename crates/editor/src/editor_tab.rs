@@ -15,6 +15,7 @@ pub enum EditorTabName {
     Hierarchy,
     GameView,
     Inspector,
+    Resource,
     ToolBox,
     Settings,
     Other(String),

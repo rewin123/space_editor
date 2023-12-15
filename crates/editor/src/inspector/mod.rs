@@ -1,5 +1,6 @@
 pub mod components_order;
 pub mod refl_impl;
+pub mod resources;
 
 use std::any::TypeId;
 
@@ -22,6 +23,7 @@ use shared::ext::bevy_inspector_egui::{
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
+    resources::ResourceTab,
 };
 
 use super::{
@@ -45,6 +47,7 @@ impl Plugin for SpaceInspectorPlugin {
         app.editor_component_priority::<Transform>(1);
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
+        app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 
