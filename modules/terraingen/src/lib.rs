@@ -1,11 +1,12 @@
 use bevy::prelude::*;
-use persistence::AppPersistenceExt;
+use biomes::Biomes;
 
-pub mod mesh;
+pub mod biomes;
 mod resources;
 pub mod systems;
 
 use prefab::editor_registry::EditorRegistryExt;
+use resources::smoothness::SmoothFunction;
 pub use resources::TerrainMap;
 use systems::TerrainDrawTag;
 
@@ -15,8 +16,9 @@ pub struct TerraingenPlugin;
 impl Plugin for TerraingenPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<TerrainMap>()
-            .persistence_resource::<TerrainMap>()
             .register_type::<TerrainMap>()
+            .register_type::<SmoothFunction>()
+            .register_type::<Biomes>()
             .editor_registry::<TerrainDrawTag>();
     }
 }

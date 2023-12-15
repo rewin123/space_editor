@@ -1,6 +1,9 @@
 use bevy::{prelude::*, render::mesh::VertexAttributeValues};
+use shared::PrefabMarker;
 
-use crate::{mesh::TerrainMesh, resources::*};
+use crate::resources::{mesh::TerrainMesh, *};
+
+const TERRAIN_MESH_NAME: &str = "Terrain Mesh";
 
 #[derive(Resource, Clone, Debug, Default)]
 pub struct TerrainMeshId(AssetId<Mesh>);
@@ -19,7 +22,7 @@ pub fn draw_terrain(
     );
     mesh.insert_attribute(
         Mesh::ATTRIBUTE_COLOR,
-        VertexAttributeValues::from(mesh_data.colors_from_noise()),
+        VertexAttributeValues::from(mesh_data.colors_from_biomes()),
     );
     mesh.insert_attribute(
         Mesh::ATTRIBUTE_NORMAL,
@@ -42,6 +45,8 @@ pub fn draw_terrain(
             material,
             ..default()
         },
+        PrefabMarker,
+        Name::from(TERRAIN_MESH_NAME),
         TerrainDrawTag,
     ));
 }
@@ -70,7 +75,7 @@ pub fn redraw_terrain(
         );
         mesh.insert_attribute(
             Mesh::ATTRIBUTE_COLOR,
-            VertexAttributeValues::from(mesh_data.colors_from_noise()),
+            VertexAttributeValues::from(mesh_data.colors_from_biomes()),
         );
         mesh.insert_attribute(
             Mesh::ATTRIBUTE_NORMAL,
@@ -80,7 +85,7 @@ pub fn redraw_terrain(
         *terrain_mesh_data = mesh_data;
 
         let material = materials.add(StandardMaterial {
-            base_color: Color::GRAY,
+            base_color: Color::WHITE,
             ..default()
         });
 
@@ -92,6 +97,8 @@ pub fn redraw_terrain(
                 material,
                 ..default()
             },
+            PrefabMarker,
+            Name::from(TERRAIN_MESH_NAME),
             TerrainDrawTag,
         ));
         meshes.remove(previous_id);

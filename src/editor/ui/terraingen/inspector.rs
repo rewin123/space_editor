@@ -51,6 +51,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
         });
 
         ui.add_space(8.0);
+        // TODO: Add button for terrain data/mesh persistance
         let redraw_button = ui.button(
             RichText::new("Redraw Terrain")
                 .line_height(Some(20.))

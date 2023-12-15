@@ -3,10 +3,12 @@ use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorO
 use lerp::{num_traits::Pow, Lerp};
 use noise::{NoiseFn, OpenSimplex, Perlin};
 
-use crate::mesh::{NoiseValues, TerrainMesh};
+use crate::biomes::Biomes;
+
+use self::mesh::{NoiseValues, TerrainMesh};
 
 use self::smoothness::SmoothFunction;
-
+pub mod mesh;
 pub mod smoothness;
 
 #[derive(Reflect, Debug, Clone, Resource, InspectorOptions)]
@@ -17,7 +19,7 @@ pub struct TerrainMap {
     #[inspector(min = 0.01)]
     mesh_smoothness: f64,
     mesh_smoothness_type: SmoothFunction,
-    #[inspector(min = 10)]
+    #[inspector(min = 5, max = 528)]
     grid_size: u32,
     #[inspector(min = 1.)]
     cell_size: f32,
@@ -27,7 +29,7 @@ pub struct TerrainMap {
     terrain_scale: f64,
     #[inspector(min = 1, max = 16)]
     terrain_octave: u16,
-    #[inspector(min = 1., max = 1000.0)]
+    #[inspector(min = 0.1, max = 1000.0)]
     initial_height: f64,
     #[inspector(min = -100., max = 500.)]
     min_terrain_level: f64,
@@ -84,24 +86,10 @@ impl PartialEq for TerrainMap {
 impl TerrainMap {
     pub fn new(seed: u32) -> Self {
         Self {
-            has_changes: false,
             seed,
-            mesh_smoothness: 2.,
-            mesh_smoothness_type: SmoothFunction::default(),
-            grid_size: 100,
-            cell_size: 10.,
-            terrain_frequency: 5.,
-            terrain_scale: 1.34,
-            terrain_octave: 4,
-            initial_height: 1.,
             simplex: OpenSimplex::new(seed),
             perlin: Perlin::new(seed),
-            min_terrain_level: 0.,
-            max_terrain_level: 20.,
-            moisture_scale: 0.06,
-            temp_scale: 0.7,
-            min_temp: -70.,
-            max_temp: 100.,
+            ..default()
         }
     }
 
@@ -112,24 +100,13 @@ impl TerrainMap {
         mesh_smoothness: f64,
     ) -> Self {
         Self {
-            has_changes: false,
             seed,
             mesh_smoothness,
-            mesh_smoothness_type: SmoothFunction::default(),
             grid_size,
             cell_size,
-            terrain_frequency: 5.,
-            terrain_scale: 1.34,
-            terrain_octave: 4,
-            initial_height: 1.,
             simplex: OpenSimplex::new(seed),
             perlin: Perlin::new(seed),
-            min_terrain_level: 0.,
-            max_terrain_level: 20.,
-            moisture_scale: 0.06,
-            temp_scale: 0.7,
-            min_temp: -70.,
-            max_temp: 100.,
+            ..default()
         }
     }
 
@@ -144,12 +121,11 @@ impl TerrainMap {
         let mut vertices =
             Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1));
         let mut indices = Vec::with_capacity(self.grid_size as usize * self.grid_size as usize * 6);
-        let mut colors =
+        let mut biomes =
             Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1));
         let mut normals =
             Vec::with_capacity((self.grid_size as usize + 1) * (self.grid_size as usize + 1) * 3);
 
-        let mut v = 0usize;
         for x in 0..=self.grid_size {
             for y in 0..=self.grid_size {
                 let x_f64 = x as f64;
@@ -170,17 +146,24 @@ impl TerrainMap {
                         .lerp(self.max_terrain_level, smoothed_height) as f32,
                     y as f32 * self.cell_size - vertex_offset,
                 ));
-                colors.push(NoiseValues {
-                    temperature,
-                    height,
-                    moisture,
-                });
-
-                v += 1;
+                let biome = Biomes::get_biome(
+                    NoiseValues {
+                        temperature,
+                        height,
+                        moisture,
+                    },
+                    y,
+                    self.grid_size,
+                    self.min_terrain_level,
+                    self.max_terrain_level,
+                    self.min_temp,
+                    self.max_temp,
+                );
+                biomes.push(biome);
             }
         }
 
-        v = 0usize;
+        let mut v = 0usize;
         for _x in 0..self.grid_size {
             for _y in 0..self.grid_size {
                 indices.push(v as u32);
@@ -207,7 +190,7 @@ impl TerrainMap {
             normals.push(face_normal);
         }
 
-        TerrainMesh::new(vertices, indices, colors, normals)
+        TerrainMesh::new(vertices, indices, biomes, normals)
     }
 
     fn get_height(&self, x: f64, y: f64) -> f64 {
