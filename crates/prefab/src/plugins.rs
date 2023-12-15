@@ -16,7 +16,7 @@ use shared::PrefabMarker;
 
 use crate::{
     component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,
-    spawn_system, EditorSet, EditorState, PrefabSet,
+    spawn_system, EditorState, PrefabSet,
 };
 
 use component::*;
