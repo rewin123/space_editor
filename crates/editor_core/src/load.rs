@@ -39,6 +39,8 @@ pub fn load_listener(world: &mut World) {
     let res = prefab.write_to_world(world, &mut map);
     match res {
         Ok(_) => { /*some info planned*/ }
-        Err(_) => { /*some info planned*/ }
+        Err(err) => {
+            bevy::log::error!("{}", err)
+        }
     }
 }

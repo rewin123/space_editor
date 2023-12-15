@@ -57,7 +57,8 @@ opt-level = 3
 [features]
 bevy_xpbd_3d = ["dep:bevy_xpbd_plugin"]
 persistence_editor = []
-default = ["bevy_xpbd_3d", "persistence_editor"]
+editor = []
+default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
 
 [[example]]
 name = "platformer"

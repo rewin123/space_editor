@@ -36,6 +36,7 @@ pub struct PrefabAutoChild;
 impl Plugin for LoadPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<PrefabLoader>();
+
         app.add_systems(
             Update,
             load_prefab.after(bevy_scene_hook::Systems::SceneHookRunner),
@@ -56,6 +57,7 @@ pub struct PrefabLoader {
     pub path: String,
 }
 
+/// System responsible for loading prefabs
 fn load_prefab(
     mut commands: Commands,
     query: Query<

@@ -13,3 +13,4 @@ shared.workspace = true
 undo.workspace = true
 
 bevy-scene-hook = "9"
+bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}

@@ -12,6 +12,7 @@ use shared::PrefabMarker;
 use super::{BackgroundTask, BackgroundTaskStorage};
 
 #[derive(Event)]
+/// Event to handle GLTF path
 pub struct EditorUnpackGltf {
     pub path: String,
 }

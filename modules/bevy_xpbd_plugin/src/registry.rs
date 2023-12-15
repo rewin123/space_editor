@@ -18,24 +18,23 @@ impl Plugin for BevyXpbdPlugin {
         app.add_plugins(PhysicsPlugins::default());
         app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
 
-        app.editor_registry::<collider::ColliderPrefab>();
-        app.editor_registry::<RigidBodyPrefab>();
+        app.editor_registry::<collider::ColliderPrefab>()
+            .editor_registry::<RigidBodyPrefab>()
+            .editor_registry::<Mass>()
+            .editor_registry::<Friction>()
+            .editor_registry::<Restitution>()
+            .editor_registry::<LinearDamping>()
+            .editor_registry::<AngularDamping>()
+            .editor_registry::<Inertia>()
+            .editor_registry::<CenterOfMass>()
+            .editor_registry::<LockedAxes>()
+            .editor_registry::<GravityScale>()
+            .editor_registry::<Sensor>();
 
-        app.editor_registry::<Mass>();
-        app.editor_registry::<Friction>();
-        app.editor_registry::<Restitution>();
-        app.editor_registry::<LinearDamping>();
-        app.editor_registry::<AngularDamping>();
-        app.editor_registry::<Inertia>();
-        app.editor_registry::<CenterOfMass>();
-        app.editor_registry::<LockedAxes>();
-        app.editor_registry::<GravityScale>();
-        app.editor_registry::<Sensor>();
-
-        app.register_type::<ColliderPrimitive>();
-        app.register_type::<ColliderPart>();
-        app.register_type::<Vec<ColliderPart>>();
-        app.register_type::<ColliderPrefabCompound>();
+        app.register_type::<ColliderPrimitive>()
+            .register_type::<ColliderPart>()
+            .register_type::<Vec<ColliderPart>>()
+            .register_type::<ColliderPrefabCompound>();
 
         register_xpbd_spatial_types(app);
 
@@ -90,6 +89,7 @@ fn sync_position_spawn(
 
 #[derive(Component, Clone, Default, Reflect)]
 #[reflect(Component)]
+/// Available bevy_xpbd::RigidBody wrappers
 pub enum RigidBodyPrefab {
     Dynamic,
     #[default]

@@ -3,7 +3,7 @@ use bevy_scene_hook::{HookedSceneBundle, SceneHook};
 
 use super::component::*;
 
-/// This system using for spawning gltf scene
+/// System responsible for spawning GLTF objects in the scene
 pub fn spawn_scene(
     mut commands: Commands,
     prefabs: Query<
