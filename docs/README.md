@@ -61,11 +61,9 @@ Most editor features are implemented as tabs within the dock system, providing a
     - **Same Node**: Adds the new tab as part of the current node.
 
     ![Same Node](imgs/samenode.png)
-
     - **New Window**: Creates a new floating window containing the tab.
 
     ![New Window](imgs/newwindow.png)
-
     - **Split Node**: Splits node in half.
 
     ![Split Node](imgs/splitnode.png) 
