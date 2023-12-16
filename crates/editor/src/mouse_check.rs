@@ -48,7 +48,3 @@ pub fn update_mouse_context(
             .wants_pointer_input();
     }
 }
-
-pub fn pointer_context_check() -> impl Fn(Res<PointerContextCheck>) -> bool + Clone {
-    move |egui_mouse_check: Res<PointerContextCheck>| egui_mouse_check.pointer_is_valid
-}
