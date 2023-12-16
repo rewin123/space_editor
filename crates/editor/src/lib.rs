@@ -35,6 +35,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContext};
 
+use game_view::has_window_changed;
 use prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
@@ -513,6 +514,12 @@ impl Plugin for EditorUiPlugin {
                     .after(bot_menu::bot_menu),
                 set_camera_viewport.run_if(pointer_context_check()),
             )
+                .in_set(UiSystemSet),
+        );
+        app.add_systems(
+            PostUpdate,
+            set_camera_viewport
+                .run_if(has_window_changed)
                 .in_set(UiSystemSet),
         );
         app.add_systems(
