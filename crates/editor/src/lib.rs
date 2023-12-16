@@ -512,7 +512,7 @@ impl Plugin for EditorUiPlugin {
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
                     .after(bot_menu::bot_menu),
-                set_camera_viewport.run_if(pointer_context_check()),
+                set_camera_viewport,
             )
                 .in_set(UiSystemSet),
         );

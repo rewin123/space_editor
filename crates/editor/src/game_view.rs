@@ -106,7 +106,11 @@ pub fn has_window_changed(mut events: EventReader<bevy::window::WindowResized>) 
     events.read().next().is_some()
 }
 
+#[derive(Default)]
+pub struct LastGameTabRect(Option<egui::Rect>);
+
 pub fn set_camera_viewport(
+    mut local: Local<LastGameTabRect>,
     ui_state: Res<GameViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     egui_settings: Res<bevy_egui::EguiSettings>,
@@ -121,6 +125,11 @@ pub fn set_camera_viewport(
     let Some(viewport_rect) = ui_state.viewport_rect else {
         return;
     };
+
+    if local.0 == Some(viewport_rect) {
+        return;
+    }
+    local.0 = Some(viewport_rect);
 
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
 
