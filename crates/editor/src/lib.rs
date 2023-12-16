@@ -50,7 +50,7 @@ use shared::{
 use ui_registration::BundleReg;
 
 use self::{
-    mouse_check::{pointer_context_check, MouseCheck},
+    mouse_check::MouseCheck,
     tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
 
