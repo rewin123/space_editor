@@ -155,7 +155,12 @@ impl Plugin for EditorPlugin {
                 .in_set(EditorSet::Editor),
         );
 
-        app.add_systems(Update, reset_pan_orbit_state.in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            reset_pan_orbit_state
+                .in_set(EditorSet::Editor)
+                .before(UiSystemSet),
+        );
         app.add_systems(
             Update,
             update_pan_orbit
