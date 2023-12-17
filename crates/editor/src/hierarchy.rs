@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
-use bevy_egui::{
-    egui::collapsing_header::CollapsingState,
-    *,
-};
+use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use editor_core::prelude::*;
 use prefab::editor_registry::EditorRegistry;
 use undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
