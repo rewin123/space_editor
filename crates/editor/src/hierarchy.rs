@@ -141,7 +141,7 @@ fn draw_entity(
 
     let is_selected = selected.contains(entity);
 
-    let label = if children.is_some_and(|children| children.len() > 1) {
+    let label = if children.is_some() {
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
@@ -188,7 +188,7 @@ fn draw_entity(
             }
         })
         .1
-        .response
+        .inner
     } else {
         ui.selectable_label(is_selected, entity_name)
             .context_menu(|ui| {
