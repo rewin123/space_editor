@@ -192,7 +192,7 @@ fn draw_entity(
         .1
         .inner
     } else {
-        ui.selectable_label(is_selected, entity_name)
+        ui.selectable_label(is_selected, format!("      {}", entity_name))
             .context_menu(|ui| {
                 if ui.button("Add child").clicked() {
                     let new_id = commands.spawn_empty().insert(PrefabMarker).id();
