@@ -152,36 +152,7 @@ fn draw_entity(
         .show_header(ui, |ui| {
             ui.selectable_label(is_selected, entity_name)
                 .context_menu(|ui| {
-                    if ui.button("Add child").clicked() {
-                        let new_id = commands.spawn_empty().insert(PrefabMarker).id();
-                        commands.entity(entity).add_child(new_id);
-                        changes.send(NewChange {
-                            change: Arc::new(AddedEntity { entity: new_id }),
-                        });
-                        ui.close_menu();
-                    }
-                    if ui.button("Delete").clicked() {
-                        commands.entity(entity).despawn_recursive();
-                        changes.send(NewChange {
-                            change: Arc::new(RemovedEntity { entity }),
-                        });
-                        ui.close_menu();
-                    }
-                    if ui.button("Clone").clicked() {
-                        clone_events.send(CloneEvent { id: entity });
-                        ui.close_menu();
-                    }
-                    if !selected.is_empty()
-                        && !selected.contains(entity)
-                        && ui.button("Attach to").clicked()
-                    {
-                        for e in selected.iter() {
-                            commands.entity(entity).add_child(e);
-                        }
-                    }
-                    if parent.is_some() && ui.button("Detach").clicked() {
-                        commands.entity(entity).remove_parent();
-                    }
+                    hierarchy_entity_context(ui, commands, entity, changes, clone_events, selected, parent);
                 })
         })
         .body(|ui| {
@@ -194,36 +165,7 @@ fn draw_entity(
     } else {
         ui.selectable_label(is_selected, format!("      {}", entity_name))
             .context_menu(|ui| {
-                if ui.button("Add child").clicked() {
-                    let new_id = commands.spawn_empty().insert(PrefabMarker).id();
-                    commands.entity(entity).add_child(new_id);
-                    changes.send(NewChange {
-                        change: Arc::new(AddedEntity { entity: new_id }),
-                    });
-                    ui.close_menu();
-                }
-                if ui.button("Delete").clicked() {
-                    commands.entity(entity).despawn_recursive();
-                    changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity }),
-                    });
-                    ui.close_menu();
-                }
-                if ui.button("Clone").clicked() {
-                    clone_events.send(CloneEvent { id: entity });
-                    ui.close_menu();
-                }
-                if !selected.is_empty()
-                    && !selected.contains(entity)
-                    && ui.button("Attach to").clicked()
-                {
-                    for e in selected.iter() {
-                        commands.entity(entity).add_child(e);
-                    }
-                }
-                if parent.is_some() && ui.button("Detach").clicked() {
-                    commands.entity(entity).remove_parent();
-                }
+                hierarchy_entity_context(ui, commands, entity, changes, clone_events, selected, parent);
             })
     };
 
@@ -238,6 +180,39 @@ fn draw_entity(
         } else {
             commands.entity(entity).remove::<Selected>();
         }
+    }
+}
+
+fn hierarchy_entity_context(ui: &mut egui::Ui, commands: &mut Commands<'_, '_>, entity: Entity, changes: &mut EventWriter<'_, NewChange>, clone_events: &mut EventWriter<'_, CloneEvent>, selected: &mut Query<'_, '_, Entity, With<Selected>>, parent: Option<&Parent>) {
+    if ui.button("Add child").clicked() {
+        let new_id = commands.spawn_empty().insert(PrefabMarker).id();
+        commands.entity(entity).add_child(new_id);
+        changes.send(NewChange {
+            change: Arc::new(AddedEntity { entity: new_id }),
+        });
+        ui.close_menu();
+    }
+    if ui.button("Delete").clicked() {
+        commands.entity(entity).despawn_recursive();
+        changes.send(NewChange {
+            change: Arc::new(RemovedEntity { entity }),
+        });
+        ui.close_menu();
+    }
+    if ui.button("Clone").clicked() {
+        clone_events.send(CloneEvent { id: entity });
+        ui.close_menu();
+    }
+    if !selected.is_empty()
+        && !selected.contains(entity)
+        && ui.button("Attach to").clicked()
+    {
+        for e in selected.iter() {
+            commands.entity(entity).add_child(e);
+        }
+    }
+    if parent.is_some() && ui.button("Detach").clicked() {
+        commands.entity(entity).remove_parent();
     }
 }
 
