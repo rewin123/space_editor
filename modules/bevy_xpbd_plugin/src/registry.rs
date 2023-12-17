@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, transform::TransformSystem};
 use bevy_xpbd_3d::prelude::*;
 use editor::prelude::{EditorRegistryExt, EditorState, PrefabSet};
 
@@ -39,8 +39,10 @@ impl Plugin for BevyXpbdPlugin {
         register_xpbd_spatial_types(app);
 
         app.add_systems(
-            Update,
+            PostUpdate,
             (editor_pos_change)
+                .before(TransformSystem::TransformPropagate)
+                .before(bevy_xpbd_3d::PhysicsSet::Prepare)
                 .in_set(PrefabSet::DetectPrefabChange)
                 .run_if(in_state(EditorState::Editor)),
         );

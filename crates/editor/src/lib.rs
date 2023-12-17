@@ -71,6 +71,7 @@ use shared::{
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
 use ui_registration::BundleReg;
+use undo::UndoPlugin;
 
 use self::{
     mouse_check::MouseCheck,
@@ -114,6 +115,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
+        app.add_plugins(UndoPlugin); //Undo must be included before prefab plugin for undo registration
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }

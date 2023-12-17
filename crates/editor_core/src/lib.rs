@@ -9,6 +9,7 @@ pub mod task_storage;
 pub mod prelude {
     pub use super::*;
     pub use super::{hotkeys::*, load::*, selected::*, task_storage::*};
+    pub use undo;
 }
 
 // #[cfg(feature = "persistence_editor")]
@@ -24,7 +25,7 @@ use prefab::save::{SaveConfig, SaveState};
 use prelude::load_listener;
 use shared::*;
 use task_storage::{BackgroundTask, BackgroundTaskStorage, BackgroundTaskStoragePlugin};
-use undo::{AppAutoUndo, UndoPlugin};
+use undo::AppAutoUndo;
 
 pub struct EditorCore;
 
@@ -36,7 +37,6 @@ impl Plugin for EditorCore {
         app.add_plugins(persistence::PersistencePlugin);
 
         app.add_plugins(BackgroundTaskStoragePlugin);
-        app.add_plugins(UndoPlugin);
 
         app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::Editor));
 
