@@ -35,6 +35,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContext};
 
+use game_view::has_window_changed;
 use prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
@@ -49,7 +50,7 @@ use shared::{
 use ui_registration::BundleReg;
 
 use self::{
-    mouse_check::{pointer_context_check, MouseCheck},
+    mouse_check::MouseCheck,
     tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
 
@@ -155,7 +156,12 @@ impl Plugin for EditorPlugin {
                 .in_set(EditorSet::Editor),
         );
 
-        app.add_systems(Update, reset_pan_orbit_state.in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            reset_pan_orbit_state
+                .in_set(EditorSet::Editor)
+                .before(UiSystemSet),
+        );
         app.add_systems(
             Update,
             update_pan_orbit
@@ -511,8 +517,14 @@ impl Plugin for EditorUiPlugin {
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
                     .after(bot_menu::bot_menu),
-                set_camera_viewport.run_if(pointer_context_check()),
+                set_camera_viewport,
             )
+                .in_set(UiSystemSet),
+        );
+        app.add_systems(
+            PostUpdate,
+            set_camera_viewport
+                .run_if(has_window_changed)
                 .in_set(UiSystemSet),
         );
         app.add_systems(

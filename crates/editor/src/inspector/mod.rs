@@ -279,7 +279,6 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
         .default_height(300.)
         .default_pos(components_area.inner_rect.center_bottom())
         .show(ui.ctx(), |ui: &mut egui::Ui| {
-            // disable_pan_orbit = true;
             let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
             ui.text_edit_singleline(&mut state.component_add_filter);
             let lower_filter = state.component_add_filter.to_lowercase();
@@ -303,7 +302,8 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
             });
         });
 
-    if ui.ui_contains_pointer() || ui.ctx().is_pointer_over_area() || ui.ctx().is_using_pointer() {
+    //All works with this if statement. Dont change it and dont add is_using_pointer() method
+    if ui.ui_contains_pointer() {
         disable_pan_orbit = true;
     }
 
