@@ -1,5 +1,6 @@
 //created just for loading together crates
 
+/// Contains all the functions/structs/plugins of space_editor
 pub mod prelude {
     pub use crate::SpaceEditorPlugin;
     pub use editor::prelude::*;
@@ -14,6 +15,7 @@ pub use prefab;
 #[cfg(feature = "bevy_xpbd_3d")]
 pub use bevy_xpbd_plugin;
 
+/// This is the main plugin, connecting it will allow you to use all the functions of space_editor
 pub struct SpaceEditorPlugin;
 
 impl bevy::app::Plugin for SpaceEditorPlugin {

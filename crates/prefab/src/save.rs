@@ -11,7 +11,8 @@ use crate::prelude::{EditorRegistry, EditorRegistryExt};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
-// Component that holds children entity/prefab information
+/// Component that holds children entity/prefab information 
+/// that should be serialized
 pub struct ChildrenPrefab(pub Vec<Entity>);
 
 impl ChildrenPrefab {

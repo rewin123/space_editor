@@ -6,6 +6,11 @@ use crate::prelude::EditorRegistryExt;
 
 use super::save::ChildrenPrefab;
 
+/// Bundle for spawn prefabs
+/// Example
+/// ```rust
+/// commands.spawn(PrefabBundle::new("path/to/prefab"));
+/// ```
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
     loader: PrefabLoader,
@@ -18,6 +23,8 @@ pub struct PrefabBundle {
 }
 
 impl PrefabBundle {
+
+    /// Create new prefab bundle from path to prefab file
     pub fn new(path: &str) -> Self {
         Self {
             loader: PrefabLoader {
@@ -28,8 +35,10 @@ impl PrefabBundle {
     }
 }
 
+/// Plugin for loading prefabs
 pub struct LoadPlugin;
 
+/// Marks all child of prefab to correct delete them when prefab is deleted
 #[derive(Component)]
 pub struct PrefabAutoChild;
 
@@ -51,6 +60,7 @@ impl Plugin for LoadPlugin {
     }
 }
 
+/// This component is mark that prefab should be loaded
 #[derive(Component, Default, Reflect, Clone)]
 #[reflect(Component)]
 pub struct PrefabLoader {

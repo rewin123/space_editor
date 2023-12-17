@@ -2,6 +2,7 @@
 
 use shared::ext::egui_file;
 
+/// NOT USED. Will be used to auto converting reflected structures with assets to saveble AutoStructs
 pub trait AssetPath {
     fn get_filter(&self) -> egui_file::Filter;
     fn set_path(&mut self, path: &str);

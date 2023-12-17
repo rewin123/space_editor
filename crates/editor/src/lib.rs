@@ -3,17 +3,40 @@
 //This module contains ui logics, which will be work through events with editor core module and prefab module
 mod mouse_check;
 
+/// This module will be used to create Unity like project file dialog. Currently NOT USED
 pub mod asset_inspector;
+
+/// This module contains logic for bottom menu
 pub mod bot_menu;
+
+/// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
+
+/// This module contains UI logic for debug panels (like WorldInspector)
 pub mod debug_panels;
+
+/// This module contains traits and logic for editor dock tabs. Also it contains logic to run all editor dock ui
 pub mod editor_tab;
+
+/// This module contains Game view tab logic
 pub mod game_view;
+
+/// This module contains Hierarchy tab logic
 pub mod hierarchy;
+
+/// This module contains Inspector tab logic
 pub mod inspector;
+
+/// This module contains Settings tab logic
 pub mod settings;
+
+/// This module contains traits and methods to register tools in game view tab
 pub mod tool;
+
+/// This module contains IMPLEMENTATIONS for existed tools (like Gizmo manipulation tool)
 pub mod tools;
+
+/// This module contains methods for bundle registration
 pub mod ui_registration;
 
 use bevy_mod_picking::{
@@ -72,6 +95,8 @@ pub mod prelude {
     pub use crate::EditorUiRef;
 }
 
+
+/// External dependencies for editor crate
 pub mod ext {
     pub use bevy_egui;
     pub use bevy_mod_picking;
@@ -225,6 +250,8 @@ impl Plugin for EditorPlugin {
     }
 }
 
+
+/// This event used for selecting entities
 #[derive(Event, Clone, EntityEvent)]
 struct SelectEvent {
     #[target]
@@ -356,10 +383,13 @@ fn clear_and_load_on_start(
 #[derive(Resource, Default)]
 pub struct PanOrbitEnabled(pub bool);
 
+/// This system executes before all UI systems and is used to enable pan orbit camera on frame start
 pub fn reset_pan_orbit_state(mut state: ResMut<PanOrbitEnabled>) {
     *state = PanOrbitEnabled(true);
 }
 
+/// This system executes after all UI systems and is used to set pan orbit camera state.
+/// For example, it will block pan orbit camera if pointer is used by egui
 pub fn update_pan_orbit(
     mut pan_orbit_query: Query<&mut PanOrbitCamera>,
     state: Res<PanOrbitEnabled>,
@@ -479,9 +509,11 @@ fn draw_camera_gizmo(
     }
 }
 
+/// All systems for editor ui wil be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct UiSystemSet;
 
+/// Plugin for editor ui
 pub struct EditorUiPlugin {
     pub use_standard_layout: bool,
 }
@@ -580,6 +612,8 @@ fn show_editor_ui(world: &mut World) {
     });
 }
 
+
+/// This resource contains registered editor tabs and current dock tree state
 #[derive(Resource)]
 pub struct EditorUi {
     pub registry: HashMap<EditorTabName, EditorUiReg>,
@@ -595,6 +629,9 @@ impl Default for EditorUi {
     }
 }
 
+/// This enum determine how tab was registered.
+/// ResourceBased - tab will be registered as resource
+/// Schedule - tab will be registered as system
 pub enum EditorUiReg {
     ResourceBased {
         show_command: EditorTabShowFn,
@@ -687,6 +724,8 @@ impl EditorUi {
     }
 }
 
+
+/// Trait for registering editor tabs via app.**
 pub trait EditorUiAppExt {
     fn editor_tab_by_trait<T>(&mut self, tab_id: EditorTabName, tab: T) -> &mut Self
     where

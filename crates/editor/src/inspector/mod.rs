@@ -35,7 +35,7 @@ use super::{
 #[derive(Component)]
 pub struct SkipInspector;
 
-/// Plugin to activate components inspector and gizmo in editor UI
+/// Plugin to activate components inspector
 pub struct SpaceInspectorPlugin;
 
 impl Plugin for SpaceInspectorPlugin {
