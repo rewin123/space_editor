@@ -24,8 +24,6 @@ pub mod ext {
     pub use shared::ext::*;
 }
 
-use ext::*;
-
 /// Component to define path to gltf asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone)]
 #[reflect(Component)]
