@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
-use bevy_egui::*;
+use bevy_egui::{
+    egui::{collapsing_header::CollapsingState, CollapsingHeader},
+    *,
+};
 use editor_core::prelude::*;
 use prefab::editor_registry::EditorRegistry;
 use undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
@@ -136,11 +139,58 @@ fn draw_entity(
         |name| format!("{} ({:?})", name.as_str(), entity),
     );
 
-    ui.indent(entity_name.clone(), |ui| {
-        let is_selected = selected.contains(entity);
+    let is_selected = selected.contains(entity);
 
-        let label = ui
-            .selectable_label(is_selected, entity_name)
+    let label = if children.is_some_and(|children| children.len() > 1) {
+        CollapsingState::load_with_default_open(
+            ui.ctx(),
+            ui.make_persistent_id(entity_name.clone()),
+            true,
+        )
+        .show_header(ui, |ui| {
+            ui.selectable_label(is_selected, entity_name)
+                .context_menu(|ui| {
+                    if ui.button("Add child").clicked() {
+                        let new_id = commands.spawn_empty().insert(PrefabMarker).id();
+                        commands.entity(entity).add_child(new_id);
+                        changes.send(NewChange {
+                            change: Arc::new(AddedEntity { entity: new_id }),
+                        });
+                        ui.close_menu();
+                    }
+                    if ui.button("Delete").clicked() {
+                        commands.entity(entity).despawn_recursive();
+                        changes.send(NewChange {
+                            change: Arc::new(RemovedEntity { entity }),
+                        });
+                        ui.close_menu();
+                    }
+                    if ui.button("Clone").clicked() {
+                        clone_events.send(CloneEvent { id: entity });
+                        ui.close_menu();
+                    }
+                    if !selected.is_empty()
+                        && !selected.contains(entity)
+                        && ui.button("Attach to").clicked()
+                    {
+                        for e in selected.iter() {
+                            commands.entity(entity).add_child(e);
+                        }
+                    }
+                    if parent.is_some() && ui.button("Detach").clicked() {
+                        commands.entity(entity).remove_parent();
+                    }
+                })
+        })
+        .body(|ui| {
+            for child in children.unwrap().iter() {
+                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+            }
+        })
+        .1
+        .response
+    } else {
+        ui.selectable_label(is_selected, entity_name)
             .context_menu(|ui| {
                 if ui.button("Add child").clicked() {
                     let new_id = commands.spawn_empty().insert(PrefabMarker).id();
@@ -172,27 +222,21 @@ fn draw_entity(
                 if parent.is_some() && ui.button("Detach").clicked() {
                     commands.entity(entity).remove_parent();
                 }
-            });
+            })
+    };
 
-        if label.clicked() {
-            if !is_selected {
-                if !ui.input(|i| i.modifiers.shift) {
-                    for e in selected.iter() {
-                        commands.entity(e).remove::<Selected>();
-                    }
+    if label.clicked() {
+        if !is_selected {
+            if !ui.input(|i| i.modifiers.shift) {
+                for e in selected.iter() {
+                    commands.entity(e).remove::<Selected>();
                 }
-                commands.entity(entity).insert(Selected);
-            } else {
-                commands.entity(entity).remove::<Selected>();
             }
+            commands.entity(entity).insert(Selected);
+        } else {
+            commands.entity(entity).remove::<Selected>();
         }
-
-        if let Some(children) = children {
-            for child in children.iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
-            }
-        }
-    });
+    }
 }
 
 #[derive(Component)]
