@@ -141,7 +141,9 @@ fn draw_entity(
 
     let is_selected = selected.contains(entity);
 
-    let label = if children.is_some() {
+    let label = if children
+        .is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok()))
+    {
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
