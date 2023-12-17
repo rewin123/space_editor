@@ -12,11 +12,6 @@ pub mod prelude {
     pub use undo;
 }
 
-// #[cfg(feature = "persistence_editor")]
-// pub mod persistence;
-// #[cfg(feature = "persistence_editor")]
-// pub use persistence::*;
-
 pub mod gltf_unpack;
 
 use bevy::prelude::*;

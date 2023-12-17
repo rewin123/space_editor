@@ -1,6 +1,10 @@
 use bevy::{prelude::*, transform::TransformSystem};
 use bevy_xpbd_3d::prelude::*;
-use editor::prelude::{EditorRegistryExt, EditorState, PrefabSet};
+use editor::{
+    prelude::{EditorRegistryExt, EditorState, PrefabSet},
+    settings::RegisterSettingsBlockExt,
+    EditorUiPlugin,
+};
 
 use crate::{
     collider::{self, ColliderPart, ColliderPrefabCompound, ColliderPrimitive},
@@ -73,6 +77,23 @@ impl Plugin for BevyXpbdPlugin {
             Update,
             (sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
+
+        if app.is_plugin_added::<EditorUiPlugin>() {
+            app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
+                ui.checkbox(
+                    &mut world
+                        .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
+                        .enabled,
+                    "Show bevy xpbd debug render",
+                );
+                ui.checkbox(
+                    &mut world
+                        .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
+                        .hide_meshes,
+                    "Hide debug meshes",
+                );
+            });
+        }
     }
 }
 

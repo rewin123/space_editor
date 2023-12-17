@@ -1,7 +1,13 @@
-use bevy::{prelude::*, utils::HashSet};
+use bevy::{
+    prelude::*,
+    utils::{HashMap, HashSet},
+};
 use bevy_egui::*;
 use editor_core::hotkeys::AllHotkeys;
 use undo::ChangeChainSettings;
+
+#[cfg(feature = "persistence_editor")]
+use persistence::*;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -86,27 +92,37 @@ impl NewWindowSettings {
 pub struct SettingsWindow {
     read_input_for_hotkey: Option<String>,
     all_pressed_hotkeys: HashSet<KeyCode>,
+    sub_blocks: HashMap<
+        String,
+        Box<dyn FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static>,
+    >,
+}
+
+/// Trait for registering blocks in settings tab
+pub trait RegisterSettingsBlockExt {
+    /// Register ui block in settings tab
+    fn register_settings_block(
+        &mut self,
+        name: &str,
+        block: impl FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static,
+    );
+}
+
+impl RegisterSettingsBlockExt for App {
+    fn register_settings_block(
+        &mut self,
+        name: &str,
+        block: impl FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static,
+    ) {
+        self.world
+            .resource_mut::<SettingsWindow>()
+            .sub_blocks
+            .insert(name.to_string(), Box::new(block));
+    }
 }
 
 impl EditorTab for SettingsWindow {
-    fn ui(&mut self, ui: &mut egui::Ui, _commands: &mut Commands, world: &mut World) {
-        #[cfg(feature = "bevy_xpbd_3d")]
-        {
-            ui.heading("Bevy XPBD 3D");
-            ui.checkbox(
-                &mut world
-                    .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
-                    .enabled,
-                "Show bevy xpbd debug render",
-            );
-            ui.checkbox(
-                &mut world
-                    .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
-                    .hide_meshes,
-                "Hide debug meshes",
-            );
-        }
-
+    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         ui.heading("Undo");
         world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
             ui.add(
@@ -209,6 +225,11 @@ impl EditorTab for SettingsWindow {
                         });
                     });
                 });
+
+            for (name, block) in self.sub_blocks.iter_mut() {
+                ui.heading(name);
+                (*block)(ui, commands, world);
+            }
         }
     }
 

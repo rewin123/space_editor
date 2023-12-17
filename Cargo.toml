@@ -18,9 +18,9 @@ bevy = "0.12"
 prefab = { path = "crates/prefab" }
 shared = { path = "crates/shared" }
 undo = { path = "crates/undo" }
-persistence = { path = "crates/persistence" }
+persistence = { path = "crates/persistence"}
 editor_core = { path = "crates/editor_core", features = ["persistence_editor"] }
-editor = { path = "crates/editor" }
+editor = { path = "crates/editor", features = ["persistence_editor"] }
 ron = "0.8"
 serde = "1"
 
