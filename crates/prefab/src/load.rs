@@ -23,7 +23,6 @@ pub struct PrefabBundle {
 }
 
 impl PrefabBundle {
-
     /// Create new prefab bundle from path to prefab file
     pub fn new(path: &str) -> Self {
         Self {

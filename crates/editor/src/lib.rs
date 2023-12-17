@@ -95,7 +95,6 @@ pub mod prelude {
     pub use crate::EditorUiRef;
 }
 
-
 /// External dependencies for editor crate
 pub mod ext {
     pub use bevy_egui;
@@ -249,7 +248,6 @@ impl Plugin for EditorPlugin {
         ui_registration::register_light_editor_bundles(app);
     }
 }
-
 
 /// This event used for selecting entities
 #[derive(Event, Clone, EntityEvent)]
@@ -612,7 +610,6 @@ fn show_editor_ui(world: &mut World) {
     });
 }
 
-
 /// This resource contains registered editor tabs and current dock tree state
 #[derive(Resource)]
 pub struct EditorUi {
@@ -723,7 +720,6 @@ impl EditorUi {
         }
     }
 }
-
 
 /// Trait for registering editor tabs via app.**
 pub trait EditorUiAppExt {
