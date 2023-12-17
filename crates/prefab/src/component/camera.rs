@@ -1,6 +1,6 @@
 use crate::ext::*;
 
-/// mark camera to run in play mode
+/// Play Mode only camera tag/marker
 #[derive(Component, Clone, Default, Reflect)]
 #[reflect(Default, Component)]
 pub struct CameraPlay {}

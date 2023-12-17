@@ -1,16 +1,19 @@
 use crate::ext::*;
+use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
-#[derive(Component, Reflect, Clone)]
-#[reflect(Default, Component)]
+#[derive(Component, Reflect, Clone, InspectorOptions)]
+#[reflect(Default, Component, InspectorOptions)]
 pub struct MaterialPrefab {
     pub base_color: Color,
     pub base_color_texture: String,
     pub emissive: Color,
     pub emissive_texture: String,
     pub perceptual_roughness: f32,
+    #[inspector(min = 0.0, max = 1.0)]
     pub metallic: f32,
     pub metallic_roughness_texture: String,
+    #[inspector(min = 0.0, max = 1.0)]
     pub reflectance: f32,
     pub normal_map_texture: String,
     pub flip_normal_map_y: bool,

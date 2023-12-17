@@ -24,7 +24,7 @@ impl Plugin for EditorRegistryPlugin {
     }
 }
 
-/// Contains function to remove component in untyped style
+/// Container struct for function to remove component in untyped style
 #[derive(Clone)]
 pub struct RemoveComponent {
     func: Arc<dyn Fn(&mut EntityCommands) + Send + Sync>,
@@ -40,7 +40,7 @@ impl RemoveComponent {
     }
 }
 
-/// Contains function to clone component in untyped style
+/// Container struct for function to clone component in untyped style
 #[derive(Clone)]
 pub struct CloneComponent {
     func: Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>,
@@ -58,7 +58,7 @@ impl CloneComponent {
     }
 }
 
-/// Contains function to add default component in untyped style
+/// Container struct for function to add default component in untyped style
 #[derive(Clone)]
 pub struct AddDefaultComponent {
     func: Arc<dyn Fn(Entity, &mut World) + Send + Sync>,

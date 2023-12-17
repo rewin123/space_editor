@@ -6,7 +6,7 @@ pub mod collider;
 pub mod registry;
 pub mod spatial_query;
 
-//add optional dependencies
+/// Community module containing bevy_xpbd_3d plugin
 pub struct XpbdPlugin;
 
 impl Plugin for XpbdPlugin {

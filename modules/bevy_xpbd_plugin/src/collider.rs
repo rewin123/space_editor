@@ -47,6 +47,7 @@ pub struct ColliderPart {
 
 #[derive(Debug, Reflect, Clone, PartialEq)]
 #[reflect(Default)]
+/// Available bevy_xpbd primitive 3D shapes
 pub enum ColliderPrimitive {
     Cuboid(Vector),
     Capsule {

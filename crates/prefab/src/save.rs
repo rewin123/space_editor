@@ -11,6 +11,8 @@ use crate::prelude::{EditorRegistry, EditorRegistryExt};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
+/// Component that holds children entity/prefab information
+/// that should be serialized
 pub struct ChildrenPrefab(pub Vec<Entity>);
 
 impl ChildrenPrefab {
@@ -35,14 +37,14 @@ impl Plugin for SavePrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
 
-        app.init_resource::<SaveConfig>();
-        app.add_state::<SaveState>();
+        app.init_resource::<SaveConfig>().add_state::<SaveState>();
+
         app.add_systems(
             OnEnter(SaveState::Save),
             (
                 prepare_children,
                 apply_deferred,
-                serialize_prefab,
+                serialize_scene,
                 delete_prepared_children,
             )
                 .chain(),
@@ -78,8 +80,8 @@ fn delete_prepared_children(mut commands: Commands, query: Query<Entity, With<Ch
     }
 }
 
-/// Convert world to prefab
-pub fn serialize_prefab(world: &mut World) {
+/// Convert world scene to prefab
+pub fn serialize_scene(world: &mut World) {
     let config = world.resource::<SaveConfig>().clone();
 
     let mut prefab_query = world.query_filtered::<Entity, With<PrefabMarker>>();

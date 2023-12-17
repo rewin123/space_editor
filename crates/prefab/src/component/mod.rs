@@ -1,29 +1,27 @@
+/// Module contatins structures for determining mesh shapes
 pub mod shape;
 pub use shape::*;
 
+/// Module contatins structures for determining standart material
 pub mod material;
 pub use material::*;
 
+/// Module contatins structures for determining camera
 pub mod camera;
 pub use camera::*;
 
+/// Module contatins structures for determining player start
 pub mod player_start;
 pub use player_start::*;
 
+/// NOT USED. Planned to be used in future for auto structs
 pub mod path;
 
 use bevy::{prelude::*, reflect::*, utils::HashMap};
 
+/// External dependencies
 pub mod ext {
     pub use shared::ext::*;
-}
-
-use ext::*;
-
-pub trait AssetPath {
-    fn get_filter(&self) -> egui_file::Filter;
-    fn set_path(&mut self, path: &str);
-    fn get_path_mut(&mut self) -> &mut String;
 }
 
 /// Component to define path to gltf asset that will be loaded after prefab spawn
@@ -114,12 +112,14 @@ impl Default for EntityLink {
     }
 }
 
+/// Component to define path to mesh asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component, Default)]
 pub struct AssetMesh {
     pub path: String,
 }
 
+/// Component to define path to material asset that will be loaded after prefab spawn
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component, Default)]
 pub struct AssetMaterial {

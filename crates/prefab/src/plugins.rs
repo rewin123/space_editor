@@ -194,6 +194,7 @@ fn camera_render_graph_creation(
     }
 }
 
+/// This systems automatically adds the global transform to entities that don't have it
 pub fn add_global_transform(
     mut commands: Commands,
     mut query: Query<

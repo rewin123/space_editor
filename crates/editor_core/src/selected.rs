@@ -5,11 +5,11 @@ use bevy::{
 
 use shared::EditorSet;
 
-/// This struct used as marked for all selected entities
+/// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
 pub struct Selected;
 
-/// Plugin to activate select system
+/// Selection system plugins
 pub struct SelectedPlugin;
 
 impl Plugin for SelectedPlugin {
@@ -17,11 +17,14 @@ impl Plugin for SelectedPlugin {
         if !app.is_plugin_added::<WireframePlugin>() {
             app.add_plugins(WireframePlugin);
         }
-        app.add_systems(Update, stupid_wireframe_update.in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            selected_entity_wireframe_update.in_set(EditorSet::Editor),
+        );
     }
 }
 
-fn stupid_wireframe_update(
+fn selected_entity_wireframe_update(
     mut cmds: Commands,
     del_wireframe: Query<Entity, (With<Wireframe>, Without<Selected>)>,
     need_wireframe: Query<Entity, (Without<Wireframe>, With<Selected>)>,

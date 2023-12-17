@@ -13,6 +13,7 @@ use bevy::{
 use ron::ser::PrettyConfig;
 use serde::de::DeserializeSeed;
 
+/// Plugin that enables persistance for marked entities
 pub struct PersistencePlugin;
 
 #[derive(SystemSet, Hash, PartialEq, Clone, Debug, Eq)]

@@ -8,14 +8,15 @@ use editor::ext::bevy_inspector_egui;
 use crate::collider::ColliderPrimitive;
 
 pub fn register_xpbd_spatial_types(app: &mut App) {
-    app.editor_registry::<RayCasterPrefab>();
-    app.editor_into_sync::<RayCasterPrefab, RayCaster>();
-    app.editor_registry::<ShapeCasterPrefab>();
-    app.editor_into_sync::<ShapeCasterPrefab, ShapeCaster>();
+    app.editor_registry::<RayCasterPrefab>()
+        .editor_into_sync::<RayCasterPrefab, RayCaster>();
+    app.editor_registry::<ShapeCasterPrefab>()
+        .editor_into_sync::<ShapeCasterPrefab, ShapeCaster>();
 }
 
 #[derive(Component, Reflect, Clone, Debug, InspectorOptions)]
 #[reflect(Component, Default)]
+/// Available bevy_xpbd::RayCaster wrappers
 pub struct RayCasterPrefab {
     pub direction: Vector,
     pub origin: Vector,
@@ -38,6 +39,7 @@ impl From<RayCasterPrefab> for RayCaster {
 
 #[derive(Component, Reflect, Clone, Debug, InspectorOptions, Default)]
 #[reflect(Component, Default)]
+/// Available bevy_xpbd::ShapeCaster wrappers
 pub struct ShapeCasterPrefab {
     pub shape: ColliderPrimitive,
     pub origin: Vector,

@@ -8,7 +8,6 @@ use bevy::utils::HashMap;
 #[cfg(feature = "persistence_editor")]
 use persistence::AppPersistenceExt;
 
-//TODO: I think this must be a derive macro in future
 pub trait Hotkey:
     Send
     + Sync
