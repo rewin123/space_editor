@@ -8,8 +8,8 @@ use bevy::{
 };
 use space_shared::*;
 
-use std::any::TypeId;
 use space_undo::AppAutoUndo;
+use std::any::TypeId;
 
 use crate::{component::AutoStruct, save::SaveState, PrefabSet};
 

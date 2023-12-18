@@ -48,8 +48,8 @@ use bevy_mod_picking::{
     PickableBundle,
 };
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
-use space_editor_core::prelude::*;
 use egui_dock::DockArea;
+use space_editor_core::prelude::*;
 
 use bevy::{
     ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
@@ -59,19 +59,19 @@ use bevy::{
 use bevy_egui::{egui, EguiContext};
 
 use game_view::has_window_changed;
-use space_prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
     NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
     SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
+use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
-use ui_registration::BundleReg;
 use space_undo::UndoPlugin;
+use ui_registration::BundleReg;
 
 use self::{
     mouse_check::MouseCheck,
