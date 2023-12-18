@@ -35,8 +35,8 @@ serde = "1"
 
 [dependencies]
 bevy.workspace = true
-editor.workspace = true
-prefab.workspace = true
+editor = {workspace = true, version = "*" }
+prefab = {workspace = true, version = "*" }
 
 # Modules for external crates
 bevy_xpbd_plugin = {version = "*", path = "modules/bevy_xpbd_plugin", optional = true }
