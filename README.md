@@ -5,6 +5,10 @@ License: MIT
 
 space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 
+## Project goal
+
+Aspires to be editor for bevy while there is no official editor.
+
 ## Main features
 
 - **Intuitive Scene and Prefab Management**: Space Editor allows you to prepare and save scenes and prefabs with an intuitive user interface. You can easily reuse them in your game development workflow. 
@@ -99,4 +103,9 @@ Any pull request is welcome too:)
 
 ### License
 MIT - https://choosealicense.com/licenses/mit/
+
+
+### Project naming
+
+I'm using the editor to create my own Sci-Fi space game, so the name of the project starts with space_ :)
 
