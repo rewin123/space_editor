@@ -3,6 +3,7 @@ name = "space_editor"
 version = "0.3.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+authors = ["Julia Naomi <jnboeira@outlook.com>"]
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
 exclude = ["/assets", "/examples"]
