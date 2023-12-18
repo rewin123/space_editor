@@ -24,12 +24,12 @@ categories = ["game-development"]
 bevy = "0.12"
 
 # Editor Crates
-prefab = { path = "crates/prefab" }
-shared = { path = "crates/shared" }
-undo = { path = "crates/undo" }
-persistence = { path = "crates/persistence"}
-editor_core = { path = "crates/editor_core", features = ["persistence_editor"] }
-editor = { path = "crates/editor", features = ["persistence_editor"] }
+prefab = { version = "*", path = "crates/prefab" }
+shared = { version = "*", path = "crates/shared" }
+undo = { version = "*", path = "crates/undo" }
+persistence = { version = "*", path = "crates/persistence"}
+editor_core = { version = "*", path = "crates/editor_core", features = ["persistence_editor"] }
+editor = { version = "*", path = "crates/editor", features = ["persistence_editor"] }
 ron = "0.8"
 serde = "1"
 
