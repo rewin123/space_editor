@@ -1,6 +1,7 @@
 use bevy::{
     pbr::{LightEntity, Mesh3d},
     prelude::*,
+    render::view::RenderLayers,
 };
 use shared::*;
 
@@ -14,6 +15,9 @@ impl Plugin for MeshlessVisualizerPlugin {
             .add_systems(Update, visualize_meshless.in_set(EditorSet::Editor));
     }
 }
+
+#[derive(Component)]
+pub struct EditorViewOnly;
 
 #[derive(Resource, Default)]
 pub struct MeshlessMeshMat {
@@ -31,21 +35,27 @@ pub fn visualize_meshless(
     handle: Res<MeshlessMeshMat>,
 ) {
     for (entity, transform) in &cams {
-        commands.entity(entity).insert(MaterialMeshBundle {
-            mesh: handle.mesh.clone(),
-            material: handle.mat.clone(),
-            transform: *transform,
-            ..default()
-        });
+        commands
+            .entity(entity)
+            .insert(MaterialMeshBundle {
+                mesh: handle.mesh.clone(),
+                material: handle.mat.clone(),
+                transform: *transform,
+                ..default()
+            })
+            .insert(RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8));
     }
 
     for (entity, transform) in &lights {
-        commands.entity(entity).insert(MaterialMeshBundle {
-            mesh: handle.mesh.clone(),
-            material: handle.mat.clone(),
-            transform: *transform,
-            ..default()
-        });
+        commands
+            .entity(entity)
+            .insert(MaterialMeshBundle {
+                mesh: handle.mesh.clone(),
+                material: handle.mat.clone(),
+                transform: *transform,
+                ..default()
+            })
+            .insert(RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8));
     }
 }
 

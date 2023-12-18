@@ -55,9 +55,13 @@ use editor_core::prelude::*;
 use egui_dock::DockArea;
 
 use bevy::{
-    ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
-    pbr::CascadeShadowConfigBuilder, prelude::*, render::render_resource::PrimitiveTopology,
-    utils::HashMap, window::PrimaryWindow,
+    ecs::system::CommandQueue,
+    input::common_conditions::input_toggle_active,
+    pbr::CascadeShadowConfigBuilder,
+    prelude::*,
+    render::{render_resource::PrimitiveTopology, view::RenderLayers},
+    utils::HashMap,
+    window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
@@ -800,15 +804,19 @@ pub struct EditorUiRef(pub egui::Ui);
 pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
     // light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
+    commands.spawn((
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+            cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
             ..default()
         },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
-        ..default()
-    });
+        PrefabMarker,
+        Name::new("Directional Light"),
+    ));
 
     // camera
     commands
@@ -816,6 +824,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..default()
         })
+        .insert(RenderLayers::all())
         .insert(bevy_panorbit_camera::PanOrbitCamera::default())
         .insert(EditorCameraMarker)
         .insert(PickableBundle::default())
