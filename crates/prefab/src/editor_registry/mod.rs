@@ -6,10 +6,10 @@ use bevy::{
     reflect::{GetTypeRegistration, TypePath, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
-use shared::*;
+use space_shared::*;
 
 use std::any::TypeId;
-use undo::AppAutoUndo;
+use space_undo::AppAutoUndo;
 
 use crate::{component::AutoStruct, save::SaveState, PrefabSet};
 

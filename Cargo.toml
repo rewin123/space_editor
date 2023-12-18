@@ -24,24 +24,24 @@ categories = ["game-development"]
 bevy = "0.12"
 
 # Editor Crates
-prefab = { version = "*", path = "crates/prefab" }
-shared = { version = "*", path = "crates/shared" }
-undo = { version = "*", path = "crates/undo" }
-persistence = { version = "*", path = "crates/persistence"}
-editor_core = { version = "*", path = "crates/editor_core", features = ["persistence_editor"] }
-editor = { version = "*", path = "crates/editor", features = ["persistence_editor"] }
+space_prefab = { version = "*", path = "crates/prefab" }
+space_shared = { version = "*", path = "crates/shared" }
+space_undo = { version = "*", path = "crates/undo" }
+space_persistence = { version = "*", path = "crates/persistence"}
+space_editor_core = { version = "*", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "*", path = "crates/editor_ui", features = ["persistence_editor"] }
 ron = "0.8"
 serde = "1"
 
-bevy_xpbd_plugin = { version = "*", path = "modules/bevy_xpbd_plugin"}
+space_bevy_xpbd_plugin = { version = "*", path = "modules/bevy_xpbd_plugin"}
 
 [dependencies]
 bevy.workspace = true
-editor = {workspace = true, version = "*" }
-prefab = {workspace = true, version = "*" }
+space_editor_ui = {workspace = true, version = "*" }
+space_prefab = {workspace = true, version = "*" }
 
 # Modules for external crates
-bevy_xpbd_plugin = {version = "*", workspace = true, optional = true }
+space_bevy_xpbd_plugin = {version = "*", workspace = true, optional = true }
 
 
 # For versions 1.74+
@@ -66,7 +66,7 @@ too_many_arguments = { level = "allow", priority = 2 }
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:bevy_xpbd_plugin"]
+bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 editor = []
 default = ["bevy_xpbd_3d", "persistence_editor", "editor"]

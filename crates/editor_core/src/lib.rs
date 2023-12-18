@@ -9,18 +9,18 @@ pub mod task_storage;
 pub mod prelude {
     pub use super::*;
     pub use super::{hotkeys::*, load::*, selected::*, task_storage::*};
-    pub use undo;
+    pub use space_undo;
 }
 
 pub mod gltf_unpack;
 
 use bevy::prelude::*;
 
-use prefab::save::{SaveConfig, SaveState};
+use space_prefab::save::{SaveConfig, SaveState};
 use prelude::load_listener;
-use shared::*;
+use space_shared::*;
 use task_storage::{BackgroundTask, BackgroundTaskStorage, BackgroundTaskStoragePlugin};
-use undo::AppAutoUndo;
+use space_undo::AppAutoUndo;
 
 pub struct EditorCore;
 
@@ -29,7 +29,7 @@ impl Plugin for EditorCore {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
 
         #[cfg(feature = "persistence_editor")]
-        app.add_plugins(persistence::PersistencePlugin);
+        app.add_plugins(space_persistence::PersistencePlugin);
 
         app.add_plugins(BackgroundTaskStoragePlugin);
 

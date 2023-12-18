@@ -1,10 +1,11 @@
 [package]
-name = "undo"
-version.workspace = true 
+name = "space_undo"
+version.workspace = true
+authors.workspace = true
 edition.workspace = true 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 bevy.workspace = true
-shared.workspace = true
+space_shared.workspace = true

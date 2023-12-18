@@ -1,5 +1,5 @@
 [package]
-name = "editor"
+name = "space_editor_ui"
 version.workspace = true
 edition.workspace = true
 
@@ -10,11 +10,11 @@ persistence_editor = []
 
 [dependencies]
 bevy.workspace = true
-editor_core.workspace = true
-prefab.workspace = true
-undo.workspace = true
-persistence.workspace = true
-shared.workspace = true
+space_editor_core.workspace = true
+space_prefab.workspace = true
+space_undo.workspace = true
+space_persistence.workspace = true
+space_shared.workspace = true
 
 bevy_egui = "0.23"
 egui-gizmo = "0.12"

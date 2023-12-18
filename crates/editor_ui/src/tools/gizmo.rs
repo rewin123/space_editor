@@ -1,8 +1,8 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use editor_core::prelude::*;
+use space_editor_core::prelude::*;
 use egui_gizmo::*;
-use shared::EditorCameraMarker;
+use space_shared::EditorCameraMarker;
 
 use crate::prelude::{CloneEvent, EditorTool};
 pub struct GizmoToolPlugin;

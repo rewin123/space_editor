@@ -48,7 +48,7 @@ use bevy_mod_picking::{
     PickableBundle,
 };
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
-use editor_core::prelude::*;
+use space_editor_core::prelude::*;
 use egui_dock::DockArea;
 
 use bevy::{
@@ -59,19 +59,19 @@ use bevy::{
 use bevy_egui::{egui, EguiContext};
 
 use game_view::has_window_changed;
-use prefab::prelude::*;
+use space_prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
     NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
     SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
-use shared::{
+use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
 use ui_registration::BundleReg;
-use undo::UndoPlugin;
+use space_undo::UndoPlugin;
 
 use self::{
     mouse_check::MouseCheck,
@@ -85,10 +85,10 @@ pub mod prelude {
         ui_registration::*,
     };
 
-    pub use editor_core::prelude::*;
-    pub use persistence::*;
-    pub use prefab::prelude::*;
-    pub use shared::prelude::*;
+    pub use space_editor_core::prelude::*;
+    pub use space_persistence::*;
+    pub use space_prefab::prelude::*;
+    pub use space_shared::prelude::*;
 
     pub use crate::simple_editor_setup;
     pub use crate::EditorPlugin;
@@ -101,7 +101,7 @@ pub mod ext {
     pub use bevy_egui;
     pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
-    pub use shared::ext::*;
+    pub use space_shared::ext::*;
 }
 
 /// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
@@ -344,9 +344,9 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-fn save_prefab_before_play(mut editor_events: EventWriter<shared::EditorEvent>) {
-    editor_events.send(shared::EditorEvent::Save(
-        shared::EditorPrefabPath::MemoryCahce,
+fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
+    editor_events.send(space_shared::EditorEvent::Save(
+        space_shared::EditorPrefabPath::MemoryCahce,
     ));
 }
 
@@ -368,11 +368,11 @@ fn clear_and_load_on_start(
         return;
     }
     match save_confg.path.as_ref().unwrap() {
-        shared::EditorPrefabPath::File(path) => {
+        space_shared::EditorPrefabPath::File(path) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        shared::EditorPrefabPath::MemoryCahce => {
+        space_shared::EditorPrefabPath::MemoryCahce => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }

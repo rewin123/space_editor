@@ -4,7 +4,7 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs::File, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt};

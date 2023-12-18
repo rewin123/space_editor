@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use shared::PrefabMarker;
+use space_shared::PrefabMarker;
 
 use crate::prelude::EditorRegistryExt;
 

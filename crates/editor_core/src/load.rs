@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use shared::*;
+use space_shared::*;
 
 use crate::EditorLoader;
 

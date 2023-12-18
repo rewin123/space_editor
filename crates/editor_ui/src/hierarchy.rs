@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
-use editor_core::prelude::*;
-use prefab::editor_registry::EditorRegistry;
-use undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
+use space_editor_core::prelude::*;
+use space_prefab::editor_registry::EditorRegistry;
+use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use crate::ui_registration::BundleReg;
-use shared::*;
+use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
 
