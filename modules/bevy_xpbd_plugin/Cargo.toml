@@ -3,6 +3,8 @@ name = "space_bevy_xpbd_plugin"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+license.workspace = true
+description = "Space XPBD plugin for space_editor crate"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
