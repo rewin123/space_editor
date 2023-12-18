@@ -33,13 +33,15 @@ editor = { version = "*", path = "crates/editor", features = ["persistence_edito
 ron = "0.8"
 serde = "1"
 
+bevy_xpbd_plugin = { version = "*", path = "modules/bevy_xpbd_plugin"}
+
 [dependencies]
 bevy.workspace = true
 editor = {workspace = true, version = "*" }
 prefab = {workspace = true, version = "*" }
 
 # Modules for external crates
-bevy_xpbd_plugin = {version = "*", path = "modules/bevy_xpbd_plugin", optional = true }
+bevy_xpbd_plugin = {version = "*", workspace = true, optional = true }
 
 
 # For versions 1.74+
