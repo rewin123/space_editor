@@ -39,7 +39,7 @@ editor.workspace = true
 prefab.workspace = true
 
 # Modules for external crates
-bevy_xpbd_plugin = { path = "modules/bevy_xpbd_plugin", optional = true }
+bevy_xpbd_plugin = {version = "*", path = "modules/bevy_xpbd_plugin", optional = true }
 
 
 # For versions 1.74+
