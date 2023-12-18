@@ -17,11 +17,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "cube.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           38654705667,
         ]),
       },
@@ -42,11 +42,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           9,
           12884901901,
         ]),
@@ -68,11 +68,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           32,
           31,
           39,
@@ -95,11 +95,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           45,
           44,
           52,
@@ -122,11 +122,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "colone.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           19,
           18,
           26,
