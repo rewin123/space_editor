@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::*;
-use editor_core::prelude::*;
-use prefab::plugins::PrefabPlugin;
-use shared::{ext::egui_file, *};
+use space_editor_core::prelude::*;
+use space_prefab::plugins::PrefabPlugin;
+use space_shared::{ext::egui_file, *};
 
 /// Plugin to activate bot menu in editor UI
 pub struct BotMenuPlugin;

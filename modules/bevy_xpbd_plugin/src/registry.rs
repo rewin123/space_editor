@@ -1,6 +1,6 @@
 use bevy::{prelude::*, transform::TransformSystem};
 use bevy_xpbd_3d::prelude::*;
-use editor::{
+use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
     settings::RegisterSettingsBlockExt,
     EditorUiPlugin,

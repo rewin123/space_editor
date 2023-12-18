@@ -1,7 +1,8 @@
 [package]
-name = "prefab"
-version = "0.1.0"
-edition = "2021"
+name = "space_prefab"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,8 +10,8 @@ edition = "2021"
 bevy.workspace = true
 ron.workspace = true
 serde.workspace = true
-shared.workspace = true
-undo.workspace = true
+space_shared.workspace = true
+space_undo.workspace = true
 
 bevy-scene-hook = "9"
 bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}

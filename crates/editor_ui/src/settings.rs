@@ -3,11 +3,11 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 use bevy_egui::*;
-use editor_core::hotkeys::AllHotkeys;
-use undo::ChangeChainSettings;
+use space_editor_core::hotkeys::AllHotkeys;
+use space_undo::ChangeChainSettings;
 
 #[cfg(feature = "persistence_editor")]
-use persistence::*;
+use space_persistence::*;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},

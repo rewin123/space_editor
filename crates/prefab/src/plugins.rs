@@ -12,7 +12,7 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
-use shared::PrefabMarker;
+use space_shared::PrefabMarker;
 
 use crate::{
     component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,

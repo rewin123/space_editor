@@ -1,9 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
-use undo::UndoRedo;
+use space_undo::UndoRedo;
 
-use shared::*;
+use space_shared::*;
 
 use super::{editor_tab::EditorTab, tool::EditorTool};
 
