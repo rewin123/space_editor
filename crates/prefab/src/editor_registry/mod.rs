@@ -31,7 +31,7 @@ pub struct RemoveComponent {
 }
 
 impl RemoveComponent {
-    pub fn new<T: Clone + Component>() -> Self {
+    pub fn new<T: Component>() -> Self {
         Self {
             func: Arc::new(move |cmds| {
                 cmds.remove::<T>();
@@ -47,11 +47,12 @@ pub struct CloneComponent {
 }
 
 impl CloneComponent {
-    pub fn new<T: Clone + Component>() -> Self {
+    pub fn new<T: Component>() -> Self {
         Self {
             func: Arc::new(move |cmds, src| {
                 if let Some(c) = src.get::<T>() {
-                    cmds.insert(c.clone());
+                    let t: T = unsafe { std::mem::transmute_copy(&c) };
+                    cmds.insert(t);
                 }
             }),
         }
@@ -92,9 +93,7 @@ pub struct EditorRegistry {
 
 impl EditorRegistry {
     /// Register new component, which will be shown in editor UI and saved in prefab
-    pub fn register<T: Component + Default + Send + 'static + GetTypeRegistration + Clone>(
-        &mut self,
-    ) {
+    pub fn register<T: Component + Default + Send + 'static + GetTypeRegistration>(&mut self) {
         self.registry.write().register::<T>();
         self.spawn_components.insert(
             T::get_type_registration().type_id(),
@@ -108,9 +107,7 @@ impl EditorRegistry {
     }
 
     /// Register new component, which will be hidden in editor UI and saved in prefab
-    pub fn silent_register<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Clone,
-    >(
+    pub fn silent_register<T: Component + Default + Send + 'static + GetTypeRegistration>(
         &mut self,
     ) {
         self.registry.write().register::<T>();
@@ -158,14 +155,12 @@ impl EditorRegistry {
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self;
     /// register new component inly in prefab systems (will be no shown in editor UI)
-    fn editor_silent_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Clone,
-    >(
+    fn editor_silent_registry<T: Component + Default + Send + 'static + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self;
 
@@ -202,7 +197,7 @@ pub trait EditorRegistryExt {
 
 impl EditorRegistryExt for App {
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Clone + Reflect + FromReflect,
+        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self {
@@ -225,9 +220,7 @@ impl EditorRegistryExt for App {
         self
     }
 
-    fn editor_silent_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Clone,
-    >(
+    fn editor_silent_registry<T: Component + Default + Send + 'static + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self {
         self.world
