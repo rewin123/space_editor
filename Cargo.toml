@@ -19,6 +19,8 @@ license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>"]
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
+repository = "https://github.com/rewin123/space_editor"
+homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
 bevy = "0.12"
