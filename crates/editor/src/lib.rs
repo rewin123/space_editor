@@ -27,6 +27,9 @@ pub mod hierarchy;
 /// This module contains Inspector tab logic
 pub mod inspector;
 
+/// This module contains methods to visualize entities without a mesh attached
+pub mod meshless_visualizer;
+
 /// This module contains Settings tab logic
 pub mod settings;
 
@@ -63,8 +66,8 @@ use prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
-    NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
+    MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab,
+    ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
 use shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
@@ -81,8 +84,8 @@ use self::{
 pub mod prelude {
     pub use super::{
         asset_inspector::*, bot_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
-        game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
-        ui_registration::*,
+        game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
+        tools::*, ui_registration::*,
     };
 
     pub use editor_core::prelude::*;
@@ -530,6 +533,10 @@ impl Plugin for EditorUiPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<SelectedPlugin>() {
             app.add_plugins(SelectedPlugin);
+        }
+
+        if !app.is_plugin_added::<MeshlessVisualizerPlugin>() {
+            app.add_plugins(MeshlessVisualizerPlugin::default());
         }
 
         app.add_plugins((bot_menu::BotMenuPlugin, MouseCheck));
