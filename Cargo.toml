@@ -16,7 +16,7 @@ repository = "https://github.com/rewin123/space_editor"
 version = "0.3.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-authors = ["Julia Naomi <jnboeira@outlook.com>"]
+authors = ["rewin <rewin1996@gmail.com>"]
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
 
