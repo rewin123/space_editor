@@ -5,7 +5,7 @@ use bevy::{
     reflect::Reflect,
 };
 use bevy_egui::egui;
-use space_shared::ext::bevy_inspector_egui::{
+use bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 

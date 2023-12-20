@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 #![allow(clippy::too_many_arguments)]
 use bevy::prelude::*;
 use heightmap::{HeightMap, MapSettings, SmoothFunction};
 use mesh::TerrainDrawTag;
 use space_editor_ui::ui_registration::EditorUiExt;
+=======
+use bevy::prelude::*;
+use heightmap::{HeightMap, MapSettings, SmoothFunction};
+use mesh::TerrainDrawTag;
+>>>>>>> c787a57 (heightmap-and-terrain-mesh)
 use space_prefab::editor_registry::EditorRegistryExt;
 
 pub mod heightmap;
@@ -12,15 +18,19 @@ pub mod inspector;
 pub mod mesh;
 
 pub use inspector::TerraingenInspectorPlugin;
+<<<<<<< HEAD
 use space_shared::PrefabMarker;
 
 const TERRAIN_BUNDLE_CATEGORY: &str = "Terrain";
+=======
+>>>>>>> c787a57 (heightmap-and-terrain-mesh)
 
 #[derive(Debug, Default)]
 pub struct TerraingenPlugin;
 
 impl Plugin for TerraingenPlugin {
     fn build(&self, app: &mut App) {
+<<<<<<< HEAD
         app.editor_registry::<MapSettings>()
             .editor_registry::<HeightMap>()
             .register_type::<SmoothFunction>()
@@ -67,5 +77,13 @@ pub fn update_spawned_terrain(
 ) {
     for entity in query.iter_mut() {
         update_events.send(UpdateTerrain::One(entity));
+=======
+        app.init_resource::<MapSettings>()
+            .register_type::<MapSettings>()
+            .init_resource::<HeightMap>()
+            .register_type::<HeightMap>()
+            .register_type::<SmoothFunction>()
+            .editor_registry::<TerrainDrawTag>();
+>>>>>>> c787a57 (heightmap-and-terrain-mesh)
     }
 }

@@ -1,5 +1,4 @@
-use crate::ext::*;
-
+use bevy::prelude::*;
 /// Entities with this component will spawn prefab on enter to [`EditorState::Game`] state
 ///
 /// [`EditorState::Game`]: crate::EditorState::Game

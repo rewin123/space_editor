@@ -1,4 +1,4 @@
-use crate::ext::*;
+use bevy::prelude::*;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
