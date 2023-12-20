@@ -15,6 +15,8 @@ space_prefab.workspace = true
 space_undo.workspace = true
 space_persistence.workspace = true
 space_shared.workspace = true
+egui_file.workspace = true
+bevy-inspector-egui.workspace = true
 
 bevy_egui = "0.23"
 egui-gizmo = "0.12"

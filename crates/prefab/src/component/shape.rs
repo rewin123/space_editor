@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use space_shared::ext::bevy_inspector_egui;
-use space_shared::ext::bevy_inspector_egui::prelude::*;
+use bevy_inspector_egui::{self, prelude::*};
 
 /// Component to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]

@@ -22,6 +22,10 @@ categories = ["game-development"]
 
 [workspace.dependencies]
 bevy = "0.12"
+ron = "0.8"
+serde = "1"
+egui_file = "0.11"
+bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
 
 # Editor Crates
 space_prefab = { version = "*", path = "crates/prefab" }
@@ -30,10 +34,10 @@ space_undo = { version = "*", path = "crates/undo" }
 space_persistence = { version = "*", path = "crates/persistence"}
 space_editor_core = { version = "*", path = "crates/editor_core", features = ["persistence_editor"] }
 space_editor_ui = { version = "*", path = "crates/editor_ui", features = ["persistence_editor"] }
-ron = "0.8"
-serde = "1"
 
 space_bevy_xpbd_plugin = { version = "*", path = "modules/bevy_xpbd_plugin"}
+terrain_gen = { version = "*", path = "modules/terrain_gen"}
+
 
 [dependencies]
 bevy.workspace = true
@@ -42,7 +46,10 @@ space_prefab = {workspace = true, version = "*" }
 
 # Modules for external crates
 space_bevy_xpbd_plugin = {version = "*", workspace = true, optional = true }
+terrain_gen = {version = "*", workspace = true, optional = true }
 
+[dev-dependencies]
+bevy_panorbit_camera = "0.9"
 
 # For versions 1.74+
 [lints.rust]
@@ -69,7 +76,8 @@ opt-level = 3
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 editor = []
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
+experimental = ["terrain_gen"]
+default = ["bevy_xpbd_3d", "persistence_editor", "editor", "experimental"]
 
 [[example]]
 name = "platformer"
