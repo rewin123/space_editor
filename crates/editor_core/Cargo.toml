@@ -1,8 +1,12 @@
 [package]
 name = "space_editor_core"
-edition = "2021"
 version.workspace = true
 authors.workspace = true
+edition.workspace = true 
+license.workspace = true
+description = "Subcrate for the space_editor crate. Contains the core functionality of the editor."
+repository.workspace = true
+homepage.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

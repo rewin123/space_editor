@@ -19,6 +19,8 @@ license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>"]
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
+repository = "https://github.com/rewin123/space_editor"
+homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
 bevy = "0.12"
@@ -38,11 +40,10 @@ space_editor_ui = { version = "*", path = "crates/editor_ui", features = ["persi
 space_bevy_xpbd_plugin = { version = "*", path = "modules/bevy_xpbd_plugin"}
 terrain_gen = { version = "*", path = "modules/terrain_gen"}
 
-
 [dependencies]
 bevy.workspace = true
-space_editor_ui = {workspace = true, version = "*" }
-space_prefab = {workspace = true, version = "*" }
+space_editor_ui = {workspace = true, version = "0.3.0" }
+space_prefab = {workspace = true, version = "0.3.0" }
 
 # Modules for external crates
 space_bevy_xpbd_plugin = {version = "*", workspace = true, optional = true }
