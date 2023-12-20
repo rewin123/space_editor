@@ -1,3 +1,4 @@
+#![allow(clippy::too_many_arguments)]
 use bevy::prelude::*;
 use heightmap::{HeightMap, MapSettings, SmoothFunction};
 use mesh::TerrainDrawTag;
