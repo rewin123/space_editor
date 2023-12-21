@@ -46,7 +46,7 @@ impl Plugin for BevyXpbdPlugin {
             PostUpdate,
             (editor_pos_change)
                 .before(TransformSystem::TransformPropagate)
-                .before(bevy_xpbd_3d::PhysicsSet::Prepare)
+                .after(bevy_xpbd_3d::PhysicsSet::Prepare)
                 .in_set(PrefabSet::DetectPrefabChange)
                 .run_if(in_state(EditorState::Editor)),
         );

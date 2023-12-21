@@ -2,7 +2,7 @@
 #![allow(clippy::type_complexity)]
 use std::sync::Arc;
 
-use bevy::{prelude::*, utils::HashMap, ecs::event};
+use bevy::{ecs::event, prelude::*, utils::HashMap};
 
 use space_shared::{EditorSet, PrefabMarker};
 
@@ -68,12 +68,11 @@ impl Default for OneFrameUndoIgnore {
 }
 
 fn update_change_chain(
-    mut buffer : Local<Vec<NewChange>>, //Buffer will use for chain reaction changes and collecting them together
+    mut buffer: Local<Vec<NewChange>>, //Buffer will use for chain reaction changes and collecting them together
     settings: Res<ChangeChainSettings>,
     mut change_chain: ResMut<ChangeChain>,
     mut events: EventReader<NewChange>,
 ) {
-
     //collect buffer
     let mut events_on_current_frame = 0;
     for event in events.read() {
@@ -411,7 +410,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
     }
 
     fn debug_text(&self) -> String {
-        format!("{:?} changed for entity {:?}", pretty_type_name::pretty_type_name::<T>(), self.entity)
+        format!(
+            "{:?} changed for entity {:?}",
+            pretty_type_name::pretty_type_name::<T>(),
+            self.entity
+        )
     }
 }
 
@@ -680,7 +683,7 @@ impl EditorChange for ManyChanges {
 
 #[derive(Component)]
 pub struct ChangedMarker<T> {
-    latency : i32,
+    latency: i32,
     _phantom: std::marker::PhantomData<T>,
 }
 
