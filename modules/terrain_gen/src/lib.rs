@@ -17,11 +17,14 @@ pub struct TerraingenPlugin;
 
 impl Plugin for TerraingenPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<MapSettings>()
-            .register_type::<MapSettings>()
-            .init_resource::<HeightMap>()
+        app.register_type::<MapSettings>()
             .register_type::<HeightMap>()
             .register_type::<SmoothFunction>()
             .editor_registry::<TerrainDrawTag>();
+
+        let settings = MapSettings::default();
+        let generated_heightmap = settings.heightmap();
+        app.insert_resource(settings)
+            .insert_resource(generated_heightmap);
     }
 }
