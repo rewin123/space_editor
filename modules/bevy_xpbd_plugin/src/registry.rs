@@ -43,10 +43,8 @@ impl Plugin for BevyXpbdPlugin {
         register_xpbd_spatial_types(app);
 
         app.add_systems(
-            PostUpdate,
+            PreUpdate,
             (editor_pos_change)
-                .before(TransformSystem::TransformPropagate)
-                .after(bevy_xpbd_3d::PhysicsSet::Prepare)
                 .in_set(PrefabSet::DetectPrefabChange)
                 .run_if(in_state(EditorState::Editor)),
         );
