@@ -2,7 +2,7 @@
 #![allow(clippy::type_complexity)]
 use std::sync::Arc;
 
-use bevy::{ecs::event, prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap};
 
 use space_shared::{EditorSet, PrefabMarker};
 
