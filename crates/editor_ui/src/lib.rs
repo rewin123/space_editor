@@ -814,5 +814,5 @@ pub fn simple_editor_setup(mut commands: Commands) {
         .insert(PickableBundle::default())
         .insert(RaycastPickable);
 
-    bevy_debug_grid::spawn_floor_grid(commands);
+    // bevy_debug_grid::spawn_floor_grid(commands);
 }
