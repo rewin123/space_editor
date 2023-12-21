@@ -26,24 +26,24 @@ homepage = "https://github.com/rewin123/space_editor"
 bevy = "0.12"
 
 # Editor Crates
-space_prefab = { version = "0.3.0", path = "crates/prefab" }
-space_shared = { version = "0.3.0", path = "crates/shared" }
-space_undo = { version = "0.3.0", path = "crates/undo" }
-space_persistence = { version = "0.3.0", path = "crates/persistence"}
-space_editor_core = { version = "0.3.0", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.3.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_prefab = { version = "0.3.1", path = "crates/prefab" }
+space_shared = { version = "0.3.1", path = "crates/shared" }
+space_undo = { version = "0.3.1", path = "crates/undo" }
+space_persistence = { version = "0.3.1", path = "crates/persistence"}
+space_editor_core = { version = "0.3.1", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "0.3.1", path = "crates/editor_ui", features = ["persistence_editor"] }
 ron = "0.8"
 serde = "1"
 
-space_bevy_xpbd_plugin = { version = "0.3.0", path = "modules/bevy_xpbd_plugin"}
+space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
 
 [dependencies]
 bevy.workspace = true
-space_editor_ui = {workspace = true, version = "0.3.0" }
-space_prefab = {workspace = true, version = "0.3.0" }
+space_editor_ui = {workspace = true, version = "0.3.1" }
+space_prefab = {workspace = true, version = "0.3.1" }
 
 # Modules for external crates
-space_bevy_xpbd_plugin = {version = "0.3.0", workspace = true, optional = true }
+space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
 
 
 # For versions 1.74+
