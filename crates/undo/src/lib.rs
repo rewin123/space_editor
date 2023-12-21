@@ -7,6 +7,7 @@ use bevy::{prelude::*, utils::HashMap};
 use space_shared::{EditorSet, PrefabMarker};
 
 const MAX_REFLECT_RECURSION: i32 = 10;
+const AUTO_UNDO_LATENCY: i32 = 2;
 
 pub struct UndoPlugin;
 
@@ -62,20 +63,40 @@ pub struct OneFrameUndoIgnore {
 
 impl Default for OneFrameUndoIgnore {
     fn default() -> Self {
-        Self { counter: 4 }
+        Self { counter: 10 }
     }
 }
 
 fn update_change_chain(
+    mut buffer: Local<Vec<NewChange>>, //Buffer will use for chain reaction changes and collecting them together
     settings: Res<ChangeChainSettings>,
     mut change_chain: ResMut<ChangeChain>,
     mut events: EventReader<NewChange>,
 ) {
-    let mut new_changes = vec![];
+    //collect buffer
+    let mut events_on_current_frame = 0;
     for event in events.read() {
-        new_changes.push(event.change.clone());
+        buffer.push(event.clone());
+        events_on_current_frame += 1;
+    }
+
+    if events_on_current_frame > 0 {
+        return;
+    }
+
+    if buffer.is_empty() {
+        return;
+    }
+
+    //Drop buffer to vec of arc
+    let mut new_changes = vec![];
+    for b in buffer.iter() {
+        new_changes.push(b.change.clone());
         change_chain.changes_for_redo.clear();
     }
+
+    //Clear buffer
+    buffer.clear();
 
     match new_changes.len().cmp(&1) {
         std::cmp::Ordering::Less => {}
@@ -221,7 +242,7 @@ pub enum UndoRedo {
     Redo,
 }
 
-#[derive(Event)]
+#[derive(Event, Clone)]
 pub struct NewChange {
     pub change: Arc<dyn EditorChange + Send + Sync>,
 }
@@ -389,7 +410,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
     }
 
     fn debug_text(&self) -> String {
-        format!("ReflectedComponentChange for entity {:?}", self.entity)
+        format!(
+            "{:?} changed for entity {:?}",
+            pretty_type_name::pretty_type_name::<T>(),
+            self.entity
+        )
     }
 }
 
@@ -658,12 +683,14 @@ impl EditorChange for ManyChanges {
 
 #[derive(Component)]
 pub struct ChangedMarker<T> {
+    latency: i32,
     _phantom: std::marker::PhantomData<T>,
 }
 
 impl<T> Default for ChangedMarker<T> {
     fn default() -> Self {
         Self {
+            latency: AUTO_UNDO_LATENCY, //2 frame latency
             _phantom: std::marker::PhantomData,
         }
     }
@@ -1002,11 +1029,16 @@ fn auto_undo_system<T: Component + Clone>(
 fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
-    mut query: Query<(Entity, &mut T), With<ChangedMarker<T>>>,
+    mut query: Query<(Entity, &mut T, &mut ChangedMarker<T>)>,
     mut new_change: EventWriter<NewChange>,
 ) {
-    for (e, data) in query.iter_mut() {
+    for (e, data, mut marker) in query.iter_mut() {
         if !data.is_changed() {
+            marker.latency -= 1;
+            if marker.latency > 0 {
+                continue;
+            }
+
             commands.entity(e).remove::<ChangedMarker<T>>();
 
             if let Some(prev_value) = storage.storage.get(&e) {
@@ -1023,6 +1055,8 @@ fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
             storage
                 .storage
                 .insert(e, <T as FromReflect>::from_reflect(data.as_ref()).unwrap());
+        } else {
+            marker.latency = AUTO_UNDO_LATENCY;
         }
     }
 }
