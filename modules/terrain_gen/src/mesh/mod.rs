@@ -71,9 +71,7 @@ impl Generation for TerrainMesh {
         let mut colors = Vec::with_capacity(
             (settings.grid_size as usize + 1) * (settings.grid_size as usize + 1),
         );
-        let mut normals = Vec::with_capacity(
-            (settings.grid_size as usize + 1) * (settings.grid_size as usize + 1) * 3,
-        );
+        let mut normals = vec![Vec3::ZERO; heightmap.len()];
 
         for (x, y, value) in heightmap {
             let height = if let Some(height) = value.smoothed_height {
@@ -120,7 +118,13 @@ impl Generation for TerrainMesh {
             let v2 = vertices[i_2] - vertices[i_0];
             let face_normal = v1.cross(v2).normalize();
 
-            normals.push(face_normal);
+            normals[i_0] += face_normal;
+            normals[i_1] += face_normal;
+            normals[i_2] += face_normal;
+        }
+
+        for normal in normals.iter_mut() {
+            *normal = normal.normalize();
         }
 
         TerrainMesh {
