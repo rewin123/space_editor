@@ -67,5 +67,14 @@ pub fn update_spawned_terrain(
 ) {
     for entity in query.iter_mut() {
         update_events.send(UpdateTerrain::One(entity));
+        app.register_type::<MapSettings>()
+            .register_type::<HeightMap>()
+            .register_type::<SmoothFunction>()
+            .editor_registry::<TerrainDrawTag>();
+
+        let settings = MapSettings::default();
+        let generated_heightmap = settings.heightmap();
+        app.insert_resource(settings)
+            .insert_resource(generated_heightmap);
     }
 }

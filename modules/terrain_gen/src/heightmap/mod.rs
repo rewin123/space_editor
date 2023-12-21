@@ -37,6 +37,12 @@ pub struct HeightMap {
     pub grid: GridValues,
 }
 
+impl HeightMap {
+    pub fn is_empty(&self) -> bool {
+        self.grid.is_empty()
+    }
+}
+
 #[derive(Reflect, Debug, Clone, Resource, InspectorOptions)]
 #[reflect(Resource, Default, InspectorOptions)]
 pub struct MapSettings {

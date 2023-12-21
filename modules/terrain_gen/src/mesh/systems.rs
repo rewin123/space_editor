@@ -14,6 +14,9 @@ pub fn draw_terrain(
     settings: Res<MapSettings>,
     heightmap: Res<HeightMap>,
 ) {
+    if heightmap.is_empty() {
+        return;
+    }
     let mesh_data = TerrainMesh::generate_mesh(&heightmap, &settings);
     let mut mesh = Mesh::new(bevy::render::render_resource::PrimitiveTopology::TriangleList);
     mesh.insert_attribute(
@@ -61,6 +64,9 @@ pub fn redraw_terrain(
     mut mesh_handle_res: ResMut<TerrainMeshId>,
     query: Query<Entity, With<TerrainDrawTag>>,
 ) {
+    if heightmap.is_empty() {
+        return;
+    }
     if settings.has_changes {
         let previous_id = mesh_handle_res.0;
         for entity in query.iter() {
