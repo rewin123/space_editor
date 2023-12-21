@@ -329,7 +329,12 @@ fn relation_system<T: Component, Relation: Component + Default>(
     }
 }
 
+#[cfg(test)]
 mod tests {
+    use bevy::{prelude::*, ecs::system::CommandQueue};
+
+    use crate::prelude::{EditorRegistryPlugin, EditorRegistryExt, EditorRegistry};
+
 
     /// Test for clone logic in editor registry
     #[test]
