@@ -168,9 +168,9 @@ impl Plugin for EditorPlugin {
                 .require_markers = true;
         }
 
-        if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
-            app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
-        }
+        // if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
+        //     app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
+        // }
         app.init_resource::<EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
@@ -206,7 +206,7 @@ impl Plugin for EditorPlugin {
         //play systems
         app.add_systems(
             OnEnter(EditorState::GamePrepare),
-            (cleanup_grid_lines, save_prefab_before_play),
+            (save_prefab_before_play),
         );
         app.add_systems(
             OnEnter(SaveState::Idle),
@@ -220,7 +220,7 @@ impl Plugin for EditorPlugin {
             (
                 clear_and_load_on_start,
                 change_camera_in_editor,
-                create_grid_lines,
+                // create_grid_lines,
             ),
         );
 
@@ -259,15 +259,15 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
-fn create_grid_lines(commands: Commands) {
-    bevy_debug_grid::spawn_floor_grid(commands);
-}
+// fn create_grid_lines(commands: Commands) {
+//     bevy_debug_grid::spawn_floor_grid(commands);
+// }
 
-fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
-    for e in query.iter() {
-        commands.entity(e).despawn_recursive();
-    }
-}
+// fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
+//     for e in query.iter() {
+//         commands.entity(e).despawn_recursive();
+//     }
+// }
 
 fn auto_add_picking(
     mut commands: Commands,
