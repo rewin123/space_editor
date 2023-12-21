@@ -330,8 +330,6 @@ fn relation_system<T: Component, Relation: Component + Default>(
 }
 
 mod tests {
-    use super::*;
-    use bevy::{ecs::system::CommandQueue, prelude::*};
 
     /// Test for clone logic in editor registry
     #[test]
