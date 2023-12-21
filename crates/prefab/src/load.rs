@@ -8,9 +8,9 @@ use super::save::ChildrenPrefab;
 
 /// Bundle for spawn prefabs
 /// Example
-/// ```rust
+///
 /// commands.spawn(PrefabBundle::new("path/to/prefab"));
-/// ```
+///
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
     loader: PrefabLoader,
