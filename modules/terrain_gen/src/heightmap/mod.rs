@@ -31,8 +31,8 @@ pub struct NoiseValues {
     pub temperature: f64,
 }
 
-#[derive(Reflect, Debug, Clone, Resource, Default, InspectorOptions)]
-#[reflect(Resource, Default, InspectorOptions)]
+#[derive(Component, Reflect, Debug, Clone, Default, InspectorOptions)]
+#[reflect(Component, Default, InspectorOptions)]
 pub struct HeightMap {
     pub grid: GridValues,
 }
@@ -43,8 +43,8 @@ impl HeightMap {
     }
 }
 
-#[derive(Reflect, Debug, Clone, Resource, InspectorOptions)]
-#[reflect(Resource, Default, InspectorOptions)]
+#[derive(Component, Debug, Clone, InspectorOptions, Reflect)]
+#[reflect(Component, Default, InspectorOptions)]
 pub struct MapSettings {
     #[inspector(min = 0)]
     seed: u32,

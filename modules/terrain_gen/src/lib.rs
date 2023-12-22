@@ -71,10 +71,47 @@ pub fn update_spawned_terrain(
             .register_type::<HeightMap>()
             .register_type::<SmoothFunction>()
             .editor_registry::<TerrainDrawTag>();
+        app.add_event::<UpdateTerrain>();
+        app.editor_bundle(
+            TERRAIN_BUNDLE_CATEGORY,
+            "Square terrain",
+            TerrainBundle::default(),
+        );
+        app.add_systems(PostUpdate, update_spawned_terrain);
+    }
+}
 
-        let settings = MapSettings::default();
-        let generated_heightmap = settings.heightmap();
-        app.insert_resource(settings)
-            .insert_resource(generated_heightmap);
+#[derive(Event, Clone)]
+pub enum UpdateTerrain {
+    All,
+    One(Entity),
+}
+
+#[derive(Bundle, Default, Clone)]
+pub struct TerrainBundle {
+    pub terrain: Terrain,
+    pub settings: MapSettings,
+    pub heightmap: HeightMap,
+    pub transform: Transform,
+    pub global_transform: GlobalTransform,
+    pub visibility: Visibility,
+    pub computed_visibility: InheritedVisibility,
+    pub view_visibility: ViewVisibility,
+    pub prefab_marker: PrefabMarker,
+}
+
+#[derive(Component, Default, Clone)]
+pub struct Terrain;
+
+#[derive(Component)]
+pub struct TerrainChunk;
+
+//Draw spawned terrain
+pub fn update_spawned_terrain(
+    mut update_events: EventWriter<UpdateTerrain>,
+    mut query: Query<Entity, Added<Terrain>>,
+) {
+    for entity in query.iter_mut() {
+        update_events.send(UpdateTerrain::One(entity));
     }
 }
