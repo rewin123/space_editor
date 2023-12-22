@@ -61,7 +61,7 @@ fn generate_mesh(
     commands: &mut Commands<'_, '_>,
     e: Entity,
 ) {
-    let mesh_data = TerrainMesh::generate_mesh(&heightmap, &settings);
+    let mesh_data = TerrainMesh::generate_mesh(heightmap, settings);
     let mut mesh = Mesh::new(bevy::render::render_resource::PrimitiveTopology::TriangleList);
     mesh.insert_attribute(
         Mesh::ATTRIBUTE_POSITION,
