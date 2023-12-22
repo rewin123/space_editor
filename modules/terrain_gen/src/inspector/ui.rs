@@ -4,7 +4,7 @@ use bevy_egui::{egui::RichText, *};
 use bevy_inspector_egui::bevy_egui;
 use space_editor_ui::editor_tab::EditorTab;
 
-use crate::heightmap::MapSettings;
+use crate::{heightmap::MapSettings, UpdateTerrain};
 
 #[derive(Resource, Default)]
 pub struct TerrainGenView;
@@ -20,34 +20,26 @@ impl EditorTab for TerrainGenView {
 }
 
 pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
+    ui.heading("Terrain Map Generator");
+
+    let mut query = world.query::<(Entity, Option<&Name>, &mut MapSettings)>();
+
     let type_registry = world.resource::<AppTypeRegistry>().clone();
-    let type_registry = type_registry.read();
 
-    let resource = type_registry
-        .iter()
-        .filter(|registration| registration.data::<ReflectResource>().is_some())
-        .map(|registration| {
-            (
-                registration
-                    .type_info()
-                    .type_path_table()
-                    .short_path()
-                    .to_string(),
-                registration.type_id(),
-            )
-        })
-        .find(|res| res.0 == "TerrainMap");
+    let mut events = vec![];
 
-    if let Some((resource_name, type_id)) = resource {
-        ui.heading("Terrain Map Generator");
-        ui.separator();
-        ui.push_id(format!("content-{:?}-{}", &type_id, &resource_name), |ui| {
-            bevy_inspector_egui::bevy_inspector::by_type_id::ui_for_resource(
-                world,
-                type_id,
+    for (entity, name, mut map) in query.iter_mut(world) {
+        if let Some(name) = name {
+            ui.label(format!("{}: ", name.as_str()));
+        } else {
+            ui.label(format!("Terrain {:?}: ", entity));
+        }
+
+        ui.push_id(format!("terrain-{:?}", &entity), |ui| {
+            bevy_inspector_egui::reflect_inspector::ui_for_value(
+                map.as_mut(),
                 ui,
-                &resource_name,
-                &type_registry,
+                &type_registry.read(),
             );
         });
 
@@ -65,13 +57,16 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
         );
 
         if redraw_button.clicked() {
-            let mut map = world.resource_mut::<MapSettings>();
-            map.has_changes = true;
+            events.push(UpdateTerrain::One(entity));
         }
         if reset_button.clicked() {
-            let mut map = world.resource_mut::<MapSettings>();
             *map = MapSettings::default();
-            map.has_changes = true;
+            events.push(UpdateTerrain::One(entity));
         }
+        ui.separator();
+    }
+
+    for event in events {
+        world.send_event(event);
     }
 }

@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 use space_shared::EditorState;
 
-use crate::{
-    mesh::systems::{draw_terrain, redraw_terrain},
-    TerraingenPlugin,
-};
+use crate::{mesh::systems::draw_terrain, TerraingenPlugin};
 
 use self::ui::TerrainGenView;
 
@@ -22,6 +19,6 @@ impl Plugin for TerraingenInspectorPlugin {
                 TerrainGenView,
             )
             .add_systems(OnEnter(EditorState::Editor), draw_terrain)
-            .add_systems(Update, redraw_terrain);
+            .add_systems(Update, draw_terrain);
     }
 }
