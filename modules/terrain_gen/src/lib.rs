@@ -28,7 +28,7 @@ impl Plugin for TerraingenPlugin {
         app.add_event::<UpdateTerrain>();
         app.editor_bundle(
             TERRAIN_BUNDLE_CATEGORY,
-            "Square terrain",
+            "Square meshed terrain",
             TerrainBundle::default(),
         );
         app.add_systems(PostUpdate, update_spawned_terrain);
