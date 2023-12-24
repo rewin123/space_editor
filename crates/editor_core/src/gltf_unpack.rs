@@ -201,6 +201,38 @@ fn spawn_node(
                 } else {
                     commands.entity(id).insert(MaterialPrefab::default());
                 }
+            } else {
+                commands.entity(id).with_children(|parent| {
+                    for idx in 0..mesh.primitives.len() {
+                        let mut id = parent.spawn((
+                            SpatialBundle::default(),
+                            AssetMesh {
+                                path: format!(
+                                    "{}#Mesh{}/Primitive{}",
+                                    ctx.gltf_path.path().display(),
+                                    ctx.mesh_map.get(handle).unwrap(),
+                                    idx
+                                ),
+                            },
+                        ));
+
+                        if let Some(material_handle) = &mesh.primitives[idx].material {
+                            if let Some(idx) = ctx.material_map.get(material_handle) {
+                                id.insert(AssetMaterial {
+                                    path: format!(
+                                        "{}#Material{}",
+                                        ctx.gltf_path.path().display(),
+                                        idx
+                                    ),
+                                });
+                            } else {
+                                id.insert(MaterialPrefab::default());
+                            }
+                        } else {
+                            id.insert(MaterialPrefab::default());
+                        }
+                    }
+                });
             }
         }
     }
