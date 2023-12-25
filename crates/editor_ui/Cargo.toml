@@ -25,8 +25,6 @@ bevy_egui = "0.23"
 egui-gizmo = "0.12"
 egui_dock = "0.8"
 
-bevy_debug_grid = "0.3"
-
 bevy_mod_picking = {version = "0.17", default-features = false, features = ["backend_raycast", "selection"]}
 bevy_panorbit_camera = "0.9"
 pretty-type-name = "1.0.1"
