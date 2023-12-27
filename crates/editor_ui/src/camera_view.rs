@@ -1,9 +1,6 @@
 use bevy::{
     prelude::*,
-    render::{
-        camera::{CameraOutputMode, RenderTarget},
-        view::RenderLayers,
-    },
+    render::camera::{RenderTarget, TemporalJitter},
     window::{PrimaryWindow, WindowRef},
 };
 use bevy_egui::egui::{self};
@@ -27,21 +24,11 @@ impl Plugin for CameraViewTabPlugin {
 struct ViewCamera;
 
 /// Tab for camera view in editor
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct CameraViewTab {
     pub viewport_rect: Option<egui::Rect>,
     pub camera_entity: Option<Entity>,
     pub real_camera: Option<Entity>,
-}
-
-impl Default for CameraViewTab {
-    fn default() -> Self {
-        Self {
-            viewport_rect: None,
-            camera_entity: None,
-            real_camera: None,
-        }
-    }
 }
 
 impl EditorTab for CameraViewTab {
@@ -63,6 +50,7 @@ impl EditorTab for CameraViewTab {
                         },
                         ..default()
                     })
+                    .insert(TemporalJitter::default())
                     .insert(Name::new("Camera for Camera view tab"))
                     .insert(DisableCameraSkip)
                     .insert(ViewCamera)
@@ -98,14 +86,13 @@ impl EditorTab for CameraViewTab {
 struct LastCamTabRect(Option<egui::Rect>);
 
 fn set_camera_viewport(
-    mut commands: Commands,
     mut local: Local<LastCamTabRect>,
     ui_state: Res<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
 ) {
-    let Some(real_cam_entity) = ui_state.real_camera.clone() else {
+    let Some(real_cam_entity) = ui_state.real_camera else {
         return;
     };
 
@@ -123,7 +110,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Some(viewport_rect) = ui_state.viewport_rect.clone() else {
+    let Some(viewport_rect) = ui_state.viewport_rect else {
         return;
     };
 
@@ -135,7 +122,7 @@ fn set_camera_viewport(
     real_cam.order = 2;
     real_cam.is_active = true;
 
-    *real_cam_transform = camera_transform.clone();
+    *real_cam_transform = *camera_transform;
 
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
 

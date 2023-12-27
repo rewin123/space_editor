@@ -56,13 +56,9 @@ use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
-    ecs::system::CommandQueue,
-    input::common_conditions::input_toggle_active,
-    pbr::CascadeShadowConfigBuilder,
-    prelude::*,
-    render::{render_resource::PrimitiveTopology, view::RenderLayers},
-    utils::HashMap,
-    window::PrimaryWindow,
+    ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
+    pbr::CascadeShadowConfigBuilder, prelude::*, render::render_resource::PrimitiveTopology,
+    utils::HashMap, window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
@@ -474,7 +470,14 @@ fn disable_no_editor_cams(
 
 fn draw_camera_gizmo(
     mut gizom: Gizmos,
-    cameras: Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>,
+    cameras: Query<
+        (&GlobalTransform, &Projection),
+        (
+            With<Camera>,
+            Without<EditorCameraMarker>,
+            Without<DisableCameraSkip>,
+        ),
+    >,
 ) {
     for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
