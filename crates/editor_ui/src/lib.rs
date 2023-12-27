@@ -56,9 +56,13 @@ use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
-    ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
-    pbr::CascadeShadowConfigBuilder, prelude::*, render::{render_resource::PrimitiveTopology, view::RenderLayers},
-    utils::HashMap, window::PrimaryWindow,
+    ecs::system::CommandQueue,
+    input::common_conditions::input_toggle_active,
+    pbr::CascadeShadowConfigBuilder,
+    prelude::*,
+    render::{render_resource::PrimitiveTopology, view::RenderLayers},
+    utils::HashMap,
+    window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
@@ -456,12 +460,13 @@ pub fn change_camera_in_editor(
     }
 }
 
-
 ///Camera with this component will not be disabled in Editor state
 #[derive(Component)]
 pub struct DisableCameraSkip;
 
-fn disable_no_editor_cams(mut cameras: Query<&mut Camera, (Without<DisableCameraSkip>, Without<EditorCameraMarker>)>) {
+fn disable_no_editor_cams(
+    mut cameras: Query<&mut Camera, (Without<DisableCameraSkip>, Without<EditorCameraMarker>)>,
+) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
     }
@@ -818,8 +823,8 @@ pub fn simple_editor_setup(mut commands: Commands) {
     commands
         .spawn(Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            camera : Camera {
-                order : 0,
+            camera: Camera {
+                order: 0,
                 ..default()
             },
             ..default()

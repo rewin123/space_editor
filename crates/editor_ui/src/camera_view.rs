@@ -1,9 +1,16 @@
-use bevy::{prelude::*, window::{PrimaryWindow, WindowRef}, render::{camera::{CameraOutputMode, RenderTarget}, view::RenderLayers}};
+use bevy::{
+    prelude::*,
+    render::{
+        camera::{CameraOutputMode, RenderTarget},
+        view::RenderLayers,
+    },
+    window::{PrimaryWindow, WindowRef},
+};
 use bevy_egui::egui::{self};
 
 use space_shared::*;
 
-use crate::{EditorUiAppExt, prelude::EditorTabName, DisableCameraSkip};
+use crate::{prelude::EditorTabName, DisableCameraSkip, EditorUiAppExt};
 
 use super::editor_tab::EditorTab;
 
@@ -23,8 +30,8 @@ struct ViewCamera;
 #[derive(Resource)]
 pub struct CameraViewTab {
     pub viewport_rect: Option<egui::Rect>,
-    pub camera_entity : Option<Entity>,
-    pub real_camera : Option<Entity>
+    pub camera_entity: Option<Entity>,
+    pub real_camera: Option<Entity>,
 }
 
 impl Default for CameraViewTab {
@@ -32,7 +39,7 @@ impl Default for CameraViewTab {
         Self {
             viewport_rect: None,
             camera_entity: None,
-            real_camera : None
+            real_camera: None,
         }
     }
 }
@@ -42,30 +49,42 @@ impl EditorTab for CameraViewTab {
         self.viewport_rect = Some(ui.clip_rect());
 
         if self.real_camera.is_none() {
-            self.real_camera = Some(commands.spawn(Camera3dBundle {
-                camera : Camera { 
-                    is_active : false,
-                    order : 2,
-                    ..default() 
-                },
-                camera_3d : Camera3d {
-                    clear_color : bevy::core_pipeline::clear_color::ClearColorConfig::None,
-                    ..default()
-                },
-                ..default()
-            }).insert(Name::new("Camera for Camera view tab"))
-            .insert(DisableCameraSkip)
-            .insert(ViewCamera).id());
+            self.real_camera = Some(
+                commands
+                    .spawn(Camera3dBundle {
+                        camera: Camera {
+                            is_active: false,
+                            order: 2,
+                            ..default()
+                        },
+                        camera_3d: Camera3d {
+                            clear_color: bevy::core_pipeline::clear_color::ClearColorConfig::None,
+                            ..default()
+                        },
+                        ..default()
+                    })
+                    .insert(Name::new("Camera for Camera view tab"))
+                    .insert(DisableCameraSkip)
+                    .insert(ViewCamera)
+                    .id(),
+            );
         }
 
-        let mut camera_query = world.query_filtered::<Entity, (With<Camera>, Without<EditorCameraMarker>, Without<ViewCamera>)>();
-        
+        let mut camera_query = world.query_filtered::<Entity, (
+            With<Camera>,
+            Without<EditorCameraMarker>,
+            Without<ViewCamera>,
+        )>();
 
         egui::ComboBox::from_label("Camera")
             .selected_text(format!("{:?}", self.camera_entity))
             .show_ui(ui, |ui| {
                 for entity in camera_query.iter(world) {
-                    ui.selectable_value(&mut self.camera_entity, Some(entity), format!("{:?}", entity));
+                    ui.selectable_value(
+                        &mut self.camera_entity,
+                        Some(entity),
+                        format!("{:?}", entity),
+                    );
                 }
             });
     }
@@ -79,7 +98,7 @@ impl EditorTab for CameraViewTab {
 struct LastCamTabRect(Option<egui::Rect>);
 
 fn set_camera_viewport(
-    mut commands : Commands,
+    mut commands: Commands,
     mut local: Local<LastCamTabRect>,
     ui_state: Res<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
@@ -90,13 +109,13 @@ fn set_camera_viewport(
         return;
     };
 
-
     let Some(camera_entity) = ui_state.camera_entity else {
         return;
     };
 
-
-    let Ok([(mut real_cam, mut real_cam_transform), (watch_cam, camera_transform)]) = cameras.get_many_mut([real_cam_entity, camera_entity]) else {
+    let Ok([(mut real_cam, mut real_cam_transform), (watch_cam, camera_transform)]) =
+        cameras.get_many_mut([real_cam_entity, camera_entity])
+    else {
         return;
     };
 
@@ -109,7 +128,6 @@ fn set_camera_viewport(
     };
 
     local.0 = Some(viewport_rect);
-    
 
     if watch_cam.is_changed() {
         *real_cam = watch_cam.clone();
@@ -131,5 +149,4 @@ fn set_camera_viewport(
     });
 
     real_cam.target = RenderTarget::Window(WindowRef::Primary);
-
 }
