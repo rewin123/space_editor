@@ -58,6 +58,56 @@ impl TerrainMesh {
     }
 }
 
+fn clamp(value: f32, min: f32, max: f32) -> f32 {
+    if value < min {
+        min
+    } else if value > max {
+        max
+    } else {
+        value
+    }
+}
+
+fn terrain_colormap(temperature: f32, height: f32, moisture: f32) -> Vec3 {
+    // Temperature colormap
+    let temperature_color = if temperature < 0.0 {
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: clamp(0.5 - temperature.abs(), 0.0, 1.0),
+        }
+    } else {
+        Vec3 {
+            x: clamp(temperature, 0.0, 1.0),
+            y: 0.0,
+            z: 0.0,
+        }
+    };
+
+    // Height colormap
+    let height_color = Vec3 {
+        x: clamp(height, 0.0, 1.0),
+        y: 0.5,
+        z: 0.0,
+    };
+
+    // Moisture colormap
+    let moisture_color = Vec3 {
+        x: 0.0,
+        y: clamp(moisture, 0.0, 1.0),
+        z: 0.0,
+    };
+
+    // Combine colors based on factors (you may adjust these weights)
+    let final_color = Vec3 {
+        x: 0.4 * temperature_color.x + 0.4 * height_color.x + 0.2 * moisture_color.x,
+        y: 0.4 * temperature_color.y + 0.4 * height_color.y + 0.2 * moisture_color.y,
+        z: 0.4 * temperature_color.z + 0.4 * height_color.z + 0.2 * moisture_color.z,
+    };
+
+    final_color
+}
+
 impl Generation for TerrainMesh {
     type Item = HeightMap;
     fn generate_mesh(grid: &Self::Item, settings: &MapSettings) -> TerrainMesh {
@@ -86,12 +136,18 @@ impl Generation for TerrainMesh {
                     .lerp(settings.max_terrain_level, height) as f32,
                 y as f32 * settings.cell_size - vertex_offset,
             ));
+
+            let terr_color = terrain_colormap(
+                value.temperature as f32,
+                height as f32,
+                value.moisture as f32,
+            );
             colors.push(Color::Rgba {
-                red: value.temperature as f32,
-                green: height as f32,
-                blue: value.moisture as f32,
+                red: terr_color.x,
+                green: terr_color.y,
+                blue: terr_color.z,
                 alpha: 1.0,
-            })
+            });
         }
 
         let mut v = 0usize;
