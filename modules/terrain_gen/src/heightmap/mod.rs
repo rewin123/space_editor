@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 use lerp::num_traits::Pow;
-use noise::{NoiseFn, OpenSimplex, Perlin};
+use noise::{NoiseFn, OpenSimplex, Perlin, SuperSimplex};
 
 mod smoothness;
 
@@ -21,6 +21,15 @@ impl Grid for HeightMap {
     fn grid_mut(&mut self) -> &mut GridValues {
         &mut self.grid
     }
+}
+
+
+#[derive(Reflect, Default, Debug, Clone)]
+pub enum NoiseAlgorithm {
+    #[default]
+    Perlin,
+    OpenSimplex,
+    SuperSimplex,
 }
 
 #[derive(Reflect, Default, Debug, Clone)]
@@ -51,6 +60,9 @@ pub struct MapSettings {
     #[inspector(min = 0.01)]
     mesh_smoothness: f64,
     mesh_smoothness_type: SmoothFunction,
+    elevation_noise: NoiseAlgorithm,
+    moisture_noise: NoiseAlgorithm,
+    temperature_noise: NoiseAlgorithm,
     #[inspector(min = 5, max = 528)]
     pub grid_size: u32,
     #[inspector(min = 1.)]
@@ -79,6 +91,8 @@ pub struct MapSettings {
     #[reflect(ignore)]
     simplex: OpenSimplex,
     #[reflect(ignore)]
+    super_simplex: SuperSimplex,
+    #[reflect(ignore)]
     perlin: Perlin,
     #[reflect(ignore)]
     pub has_changes: bool,
@@ -92,12 +106,13 @@ impl Default for MapSettings {
             mesh_smoothness: 2.,
             mesh_smoothness_type: SmoothFunction::default(),
             grid_size: 100,
-            cell_size: 10f32,
+            cell_size: 10.,
             terrain_frequency: 5.,
             terrain_scale: 1.34,
             terrain_octave: 4,
             initial_height: 1.,
             simplex: OpenSimplex::new(0),
+            super_simplex: SuperSimplex::new(0),
             perlin: Perlin::new(0),
             min_terrain_level: 5.,
             max_terrain_level: 40.,
@@ -105,6 +120,9 @@ impl Default for MapSettings {
             temp_scale: 0.7,
             min_temp: -70.,
             max_temp: 100.,
+            elevation_noise: NoiseAlgorithm::SuperSimplex,
+            moisture_noise: NoiseAlgorithm::OpenSimplex,
+            temperature_noise: NoiseAlgorithm::Perlin,
         }
     }
 }
@@ -146,6 +164,7 @@ impl MapSettings {
         let seed = self.seed;
         self.perlin = Perlin::new(seed);
         self.simplex = OpenSimplex::new(seed);
+        self.super_simplex = SuperSimplex::new(seed);
     }
 
     pub fn heightmap(&self) -> HeightMap {
