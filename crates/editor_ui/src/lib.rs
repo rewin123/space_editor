@@ -421,9 +421,11 @@ fn delete_selected(
     query: Query<Entity, With<Selected>>,
     keyboard: Res<Input<KeyCode>>,
 ) {
-    if keyboard.just_pressed(KeyCode::ShiftLeft)
-        && (keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete))
-    {
+    let shift = keyboard.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
+    let ctrl = keyboard.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
+    let delete = keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete);
+
+    if ctrl && shift && delete {
         for entity in query.iter() {
             info!("Delete Entity: {entity:?}");
             commands.entity(entity).despawn_recursive();

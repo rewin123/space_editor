@@ -20,7 +20,7 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(PostUpdate, set_camera_viewport.in_set(EditorSet::Editor));
-        app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
+        app.add_systems(OnEnter(EditorState::GamePrepare), clean_camera_view_tab);
     }
 }
 
@@ -37,8 +37,6 @@ pub struct CameraViewTab {
 
 impl EditorTab for CameraViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
-        self.viewport_rect = Some(ui.clip_rect());
-
         if self.real_camera.is_none() {
             self.real_camera = Some(
                 commands
@@ -83,6 +81,16 @@ impl EditorTab for CameraViewTab {
                     );
                 }
             });
+
+        ui.add_space(4.);
+        ui.separator();
+
+        // Moves camera below the selection
+        let pos = ui.next_widget_position();
+        let mut clipped = ui.clip_rect();
+        clipped.set_left(pos.x);
+        clipped.set_top(pos.y);
+        self.viewport_rect = Some(clipped);
     }
 
     fn title(&self) -> bevy_egui::egui::WidgetText {
@@ -155,7 +163,15 @@ fn set_camera_viewport(
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
 
     let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
-    let viewport_size = viewport_rect.size() * scale_factor as f32;
+    let mut viewport_size = viewport_rect.size() * scale_factor as f32;
+
+    // Fixes camera viewport size to be proportional to main watch camera
+    if let Some(watch_cam_size) = watch_cam.logical_viewport_size() {
+        let wx = watch_cam_size.x;
+        let wy = watch_cam_size.y;
+
+        viewport_size.y = wy * viewport_size.x / wx
+    }
 
     real_cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
