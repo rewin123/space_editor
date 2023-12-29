@@ -123,7 +123,7 @@ struct LastCamTabRect(Option<egui::Rect>);
 
 fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
-    ui_state: Res<CameraViewTab>,
+    mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
@@ -139,6 +139,10 @@ fn set_camera_viewport(
     let Ok([(mut real_cam, mut real_cam_transform), (watch_cam, camera_transform)]) =
         cameras.get_many_mut([real_cam_entity, camera_entity])
     else {
+        if let Ok((mut real_cam, _)) = cameras.get_mut(real_cam_entity) {
+            real_cam.is_active = false;
+            ui_state.camera_entity = None;
+        }
         return;
     };
 
@@ -162,7 +166,7 @@ fn set_camera_viewport(
 
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
 
-    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
+    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
     let mut viewport_size = viewport_rect.size() * scale_factor as f32;
 
     // Fixes camera viewport size to be proportional to main watch camera
@@ -172,6 +176,9 @@ fn set_camera_viewport(
 
         viewport_size.y = wy * viewport_size.x / wx
     }
+
+    // Place viewport in the center of the tab
+    viewport_pos.y += (viewport_rect.size().y - viewport_size.y) / 2.0;
 
     real_cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
