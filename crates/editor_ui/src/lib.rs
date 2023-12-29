@@ -275,23 +275,20 @@ struct SelectEvent {
 #[derive(Component)]
 pub struct GridLines {
     pub cell_size: f32,
-    pub half_cell_width: i32
+    pub half_cell_width: i32,
 }
 
 impl Default for GridLines {
     fn default() -> Self {
         Self {
             cell_size: 1.0,
-            half_cell_width: 128
+            half_cell_width: 128,
         }
     }
 }
 
 fn create_grid_lines(mut commands: Commands) {
-    commands.spawn((
-        SpatialBundle::default(),
-        GridLines::default()
-    ));
+    commands.spawn((SpatialBundle::default(), GridLines::default()));
 }
 
 fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<GridLines>>) {
@@ -300,37 +297,66 @@ fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<GridLine
     }
 }
 
-fn draw_grid_lines(
-    mut gizmos : Gizmos,
-    query : Query<(&GlobalTransform, &GridLines)>
-) {
+fn draw_grid_lines(mut gizmos: Gizmos, query: Query<(&GlobalTransform, &GridLines)>) {
     for (transform, grid) in query.iter() {
         let pos = transform.translation();
         for x in 1..grid.half_cell_width {
             gizmos.line(
-                Vec3::new(x as f32 * grid.cell_size, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
-                Vec3::new(x as f32 * grid.cell_size, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
-                Color::GRAY
+                Vec3::new(
+                    x as f32 * grid.cell_size,
+                    0.0,
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    x as f32 * grid.cell_size,
+                    0.0,
+                    grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
             );
 
             gizmos.line(
-                Vec3::new(-x as f32 * grid.cell_size, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
-                Vec3::new(-x as f32 * grid.cell_size, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
-                Color::GRAY
+                Vec3::new(
+                    -x as f32 * grid.cell_size,
+                    0.0,
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    -x as f32 * grid.cell_size,
+                    0.0,
+                    grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
             );
         }
 
         for z in 1..grid.half_cell_width {
             gizmos.line(
-                Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, z as f32 * grid.cell_size) + pos,
-                Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, z as f32 * grid.cell_size) + pos,
-                Color::GRAY
+                Vec3::new(
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    z as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    z as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
             );
 
             gizmos.line(
-                Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, -z as f32 * grid.cell_size) + pos,
-                Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, -z as f32 * grid.cell_size) + pos,
-                Color::GRAY
+                Vec3::new(
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    -z as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    -z as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
             );
         }
 
@@ -338,14 +364,14 @@ fn draw_grid_lines(
         gizmos.line(
             Vec3::new(0.0, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
             Vec3::new(0.0, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
-            Color::RED
+            Color::RED,
         );
 
         //draw z central axis
         gizmos.line(
             Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
             Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
-            Color::BLUE
+            Color::BLUE,
         );
     }
 }
