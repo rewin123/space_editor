@@ -20,6 +20,7 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(PostUpdate, set_camera_viewport.in_set(EditorSet::Editor));
+        app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
 
@@ -87,6 +88,26 @@ impl EditorTab for CameraViewTab {
     fn title(&self) -> bevy_egui::egui::WidgetText {
         "Camera view".into()
     }
+}
+
+fn clean_camera_view_tab(
+    mut ui_state: ResMut<CameraViewTab>,
+    mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
+) {
+    let Some(real_cam_entity) = ui_state.real_camera else {
+        return;
+    };
+
+    let Ok((mut real_cam, _real_cam_transform)) = cameras.get_mut(real_cam_entity) else {
+        return;
+    };
+
+    real_cam.is_active = false;
+    real_cam.viewport = None;
+
+    ui_state.camera_entity = None;
+    ui_state.real_camera = None;
+    ui_state.viewport_rect = None;
 }
 
 #[derive(Default)]
