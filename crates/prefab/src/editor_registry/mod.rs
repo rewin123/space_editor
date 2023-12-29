@@ -344,7 +344,7 @@ mod tests {
         app.editor_registry::<Name>();
 
         let name = "name";
-        let e = app.world.spawn(Name::new(name.clone())).id();
+        let e = app.world.spawn(Name::new(name)).id();
 
         let new_e_id;
         {

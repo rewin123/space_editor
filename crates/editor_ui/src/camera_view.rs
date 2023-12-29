@@ -1,6 +1,9 @@
 use bevy::{
     prelude::*,
-    render::camera::{RenderTarget, TemporalJitter},
+    render::{
+        camera::{RenderTarget, TemporalJitter},
+        view::RenderLayers,
+    },
     window::{PrimaryWindow, WindowRef},
 };
 use bevy_egui::egui::{self};
@@ -38,22 +41,26 @@ impl EditorTab for CameraViewTab {
         if self.real_camera.is_none() {
             self.real_camera = Some(
                 commands
-                    .spawn(Camera3dBundle {
-                        camera: Camera {
-                            is_active: false,
-                            order: 2,
+                    .spawn((
+                        Camera3dBundle {
+                            camera: Camera {
+                                is_active: false,
+                                order: 2,
+                                ..default()
+                            },
+                            camera_3d: Camera3d {
+                                clear_color:
+                                    bevy::core_pipeline::clear_color::ClearColorConfig::None,
+                                ..default()
+                            },
                             ..default()
                         },
-                        camera_3d: Camera3d {
-                            clear_color: bevy::core_pipeline::clear_color::ClearColorConfig::None,
-                            ..default()
-                        },
-                        ..default()
-                    })
-                    .insert(TemporalJitter::default())
-                    .insert(Name::new("Camera for Camera view tab"))
-                    .insert(DisableCameraSkip)
-                    .insert(ViewCamera)
+                        RenderLayers::layer(0),
+                        TemporalJitter::default(),
+                        Name::new("Camera for Camera view tab"),
+                        DisableCameraSkip,
+                        ViewCamera,
+                    ))
                     .id(),
             );
         }

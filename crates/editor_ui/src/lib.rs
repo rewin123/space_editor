@@ -42,6 +42,7 @@ pub mod ui_registration;
 /// This module contains UI logic for view game camera image
 pub mod camera_view;
 
+use bevy_debug_grid::{GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -56,9 +57,13 @@ use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
-    ecs::system::CommandQueue, input::common_conditions::input_toggle_active,
-    pbr::CascadeShadowConfigBuilder, prelude::*, render::render_resource::PrimitiveTopology,
-    utils::HashMap, window::PrimaryWindow,
+    ecs::system::CommandQueue,
+    input::common_conditions::input_toggle_active,
+    pbr::CascadeShadowConfigBuilder,
+    prelude::*,
+    render::{render_resource::PrimitiveTopology, view::RenderLayers},
+    utils::HashMap,
+    window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
@@ -263,8 +268,24 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
-fn create_grid_lines(commands: Commands) {
-    bevy_debug_grid::spawn_floor_grid(commands);
+fn create_grid_lines(mut commands: Commands) {
+    commands.spawn((
+        bevy_debug_grid::Grid {
+            spacing: 10.0_f32,
+            count: 16,
+            color: Color::SILVER.with_a(DEFAULT_GRID_ALPHA),
+            alpha_mode: AlphaMode::Blend,
+        },
+        SubGrid {
+            count: 9,
+            color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
+        },
+        GridAxis::new_rgb(),
+        TrackedGrid::default(),
+        TransformBundle::default(),
+        VisibilityBundle::default(),
+        RenderLayers::layer(1),
+    ));
 }
 
 fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
@@ -823,19 +844,22 @@ pub fn simple_editor_setup(mut commands: Commands) {
     });
 
     // camera
-    commands
-        .spawn(Camera3dBundle {
+    commands.spawn((
+        Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             camera: Camera {
                 order: 0,
                 ..default()
             },
             ..default()
-        })
-        .insert(bevy_panorbit_camera::PanOrbitCamera::default())
-        .insert(EditorCameraMarker)
-        .insert(PickableBundle::default())
-        .insert(RaycastPickable);
+        },
+        bevy_panorbit_camera::PanOrbitCamera::default(),
+        EditorCameraMarker,
+        Name::from("Editor Camera"),
+        PickableBundle::default(),
+        RaycastPickable,
+        RenderLayers::all(),
+    ));
 
-    bevy_debug_grid::spawn_floor_grid(commands);
+    create_grid_lines(commands);
 }
