@@ -230,6 +230,7 @@ impl Plugin for EditorPlugin {
                 clear_and_load_on_start,
                 change_camera_in_editor,
                 create_grid_lines,
+                set_camera_viewport,
             ),
         );
 
@@ -242,7 +243,8 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams).run_if(in_state(EditorState::Editor)),
+            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
+                .run_if(in_state(EditorState::Editor)),
         );
 
         app.add_event::<SelectEvent>();
@@ -356,6 +358,21 @@ fn select_listener(
             }
             PointerButton::Secondary => { /*Show context menu?*/ }
             PointerButton::Middle => {}
+        }
+    }
+}
+
+fn delete_selected(
+    mut commands: Commands,
+    query: Query<Entity, With<Selected>>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if keyboard.just_pressed(KeyCode::ShiftLeft)
+        && (keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete))
+    {
+        for entity in query.iter() {
+            info!("Delete Entity: {entity:?}");
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

@@ -24,7 +24,7 @@ impl Plugin for CameraViewTabPlugin {
 }
 
 #[derive(Component)]
-struct ViewCamera;
+pub struct ViewCamera;
 
 /// Tab for camera view in editor
 #[derive(Resource, Default)]
