@@ -88,12 +88,15 @@ impl EditorTab for GameViewTab {
 pub fn reset_camera_viewport(
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
+    mut game_view_tab: ResMut<GameViewTab>,
 ) {
     let mut cam = cameras.single_mut();
 
     let Ok(window) = primary_window.get_single() else {
         return;
     };
+
+    game_view_tab.viewport_rect = None;
 
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(0, 0),
@@ -125,6 +128,7 @@ pub fn set_camera_viewport(
     };
 
     let Some(viewport_rect) = ui_state.viewport_rect else {
+        local.0 = None;
         return;
     };
 
