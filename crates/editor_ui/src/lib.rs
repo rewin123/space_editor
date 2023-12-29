@@ -212,6 +212,8 @@ impl Plugin for EditorPlugin {
                 .in_set(EditorSet::Editor),
         );
 
+        app.add_systems(Update, draw_grid_lines.in_set(EditorSet::Editor));
+
         //play systems
         app.add_systems(
             OnEnter(EditorState::GamePrepare),
@@ -270,29 +272,81 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
+#[derive(Component)]
+pub struct GridLines {
+    pub cell_size: f32,
+    pub half_cell_width: i32
+}
+
+impl Default for GridLines {
+    fn default() -> Self {
+        Self {
+            cell_size: 1.0,
+            half_cell_width: 128
+        }
+    }
+}
+
 fn create_grid_lines(mut commands: Commands) {
     commands.spawn((
-        bevy_debug_grid::Grid {
-            spacing: 10.0_f32,
-            count: 16,
-            color: Color::SILVER.with_a(DEFAULT_GRID_ALPHA),
-            alpha_mode: AlphaMode::Blend,
-        },
-        SubGrid {
-            count: 9,
-            color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
-        },
-        GridAxis::new_rgb(),
-        TrackedGrid::default(),
-        TransformBundle::default(),
-        VisibilityBundle::default(),
-        RenderLayers::layer(1),
+        SpatialBundle::default(),
+        GridLines::default()
     ));
 }
 
-fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
+fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<GridLines>>) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
+    }
+}
+
+fn draw_grid_lines(
+    mut gizmos : Gizmos,
+    query : Query<(&GlobalTransform, &GridLines)>
+) {
+    for (transform, grid) in query.iter() {
+        let pos = transform.translation();
+        for x in 1..grid.half_cell_width {
+            gizmos.line(
+                Vec3::new(x as f32 * grid.cell_size, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
+                Vec3::new(x as f32 * grid.cell_size, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
+                Color::GRAY
+            );
+
+            gizmos.line(
+                Vec3::new(-x as f32 * grid.cell_size, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
+                Vec3::new(-x as f32 * grid.cell_size, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
+                Color::GRAY
+            );
+        }
+
+        for z in 1..grid.half_cell_width {
+            gizmos.line(
+                Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, z as f32 * grid.cell_size) + pos,
+                Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, z as f32 * grid.cell_size) + pos,
+                Color::GRAY
+            );
+
+            gizmos.line(
+                Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, -z as f32 * grid.cell_size) + pos,
+                Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, -z as f32 * grid.cell_size) + pos,
+                Color::GRAY
+            );
+        }
+
+        //draw x central axis
+        gizmos.line(
+            Vec3::new(0.0, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
+            Vec3::new(0.0, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
+            Color::RED
+        );
+
+        //draw z central axis
+        gizmos.line(
+            Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
+            Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
+            Color::BLUE
+        );
     }
 }
 
