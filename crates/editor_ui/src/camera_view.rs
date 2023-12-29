@@ -6,8 +6,9 @@ use bevy::{
     },
     window::{PrimaryWindow, WindowRef},
 };
-use bevy_egui::egui::{self};
+use bevy_egui::egui::{self, Color32};
 
+use space_prefab::component::CameraPlay;
 use space_shared::*;
 
 use crate::{prelude::EditorTabName, DisableCameraSkip, EditorUiAppExt};
@@ -70,20 +71,36 @@ impl EditorTab for CameraViewTab {
             Without<ViewCamera>,
         )>();
 
-        egui::ComboBox::from_label("Camera")
-            .selected_text(format!("{:?}", self.camera_entity))
-            .show_ui(ui, |ui| {
-                for entity in camera_query.iter(world) {
-                    ui.selectable_value(
-                        &mut self.camera_entity,
-                        Some(entity),
-                        format!("{:?}", entity),
-                    );
-                }
-            });
+        if camera_query.iter(world).count() > 0 {
+            egui::ComboBox::from_label("Camera")
+                .selected_text(format!("{:?}", self.camera_entity))
+                .show_ui(ui, |ui| {
+                    for entity in camera_query.iter(world) {
+                        ui.selectable_value(
+                            &mut self.camera_entity,
+                            Some(entity),
+                            format!("{:?}", entity),
+                        );
+                    }
+                });
+            ui.add_space(4.);
+            ui.separator();
+        } else {
+            ui.label(egui::RichText::new("No available Cameras").color(Color32::LIGHT_RED));
 
-        ui.add_space(4.);
-        ui.separator();
+            ui.add_space(4.);
+            ui.separator();
+            ui.add_space(4.);
+            if ui.button("Add Playmode Camera").clicked() {
+                commands.spawn((
+                    Camera3d::default(),
+                    Name::new("Camera3d".to_string()),
+                    Transform::default(),
+                    Visibility::default(),
+                    CameraPlay::default(),
+                ));
+            }
+        }
 
         // Moves camera below the selection
         let pos = ui.next_widget_position();
