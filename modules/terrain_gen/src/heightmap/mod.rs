@@ -23,7 +23,6 @@ impl Grid for HeightMap {
     }
 }
 
-
 #[derive(Reflect, Default, Debug, Clone)]
 pub enum NoiseAlgorithm {
     #[default]

@@ -99,13 +99,11 @@ fn terrain_colormap(temperature: f32, height: f32, moisture: f32) -> Vec3 {
     };
 
     // Combine colors based on factors (you may adjust these weights)
-    let final_color = Vec3 {
+    Vec3 {
         x: 0.4 * temperature_color.x + 0.4 * height_color.x + 0.2 * moisture_color.x,
         y: 0.4 * temperature_color.y + 0.4 * height_color.y + 0.2 * moisture_color.y,
         z: 0.4 * temperature_color.z + 0.4 * height_color.z + 0.2 * moisture_color.z,
-    };
-
-    final_color
+    }
 }
 
 impl Generation for TerrainMesh {
