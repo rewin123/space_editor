@@ -6,7 +6,7 @@ use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::ui_registration::BundleReg;
+use crate::ui_registration::{BundleReg, EditorBundleUntyped};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
@@ -96,9 +96,13 @@ pub fn show_hierarchy(
         });
 
         ui.label("Spawnable bundles");
-        for (cat_name, cat) in ui_reg.bundles.iter() {
-            ui.menu_button(cat_name, |ui| {
-                for (name, dyn_bundle) in cat {
+        for (category_name, category_bundle) in ui_reg.bundles.iter() {
+            ui.menu_button(category_name, |ui| {
+                let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
+                    category_bundle.iter().collect();
+                categories_vec.sort_by(|a, b| a.0.cmp(&b.0));
+
+                for (name, dyn_bundle) in categories_vec {
                     if ui.button(name).clicked() {
                         let entity = dyn_bundle.spawn(&mut commands);
                         changes.send(NewChange {
