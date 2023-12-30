@@ -7,7 +7,7 @@ mod mouse_check;
 pub mod asset_inspector;
 
 /// This module contains logic for bottom menu
-pub mod bot_menu;
+pub mod bottom_menu;
 
 /// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
@@ -88,7 +88,7 @@ use self::{
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, bot_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
+        asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
         game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
         ui_registration::*,
     };
@@ -668,7 +668,7 @@ impl Plugin for EditorUiPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
-        app.add_plugins((bot_menu::BotMenuPlugin, MouseCheck));
+        app.add_plugins((bottom_menu::BottomMenuPlugin, MouseCheck));
 
         app.configure_sets(
             Update,
@@ -684,7 +684,7 @@ impl Plugin for EditorUiPlugin {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
-                    .after(bot_menu::bot_menu),
+                    .after(bottom_menu::menu),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),
