@@ -100,7 +100,7 @@ pub fn show_hierarchy(
             ui.menu_button(category_name, |ui| {
                 let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
                     category_bundle.iter().collect();
-                categories_vec.sort_by(|a, b| a.0.cmp(&b.0));
+                categories_vec.sort_by(|a, b| a.0.cmp(b.0));
 
                 for (name, dyn_bundle) in categories_vec {
                     if ui.button(name).clicked() {
