@@ -86,11 +86,11 @@ The dock system in the Editor UI offers a high degree of flexibility:
 
 - For added convenience, tabs can also be detached from the main dock system and placed in subwindows, allowing you to arrange your workspace exactly the way you prefer.
 
-## Bot menu
+## Bottom menu
 
 ![bot_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/bot_menu.png)
 
-Bot menu is panel with settings for current scene. It contains:
+Bottom menu is panel with settings for current scene. It contains:
 
 - Path to prefab without "scn.ron" extension
 - Folder button to open file dialog to select prefab
