@@ -17,11 +17,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "cube.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           17179869188,
           12884901896,
         ]),
@@ -43,11 +43,11 @@
           ),
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
-        "prefab::component::GltfPrefab": (
+        "space_prefab::component::GltfPrefab": (
           path: "cube.glb",
           scene: "Scene0",
         ),
-        "prefab::save::ChildrenPrefab": ([
+        "space_prefab::save::ChildrenPrefab": ([
           10,
         ]),
       },
