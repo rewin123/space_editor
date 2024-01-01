@@ -672,7 +672,7 @@ impl Plugin for EditorUiPlugin {
         }
 
         if !app.is_plugin_added::<MeshlessVisualizerPlugin>() {
-            app.add_plugins(MeshlessVisualizerPlugin::default());
+            app.add_plugins(MeshlessVisualizerPlugin);
         }
 
         app.add_plugins((bottom_menu::BottomMenuPlugin, MouseCheck));
