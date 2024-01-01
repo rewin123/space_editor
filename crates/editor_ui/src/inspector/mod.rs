@@ -1,3 +1,4 @@
+pub mod assets;
 pub mod components_order;
 pub mod refl_impl;
 pub mod resources;
@@ -21,6 +22,7 @@ use space_shared::ext::bevy_inspector_egui::{
 };
 
 use self::{
+    assets::AssetsTab,
     components_order::{ComponentsOrder, ComponentsPriority},
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
     resources::ResourceTab,
@@ -48,6 +50,7 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
         app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
+        app.editor_tab_by_trait(EditorTabName::Assets, AssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 

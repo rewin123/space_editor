@@ -12,13 +12,14 @@ pub trait EditorTab {
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
-    Hierarchy,
-    GameView,
+    Assets,
     CameraView,
+    GameView,
+    Hierarchy,
     Inspector,
     Resource,
-    ToolBox,
     Settings,
+    ToolBox,
     Other(String),
 }
 
