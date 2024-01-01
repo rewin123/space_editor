@@ -187,9 +187,9 @@ impl EditorTool for GizmoTool {
             let mut gizmo_interacted = false;
 
             if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
-                .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                .view_matrix(view_matrix.to_cols_array_2d())
-                .model_matrix(mean_transform.compute_matrix().to_cols_array_2d())
+                .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
+                .view_matrix(view_matrix.to_cols_array_2d().into())
+                .model_matrix(mean_transform.compute_matrix().to_cols_array_2d().into())
                 .mode(self.gizmo_mode)
                 .interact(ui)
             {
@@ -250,10 +250,15 @@ impl EditorTool for GizmoTool {
                                 if let Some(result) =
                                     egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
                                         .projection_matrix(
-                                            cam_proj.get_projection_matrix().to_cols_array_2d(),
+                                            cam_proj
+                                                .get_projection_matrix()
+                                                .to_cols_array_2d()
+                                                .into(),
                                         )
-                                        .view_matrix(view_matrix.to_cols_array_2d())
-                                        .model_matrix(global.compute_matrix().to_cols_array_2d())
+                                        .view_matrix(view_matrix.to_cols_array_2d().into())
+                                        .model_matrix(
+                                            global.compute_matrix().to_cols_array_2d().into(),
+                                        )
                                         .mode(self.gizmo_mode)
                                         .interact(ui)
                                 {
@@ -293,9 +298,9 @@ impl EditorTool for GizmoTool {
                     }
                 }
                 if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d())
-                    .view_matrix(view_matrix.to_cols_array_2d())
-                    .model_matrix(transform.compute_matrix().to_cols_array_2d())
+                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
+                    .view_matrix(view_matrix.to_cols_array_2d().into())
+                    .model_matrix(transform.compute_matrix().to_cols_array_2d().into())
                     .mode(self.gizmo_mode)
                     .interact(ui)
                 {
