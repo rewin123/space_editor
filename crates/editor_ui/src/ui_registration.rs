@@ -1,7 +1,7 @@
 use bevy::{ecs::system::EntityCommands, utils::HashMap};
 
-use prefab::{component::*, ext::*};
-use shared::PrefabMarker;
+use space_prefab::{component::*, ext::*};
+use space_shared::PrefabMarker;
 
 pub const MESH_CATEGORY: &str = "mesh";
 
@@ -192,7 +192,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "RegularPolygon",
+        "Regular Polygon",
         (
             MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("RegularPolygon".to_string()),
@@ -213,7 +213,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Camera",
-        "CameraPlay",
+        "Playmode Camera",
         (
             Camera3d::default(),
             Name::new("Camera3d".to_string()),

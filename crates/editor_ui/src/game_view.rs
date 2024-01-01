@@ -1,9 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self};
 use egui_gizmo::GizmoMode;
-use undo::UndoRedo;
+use space_undo::UndoRedo;
 
-use shared::*;
+use space_shared::*;
 
 use super::{editor_tab::EditorTab, tool::EditorTool};
 
@@ -88,12 +88,15 @@ impl EditorTab for GameViewTab {
 pub fn reset_camera_viewport(
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
+    mut game_view_tab: ResMut<GameViewTab>,
 ) {
     let mut cam = cameras.single_mut();
 
     let Ok(window) = primary_window.get_single() else {
         return;
     };
+
+    game_view_tab.viewport_rect = None;
 
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(0, 0),
@@ -116,13 +119,16 @@ pub fn set_camera_viewport(
     egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
 ) {
-    let mut cam = cameras.single_mut();
+    let Ok(mut cam) = cameras.get_single_mut() else {
+        return;
+    };
 
     let Ok(window) = primary_window.get_single() else {
         return;
     };
 
     let Some(viewport_rect) = ui_state.viewport_rect else {
+        local.0 = None;
         return;
     };
 

@@ -3,11 +3,11 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 use bevy_egui::*;
-use editor_core::hotkeys::AllHotkeys;
-use undo::ChangeChainSettings;
+use space_editor_core::hotkeys::AllHotkeys;
+use space_undo::ChangeChainSettings;
 
 #[cfg(feature = "persistence_editor")]
-use persistence::*;
+use space_persistence::*;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -76,7 +76,7 @@ impl NewWindowSettings {
         egui::ComboBox::new("new_tab", "")
             .selected_text(self.new_tab.to_string())
             .show_ui(ui, |ui| {
-                for (_, mode) in TAB_MODES.into_iter().enumerate() {
+                for mode in TAB_MODES.into_iter() {
                     if ui
                         .selectable_label(self.new_tab == mode, mode.to_string())
                         .clicked()

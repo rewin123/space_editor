@@ -10,10 +10,11 @@ pub trait EditorTab {
     fn title(&self) -> egui::WidgetText;
 }
 
-#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
     Hierarchy,
     GameView,
+    CameraView,
     Inspector,
     Resource,
     ToolBox,
@@ -92,7 +93,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     }
 
     fn clear_background(&self, window: &Self::Tab) -> bool {
-        !matches!(window, EditorTabName::GameView)
+        !matches!(window, EditorTabName::GameView | EditorTabName::CameraView)
     }
 
     fn add_popup(
@@ -101,25 +102,29 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         surface: egui_dock::SurfaceIndex,
         node: egui_dock::NodeIndex,
     ) {
-        ui.set_min_width(120.0);
+        ui.set_min_width(200.0);
         ui.style_mut().visuals.button_frame = false;
         let mut counter = 0;
-        for reg in self.registry.iter() {
-            if !self.visible.contains(reg.0) {
+        let mut tab_registry: Vec<(&EditorTabName, &EditorUiReg)> = self.registry.iter().collect();
+        tab_registry.sort_by(|a, b| a.0.cmp(b.0));
+
+        for registry in tab_registry.iter() {
+            if !self.visible.contains(registry.0) {
                 let format_name;
-                if let EditorTabName::Other(name) = reg.0 {
+                if let EditorTabName::Other(name) = registry.0 {
                     format_name = name.clone();
                 } else {
-                    format_name = format!("{:?}", reg.0);
+                    format_name = format!("{:?}", registry.0);
                 }
 
                 if ui.button(format_name).clicked() {
                     self.tab_commands.push(EditorTabCommand::Add {
-                        name: reg.0.clone(),
+                        name: registry.0.clone(),
                         surface,
                         node,
                     });
                 }
+                ui.spacing();
                 counter += 1;
             }
         }

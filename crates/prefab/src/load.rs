@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use shared::PrefabMarker;
+use space_shared::PrefabMarker;
 
 use crate::prelude::EditorRegistryExt;
 
@@ -8,9 +8,9 @@ use super::save::ChildrenPrefab;
 
 /// Bundle for spawn prefabs
 /// Example
-/// ```rust
+///
 /// commands.spawn(PrefabBundle::new("path/to/prefab"));
-/// ```
+///
 #[derive(Default, Bundle)]
 pub struct PrefabBundle {
     loader: PrefabLoader,

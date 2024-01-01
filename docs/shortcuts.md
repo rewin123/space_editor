@@ -24,5 +24,6 @@ Shortcuts to manipulate the gizmo:
 # Hierarchy
 
 - **RClick**: Call context menu to delete/clone/reparent entity.
+- **Ctrl + Shift + Del**: Deletes all sellected entities.
 
 > Shortcuts/Hotkeys can be changed in Settings Tab

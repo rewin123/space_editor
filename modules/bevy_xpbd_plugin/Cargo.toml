@@ -1,11 +1,14 @@
 [package]
-name = "bevy_xpbd_plugin"
-version = "0.3.0"
-edition = "2021"
+name = "space_bevy_xpbd_plugin"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Space XPBD plugin for space_editor crate"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 bevy.workspace = true 
-editor.workspace = true
+space_editor_ui.workspace = true
 bevy_xpbd_3d = {version="0.3.2", default-features = false, features = ["3d", "f32", "collider-from-mesh", "debug-plugin"]}

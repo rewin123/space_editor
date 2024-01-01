@@ -1,9 +1,5 @@
-use bevy::{
-    pbr::{LightEntity, Mesh3d},
-    prelude::*,
-    render::view::RenderLayers,
-};
-use shared::*;
+use bevy::{prelude::*, render::view::RenderLayers};
+use space_shared::*;
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;

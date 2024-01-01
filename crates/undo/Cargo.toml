@@ -1,10 +1,16 @@
 [package]
-name = "undo"
-version = "0.3.0"
-edition = "2021"
+name = "space_undo"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true 
+license.workspace = true
+description = "Subcrate for the space_editor crate. Contains undo functionality."
+repository.workspace = true
+homepage.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 bevy.workspace = true
-shared.workspace = true
+space_shared.workspace = true
+pretty-type-name = "1.0.1"

@@ -7,7 +7,7 @@ mod mouse_check;
 pub mod asset_inspector;
 
 /// This module contains logic for bottom menu
-pub mod bot_menu;
+pub mod bottom_menu;
 
 /// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
@@ -42,6 +42,9 @@ pub mod tools;
 /// This module contains methods for bundle registration
 pub mod ui_registration;
 
+/// This module contains UI logic for view game camera image
+pub mod camera_view;
+
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -51,8 +54,9 @@ use bevy_mod_picking::{
     PickableBundle,
 };
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
-use editor_core::prelude::*;
+use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
+use space_editor_core::prelude::*;
 
 use bevy::{
     ecs::system::CommandQueue,
@@ -66,19 +70,19 @@ use bevy::{
 use bevy_egui::{egui, EguiContext};
 
 use game_view::has_window_changed;
-use prefab::prelude::*;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
     MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab,
     ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
-use shared::{
+use space_prefab::prelude::*;
+use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
+use space_undo::UndoPlugin;
 use ui_registration::BundleReg;
-use undo::UndoPlugin;
 
 use self::{
     mouse_check::MouseCheck,
@@ -87,15 +91,15 @@ use self::{
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, bot_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
+        asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
         game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
         tools::*, ui_registration::*,
     };
 
-    pub use editor_core::prelude::*;
-    pub use persistence::*;
-    pub use prefab::prelude::*;
-    pub use shared::prelude::*;
+    pub use space_editor_core::prelude::*;
+    pub use space_persistence::*;
+    pub use space_prefab::prelude::*;
+    pub use space_shared::prelude::*;
 
     pub use crate::simple_editor_setup;
     pub use crate::EditorPlugin;
@@ -108,7 +112,7 @@ pub mod ext {
     pub use bevy_egui;
     pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
-    pub use shared::ext::*;
+    pub use space_shared::ext::*;
 }
 
 /// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
@@ -210,6 +214,8 @@ impl Plugin for EditorPlugin {
                 .in_set(EditorSet::Editor),
         );
 
+        app.add_systems(Update, draw_grid_lines.in_set(EditorSet::Editor));
+
         //play systems
         app.add_systems(
             OnEnter(EditorState::GamePrepare),
@@ -228,6 +234,7 @@ impl Plugin for EditorPlugin {
                 clear_and_load_on_start,
                 change_camera_in_editor,
                 create_grid_lines,
+                set_camera_viewport,
             ),
         );
 
@@ -240,7 +247,8 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams).run_if(in_state(EditorState::Editor)),
+            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
+                .run_if(in_state(EditorState::Editor)),
         );
 
         app.add_event::<SelectEvent>();
@@ -266,13 +274,107 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
-fn create_grid_lines(commands: Commands) {
-    bevy_debug_grid::spawn_floor_grid(commands);
+#[derive(Component)]
+pub struct GridLines {
+    pub cell_size: f32,
+    pub half_cell_width: i32,
 }
 
-fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<bevy_debug_grid::Grid>>) {
+impl Default for GridLines {
+    fn default() -> Self {
+        Self {
+            cell_size: 1.0,
+            half_cell_width: 128,
+        }
+    }
+}
+
+fn create_grid_lines(mut commands: Commands) {
+    commands.spawn((SpatialBundle::default(), GridLines::default()));
+}
+
+fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<GridLines>>) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
+    }
+}
+
+fn draw_grid_lines(mut gizmos: Gizmos, query: Query<(&GlobalTransform, &GridLines)>) {
+    for (transform, grid) in query.iter() {
+        let pos = transform.translation();
+        for x in 1..grid.half_cell_width {
+            gizmos.line(
+                Vec3::new(
+                    x as f32 * grid.cell_size,
+                    0.0,
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    x as f32 * grid.cell_size,
+                    0.0,
+                    grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
+            );
+
+            gizmos.line(
+                Vec3::new(
+                    -x as f32 * grid.cell_size,
+                    0.0,
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    -x as f32 * grid.cell_size,
+                    0.0,
+                    grid.half_cell_width as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
+            );
+        }
+
+        for z in 1..grid.half_cell_width {
+            gizmos.line(
+                Vec3::new(
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    z as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    z as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
+            );
+
+            gizmos.line(
+                Vec3::new(
+                    -grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    -z as f32 * grid.cell_size,
+                ) + pos,
+                Vec3::new(
+                    grid.half_cell_width as f32 * grid.cell_size,
+                    0.0,
+                    -z as f32 * grid.cell_size,
+                ) + pos,
+                Color::GRAY,
+            );
+        }
+
+        //draw x central axis
+        gizmos.line(
+            Vec3::new(0.0, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
+            Vec3::new(0.0, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
+            Color::RED,
+        );
+
+        //draw z central axis
+        gizmos.line(
+            Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
+            Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
+            Color::BLUE,
+        );
     }
 }
 
@@ -342,6 +444,23 @@ fn select_listener(
     }
 }
 
+fn delete_selected(
+    mut commands: Commands,
+    query: Query<Entity, With<Selected>>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    let shift = keyboard.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
+    let ctrl = keyboard.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
+    let delete = keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete);
+
+    if ctrl && shift && delete {
+        for entity in query.iter() {
+            info!("Delete Entity: {entity:?}");
+            commands.entity(entity).despawn_recursive();
+        }
+    }
+}
+
 impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     fn from(value: ListenerInput<Pointer<Down>>) -> Self {
         Self {
@@ -351,9 +470,9 @@ impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
     }
 }
 
-fn save_prefab_before_play(mut editor_events: EventWriter<shared::EditorEvent>) {
-    editor_events.send(shared::EditorEvent::Save(
-        shared::EditorPrefabPath::MemoryCahce,
+fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
+    editor_events.send(space_shared::EditorEvent::Save(
+        space_shared::EditorPrefabPath::MemoryCahce,
     ));
 }
 
@@ -375,11 +494,11 @@ fn clear_and_load_on_start(
         return;
     }
     match save_confg.path.as_ref().unwrap() {
-        shared::EditorPrefabPath::File(path) => {
+        space_shared::EditorPrefabPath::File(path) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        shared::EditorPrefabPath::MemoryCahce => {
+        space_shared::EditorPrefabPath::MemoryCahce => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }
@@ -459,7 +578,13 @@ pub fn change_camera_in_editor(
     }
 }
 
-fn disable_no_editor_cams(mut cameras: Query<&mut Camera, Without<EditorCameraMarker>>) {
+///Camera with this component will not be disabled in Editor state
+#[derive(Component)]
+pub struct DisableCameraSkip;
+
+fn disable_no_editor_cams(
+    mut cameras: Query<&mut Camera, (Without<DisableCameraSkip>, Without<EditorCameraMarker>)>,
+) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
     }
@@ -467,7 +592,14 @@ fn disable_no_editor_cams(mut cameras: Query<&mut Camera, Without<EditorCameraMa
 
 fn draw_camera_gizmo(
     mut gizom: Gizmos,
-    cameras: Query<(&GlobalTransform, &Projection), (With<Camera>, Without<EditorCameraMarker>)>,
+    cameras: Query<
+        (&GlobalTransform, &Projection),
+        (
+            With<Camera>,
+            Without<EditorCameraMarker>,
+            Without<DisableCameraSkip>,
+        ),
+    >,
 ) {
     for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
@@ -543,7 +675,7 @@ impl Plugin for EditorUiPlugin {
             app.add_plugins(MeshlessVisualizerPlugin::default());
         }
 
-        app.add_plugins((bot_menu::BotMenuPlugin, MouseCheck));
+        app.add_plugins((bottom_menu::BottomMenuPlugin, MouseCheck));
 
         app.configure_sets(
             Update,
@@ -559,7 +691,7 @@ impl Plugin for EditorUiPlugin {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
-                    .after(bot_menu::bot_menu),
+                    .after(bottom_menu::menu),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),
@@ -580,6 +712,8 @@ impl Plugin for EditorUiPlugin {
             EditorTabName::Other("Debug World Inspector".to_string()),
             self::debug_panels::DebugWorldInspector {},
         );
+
+        app.add_plugins(CameraViewTabPlugin);
 
         app.add_plugins(SpaceHierarchyPlugin::default());
         app.add_plugins(SpaceInspectorPlugin);
@@ -654,7 +788,7 @@ impl EditorUi {
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
         //collect tab names to vec to detect visible
         let mut visible = vec![];
-        for tab in self.tree.iter_nodes() {
+        for (_surface_index, tab) in self.tree.iter_all_nodes() {
             match tab {
                 egui_dock::Node::Empty => {}
                 egui_dock::Node::Leaf {
@@ -819,16 +953,22 @@ pub fn simple_editor_setup(mut commands: Commands) {
     ));
 
     // camera
-    commands
-        .spawn(Camera3dBundle {
+    commands.spawn((
+        Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            camera: Camera {
+                order: 0,
+                ..default()
+            },
             ..default()
-        })
-        .insert(RenderLayers::all())
-        .insert(bevy_panorbit_camera::PanOrbitCamera::default())
-        .insert(EditorCameraMarker)
-        .insert(PickableBundle::default())
-        .insert(RaycastPickable);
+        },
+        bevy_panorbit_camera::PanOrbitCamera::default(),
+        EditorCameraMarker,
+        Name::from("Editor Camera"),
+        PickableBundle::default(),
+        RaycastPickable,
+        RenderLayers::all(),
+    ));
 
-    bevy_debug_grid::spawn_floor_grid(commands);
+    create_grid_lines(commands);
 }

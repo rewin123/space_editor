@@ -1,25 +1,22 @@
 use bevy::prelude::*;
 use bevy_egui::*;
-use editor_core::prelude::*;
-use prefab::plugins::PrefabPlugin;
-use shared::{ext::egui_file, *};
+use space_editor_core::prelude::*;
+use space_prefab::plugins::PrefabPlugin;
+use space_shared::{ext::egui_file, *};
 
-/// Plugin to activate bot menu in editor UI
-pub struct BotMenuPlugin;
+/// Plugin to activate bottom menu in editor UI
+pub struct BottomMenuPlugin;
 
-impl Plugin for BotMenuPlugin {
+impl Plugin for BottomMenuPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }
         app.init_resource::<EditorLoader>();
-        app.init_resource::<BotMenuState>();
+        app.init_resource::<BottomMenuState>();
 
-        app.add_systems(
-            Update,
-            bot_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
-        );
-        app.add_systems(Update, bot_menu_game.in_set(EditorSet::Game));
+        app.add_systems(Update, menu.before(EditorLoadSet).in_set(EditorSet::Editor));
+        app.add_systems(Update, in_game_menu.in_set(EditorSet::Game));
         app.add_event::<MenuLoadEvent>();
     }
 }
@@ -29,7 +26,7 @@ pub struct MenuLoadEvent {
     pub path: String,
 }
 
-fn bot_menu_game(
+fn in_game_menu(
     mut smoothed_dt: Local<f32>,
     mut ctxs: EguiContexts,
     mut state: ResMut<NextState<EditorState>>,
@@ -48,17 +45,17 @@ fn bot_menu_game(
 }
 
 #[derive(Resource, Default)]
-pub struct BotMenuState {
+pub struct BottomMenuState {
     pub file_dialog: Option<egui_file::FileDialog>,
     pub gltf_dialog: Option<egui_file::FileDialog>,
     pub path: String,
 }
 
-pub fn bot_menu(
+pub fn menu(
     mut ctxs: EguiContexts,
     _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
-    mut menu_state: ResMut<BotMenuState>,
+    mut menu_state: ResMut<BottomMenuState>,
     mut editor_events: EventWriter<EditorEvent>,
     background_tasks: Res<BackgroundTaskStorage>,
 ) {
@@ -70,7 +67,7 @@ pub fn bot_menu(
 
             if ui.button("📂").clicked() {
                 let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                    .filter(Box::new(|path| {
+                    .show_files_filter(Box::new(|path| {
                         path.to_str().unwrap().ends_with(".scn.ron")
                     }))
                     .title("Open prefab (*.scn.ron)");
@@ -162,7 +159,7 @@ pub fn bot_menu(
 
             if ui.button("Open gltf as prefab").clicked() {
                 let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                    .filter(Box::new(|path| {
+                    .show_files_filter(Box::new(|path| {
                         path.to_str().unwrap().ends_with(".gltf")
                             || path.to_str().unwrap().ends_with(".glb")
                     }))

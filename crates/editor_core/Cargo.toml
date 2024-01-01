@@ -1,15 +1,20 @@
 [package]
-name = "editor_core"
-version = "0.1.0"
-edition = "2021"
+name = "space_editor_core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true 
+license.workspace = true
+description = "Subcrate for the space_editor crate. Contains the core functionality of the editor."
+repository.workspace = true
+homepage.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-prefab.workspace = true
-undo.workspace = true
-persistence.workspace = true
-shared.workspace = true
+space_prefab.workspace = true
+space_undo.workspace = true
+space_persistence.workspace = true
+space_shared.workspace = true
 
 bevy.workspace = true
 
