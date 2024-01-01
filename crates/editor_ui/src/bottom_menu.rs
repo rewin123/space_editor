@@ -67,9 +67,7 @@ pub fn menu(
 
             if ui.button("📂").clicked() {
                 let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                    .filter(Box::new(|path| {
-                        path.to_str().unwrap().ends_with(".scn.ron")
-                    }))
+                    .filename_filter(Box::new(|filename| filename.ends_with(".scn.ron")))
                     .title("Open prefab (*.scn.ron)");
                 dialog.open();
                 menu_state.file_dialog = Some(dialog);
@@ -159,9 +157,8 @@ pub fn menu(
 
             if ui.button("Open gltf as prefab").clicked() {
                 let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                    .filter(Box::new(|path| {
-                        path.to_str().unwrap().ends_with(".gltf")
-                            || path.to_str().unwrap().ends_with(".glb")
+                    .filename_filter(Box::new(|path| {
+                        path.ends_with(".gltf") || path.ends_with(".glb")
                     }))
                     .title("Open gltf scene");
                 gltf_dialog.open();

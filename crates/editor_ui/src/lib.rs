@@ -781,7 +781,7 @@ impl EditorUi {
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
         //collect tab names to vec to detect visible
         let mut visible = vec![];
-        for tab in self.tree.iter_nodes() {
+        for (_surface_index, tab) in self.tree.iter_all_nodes() {
             match tab {
                 egui_dock::Node::Empty => {}
                 egui_dock::Node::Leaf {

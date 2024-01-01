@@ -2,7 +2,7 @@
 name = "space_shared"
 version.workspace = true
 authors.workspace = true
-edition.workspace = true 
+edition.workspace = true
 license.workspace = true
 description = "Subcrate for the space_editor crate. Contains the common types used in the space_editor"
 repository.workspace = true
@@ -15,5 +15,8 @@ homepage.workspace = true
 bevy.workspace = true
 
 
-bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
-egui_file = "0.11"
+bevy-inspector-egui = { version = "0.22", features = [
+    "bevy_pbr",
+    "highlight_changes",
+] }
+egui_file = "0.13"

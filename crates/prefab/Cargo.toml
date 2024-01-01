@@ -2,7 +2,7 @@
 name = "space_prefab"
 version.workspace = true
 authors.workspace = true
-edition.workspace = true 
+edition.workspace = true
 license.workspace = true
 repository.workspace = true
 homepage.workspace = true
@@ -18,4 +18,7 @@ space_shared.workspace = true
 space_undo.workspace = true
 
 bevy-scene-hook = "9"
-bevy-inspector-egui = { version = "0.21", features = ["bevy_pbr", "highlight_changes"]}
+bevy-inspector-egui = { version = "0.22", features = [
+    "bevy_pbr",
+    "highlight_changes",
+] }
