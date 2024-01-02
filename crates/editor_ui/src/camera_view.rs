@@ -132,6 +132,7 @@ impl EditorTab for CameraViewTab {
                     Transform::default(),
                     Visibility::default(),
                     CameraPlay::default(),
+                    PrefabMarker,
                 ));
             }
         }
