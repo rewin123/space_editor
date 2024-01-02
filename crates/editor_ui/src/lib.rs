@@ -224,6 +224,7 @@ impl Plugin for EditorPlugin {
         );
 
         app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
+        app.add_systems(OnEnter(EditorState::GamePrepare), game_gizmos);
 
         app.add_systems(
             OnEnter(EditorState::Editor),
@@ -231,6 +232,7 @@ impl Plugin for EditorPlugin {
                 clear_and_load_on_start,
                 change_camera_in_editor,
                 create_grid_lines,
+                editor_gizmos,
                 set_camera_viewport,
             ),
         );
@@ -284,6 +286,14 @@ impl Default for GridLines {
             half_cell_width: 128,
         }
     }
+}
+
+fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
+    gizmos_config.render_layers = RenderLayers::layer(RenderLayers::TOTAL_LAYERS as u8 - 1)
+}
+
+fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
+    gizmos_config.render_layers = RenderLayers::layer(0)
 }
 
 fn create_grid_lines(mut commands: Commands) {
@@ -588,7 +598,7 @@ fn disable_no_editor_cams(
 }
 
 fn draw_camera_gizmo(
-    mut gizom: Gizmos,
+    mut gizmos: Gizmos,
     cameras: Query<
         (&GlobalTransform, &Projection),
         (
@@ -601,11 +611,11 @@ fn draw_camera_gizmo(
     for (transform, _projection) in cameras.iter() {
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
-        gizom.cuboid(cuboid_transform, Color::PINK);
+        gizmos.cuboid(cuboid_transform, Color::PINK);
 
         let scale = 1.5;
 
-        gizom.line(
+        gizmos.line(
             transform.translation,
             transform.translation
                 + transform.forward() * scale
@@ -613,19 +623,19 @@ fn draw_camera_gizmo(
                 + transform.right() * scale,
             Color::PINK,
         );
-        gizom.line(
+        gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale - transform.up() * scale
                 + transform.right() * scale,
             Color::PINK,
         );
-        gizom.line(
+        gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale + transform.up() * scale
                 - transform.right() * scale,
             Color::PINK,
         );
-        gizom.line(
+        gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale
                 - transform.up() * scale
@@ -636,7 +646,7 @@ fn draw_camera_gizmo(
         let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
         let rect_transform = transform.mul_transform(rect_transform);
 
-        gizom.rect(
+        gizmos.rect(
             rect_transform.translation,
             rect_transform.rotation,
             Vec2::splat(scale * 2.0),
