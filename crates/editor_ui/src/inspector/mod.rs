@@ -1,6 +1,7 @@
 pub mod components_order;
 pub mod refl_impl;
 pub mod resources;
+pub mod runtime_assets;
 
 use std::any::TypeId;
 
@@ -24,6 +25,7 @@ use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
     resources::ResourceTab,
+    runtime_assets::RuntimeAssetsTab,
 };
 
 use super::{
@@ -48,6 +50,7 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
         app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
+        app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 

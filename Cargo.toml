@@ -45,7 +45,6 @@ space_prefab = {workspace = true, version = "0.3.1" }
 # Modules for external crates
 space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
 
-
 # For versions 1.74+
 [lints.rust]
 future-incompatible = "warn"
