@@ -6,17 +6,17 @@ use space_shared::ext::bevy_inspector_egui;
 use crate::prelude::*;
 
 #[derive(Resource, Default)]
-pub struct AssetsTab {
+pub struct RuntimeAssetsTab {
     open_assets: HashMap<String, bool>,
 }
 
-impl EditorTab for AssetsTab {
+impl EditorTab for RuntimeAssetsTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         inspect(ui, world, &mut self.open_assets);
     }
 
     fn title(&self) -> egui::WidgetText {
-        "Assets".into()
+        "Runtime Assets".into()
     }
 }
 

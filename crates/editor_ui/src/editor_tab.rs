@@ -2,6 +2,7 @@
 
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui::{self, WidgetText};
+use convert_case::{Case, Casing};
 
 use super::{EditorUiRef, EditorUiReg};
 
@@ -12,12 +13,12 @@ pub trait EditorTab {
 
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
-    Assets,
     CameraView,
     GameView,
     Hierarchy,
     Inspector,
     Resource,
+    RuntimeAssets,
     Settings,
     ToolBox,
     Other(String),
@@ -115,7 +116,9 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                 if let EditorTabName::Other(name) = registry.0 {
                     format_name = name.clone();
                 } else {
-                    format_name = format!("{:?}", registry.0);
+                    format_name = format!("{:?}", registry.0)
+                        .from_case(Case::Pascal)
+                        .to_case(Case::Title);
                 }
 
                 if ui.button(format_name).clicked() {
