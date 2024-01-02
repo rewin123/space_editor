@@ -1,6 +1,6 @@
 use bevy::{
     core_pipeline::{
-        core_3d::Camera3dDepthTextureUsage,
+        core_3d::{Camera3dDepthTextureUsage, ScreenSpaceTransmissionQuality},
         tonemapping::{DebandDither, Tonemapping},
     },
     pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
@@ -113,6 +113,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<CameraPlay>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
+        app.register_type::<ScreenSpaceTransmissionQuality>();
 
         app.editor_relation::<Camera3d, Camera>();
         app.editor_relation::<Camera, Projection>();
