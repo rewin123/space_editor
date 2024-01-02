@@ -41,7 +41,8 @@ pub struct CameraViewTab {
     pub camera_entity: Option<Entity>,
     pub real_camera: Option<Entity>,
     pub target_image: Option<Handle<Image>>,
-    pub egui_tex_id: Option<egui::TextureId>,
+    pub egui_tex_id: Option<(egui::TextureId, Handle<Image>)>,
+    pub need_reinit_egui_tex: bool,
 }
 
 fn create_camera_image(width: u32, height: u32) -> Image {
@@ -152,6 +153,7 @@ impl EditorTab for CameraViewTab {
                     clipped.height() as u32,
                 ));
             self.target_image = Some(handle.clone());
+            self.need_reinit_egui_tex = true;
         } else if let Some(handle) = &self.target_image {
             if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
                 if image.texture_descriptor.size.width != clipped.width() as u32
@@ -166,13 +168,15 @@ impl EditorTab for CameraViewTab {
                             height: clipped.height() as u32,
                             ..default()
                         });
+                    self.need_reinit_egui_tex = true;
                 }
             } else {
                 self.target_image = None;
+                self.need_reinit_egui_tex = true;
             }
         }
 
-        if let Some(cam_image) = self.egui_tex_id {
+        if let Some((cam_image, _)) = self.egui_tex_id {
             ui.image(egui::load::SizedTexture {
                 id: cam_image,
                 size: ui.available_size(),
@@ -229,7 +233,13 @@ fn set_camera_viewport(
     };
 
     if ui_state.egui_tex_id.is_none() {
-        ui_state.egui_tex_id = Some(ctxs.add_image(target_image.clone()));
+        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
+    }
+
+    if ui_state.need_reinit_egui_tex {
+        ctxs.remove_image(&ui_state.egui_tex_id.as_ref().unwrap().1);
+        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
+        ui_state.need_reinit_egui_tex = false;
     }
 
     let Ok([(mut real_cam, mut real_cam_transform), (watch_cam, camera_transform)]) =
