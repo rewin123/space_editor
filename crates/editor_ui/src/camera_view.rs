@@ -7,7 +7,7 @@ use bevy::{
         },
         view::RenderLayers,
     },
-    window::{PrimaryWindow, WindowRef},
+    window::PrimaryWindow,
 };
 use bevy_egui::{
     egui::{self, Color32},
