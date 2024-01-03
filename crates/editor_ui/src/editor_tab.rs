@@ -18,6 +18,7 @@ pub enum EditorTabName {
     Hierarchy,
     Inspector,
     Resource,
+    Event,
     RuntimeAssets,
     Settings,
     ToolBox,

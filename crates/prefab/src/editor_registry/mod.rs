@@ -85,6 +85,33 @@ impl AddDefaultComponent {
     }
 }
 
+/// Container struct for function to send default event
+#[derive(Clone)]
+pub struct SendEvent {
+    name: String,
+    func: Arc<dyn Fn(&mut World) + Send + Sync>,
+}
+
+impl SendEvent {
+    pub fn new<T: Default + Event>() -> Self {
+        let name = std::any::type_name::<T>().into();
+        Self {
+            name,
+            func: Arc::new(move |world| {
+                world.send_event(T::default());
+            }),
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn send(&self, world: &mut World) {
+        (self.func)(world);
+    }
+}
+
 /// Resource, which contains all custom editor registry
 #[derive(Default, Resource, Clone)]
 pub struct EditorRegistry {
@@ -92,6 +119,7 @@ pub struct EditorRegistry {
     pub spawn_components: HashMap<TypeId, AddDefaultComponent>,
     pub clone_components: Vec<CloneComponent>,
     pub remove_components: HashMap<TypeId, RemoveComponent>,
+    pub send_events: HashMap<TypeId, SendEvent>,
     pub silent: HashSet<TypeId>, //skip in inspector ui
 }
 
@@ -160,6 +188,12 @@ impl EditorRegistry {
             (t.func)(cmds, src);
         }
     }
+
+    /// Register new event, which will be shown in editor UI and can be sent
+    pub fn event_register<T: Event + Default>(&mut self) {
+        let id = TypeId::of::<T>();
+        self.send_events.insert(id, SendEvent::new::<T>());
+    }
 }
 
 pub trait EditorRegistryExt {
@@ -205,6 +239,9 @@ pub trait EditorRegistryExt {
             + 'static
             + GetTypeRegistration
             + TypePath;
+
+    /// register new event in editor UI
+    fn editor_event<T: Event + Default>(&mut self) -> &mut Self;
 }
 
 impl EditorRegistryExt for App {
@@ -283,6 +320,13 @@ impl EditorRegistryExt for App {
     {
         self.add_systems(Update, into_sync_system::<T, Target>);
 
+        self
+    }
+
+    fn editor_event<T: Event + Default>(&mut self) -> &mut Self {
+        self.world
+            .resource_mut::<EditorRegistry>()
+            .event_register::<T>();
         self
     }
 }
