@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use space_shared::{EditorState, PrefabMarker};
+use space_shared::PrefabMarker;
 
 use crate::prelude::EditorRegistryExt;
 
@@ -80,7 +80,7 @@ fn load_prefab(
         Changed<PrefabLoader>,
     >,
     auto_childs: Query<Entity, With<PrefabAutoChild>>,
-    assets: ResMut<AssetServer>
+    assets: ResMut<AssetServer>,
 ) {
     for (e, l, children, tr, vis) in query.iter() {
         if tr.is_none() {
