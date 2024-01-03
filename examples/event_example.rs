@@ -27,7 +27,7 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn((PrefabBundle::new("cube.scn.ron"), Spin(false)));
+    commands.spawn((PrefabBundle::new("cube.scn.ron"), Spin(false), PrefabMarker));
 }
 
 fn spin_entities(mut query: Query<(&mut Transform, &Spin)>, time: Res<Time>) {

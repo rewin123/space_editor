@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use space_shared::PrefabMarker;
+use space_shared::{EditorState, PrefabMarker};
 
 use crate::prelude::EditorRegistryExt;
 
@@ -81,6 +81,7 @@ fn load_prefab(
     >,
     auto_childs: Query<Entity, With<PrefabAutoChild>>,
     assets: ResMut<AssetServer>,
+    state: Res<State<EditorState>>,
 ) {
     for (e, l, children, tr, vis) in query.iter() {
         if tr.is_none() {
@@ -101,14 +102,19 @@ fn load_prefab(
             commands.entity(e).clear_children();
         }
 
+        let is_editor = *state.get() == EditorState::Editor;
+
         let scene: Handle<DynamicScene> = assets.load(&l.path);
-        commands.entity(e).with_children(|cmds| {
-            cmds.spawn(DynamicSceneBundle { scene, ..default() })
-                .insert(SceneHook::new(|_e, cmd| {
-                    cmd.insert(PrefabAutoChild);
-                }))
-                .insert(PrefabAutoChild);
-        });
+
+        let id = commands
+            .spawn(DynamicSceneBundle { scene, ..default() })
+            .insert(SceneHook::new(move |_e, cmd| {
+                cmd.insert(PrefabAutoChild);
+            }))
+            .insert(PrefabAutoChild)
+            .id();
+
+        commands.entity(e).push_children(&[id]);
     }
 }
 
