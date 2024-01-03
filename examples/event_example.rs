@@ -39,8 +39,8 @@ fn spin_entities(mut query: Query<(&mut Transform, &Spin)>, time: Res<Time>) {
 }
 
 fn handle_spin_event(mut query: Query<&mut Spin>, mut events: EventReader<ToggleSpin>) {
-    for mut spin in query.iter_mut() {
-        for _ in events.read() {
+    for _ in events.read() {
+        for mut spin in query.iter_mut() {
             spin.0 = !spin.0;
         }
     }
