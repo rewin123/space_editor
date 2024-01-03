@@ -4,7 +4,6 @@
 
 use bevy::prelude::*;
 use space_editor::prelude::*;
-use space_prefab::ext::shape::Cube;
 
 #[derive(Event, Default)]
 pub struct ToggleSpin;
@@ -27,20 +26,8 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    commands.spawn((
-        Spin(false),
-        PbrBundle {
-            mesh: meshes.add(Mesh::from(Cube { size: 1.0 })),
-            material: materials.add(Color::rgb(0.8, 0.7, 0.6).into()),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
-            ..default()
-        },
-    ));
+fn setup(mut commands: Commands) {
+    commands.spawn((PrefabBundle::new("cube.scn.ron"), Spin(false)));
 }
 
 fn spin_entities(mut query: Query<(&mut Transform, &Spin)>, time: Res<Time>) {
