@@ -102,8 +102,6 @@ fn load_prefab(
             commands.entity(e).clear_children();
         }
 
-        let is_editor = *state.get() == EditorState::Editor;
-
         let scene: Handle<DynamicScene> = assets.load(&l.path);
 
         let id = commands
