@@ -214,6 +214,7 @@ fn spawn_node(
                                     idx
                                 ),
                             },
+                            PrefabMarker,
                         ));
 
                         if let Some(material_handle) = &mesh.primitives[idx].material {
