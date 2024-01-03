@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use bevy_egui::*;
+use bevy_egui::{egui::Color32, *};
 
 use crate::prelude::*;
 
@@ -20,18 +20,22 @@ impl EditorTab for EventDebuggerTab {
 pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
     let events = &world.resource::<EditorRegistry>().send_events.clone();
 
-    egui::Grid::new("Events ID".to_string()).show(ui, move |ui| {
-        for event in events {
-            ui.push_id(event.path(), |ui| {
-                let clicked = ui
-                    .button(event.name())
-                    .on_hover_text(event.path())
-                    .clicked();
-                if clicked {
-                    event.send(world);
-                };
-            });
-            ui.end_row();
-        }
-    });
+    if events.is_empty() {
+        ui.label(egui::RichText::new("No events registered").color(Color32::LIGHT_RED));
+    } else {
+        egui::Grid::new("Events ID".to_string()).show(ui, move |ui| {
+            for event in events {
+                ui.push_id(event.path(), |ui| {
+                    let clicked = ui
+                        .button(event.name())
+                        .on_hover_text(event.path())
+                        .clicked();
+                    if clicked {
+                        event.send(world);
+                    };
+                });
+                ui.end_row();
+            }
+        });
+    }
 }
