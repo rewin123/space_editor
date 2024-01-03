@@ -241,7 +241,7 @@ pub trait EditorRegistryExt {
             + TypePath;
 
     /// register new event in editor UI
-    fn editor_event<T: Event + Default>(&mut self) -> &mut Self;
+    fn editor_registry_event<T: Event + Default>(&mut self) -> &mut Self;
 }
 
 impl EditorRegistryExt for App {
@@ -323,7 +323,7 @@ impl EditorRegistryExt for App {
         self
     }
 
-    fn editor_event<T: Event + Default>(&mut self) -> &mut Self {
+    fn editor_registry_event<T: Event + Default>(&mut self) -> &mut Self {
         self.world
             .resource_mut::<EditorRegistry>()
             .event_register::<T>();

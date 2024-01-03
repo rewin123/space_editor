@@ -18,7 +18,7 @@ fn main() {
         .add_plugins(SpaceEditorPlugin)
         .add_systems(Startup, simple_editor_setup)
         .add_event::<ToggleSpin>()
-        .editor_event::<ToggleSpin>()
+        .editor_registry_event::<ToggleSpin>()
         .editor_registry::<Spin>()
         .add_systems(Startup, setup)
         .add_systems(Update, spin_entities)
