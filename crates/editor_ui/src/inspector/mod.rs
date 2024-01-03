@@ -52,7 +52,7 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
         app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
-        app.editor_tab_by_trait(EditorTabName::Event, EventTab::default());
+        app.editor_tab_by_trait(EditorTabName::Event, EventTab);
         app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
