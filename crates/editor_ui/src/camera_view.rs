@@ -198,7 +198,7 @@ fn clean_camera_view_tab(
     mut ui_state: ResMut<CameraViewTab>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
 ) {
-    let Some(real_cam_entity) = ui_state.real_camera.clone() else {
+    let Some(real_cam_entity) = ui_state.real_camera else {
         return;
     };
 
@@ -227,11 +227,11 @@ fn set_camera_viewport(
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
 ) {
-    let Some(real_cam_entity) = ui_state.real_camera.clone() else {
+    let Some(real_cam_entity) = ui_state.real_camera else {
         return;
     };
 
-    let Some(camera_entity) = ui_state.camera_entity.clone() else {
+    let Some(camera_entity) = ui_state.camera_entity else {
         return;
     };
 
@@ -263,7 +263,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Some(viewport_rect) = ui_state.viewport_rect.clone() else {
+    let Some(viewport_rect) = ui_state.viewport_rect else {
         return;
     };
 
