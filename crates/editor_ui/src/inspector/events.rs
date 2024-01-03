@@ -29,10 +29,14 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
 
     egui::Grid::new("Events ID".to_string()).show(ui, move |ui| {
         for (type_id, event) in events.into_iter() {
-            ui.push_id(format!("{:?}-{}", &type_id, event.name()), |ui| {
-                if ui.button(event.name()).clicked() {
+            ui.push_id(format!("{:?}-{}", &type_id, event.path()), |ui| {
+                let clicked = ui
+                    .button(event.name())
+                    .on_hover_text(event.path())
+                    .clicked();
+                if clicked {
                     event.send(world);
-                }
+                };
             });
             ui.end_row();
         }

@@ -89,14 +89,17 @@ impl AddDefaultComponent {
 #[derive(Clone)]
 pub struct SendEvent {
     name: String,
+    path: String,
     func: Arc<dyn Fn(&mut World) + Send + Sync>,
 }
 
 impl SendEvent {
     pub fn new<T: Default + Event>() -> Self {
-        let name = std::any::type_name::<T>().into();
+        let path = std::any::type_name::<T>().to_string();
+        let name = path.split("::").last().unwrap_or("UnnamedEvent").into();
         Self {
             name,
+            path,
             func: Arc::new(move |world| {
                 world.send_event(T::default());
             }),
@@ -105,6 +108,10 @@ impl SendEvent {
 
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
     }
 
     pub fn send(&self, world: &mut World) {
