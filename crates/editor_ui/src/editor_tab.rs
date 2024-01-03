@@ -14,15 +14,15 @@ pub trait EditorTab {
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
     CameraView,
+    Event,
     GameView,
     Hierarchy,
     Inspector,
+    Other(String),
     Resource,
-    Event,
     RuntimeAssets,
     Settings,
     ToolBox,
-    Other(String),
 }
 
 pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
