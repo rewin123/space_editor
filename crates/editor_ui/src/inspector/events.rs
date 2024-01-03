@@ -5,15 +5,15 @@ use bevy_egui::*;
 use crate::prelude::*;
 
 #[derive(Resource, Default)]
-pub struct EventTab;
+pub struct EventDebuggerTab;
 
-impl EditorTab for EventTab {
+impl EditorTab for EventDebuggerTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
         inspect(ui, world);
     }
 
     fn title(&self) -> egui::WidgetText {
-        "Event".into()
+        "Event Debugger".into()
     }
 }
 

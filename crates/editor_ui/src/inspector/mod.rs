@@ -24,7 +24,7 @@ use space_shared::ext::bevy_inspector_egui::{
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
-    events::EventTab,
+    events::EventDebuggerTab,
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
     resources::ResourceTab,
     runtime_assets::RuntimeAssetsTab,
@@ -52,7 +52,7 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
         app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
-        app.editor_tab_by_trait(EditorTabName::Event, EventTab);
+        app.editor_tab_by_trait(EditorTabName::EventDebugger, EventDebuggerTab);
         app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
