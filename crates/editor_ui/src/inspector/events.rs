@@ -18,18 +18,11 @@ impl EditorTab for EventTab {
 }
 
 pub fn inspect(ui: &mut egui::Ui, world: &mut World) {
-    let mut events = world
-        .resource::<EditorRegistry>()
-        .send_events
-        .iter()
-        .map(|(type_id, event)| (*type_id, event.clone()))
-        .collect::<Vec<_>>();
-
-    events.sort_by(|(_, a), (_, b)| a.name().cmp(b.name()));
+    let events = &world.resource::<EditorRegistry>().send_events.clone();
 
     egui::Grid::new("Events ID".to_string()).show(ui, move |ui| {
-        for (type_id, event) in events.into_iter() {
-            ui.push_id(format!("{:?}-{}", &type_id, event.path()), |ui| {
+        for event in events {
+            ui.push_id(event.path(), |ui| {
                 let clicked = ui
                     .button(event.name())
                     .on_hover_text(event.path())

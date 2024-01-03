@@ -126,7 +126,7 @@ pub struct EditorRegistry {
     pub spawn_components: HashMap<TypeId, AddDefaultComponent>,
     pub clone_components: Vec<CloneComponent>,
     pub remove_components: HashMap<TypeId, RemoveComponent>,
-    pub send_events: HashMap<TypeId, SendEvent>,
+    pub send_events: Vec<SendEvent>,
     pub silent: HashSet<TypeId>, //skip in inspector ui
 }
 
@@ -198,8 +198,10 @@ impl EditorRegistry {
 
     /// Register new event, which will be shown in editor UI and can be sent
     pub fn event_register<T: Event + Default>(&mut self) {
-        let id = TypeId::of::<T>();
-        self.send_events.insert(id, SendEvent::new::<T>());
+        self.send_events.push(SendEvent::new::<T>());
+        self.send_events.sort_unstable_by_key(|send_event| {
+            (send_event.name().to_owned(), send_event.path().to_owned())
+        });
     }
 }
 
