@@ -17,7 +17,7 @@ use bevy_egui::{
 use space_prefab::component::CameraPlay;
 use space_shared::*;
 
-use crate::{prelude::EditorTabName, DisableCameraSkip, EditorUiAppExt};
+use crate::{prelude::EditorTabName, show_editor_ui, DisableCameraSkip, EditorUiAppExt};
 
 use super::editor_tab::EditorTab;
 
@@ -26,8 +26,13 @@ pub struct CameraViewTabPlugin;
 impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
-        app.add_systems(PostUpdate, set_camera_viewport.in_set(EditorSet::Editor));
-        app.add_systems(OnEnter(EditorState::GamePrepare), clean_camera_view_tab);
+        app.add_systems(
+            PostUpdate,
+            set_camera_viewport
+                .in_set(EditorSet::Editor)
+                .after(show_editor_ui),
+        );
+        app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
 
@@ -193,7 +198,7 @@ fn clean_camera_view_tab(
     mut ui_state: ResMut<CameraViewTab>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
 ) {
-    let Some(real_cam_entity) = ui_state.real_camera else {
+    let Some(real_cam_entity) = ui_state.real_camera.clone() else {
         return;
     };
 
@@ -207,6 +212,8 @@ fn clean_camera_view_tab(
     ui_state.camera_entity = None;
     ui_state.real_camera = None;
     ui_state.viewport_rect = None;
+
+    info!("Clean camera view tab");
 }
 
 #[derive(Default)]
@@ -220,11 +227,11 @@ fn set_camera_viewport(
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
 ) {
-    let Some(real_cam_entity) = ui_state.real_camera else {
+    let Some(real_cam_entity) = ui_state.real_camera.clone() else {
         return;
     };
 
-    let Some(camera_entity) = ui_state.camera_entity else {
+    let Some(camera_entity) = ui_state.camera_entity.clone() else {
         return;
     };
 
@@ -256,7 +263,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Some(viewport_rect) = ui_state.viewport_rect else {
+    let Some(viewport_rect) = ui_state.viewport_rect.clone() else {
         return;
     };
 
