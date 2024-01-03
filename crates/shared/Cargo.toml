@@ -19,4 +19,4 @@ bevy-inspector-egui = { version = "0.22", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
-egui_file = "0.13"
+egui_file = { git = "https://github.com/Barugon/egui_file.git" }
