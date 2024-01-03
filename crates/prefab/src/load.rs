@@ -80,8 +80,7 @@ fn load_prefab(
         Changed<PrefabLoader>,
     >,
     auto_childs: Query<Entity, With<PrefabAutoChild>>,
-    assets: ResMut<AssetServer>,
-    state: Res<State<EditorState>>,
+    assets: ResMut<AssetServer>
 ) {
     for (e, l, children, tr, vis) in query.iter() {
         if tr.is_none() {
