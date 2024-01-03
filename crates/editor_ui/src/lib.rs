@@ -746,7 +746,9 @@ impl Plugin for EditorUiPlugin {
     }
 }
 
-fn show_editor_ui(world: &mut World) {
+/// This system use to show all egui editor ui on primary window
+/// Will be usefull in some specific cases to ad new system before/after this system
+pub fn show_editor_ui(world: &mut World) {
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
         .get_single(world)

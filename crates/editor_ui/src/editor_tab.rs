@@ -95,7 +95,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     }
 
     fn clear_background(&self, window: &Self::Tab) -> bool {
-        !matches!(window, EditorTabName::GameView | EditorTabName::CameraView)
+        !matches!(window, EditorTabName::GameView)
     }
 
     fn add_popup(
