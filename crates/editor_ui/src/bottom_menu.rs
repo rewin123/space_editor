@@ -93,12 +93,8 @@ pub fn menu(
                     }
                 } else {
                     let mut need_move_to_default_dir = false;
-                    if let Some(path) = dialog.path() {
-                        if let Some(path) = path.to_str() {
-                            if !path.contains("assets") {
-                                need_move_to_default_dir = true;
-                            }
-                        } else {
+                    if let Some(path) = dialog.directory().to_str() {
+                        if !path.contains("assets") {
                             need_move_to_default_dir = true;
                         }
                     } else {
@@ -123,12 +119,8 @@ pub fn menu(
                     }
                 } else {
                     let mut need_move_to_default_dir = false;
-                    if let Some(path) = gltf_dialog.path() {
-                        if let Some(path) = path.to_str() {
-                            if !path.contains("assets") {
-                                need_move_to_default_dir = true;
-                            }
-                        } else {
+                    if let Some(path) = gltf_dialog.directory().to_str() {
+                        if !path.contains("assets") {
                             need_move_to_default_dir = true;
                         }
                     } else {

@@ -2,16 +2,22 @@ use bevy::{
     prelude::*,
     render::{
         camera::{RenderTarget, TemporalJitter},
+        render_resource::{
+            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
+        },
         view::RenderLayers,
     },
-    window::{PrimaryWindow, WindowRef},
+    window::PrimaryWindow,
 };
-use bevy_egui::egui::{self, Color32};
+use bevy_egui::{
+    egui::{self, Color32},
+    EguiContexts,
+};
 
 use space_prefab::component::CameraPlay;
 use space_shared::*;
 
-use crate::{prelude::EditorTabName, DisableCameraSkip, EditorUiAppExt};
+use crate::{prelude::EditorTabName, show_editor_ui, DisableCameraSkip, EditorUiAppExt};
 
 use super::editor_tab::EditorTab;
 
@@ -20,8 +26,13 @@ pub struct CameraViewTabPlugin;
 impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
-        app.add_systems(PostUpdate, set_camera_viewport.in_set(EditorSet::Editor));
-        app.add_systems(OnEnter(EditorState::GamePrepare), clean_camera_view_tab);
+        app.add_systems(
+            PostUpdate,
+            set_camera_viewport
+                .in_set(EditorSet::Editor)
+                .after(show_editor_ui),
+        );
+        app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
 
@@ -34,6 +45,35 @@ pub struct CameraViewTab {
     pub viewport_rect: Option<egui::Rect>,
     pub camera_entity: Option<Entity>,
     pub real_camera: Option<Entity>,
+    pub target_image: Option<Handle<Image>>,
+    pub egui_tex_id: Option<(egui::TextureId, Handle<Image>)>,
+    pub need_reinit_egui_tex: bool,
+}
+
+fn create_camera_image(width: u32, height: u32) -> Image {
+    let size = Extent3d {
+        width,
+        height,
+        ..default()
+    };
+
+    let mut image = Image {
+        texture_descriptor: TextureDescriptor {
+            label: None,
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Rgba8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        },
+        ..default()
+    };
+    image.resize(size);
+    image
 }
 
 impl EditorTab for CameraViewTab {
@@ -50,7 +90,7 @@ impl EditorTab for CameraViewTab {
                             },
                             camera_3d: Camera3d {
                                 clear_color:
-                                    bevy::core_pipeline::clear_color::ClearColorConfig::None,
+                                    bevy::core_pipeline::clear_color::ClearColorConfig::Default,
                                 ..default()
                             },
                             ..default()
@@ -98,6 +138,7 @@ impl EditorTab for CameraViewTab {
                     Transform::default(),
                     Visibility::default(),
                     CameraPlay::default(),
+                    PrefabMarker,
                 ));
             }
         }
@@ -108,6 +149,44 @@ impl EditorTab for CameraViewTab {
         clipped.set_left(pos.x);
         clipped.set_top(pos.y);
         self.viewport_rect = Some(clipped);
+
+        if self.target_image.is_none() {
+            let handle = world
+                .resource_mut::<Assets<Image>>()
+                .add(create_camera_image(
+                    clipped.width() as u32,
+                    clipped.height() as u32,
+                ));
+            self.target_image = Some(handle.clone());
+            self.need_reinit_egui_tex = true;
+        } else if let Some(handle) = &self.target_image {
+            if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
+                if image.texture_descriptor.size.width != clipped.width() as u32
+                    || image.texture_descriptor.size.height != clipped.height() as u32
+                {
+                    world
+                        .resource_mut::<Assets<Image>>()
+                        .get_mut(handle)
+                        .unwrap()
+                        .resize(Extent3d {
+                            width: clipped.width() as u32,
+                            height: clipped.height() as u32,
+                            ..default()
+                        });
+                    self.need_reinit_egui_tex = true;
+                }
+            } else {
+                self.target_image = None;
+                self.need_reinit_egui_tex = true;
+            }
+        }
+
+        if let Some((cam_image, _)) = self.egui_tex_id {
+            ui.image(egui::load::SizedTexture {
+                id: cam_image,
+                size: ui.available_size(),
+            });
+        }
     }
 
     fn title(&self) -> bevy_egui::egui::WidgetText {
@@ -133,6 +212,8 @@ fn clean_camera_view_tab(
     ui_state.camera_entity = None;
     ui_state.real_camera = None;
     ui_state.viewport_rect = None;
+
+    info!("Clean camera view tab");
 }
 
 #[derive(Default)]
@@ -144,6 +225,7 @@ fn set_camera_viewport(
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
+    mut ctxs: EguiContexts,
 ) {
     let Some(real_cam_entity) = ui_state.real_camera else {
         return;
@@ -152,6 +234,20 @@ fn set_camera_viewport(
     let Some(camera_entity) = ui_state.camera_entity else {
         return;
     };
+
+    let Some(target_image) = ui_state.target_image.clone() else {
+        return;
+    };
+
+    if ui_state.egui_tex_id.is_none() {
+        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
+    }
+
+    if ui_state.need_reinit_egui_tex {
+        ctxs.remove_image(&ui_state.egui_tex_id.as_ref().unwrap().1);
+        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
+        ui_state.need_reinit_egui_tex = false;
+    }
 
     let Ok([(mut real_cam, mut real_cam_transform), (watch_cam, camera_transform)]) =
         cameras.get_many_mut([real_cam_entity, camera_entity])
@@ -176,8 +272,10 @@ fn set_camera_viewport(
     if watch_cam.is_changed() {
         *real_cam = watch_cam.clone();
     }
+    // set editor params for real_cam
     real_cam.order = 2;
     real_cam.is_active = true;
+    real_cam.target = RenderTarget::Image(target_image.clone());
 
     *real_cam_transform = *camera_transform;
 
@@ -198,10 +296,8 @@ fn set_camera_viewport(
     viewport_pos.y += (viewport_rect.size().y - viewport_size.y) / 2.0;
 
     real_cam.viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
+        physical_position: UVec2::new(0, (viewport_rect.size().y - viewport_size.y) as u32 / 2),
         physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
         depth: 0.0..1.0,
     });
-
-    real_cam.target = RenderTarget::Window(WindowRef::Primary);
 }
