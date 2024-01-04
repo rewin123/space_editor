@@ -18,11 +18,11 @@ pub enum EditorTabName {
     GameView,
     Hierarchy,
     Inspector,
-    Other(String),
     Resource,
     RuntimeAssets,
     Settings,
     ToolBox,
+    Other(String),
 }
 
 pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
