@@ -78,32 +78,32 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 
 impl EditorTab for CameraViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
-        if self.real_camera.is_none() {
-            self.real_camera = Some(
-                commands
-                    .spawn((
-                        Camera3dBundle {
-                            camera: Camera {
-                                is_active: false,
-                                order: 2,
-                                ..default()
-                            },
-                            camera_3d: Camera3d {
-                                clear_color:
-                                    bevy::core_pipeline::clear_color::ClearColorConfig::Default,
-                                ..default()
-                            },
-                            ..default()
-                        },
-                        RenderLayers::layer(0),
-                        TemporalJitter::default(),
-                        Name::new("Camera for Camera view tab"),
-                        DisableCameraSkip,
-                        ViewCamera,
-                    ))
-                    .id(),
-            );
-        }
+        // if self.real_camera.is_none() {
+        //     self.real_camera = Some(
+        //         commands
+        //             .spawn((
+        //                 Camera3dBundle {
+        //                     camera: Camera {
+        //                         is_active: false,
+        //                         order: 2,
+        //                         ..default()
+        //                     },
+        //                     camera_3d: Camera3d {
+        //                         clear_color:
+        //                             bevy::core_pipeline::clear_color::ClearColorConfig::None,
+        //                         ..default()
+        //                     },
+        //                     ..default()
+        //                 },
+        //                 // RenderLayers::layer(0),
+        //                 TemporalJitter::default(),
+        //                 Name::new("Camera for Camera view tab"),
+        //                 DisableCameraSkip,
+        //                 ViewCamera,
+        //             ))
+        //             .id(),
+        //     );
+        // }
 
         let mut camera_query = world.query_filtered::<Entity, (
             With<Camera>,
