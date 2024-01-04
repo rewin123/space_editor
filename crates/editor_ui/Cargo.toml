@@ -25,7 +25,7 @@ bevy_egui = "0.24"
 egui-gizmo = "0.13"
 egui_dock = "0.9"
 
-bevy_debug_grid = "0.3"
+bevy_debug_grid = "0.4"
 
 bevy_mod_picking = { version = "0.17", default-features = false, features = [
     "backend_raycast",
