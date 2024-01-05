@@ -1,4 +1,5 @@
 // Simple event example
+// Open the "Event Debugger" tab to send the "ToggleSpin" event.
 // Run command:
 // cargo run --example event_example
 
