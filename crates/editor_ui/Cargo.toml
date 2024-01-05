@@ -32,5 +32,6 @@ bevy_mod_picking = { version = "0.17", default-features = false, features = [
     "selection",
 ] }
 bevy_panorbit_camera = "0.9"
+bevy_sprite3d = "2.7.0"
 pretty-type-name = "1.0.1"
 convert_case = "0.6"

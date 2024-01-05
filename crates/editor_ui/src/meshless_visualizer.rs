@@ -1,8 +1,5 @@
-use bevy::{
-    prelude::*,
-    render::view::RenderLayers,
-    sprite::{Material2d, MaterialMesh2dBundle, Mesh2d, Mesh2dHandle},
-};
+use bevy::{prelude::*, render::view::RenderLayers};
+use bevy_sprite3d::*;
 use space_shared::*;
 
 #[derive(Default)]
@@ -10,9 +7,14 @@ pub struct MeshlessVisualizerPlugin;
 
 impl Plugin for MeshlessVisualizerPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<MeshlessMeshMat>()
-            .add_systems(Startup, setup_meshless_mesh.in_set(EditorSet::Editor))
-            .add_systems(Update, visualize_meshless.in_set(EditorSet::Editor));
+        app.init_resource::<LightIcons>()
+            .init_resource::<CameraIcon>()
+            .add_plugins(Sprite3dPlugin)
+            .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
+            .add_systems(
+                Update,
+                (visualize_meshless, rotate_icons).in_set(EditorSet::Editor),
+            );
     }
 }
 
@@ -33,44 +35,100 @@ pub struct MatMesh {
 }
 
 #[derive(Resource, Default)]
-pub struct MeshlessMeshMat {
-    pub mesh: Handle<Mesh>,
-    pub mat: Handle<StandardMaterial>,
+pub struct LightIcons {
+    pub directional: Handle<Image>,
+    pub point: Handle<Image>,
+    pub spot: Handle<Image>,
+}
+
+#[derive(Resource, Default)]
+pub struct CameraIcon {
+    pub camera: Handle<Image>,
 }
 
 pub fn visualize_meshless(
     mut commands: Commands,
-    objects: Query<
+    lights: Query<(
+        Entity,
+        &Transform,
+        Option<&Children>,
+        AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
+    )>,
+    cams: Query<
+        (Entity, &Transform, Option<&Children>),
         (
-            Entity,
-            &Transform,
-            Option<&Handle<Mesh>>,
-            Option<&Handle<StandardMaterial>>,
+            With<Camera>,
+            Without<EditorCameraMarker>,
+            With<PrefabMarker>,
         ),
-        Or<(
-            (With<Camera>, Without<EditorCameraMarker>),
-            Or<(With<DirectionalLight>, With<SpotLight>, With<PointLight>)>,
-        )>,
     >,
-    handle: Res<MeshlessMeshMat>,
+    light_icons: Res<LightIcons>,
+    camera_icon: Res<CameraIcon>,
+    mut sprite_params: Sprite3dParams,
 ) {
-    for (entity, transform, mesh, mat) in &objects {
-        match (mesh, mat) {
-            (Some(_), Some(_)) => {}
-            _ => {
-                commands.entity(entity).insert((
-                    MaterialMeshBundle {
-                        mesh: handle.mesh.clone(),
-                        material: handle.mat.clone(),
-                        transform: *transform,
+    for (ent, trans, children, light_type) in &lights {
+        if children.is_none() {
+            let image = match light_type {
+                (Some(_directional), _, _) => light_icons.directional.clone(),
+                (_, Some(_spot), _) => light_icons.spot.clone(),
+                (_, _, Some(_point)) => light_icons.point.clone(),
+                _ => unreachable!(),
+            };
+            let child = commands
+                .spawn((
+                    Sprite3d {
+                        image,
+                        transform: Transform::from_translation(Vec3::ZERO)
+                            .looking_at(Vec3::new(-2.0, 2.5, 5.0), Vec3::Y)
+                            .with_scale(Vec3::splat(2.0)),
+                        unlit: true,
                         ..default()
-                    },
+                    }
+                    .bundle(&mut sprite_params),
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                ));
-            }
+                    SelectParent { parent: ent },
+                ))
+                .id();
+            commands.entity(ent).add_child(child);
+        }
+    }
+    for (ent, trans, children) in &cams {
+        if children.is_none() {
+            let child = commands
+                .spawn((
+                    Sprite3d {
+                        image: camera_icon.camera.clone(),
+                        transform: Transform::from_translation(Vec3::ZERO)
+                            .looking_at(Vec3::new(-2.0, 2.5, 5.0), Vec3::Y)
+                            .with_scale(Vec3::splat(2.0)),
+                        unlit: true,
+                        ..default()
+                    }
+                    .bundle(&mut sprite_params),
+                    RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
+                    SelectParent { parent: ent },
+                ))
+                .id();
+            commands.entity(ent).add_child(child);
         }
     }
 }
+
+// this will need to be changed for billboarding next
+pub fn rotate_icons(
+    mut icons: Query<&mut Transform, (With<Sprite3dComponent>, Without<EditorCameraMarker>)>,
+    editor_camera: Query<&Transform, (With<EditorCameraMarker>, Without<Sprite3dComponent>)>,
+) {
+    let Ok(cam) = editor_camera.get_single() else {
+        return;
+    };
+    for mut icon in icons.iter_mut() {
+        icon.look_at(cam.translation, Vec3::Y);
+    }
+}
+
+// TODO: update this to follow the new method so that either a mesh or a 3d sprite can be added to whatever
+// a user wants
 
 /// This will create a way to have any entity with CustomMeshlessMarker have a way to be visualized by the user
 /// Additionally, the user can either choose their own mesh and material to use or default to the white sphere
@@ -109,21 +167,14 @@ pub fn visualize_custom_meshless(
     }
 }
 
-/// Creates the default mesh to use
-pub fn setup_meshless_mesh(
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut handle: ResMut<MeshlessMeshMat>,
-    mut mats: ResMut<Assets<StandardMaterial>>,
+/// loads the icons for the different types of lights and camera
+pub fn load_light_icons(
+    ass: Res<AssetServer>,
+    mut lights: ResMut<LightIcons>,
+    mut cams: ResMut<CameraIcon>,
 ) {
-    handle.mesh = meshes.add(
-        shape::UVSphere {
-            radius: 0.5,
-            ..default()
-        }
-        .into(),
-    );
-    handle.mat = mats.add(StandardMaterial {
-        unlit: true,
-        ..default()
-    });
+    lights.directional = ass.load("icons/DirectionalLightGizmo.png");
+    lights.spot = ass.load("icons/SpotLightGizmo.png");
+    lights.point = ass.load("icons/PointLightGizmo.png");
+    cams.camera = ass.load("icons/CameraGizmo.png");
 }

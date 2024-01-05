@@ -63,3 +63,11 @@ pub enum EditorEvent {
     LoadGltfAsPrefab(String),
     StartGame,
 }
+
+/// Component that makes the parent become selected when this mesh is.
+/// Stores the parent entity for reading.
+/// Must be not be paired with an entity that has PrefabMarker.
+#[derive(Component)]
+pub struct SelectParent {
+    pub parent: Entity,
+}
