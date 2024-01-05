@@ -1,5 +1,5 @@
 pub mod components_order;
-pub mod events;
+pub mod events_dispatcher;
 pub mod refl_impl;
 pub mod resources;
 pub mod runtime_assets;
@@ -24,7 +24,7 @@ use space_shared::ext::bevy_inspector_egui::{
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
-    events::EventDebuggerTab,
+    events_dispatcher::EventDispatcherTab,
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
     resources::ResourceTab,
     runtime_assets::RuntimeAssetsTab,
@@ -52,7 +52,10 @@ impl Plugin for SpaceInspectorPlugin {
 
         app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
         app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
-        app.editor_tab_by_trait(EditorTabName::EventDebugger, EventDebuggerTab);
+        app.editor_tab_by_trait(
+            EditorTabName::EventDispatcher,
+            EventDispatcherTab::default(),
+        );
         app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);

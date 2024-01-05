@@ -90,16 +90,19 @@ impl AddDefaultComponent {
 pub struct SendEvent {
     name: String,
     path: String,
+    pub type_id: TypeId,
     func: Arc<dyn Fn(&mut World) + Send + Sync>,
 }
 
 impl SendEvent {
-    pub fn new<T: Default + Event>() -> Self {
+    pub fn new<T: Default + Event + Resource>() -> Self {
         let path = std::any::type_name::<T>().to_string();
         let name = path.split("::").last().unwrap_or("UnnamedEvent").into();
+        let type_id = TypeId::of::<T>();
         Self {
             name,
             path,
+            type_id,
             func: Arc::new(move |world| {
                 world.send_event(T::default());
             }),
@@ -197,7 +200,11 @@ impl EditorRegistry {
     }
 
     /// Register new event, which will be shown in editor UI and can be sent
-    pub fn event_register<T: Event + Default>(&mut self) {
+    pub fn event_register<
+        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+    >(
+        &mut self,
+    ) {
         self.send_events.push(SendEvent::new::<T>());
         self.send_events.sort_unstable_by_key(|send_event| {
             (send_event.name().to_owned(), send_event.path().to_owned())
@@ -250,7 +257,11 @@ pub trait EditorRegistryExt {
             + TypePath;
 
     /// register new event in editor UI
-    fn editor_registry_event<T: Event + Default>(&mut self) -> &mut Self;
+    fn editor_registry_event<
+        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+    >(
+        &mut self,
+    ) -> &mut Self;
 }
 
 impl EditorRegistryExt for App {
@@ -332,7 +343,13 @@ impl EditorRegistryExt for App {
         self
     }
 
-    fn editor_registry_event<T: Event + Default>(&mut self) -> &mut Self {
+    fn editor_registry_event<
+        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+    >(
+        &mut self,
+    ) -> &mut Self {
+        self.register_type::<T>();
+        self.world.init_resource::<T>();
         self.world
             .resource_mut::<EditorRegistry>()
             .event_register::<T>();
