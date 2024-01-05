@@ -61,10 +61,7 @@ use bevy::{
     input::common_conditions::input_toggle_active,
     pbr::CascadeShadowConfigBuilder,
     prelude::*,
-    render::{
-        render_resource::PrimitiveTopology,
-        view::{Layer, RenderLayers},
-    },
+    render::{render_resource::PrimitiveTopology, view::RenderLayers},
     utils::HashMap,
     window::PrimaryWindow,
 };
@@ -89,6 +86,8 @@ use self::{
     mouse_check::MouseCheck,
     tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
+
+pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
@@ -273,7 +272,7 @@ struct SelectEvent {
 }
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(RenderLayers::TOTAL_LAYERS as u8 - 1)
+    gizmos_config.render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
 }
 
 fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
@@ -849,8 +848,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
     });
 
     // grid
-    const GRID_RENDER_LAYER: Layer = 1;
-    let grid_render_layer = RenderLayers::layer(GRID_RENDER_LAYER);
+    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
     commands.spawn((
         Grid {
             spacing: 10.0_f32,
