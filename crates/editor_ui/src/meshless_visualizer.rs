@@ -1,4 +1,8 @@
-use bevy::{prelude::*, render::view::RenderLayers};
+use bevy::{pbr::wireframe::Wireframe, prelude::*, render::view::RenderLayers};
+use bevy_mod_billboard::{
+    prelude::BillboardPlugin, BillboardTextureBundle, BillboardTextureHandle,
+};
+use bevy_mod_picking::{backends::raycast::RaycastPickable, PickableBundle};
 use bevy_sprite3d::*;
 use space_shared::*;
 
@@ -9,11 +13,14 @@ impl Plugin for MeshlessVisualizerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LightIcons>()
             .init_resource::<CameraIcon>()
-            .add_plugins(Sprite3dPlugin)
+            .init_resource::<IconMesh>()
+            // .add_plugins(Sprite3dPlugin)
+            .add_plugins(BillboardPlugin)
             .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
             .add_systems(
                 Update,
-                (visualize_meshless, rotate_icons).in_set(EditorSet::Editor),
+                // (visualize_meshless, rotate_icons).in_set(EditorSet::Editor),
+                (visualize_meshless).in_set(EditorSet::Editor),
             );
     }
 }
@@ -58,6 +65,11 @@ pub struct CameraIcon {
     pub camera: Handle<Image>,
 }
 
+#[derive(Resource, Default)]
+pub struct IconMesh {
+    pub mesh: Handle<Mesh>,
+}
+
 pub fn visualize_meshless(
     mut commands: Commands,
     lights: Query<(
@@ -76,6 +88,7 @@ pub fn visualize_meshless(
     >,
     light_icons: Res<LightIcons>,
     camera_icon: Res<CameraIcon>,
+    icon_mesh: Res<IconMesh>,
     mut sprite_params: Sprite3dParams,
 ) {
     for (parent, _trans, children, light_type) in &lights {
@@ -89,13 +102,18 @@ pub fn visualize_meshless(
             let child = commands
                 .spawn((
                     Sprite3d {
-                        image,
+                        image: image.clone(),
                         transform: Transform::from_translation(Vec3::ZERO)
                             .with_scale(Vec3::splat(2.0)),
                         unlit: true,
                         ..default()
                     }
                     .bundle(&mut sprite_params),
+                    BillboardTextureBundle {
+                        mesh: bevy_mod_billboard::BillboardMeshHandle(icon_mesh.mesh.clone()),
+                        texture: BillboardTextureHandle(image.clone()),
+                        ..default()
+                    },
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
                     SelectParent { parent },
                 ))
@@ -103,25 +121,25 @@ pub fn visualize_meshless(
             commands.entity(parent).add_child(child);
         }
     }
-    for (parent, _trans, children) in &cams {
-        if children.is_none() {
-            let child = commands
-                .spawn((
-                    Sprite3d {
-                        image: camera_icon.camera.clone(),
-                        transform: Transform::from_translation(Vec3::ZERO)
-                            .with_scale(Vec3::splat(2.0)),
-                        unlit: true,
-                        ..default()
-                    }
-                    .bundle(&mut sprite_params),
-                    RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                    SelectParent { parent },
-                ))
-                .id();
-            commands.entity(parent).add_child(child);
-        }
-    }
+    // for (parent, _trans, children) in &cams {
+    //     if children.is_none() {
+    //         let child = commands
+    //             .spawn((
+    //                 Sprite3d {
+    //                     image: camera_icon.camera.clone(),
+    //                     transform: Transform::from_translation(Vec3::ZERO)
+    //                         .with_scale(Vec3::splat(2.0)),
+    //                     unlit: true,
+    //                     ..default()
+    //                 }
+    //                 .bundle(&mut sprite_params),
+    //                 RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
+    //                 SelectParent { parent },
+    //             ))
+    //             .id();
+    //         commands.entity(parent).add_child(child);
+    //     }
+    // }
 }
 
 // this will need to be changed for billboarding next
@@ -183,11 +201,21 @@ pub fn load_light_icons(
     ass: Res<AssetServer>,
     mut lights: ResMut<LightIcons>,
     mut cams: ResMut<CameraIcon>,
+    mut icon_mesh: ResMut<IconMesh>,
 ) {
     lights.directional = ass.load("icons/DirectionalLightGizmo.png");
     lights.spot = ass.load("icons/SpotLightGizmo.png");
     lights.point = ass.load("icons/PointLightGizmo.png");
     cams.camera = ass.load("icons/CameraGizmo.png");
+    // icon_mesh.mesh = ass.add(shape::Quad::new(Vec2::splat(2.)).into());
+    icon_mesh.mesh = ass.add(
+        shape::Icosphere {
+            radius: 2.,
+            ..default()
+        }
+        .try_into()
+        .unwrap(),
+    );
 }
 
 // this removes the meshes and entities for them when moving to the game state
