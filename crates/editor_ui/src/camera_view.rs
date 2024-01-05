@@ -1,11 +1,10 @@
 use bevy::{
     prelude::*,
     render::{
-        camera::{RenderTarget, TemporalJitter},
+        camera::RenderTarget,
         render_resource::{
             Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
         },
-        view::RenderLayers,
     },
     window::PrimaryWindow,
 };
@@ -17,7 +16,7 @@ use bevy_egui::{
 use space_prefab::component::CameraPlay;
 use space_shared::*;
 
-use crate::{prelude::EditorTabName, show_editor_ui, DisableCameraSkip, EditorUiAppExt};
+use crate::{prelude::EditorTabName, show_editor_ui, EditorUiAppExt};
 
 use super::editor_tab::EditorTab;
 

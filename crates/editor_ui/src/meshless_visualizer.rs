@@ -20,8 +20,7 @@ impl Plugin for MeshlessVisualizerPlugin {
 
 /// Marks the applied entity as needing to be visualized. This is added via users to make any custom entities have a mesh that they can control
 /// also comes with the visual that will be used for the object in question.
-// #[derive(Bundle)]
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct CustomMeshless {
     // /// Visual that will be used to show the entity or object
     pub visual: MatMesh,
@@ -32,6 +31,19 @@ pub struct MatMesh {
     // material: Box<dyn Material>,
     material: StandardMaterial,
     mesh: Mesh,
+}
+
+impl Default for MatMesh {
+    fn default() -> Self {
+        Self {
+            material: StandardMaterial::default(),
+            mesh: shape::UVSphere {
+                radius: 0.5,
+                ..default()
+            }
+            .into(),
+        }
+    }
 }
 
 #[derive(Resource, Default)]
@@ -66,7 +78,7 @@ pub fn visualize_meshless(
     camera_icon: Res<CameraIcon>,
     mut sprite_params: Sprite3dParams,
 ) {
-    for (ent, trans, children, light_type) in &lights {
+    for (parent, _trans, children, light_type) in &lights {
         if children.is_none() {
             let image = match light_type {
                 (Some(_directional), _, _) => light_icons.directional.clone(),
@@ -79,37 +91,35 @@ pub fn visualize_meshless(
                     Sprite3d {
                         image,
                         transform: Transform::from_translation(Vec3::ZERO)
-                            .looking_at(Vec3::new(-2.0, 2.5, 5.0), Vec3::Y)
                             .with_scale(Vec3::splat(2.0)),
                         unlit: true,
                         ..default()
                     }
                     .bundle(&mut sprite_params),
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                    SelectParent { parent: ent },
+                    SelectParent { parent },
                 ))
                 .id();
-            commands.entity(ent).add_child(child);
+            commands.entity(parent).add_child(child);
         }
     }
-    for (ent, trans, children) in &cams {
+    for (parent, _trans, children) in &cams {
         if children.is_none() {
             let child = commands
                 .spawn((
                     Sprite3d {
                         image: camera_icon.camera.clone(),
                         transform: Transform::from_translation(Vec3::ZERO)
-                            .looking_at(Vec3::new(-2.0, 2.5, 5.0), Vec3::Y)
                             .with_scale(Vec3::splat(2.0)),
                         unlit: true,
                         ..default()
                     }
                     .bundle(&mut sprite_params),
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                    SelectParent { parent: ent },
+                    SelectParent { parent },
                 ))
                 .id();
-            commands.entity(ent).add_child(child);
+            commands.entity(parent).add_child(child);
         }
     }
 }
@@ -134,7 +144,7 @@ pub fn rotate_icons(
 /// Additionally, the user can either choose their own mesh and material to use or default to the white sphere
 pub fn visualize_custom_meshless(
     mut commands: Commands,
-    ass: AssetServer,
+    ass: Res<AssetServer>,
     objects: Query<(
         Entity,
         &Transform,
@@ -154,6 +164,7 @@ pub fn visualize_custom_meshless(
             (Some(_), Some(_)) => {}
             _ => {
                 commands.entity(entity).insert((
+                    // NOTE: 2d case is not currently covered
                     MaterialMeshBundle {
                         mesh: ass.add(custom.visual.mesh.clone()),
                         material: ass.add(custom.visual.material.clone()),
@@ -178,3 +189,6 @@ pub fn load_light_icons(
     lights.point = ass.load("icons/PointLightGizmo.png");
     cams.camera = ass.load("icons/CameraGizmo.png");
 }
+
+// this removes the meshes and entities for them when moving to the game state
+pub fn clean_meshless() {}
