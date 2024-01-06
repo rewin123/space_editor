@@ -42,6 +42,7 @@ pub mod ui_registration;
 /// This module contains UI logic for view game camera image
 pub mod camera_view;
 
+use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -85,6 +86,8 @@ use self::{
     mouse_check::MouseCheck,
     tools::gizmo::{GizmoTool, GizmoToolPlugin},
 };
+
+pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
@@ -179,6 +182,7 @@ impl Plugin for EditorPlugin {
         if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
             app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
         }
+
         app.init_resource::<EditorLoader>();
 
         app.insert_resource(PanOrbitEnabled(true));
@@ -211,13 +215,8 @@ impl Plugin for EditorPlugin {
                 .in_set(EditorSet::Editor),
         );
 
-        app.add_systems(Update, draw_grid_lines.in_set(EditorSet::Editor));
-
         //play systems
-        app.add_systems(
-            OnEnter(EditorState::GamePrepare),
-            (cleanup_grid_lines, save_prefab_before_play),
-        );
+        app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         app.add_systems(
             OnEnter(SaveState::Idle),
             to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
@@ -231,7 +230,6 @@ impl Plugin for EditorPlugin {
             (
                 clear_and_load_on_start,
                 change_camera_in_editor,
-                create_grid_lines,
                 editor_gizmos,
                 set_camera_viewport,
             ),
@@ -273,116 +271,12 @@ struct SelectEvent {
     event: ListenerInput<Pointer<Down>>,
 }
 
-#[derive(Component)]
-pub struct GridLines {
-    pub cell_size: f32,
-    pub half_cell_width: i32,
-}
-
-impl Default for GridLines {
-    fn default() -> Self {
-        Self {
-            cell_size: 1.0,
-            half_cell_width: 128,
-        }
-    }
-}
-
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(RenderLayers::TOTAL_LAYERS as u8 - 1)
+    gizmos_config.render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
 }
 
 fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
     gizmos_config.render_layers = RenderLayers::layer(0)
-}
-
-fn create_grid_lines(mut commands: Commands) {
-    commands.spawn((SpatialBundle::default(), GridLines::default()));
-}
-
-fn cleanup_grid_lines(mut commands: Commands, query: Query<Entity, With<GridLines>>) {
-    for e in query.iter() {
-        commands.entity(e).despawn_recursive();
-    }
-}
-
-fn draw_grid_lines(mut gizmos: Gizmos, query: Query<(&GlobalTransform, &GridLines)>) {
-    for (transform, grid) in query.iter() {
-        let pos = transform.translation();
-        for x in 1..grid.half_cell_width {
-            gizmos.line(
-                Vec3::new(
-                    x as f32 * grid.cell_size,
-                    0.0,
-                    -grid.half_cell_width as f32 * grid.cell_size,
-                ) + pos,
-                Vec3::new(
-                    x as f32 * grid.cell_size,
-                    0.0,
-                    grid.half_cell_width as f32 * grid.cell_size,
-                ) + pos,
-                Color::GRAY,
-            );
-
-            gizmos.line(
-                Vec3::new(
-                    -x as f32 * grid.cell_size,
-                    0.0,
-                    -grid.half_cell_width as f32 * grid.cell_size,
-                ) + pos,
-                Vec3::new(
-                    -x as f32 * grid.cell_size,
-                    0.0,
-                    grid.half_cell_width as f32 * grid.cell_size,
-                ) + pos,
-                Color::GRAY,
-            );
-        }
-
-        for z in 1..grid.half_cell_width {
-            gizmos.line(
-                Vec3::new(
-                    -grid.half_cell_width as f32 * grid.cell_size,
-                    0.0,
-                    z as f32 * grid.cell_size,
-                ) + pos,
-                Vec3::new(
-                    grid.half_cell_width as f32 * grid.cell_size,
-                    0.0,
-                    z as f32 * grid.cell_size,
-                ) + pos,
-                Color::GRAY,
-            );
-
-            gizmos.line(
-                Vec3::new(
-                    -grid.half_cell_width as f32 * grid.cell_size,
-                    0.0,
-                    -z as f32 * grid.cell_size,
-                ) + pos,
-                Vec3::new(
-                    grid.half_cell_width as f32 * grid.cell_size,
-                    0.0,
-                    -z as f32 * grid.cell_size,
-                ) + pos,
-                Color::GRAY,
-            );
-        }
-
-        //draw x central axis
-        gizmos.line(
-            Vec3::new(0.0, 0.0, -grid.half_cell_width as f32 * grid.cell_size) + pos,
-            Vec3::new(0.0, 0.0, grid.half_cell_width as f32 * grid.cell_size) + pos,
-            Color::RED,
-        );
-
-        //draw z central axis
-        gizmos.line(
-            Vec3::new(-grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
-            Vec3::new(grid.half_cell_width as f32 * grid.cell_size, 0.0, 0.0) + pos,
-            Color::BLUE,
-        );
-    }
 }
 
 fn auto_add_picking(
@@ -953,6 +847,26 @@ pub fn simple_editor_setup(mut commands: Commands) {
         ..default()
     });
 
+    // grid
+    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
+    commands.spawn((
+        Grid {
+            spacing: 10.0_f32,
+            count: 16,
+            color: Color::SILVER.with_a(DEFAULT_GRID_ALPHA),
+            alpha_mode: AlphaMode::Blend,
+        },
+        SubGrid {
+            count: 9,
+            color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
+        },
+        GridAxis::new_rgb(),
+        TrackedGrid::default(),
+        TransformBundle::default(),
+        VisibilityBundle::default(),
+        grid_render_layer,
+    ));
+
     // camera
     commands.spawn((
         Camera3dBundle {
@@ -970,6 +884,4 @@ pub fn simple_editor_setup(mut commands: Commands) {
         RaycastPickable,
         RenderLayers::all(),
     ));
-
-    create_grid_lines(commands);
 }
