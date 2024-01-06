@@ -47,7 +47,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_events: &mut HashMap<S
                                 );
 
                                 let clicked = ui
-                                    .button(event.name())
+                                    .button(format!("Send {}", event.name()))
                                     .on_hover_text(event.path())
                                     .clicked();
                                 if clicked {
