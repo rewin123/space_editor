@@ -349,8 +349,11 @@ impl EditorRegistryExt for App {
     >(
         &mut self,
     ) -> &mut Self {
-        self.register_type::<T>();
-        self.world.init_resource::<T>();
+        #[cfg(not(feature = "no_event_registration"))]
+        {
+            self.register_type::<T>();
+            self.world.init_resource::<T>();
+        }
         self.world
             .resource_mut::<EditorRegistry>()
             .event_register::<T>();
