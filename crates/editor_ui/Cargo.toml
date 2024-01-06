@@ -27,7 +27,7 @@ egui_dock = "0.9"
 
 bevy_debug_grid = "0.3"
 
-bevy_mod_picking = { version = "0.17", default-features = false, features = [
+bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git", branch = "pick_hidden", default-features = false, features = [
     "backend_raycast",
     "selection",
 ] }
