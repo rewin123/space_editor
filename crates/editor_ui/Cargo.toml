@@ -27,11 +27,12 @@ egui_dock = "0.9"
 
 bevy_debug_grid = "0.3"
 
-bevy_mod_picking = { version = "0.17", default-features = false, features = [
+bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git", branch = "pick_hidden", default-features = false, features = [
     "backend_raycast",
     "selection",
 ] }
 bevy_panorbit_camera = "0.9"
 bevy_sprite3d = "2.7.0"
+bevy_mod_billboard = "0.5.1"
 pretty-type-name = "1.0.1"
 convert_case = "0.6"

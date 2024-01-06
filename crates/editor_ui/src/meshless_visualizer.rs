@@ -1,4 +1,10 @@
 use bevy::{prelude::*, render::view::RenderLayers};
+use bevy_mod_billboard::{
+    prelude::BillboardPlugin, BillboardTextureBundle, BillboardTextureHandle,
+};
+use bevy_mod_picking::backends::raycast::{
+    bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
+};
 use bevy_sprite3d::*;
 use space_shared::*;
 
@@ -9,12 +15,14 @@ impl Plugin for MeshlessVisualizerPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<LightIcons>()
             .init_resource::<CameraIcon>()
-            .add_plugins(Sprite3dPlugin)
+            .init_resource::<IconMesh>()
+            .insert_resource(RaycastBackendSettings {
+                raycast_visibility: RaycastVisibility::Ignore,
+                ..Default::default()
+            })
+            .add_plugins(BillboardPlugin)
             .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
-            .add_systems(
-                Update,
-                (visualize_meshless, rotate_icons).in_set(EditorSet::Editor),
-            );
+            .add_systems(Update, visualize_meshless.in_set(EditorSet::Editor));
     }
 }
 
@@ -46,6 +54,7 @@ impl Default for MatMesh {
     }
 }
 
+// definitely want to use bevy_asset_loader
 #[derive(Resource, Default)]
 pub struct LightIcons {
     pub directional: Handle<Image>,
@@ -56,6 +65,12 @@ pub struct LightIcons {
 #[derive(Resource, Default)]
 pub struct CameraIcon {
     pub camera: Handle<Image>,
+}
+
+#[derive(Resource, Default)]
+pub struct IconMesh {
+    pub mesh: Handle<Mesh>,
+    pub sphere: Handle<Mesh>,
 }
 
 pub fn visualize_meshless(
@@ -76,7 +91,7 @@ pub fn visualize_meshless(
     >,
     light_icons: Res<LightIcons>,
     camera_icon: Res<CameraIcon>,
-    mut sprite_params: Sprite3dParams,
+    icon_mesh: Res<IconMesh>,
 ) {
     for (parent, _trans, children, light_type) in &lights {
         if children.is_none() {
@@ -86,19 +101,27 @@ pub fn visualize_meshless(
                 (_, _, Some(_point)) => light_icons.point.clone(),
                 _ => unreachable!(),
             };
+            // creates a mesh for the icon, as well as a clickable sphere that can be selected to interact with the grandparent, being the actual entity in question
             let child = commands
                 .spawn((
-                    Sprite3d {
-                        image,
-                        transform: Transform::from_translation(Vec3::ZERO)
-                            .with_scale(Vec3::splat(2.0)),
-                        unlit: true,
+                    BillboardTextureBundle {
+                        mesh: bevy_mod_billboard::BillboardMeshHandle(icon_mesh.mesh.clone()),
+                        texture: BillboardTextureHandle(image.clone()),
+                        transform: Transform::default(),
                         ..default()
-                    }
-                    .bundle(&mut sprite_params),
+                    },
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                    SelectParent { parent },
                 ))
+                .with_children(|adult| {
+                    adult.spawn((
+                        MaterialMeshBundle::<StandardMaterial> {
+                            mesh: icon_mesh.sphere.clone(),
+                            visibility: Visibility::Hidden,
+                            ..default()
+                        },
+                        SelectParent { parent },
+                    ));
+                })
                 .id();
             commands.entity(parent).add_child(child);
         }
@@ -107,33 +130,27 @@ pub fn visualize_meshless(
         if children.is_none() {
             let child = commands
                 .spawn((
-                    Sprite3d {
-                        image: camera_icon.camera.clone(),
-                        transform: Transform::from_translation(Vec3::ZERO)
-                            .with_scale(Vec3::splat(2.0)),
-                        unlit: true,
+                    BillboardTextureBundle {
+                        mesh: bevy_mod_billboard::BillboardMeshHandle(icon_mesh.mesh.clone()),
+                        texture: BillboardTextureHandle(camera_icon.camera.clone()),
+                        transform: Transform::default(),
                         ..default()
-                    }
-                    .bundle(&mut sprite_params),
+                    },
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
-                    SelectParent { parent },
                 ))
+                .with_children(|adult| {
+                    adult.spawn((
+                        MaterialMeshBundle::<StandardMaterial> {
+                            mesh: icon_mesh.sphere.clone(),
+                            visibility: Visibility::Hidden,
+                            ..default()
+                        },
+                        SelectParent { parent },
+                    ));
+                })
                 .id();
             commands.entity(parent).add_child(child);
         }
-    }
-}
-
-// this will need to be changed for billboarding next
-pub fn rotate_icons(
-    mut icons: Query<&mut Transform, (With<Sprite3dComponent>, Without<EditorCameraMarker>)>,
-    editor_camera: Query<&Transform, (With<EditorCameraMarker>, Without<Sprite3dComponent>)>,
-) {
-    let Ok(cam) = editor_camera.get_single() else {
-        return;
-    };
-    for mut icon in icons.iter_mut() {
-        icon.look_at(cam.translation, Vec3::Y);
     }
 }
 
@@ -183,11 +200,21 @@ pub fn load_light_icons(
     ass: Res<AssetServer>,
     mut lights: ResMut<LightIcons>,
     mut cams: ResMut<CameraIcon>,
+    mut icon_mesh: ResMut<IconMesh>,
 ) {
     lights.directional = ass.load("icons/DirectionalLightGizmo.png");
     lights.spot = ass.load("icons/SpotLightGizmo.png");
     lights.point = ass.load("icons/PointLightGizmo.png");
     cams.camera = ass.load("icons/CameraGizmo.png");
+    icon_mesh.mesh = ass.add(shape::Quad::new(Vec2::splat(2.)).into());
+    icon_mesh.sphere = ass.add(
+        shape::Icosphere {
+            radius: 0.75,
+            ..default()
+        }
+        .try_into()
+        .unwrap(),
+    );
 }
 
 // this removes the meshes and entities for them when moving to the game state
