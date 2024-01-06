@@ -6,7 +6,7 @@
 use bevy::prelude::*;
 use space_editor::prelude::*;
 
-#[derive(Event, Default, Resource, Reflect)]
+#[derive(Event, Default, Resource, Reflect, Clone)]
 #[reflect(Resource)]
 pub struct ToggleSpin {
     speed: f32,

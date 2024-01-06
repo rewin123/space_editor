@@ -95,7 +95,7 @@ pub struct SendEvent {
 }
 
 impl SendEvent {
-    pub fn new<T: Default + Event + Resource>() -> Self {
+    pub fn new<T: Default + Event + Resource + Clone>() -> Self {
         let path = std::any::type_name::<T>().to_string();
         let name = path.split("::").last().unwrap_or("UnnamedEvent").into();
         let type_id = TypeId::of::<T>();
@@ -104,7 +104,8 @@ impl SendEvent {
             path,
             type_id,
             func: Arc::new(move |world| {
-                world.send_event(T::default());
+                let event = world.resource::<T>().clone();
+                world.send_event(event);
             }),
         }
     }
@@ -201,7 +202,7 @@ impl EditorRegistry {
 
     /// Register new event, which will be shown in editor UI and can be sent
     pub fn event_register<
-        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+        T: Event + Default + Resource + Reflect + Send + Clone + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) {
@@ -258,7 +259,7 @@ pub trait EditorRegistryExt {
 
     /// register new event in editor UI
     fn editor_registry_event<
-        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+        T: Event + Default + Resource + Reflect + Send + Clone + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self;
@@ -344,7 +345,7 @@ impl EditorRegistryExt for App {
     }
 
     fn editor_registry_event<
-        T: Event + Default + Resource + Reflect + Send + 'static + GetTypeRegistration,
+        T: Event + Default + Resource + Reflect + Send + Clone + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self {
