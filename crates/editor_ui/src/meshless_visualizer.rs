@@ -5,7 +5,6 @@ use bevy_mod_billboard::{
 use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
-use bevy_sprite3d::*;
 use space_shared::*;
 
 #[derive(Default)]

@@ -32,7 +32,6 @@ bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git",
     "selection",
 ] }
 bevy_panorbit_camera = "0.9"
-bevy_sprite3d = "2.7.0"
 bevy_mod_billboard = "0.5.1"
 pretty-type-name = "1.0.1"
 convert_case = "0.6"
