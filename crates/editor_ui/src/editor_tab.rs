@@ -14,6 +14,7 @@ pub trait EditorTab {
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
     CameraView,
+    EventDispatcher,
     GameView,
     Hierarchy,
     Inspector,
