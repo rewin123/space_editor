@@ -7,6 +7,8 @@ compile_error!("feature \"f32\" and feature \"f64\" cannot be enabled at the sam
 
 /// Contains all component for prefab logic
 pub mod component;
+/// Contains all events that used in this crate
+pub mod events;
 /// Contains systems for loading prefab from file
 pub mod load;
 /// Module contains all prefab plugin extensions

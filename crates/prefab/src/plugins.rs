@@ -63,6 +63,8 @@ impl Plugin for BasePrefabPlugin {
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
 
+        crate::events::register_events(app);
+
         app.register_type::<EntityLink>();
 
         app.editor_registry::<Transform>();

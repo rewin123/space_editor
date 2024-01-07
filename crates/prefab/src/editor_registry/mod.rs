@@ -11,7 +11,7 @@ use space_shared::*;
 use space_undo::AppAutoUndo;
 use std::any::TypeId;
 
-use crate::{component::AutoStruct, save::SaveState, PrefabSet};
+use crate::{component::AutoStruct, events::BevyEvent, save::SaveState, PrefabSet};
 
 /// Plugin to activate custom registry
 pub struct EditorRegistryPlugin;
@@ -106,6 +106,21 @@ impl SendEvent {
             func: Arc::new(move |world| {
                 let event = world.resource::<T>().clone();
                 world.send_event(event);
+            }),
+        }
+    }
+
+    pub(crate) fn new_bevy_event<T: BevyEvent>() -> Self {
+        let path = T::inner_path();
+        let name = path.split("::").last().unwrap_or("UnnamedEvent").into();
+        let type_id = TypeId::of::<T>();
+        Self {
+            name,
+            path,
+            type_id,
+            func: Arc::new(move |world| {
+                let event = world.resource::<T>().clone();
+                world.send_event(event.inner_event().clone());
             }),
         }
     }
@@ -210,6 +225,33 @@ impl EditorRegistry {
         self.send_events.sort_unstable_by_key(|send_event| {
             (send_event.name().to_owned(), send_event.path().to_owned())
         });
+    }
+
+    /// Register bevy event, which will be shown in editor UI and can be sent
+    pub(crate) fn bevy_event_register<T: BevyEvent>(&mut self) {
+        self.send_events.push(SendEvent::new_bevy_event::<T>());
+        self.send_events.sort_unstable_by_key(|send_event| {
+            (send_event.name().to_owned(), send_event.path().to_owned())
+        });
+    }
+}
+
+pub(crate) trait EditorRegistryBevyExt {
+    /// register new bevy event in editor UI
+    fn editor_registry_bevy_event<T: BevyEvent>(&mut self) -> &mut Self;
+}
+
+impl EditorRegistryBevyExt for App {
+    fn editor_registry_bevy_event<T: BevyEvent>(&mut self) -> &mut Self {
+        #[cfg(not(feature = "no_event_registration"))]
+        {
+            self.register_type::<T>();
+            self.world.init_resource::<T>();
+        }
+        self.world
+            .resource_mut::<EditorRegistry>()
+            .bevy_event_register::<T>();
+        self
     }
 }
 
