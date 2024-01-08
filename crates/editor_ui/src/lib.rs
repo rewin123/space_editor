@@ -67,6 +67,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContext};
 
+use bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin};
 use game_view::has_window_changed;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
@@ -75,10 +76,7 @@ use prelude::{
     SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
 use space_prefab::prelude::*;
-use space_shared::{
-    ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
-};
+use space_shared::{EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache};
 use space_undo::UndoPlugin;
 use ui_registration::BundleReg;
 
@@ -105,14 +103,6 @@ pub mod prelude {
     pub use crate::EditorPlugin;
     pub use crate::EditorUiAppExt;
     pub use crate::EditorUiRef;
-}
-
-/// External dependencies for editor crate
-pub mod ext {
-    pub use bevy_egui;
-    pub use bevy_mod_picking;
-    pub use bevy_panorbit_camera;
-    pub use space_shared::ext::*;
 }
 
 /// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
