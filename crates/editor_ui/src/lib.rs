@@ -45,6 +45,8 @@ pub mod ui_registration;
 /// This module contains UI logic for view game camera image
 pub mod camera_view;
 
+use std::f32::consts::PI;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
@@ -247,7 +249,12 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
+            (
+                draw_camera_gizmo,
+                draw_light_gizmo,
+                disable_no_editor_cams,
+                delete_selected,
+            )
                 .run_if(in_state(EditorState::Editor)),
         );
 
@@ -497,6 +504,103 @@ fn disable_no_editor_cams(
 ) {
     for mut cam in cameras.iter_mut() {
         cam.is_active = false;
+    }
+}
+
+fn draw_light_gizmo(
+    mut gizmos: Gizmos,
+    lights: Query<(
+        &GlobalTransform,
+        AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
+    )>,
+) {
+    for (transform, light_type) in lights.iter() {
+        let transform = transform.compute_transform();
+        match light_type {
+            (Some(directional), _, _) => {
+                // draw an arrow in the direction of the light
+                let dir = transform.forward().normalize();
+
+                // base
+                gizmos.ray(transform.translation, dir * 3.5, Color::WHITE);
+                let dirs = vec![
+                    (transform.up().normalize(), transform.down().normalize()),
+                    (transform.down().normalize(), transform.up().normalize()),
+                    (transform.right().normalize(), transform.left().normalize()),
+                    (transform.left().normalize(), transform.right().normalize()),
+                ];
+                for (a, b) in dirs.into_iter() {
+                    // vertical
+                    gizmos.ray(transform.translation + dir * 3.5, a, Color::WHITE);
+                    // angle
+                    gizmos.ray(
+                        transform.translation + dir * 3.5 + a,
+                        transform.translation + dir * 1.5 + b,
+                        Color::WHITE,
+                    );
+                }
+            }
+            (_, Some(spot), _) => {
+                // range is the max distance the light will travel in the direction that the light is pointing
+                let range = transform.forward().normalize() * spot.range;
+
+                // center of the light direction
+                gizmos.ray(transform.translation, range, Color::WHITE);
+
+                let outer_rad = range.length() * spot.outer_angle.tan();
+                let inner_rad = range.length() * spot.inner_angle.tan();
+
+                // circle at the end of the light range at both angles
+                gizmos.circle(
+                    transform.translation + range,
+                    transform.back().normalize(),
+                    outer_rad,
+                    Color::WHITE,
+                );
+                gizmos.circle(
+                    transform.translation + range,
+                    transform.back().normalize(),
+                    inner_rad,
+                    Color::WHITE,
+                );
+
+                // amount of lines to draw around the "cone" that the light creates
+                let num_segments = 8;
+                for i in 0..num_segments {
+                    let angle_outer = i as f32 * 2.0 * PI / num_segments as f32;
+                    let angle_inner = i as f32 * 2.0 * PI / num_segments as f32;
+
+                    let outer_point = transform.translation
+                        + range
+                        + outer_rad
+                            * (transform.right().normalize() * angle_outer.cos()
+                                + transform.up().normalize() * angle_outer.sin());
+                    let inner_point = transform.translation
+                        + range
+                        + inner_rad
+                            * (transform.right().normalize() * angle_inner.cos()
+                                + transform.up().normalize() * angle_inner.sin());
+
+                    gizmos.line(transform.translation, outer_point, Color::WHITE);
+                    gizmos.line(transform.translation, inner_point, Color::WHITE);
+                }
+            }
+            (_, _, Some(point)) => {
+                gizmos.sphere(
+                    transform.translation,
+                    Quat::IDENTITY,
+                    point.range,
+                    Color::WHITE,
+                );
+                // bounding box?
+                // this is heavily based on what Godot has for their lights
+                // gizmos.cuboid(
+                //     transform.with_scale(Vec3::splat(point.range * 2.)),
+                //     Color::WHITE,
+                // );
+            }
+            _ => unreachable!(),
+        }
     }
 }
 
