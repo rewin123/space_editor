@@ -22,11 +22,6 @@ use bevy::prelude::*;
 
 use space_shared::EditorState;
 
-/// Public usage of packages that used in this crate
-pub mod ext {
-    pub use bevy::prelude::*;
-}
-
 /// All useful structure from this crate
 pub mod prelude {
     pub use crate::component::*;

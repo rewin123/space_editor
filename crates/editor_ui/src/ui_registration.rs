@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 
-use bevy::ecs::system::EntityCommands;
+use bevy::{ecs::system::EntityCommands, prelude::*, utils::HashMap};
 
-use space_prefab::{component::*, ext::*};
+use space_prefab::component::*;
 use space_shared::PrefabMarker;
 
 pub const MESH_CATEGORY: &str = "mesh";

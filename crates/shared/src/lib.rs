@@ -1,10 +1,5 @@
 use bevy::prelude::*;
 
-pub mod ext {
-    pub use bevy_inspector_egui;
-    pub use egui_file;
-}
-
 pub mod prelude {
     pub use crate::{
         EditorCameraMarker, EditorEvent, EditorPrefabPath, EditorSet, EditorState, PrefabMarker,
