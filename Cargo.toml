@@ -28,6 +28,7 @@ bevy-inspector-egui = { version = "0.22", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
+egui_file = { git = "https://github.com/Barugon/egui_file.git" }
 ron = "0.8"
 serde = "1"
 
@@ -53,6 +54,8 @@ space_prefab = {workspace = true, version = "0.3.1" }
 space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
 terrain_gen = {version = "0.3.1", workspace = true, optional = true }
 
+[dev-dependencies]
+bevy_panorbit_camera = "0.10"
 
 # For versions 1.74+
 [lints.rust]

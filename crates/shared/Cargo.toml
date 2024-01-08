@@ -14,5 +14,4 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 bevy-inspector-egui.workspace = true
-
-egui_file = { git = "https://github.com/Barugon/egui_file.git" }
+egui_file.workspace = true
