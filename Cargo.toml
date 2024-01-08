@@ -24,6 +24,12 @@ homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
 bevy = "0.12"
+bevy-inspector-egui = { version = "0.22", features = [
+    "bevy_pbr",
+    "highlight_changes",
+] }
+ron = "0.8"
+serde = "1"
 
 # Editor Crates
 space_prefab = { version = "0.3.1", path = "crates/prefab" }
@@ -32,10 +38,9 @@ space_undo = { version = "0.3.1", path = "crates/undo" }
 space_persistence = { version = "0.3.1", path = "crates/persistence"}
 space_editor_core = { version = "0.3.1", path = "crates/editor_core", features = ["persistence_editor"] }
 space_editor_ui = { version = "0.3.1", path = "crates/editor_ui", features = ["persistence_editor"] }
-ron = "0.8"
-serde = "1"
 
 space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
+terrain_gen = { version = "0.3.1", path = "modules/terrain_gen"}
 
 [dependencies]
 bevy.workspace = true
@@ -44,6 +49,7 @@ space_prefab = {workspace = true, version = "0.3.1" }
 
 # Modules for external crates
 space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
+terrain_gen = {version = "0.3.1", workspace = true, optional = true }
 
 # For versions 1.74+
 [lints.rust]
@@ -71,7 +77,8 @@ bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
 editor = []
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
+experimental = ["terrain_gen"]
+default = ["bevy_xpbd_3d", "persistence_editor", "editor", "experimental"]
 
 [[example]]
 name = "platformer"

@@ -1,0 +1,29 @@
+[package]
+# This library can be used as standalone
+name = "terrain_gen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+keywords = ["terrain", "heightmap", "gamedev"]
+categories = ["game-development"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true
+bevy-inspector-egui.workspace = true
+space_editor_ui.workspace = true
+space_editor_core.workspace = true
+space_prefab.workspace = true
+space_undo.workspace = true
+space_persistence.workspace = true
+space_shared.workspace = true
+
+noise = "0.8"
+lerp = { version = "0.4", features = ["derive"] }
+
+[features]
+meshed = []
+space_editor = []
+default = ["space_editor", "meshed"]
