@@ -11,14 +11,13 @@ const AUTO_UNDO_LATENCY: i32 = 2;
 
 pub struct UndoPlugin;
 
-
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
 pub enum UndoSet {
     PerType,
     UpdateAll,
     Remaping,
     ///Contains all undo sets
-    Global
+    Global,
 }
 
 impl Plugin for UndoPlugin {
@@ -38,7 +37,6 @@ impl Plugin for UndoPlugin {
                 .chain()
                 .in_set(UndoSet::Global),
         );
-        
 
         app.add_systems(
             PostUpdate,
