@@ -1,7 +1,7 @@
 use bevy::{ecs::system::EntityCommands, utils::HashMap};
 
 use space_prefab::{component::*, ext::*};
-use space_shared::PrefabMarker;
+use space_shared::{LightAreaToggle, PrefabMarker};
 
 pub const MESH_CATEGORY: &str = "mesh";
 
@@ -82,19 +82,31 @@ pub fn register_light_editor_bundles(app: &mut App) {
     app.editor_bundle(
         "Light",
         "Point light",
-        (Name::new("Point light"), PointLight::default()),
+        (
+            Name::new("Point light"),
+            PointLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 
     app.editor_bundle(
         "Light",
         "Directional light",
-        (Name::new("Directional light"), DirectionalLight::default()),
+        (
+            Name::new("Directional light"),
+            DirectionalLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 
     app.editor_bundle(
         "Light",
         "Spot light",
-        (Name::new("Spot light"), SpotLight::default()),
+        (
+            Name::new("Spot light"),
+            SpotLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 }
 

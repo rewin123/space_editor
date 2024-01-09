@@ -25,33 +25,44 @@ impl Plugin for MeshlessVisualizerPlugin {
     }
 }
 
-/// Marks the applied entity as needing to be visualized. This is added via users to make any custom entities have a mesh that they can control
-/// also comes with the visual that will be used for the object in question.
+/// Gives the entity some mesh and material to display within the editor
 #[derive(Component, Default)]
 pub struct CustomMeshless {
-    // /// Visual that will be used to show the entity or object
-    pub visual: MatMesh,
+    /// Visual that will be used to show the entity or object
+    pub visual: MeshlessModel,
 }
 
-pub struct MatMesh {
-    // TODO: figure out what to put with the material so that the compiler doesn't cry
-    // material: Box<dyn Material>,
-    material: StandardMaterial,
-    mesh: Mesh,
+/// This determines what a custom entity should use as its editor interactable model if it doesn't
+/// have a mesh associated with it.
+/// Defaults to a
+pub enum MeshlessModel {
+    Billboard(BillboardTextureBundle),
+    Object(MaterialMeshBundle<StandardMaterial>),
 }
 
-impl Default for MatMesh {
+impl Default for MeshlessModel {
     fn default() -> Self {
-        Self {
-            material: StandardMaterial::default(),
-            mesh: shape::UVSphere {
-                radius: 0.5,
-                ..default()
-            }
-            .into(),
-        }
+        Self::Object(MaterialMeshBundle::default())
     }
 }
+
+// pub struct MatMesh {
+//     material: StandardMaterial,
+//     mesh: Mesh,
+// }
+
+// impl Default for MatMesh {
+//     fn default() -> Self {
+//         Self {
+//             material: StandardMaterial::default(),
+//             mesh: shape::UVSphere {
+//                 radius: 0.5,
+//                 ..default()
+//             }
+//             .into(),
+//         }
+//     }
+// }
 
 // definitely want to use bevy_asset_loader
 #[derive(Resource, Default)]
@@ -181,12 +192,12 @@ pub fn visualize_custom_meshless(
             _ => {
                 commands.entity(entity).insert((
                     // NOTE: 2d case is not currently covered
-                    MaterialMeshBundle {
-                        mesh: ass.add(custom.visual.mesh.clone()),
-                        material: ass.add(custom.visual.material.clone()),
-                        transform: *transform,
-                        ..default()
-                    },
+                    // MaterialMeshBundle {
+                    //     mesh: ass.add(custom.visual.mesh.clone()),
+                    //     material: ass.add(custom.visual.material.clone()),
+                    //     transform: *transform,
+                    //     ..default()
+                    // },
                     RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
                 ));
             }

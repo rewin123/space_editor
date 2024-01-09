@@ -71,3 +71,8 @@ pub enum EditorEvent {
 pub struct SelectParent {
     pub parent: Entity,
 }
+
+/// Component that determines if the light gizmo shall be visualized
+#[derive(Component, Default, Clone, Reflect)]
+#[reflect(Component)]
+pub struct LightAreaToggle(pub bool);
