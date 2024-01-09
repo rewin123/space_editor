@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use space_shared::{EditorSet, PrefabMarker};
+use space_shared::PrefabMarker;
 
 const MAX_REFLECT_RECURSION: i32 = 10;
 const AUTO_UNDO_LATENCY: i32 = 2;
@@ -14,8 +14,10 @@ pub struct UndoPlugin;
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
 pub enum UndoSet {
     PerType,
-    Global,
+    UpdateAll,
     Remaping,
+    ///Contains all undo sets
+    Global,
 }
 
 impl Plugin for UndoPlugin {
@@ -31,9 +33,9 @@ impl Plugin for UndoPlugin {
 
         app.configure_sets(
             PostUpdate,
-            (UndoSet::PerType, UndoSet::Global, UndoSet::Remaping)
+            (UndoSet::PerType, UndoSet::UpdateAll, UndoSet::Remaping)
                 .chain()
-                .in_set(EditorSet::Editor),
+                .in_set(UndoSet::Global),
         );
 
         app.add_systems(
@@ -45,7 +47,7 @@ impl Plugin for UndoPlugin {
                 undo_ignore_tick,
             )
                 .chain()
-                .in_set(UndoSet::Global),
+                .in_set(UndoSet::UpdateAll),
         );
     }
 }
