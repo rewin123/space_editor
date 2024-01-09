@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use space_shared::{EditorSet, PrefabMarker};
+use space_shared::PrefabMarker;
 
 const MAX_REFLECT_RECURSION: i32 = 10;
 const AUTO_UNDO_LATENCY: i32 = 2;
