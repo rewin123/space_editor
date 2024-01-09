@@ -27,6 +27,9 @@ pub mod hierarchy;
 /// This module contains Inspector tab logic
 pub mod inspector;
 
+/// This module contains methods to visualize entities without a mesh attached
+pub mod meshless_visualizer;
+
 /// This module contains Settings tab logic
 pub mod settings;
 
@@ -41,6 +44,8 @@ pub mod ui_registration;
 
 /// This module contains UI logic for view game camera image
 pub mod camera_view;
+
+use std::f32::consts::PI;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
@@ -71,13 +76,14 @@ use game_view::has_window_changed;
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
-    NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
+    MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab,
+    ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
 use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+    EditorCameraMarker, EditorSet, EditorState, LightAreaToggle, PrefabMarker, PrefabMemoryCache,
+    SelectParent,
 };
 use space_undo::UndoPlugin;
 use ui_registration::BundleReg;
@@ -92,8 +98,8 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 pub mod prelude {
     pub use super::{
         asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
-        game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
-        ui_registration::*,
+        game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
+        tools::*, ui_registration::*,
     };
 
     pub use space_editor_core::prelude::*;
@@ -244,7 +250,12 @@ impl Plugin for EditorPlugin {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
+            (
+                draw_camera_gizmo,
+                draw_light_gizmo,
+                disable_no_editor_cams,
+                delete_selected,
+            )
                 .run_if(in_state(EditorState::Editor)),
         );
 
@@ -321,6 +332,8 @@ fn auto_add_picking_dummy(
 fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
+    // may need to be optimized a bit so that there is less overlap
+    query_parent: Query<&SelectParent>,
     mut events: EventReader<SelectEvent>,
     pan_orbit_state: ResMut<PanOrbitEnabled>,
     keyboard: Res<Input<KeyCode>>,
@@ -330,9 +343,13 @@ fn select_listener(
     }
     for event in events.read() {
         info!("Select Event: {:?}", event.e);
+        let entity = match query_parent.get(event.e) {
+            Ok(a) => a.parent,
+            Err(_) => event.e,
+        };
         match event.event.button {
             PointerButton::Primary => {
-                commands.entity(event.e).insert(Selected);
+                commands.entity(entity).insert(Selected);
                 if !keyboard.pressed(KeyCode::ShiftLeft) {
                     for e in query.iter() {
                         commands.entity(e).remove::<Selected>();
@@ -491,6 +508,104 @@ fn disable_no_editor_cams(
     }
 }
 
+fn draw_light_gizmo(
+    mut gizmos: Gizmos,
+    // make the gizmos only show up when the light is selected or toggled?
+    lights: Query<(
+        &GlobalTransform,
+        &LightAreaToggle,
+        Option<&Selected>,
+        AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
+    )>,
+    // access a global setting for showing all lights areas
+    // settings: Res<EditorLightSettings>,
+) {
+    for (transform, toggled, selected, light_type) in lights.iter() {
+        if selected.is_some() || toggled.0 {
+            let transform = transform.compute_transform();
+            match light_type {
+                (Some(directional), _, _) => {
+                    // draw an arrow in the direction of the light
+                    let dir = transform.forward().normalize();
+
+                    // base
+                    gizmos.ray(transform.translation, dir * 3.5, directional.color);
+                    let dirs = vec![
+                        (transform.up().normalize(), transform.down().normalize()),
+                        (transform.down().normalize(), transform.up().normalize()),
+                        (transform.right().normalize(), transform.left().normalize()),
+                        (transform.left().normalize(), transform.right().normalize()),
+                    ];
+                    for (a, b) in dirs.into_iter() {
+                        // vertical
+                        gizmos.ray(transform.translation + dir * 3.5, a, directional.color);
+                        // angle
+                        gizmos.ray(
+                            transform.translation + dir * 3.5 + a,
+                            transform.translation + dir * 1.5 + b,
+                            directional.color,
+                        );
+                    }
+                }
+                (_, Some(spot), _) => {
+                    // range is the max distance the light will travel in the direction that the light is pointing
+                    let range = transform.forward().normalize() * spot.range;
+
+                    // center of the light direction
+                    gizmos.ray(transform.translation, range, spot.color);
+
+                    let outer_rad = range.length() * spot.outer_angle.tan();
+                    let inner_rad = range.length() * spot.inner_angle.tan();
+
+                    // circle at the end of the light range at both angles
+                    gizmos.circle(
+                        transform.translation + range,
+                        transform.back().normalize(),
+                        outer_rad,
+                        spot.color,
+                    );
+                    gizmos.circle(
+                        transform.translation + range,
+                        transform.back().normalize(),
+                        inner_rad,
+                        spot.color,
+                    );
+
+                    // amount of lines to draw around the "cone" that the light creates
+                    let num_segments = 8;
+                    for i in 0..num_segments {
+                        let angle_outer = i as f32 * 2.0 * PI / num_segments as f32;
+                        let angle_inner = i as f32 * 2.0 * PI / num_segments as f32;
+
+                        let outer_point = transform.translation
+                            + range
+                            + outer_rad
+                                * (transform.right().normalize() * angle_outer.cos()
+                                    + transform.up().normalize() * angle_outer.sin());
+                        let inner_point = transform.translation
+                            + range
+                            + inner_rad
+                                * (transform.right().normalize() * angle_inner.cos()
+                                    + transform.up().normalize() * angle_inner.sin());
+
+                        gizmos.line(transform.translation, outer_point, spot.color);
+                        gizmos.line(transform.translation, inner_point, spot.color);
+                    }
+                }
+                (_, _, Some(point)) => {
+                    gizmos.sphere(
+                        transform.translation,
+                        Quat::IDENTITY,
+                        point.range,
+                        point.color,
+                    );
+                }
+                _ => unreachable!(),
+            }
+        }
+    }
+}
+
 fn draw_camera_gizmo(
     mut gizmos: Gizmos,
     cameras: Query<
@@ -570,6 +685,10 @@ impl Plugin for EditorUiPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<SelectedPlugin>() {
             app.add_plugins(SelectedPlugin);
+        }
+
+        if !app.is_plugin_added::<MeshlessVisualizerPlugin>() {
+            app.add_plugins(MeshlessVisualizerPlugin);
         }
 
         app.add_plugins((bottom_menu::BottomMenuPlugin, MouseCheck));
