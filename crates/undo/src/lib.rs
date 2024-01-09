@@ -1065,6 +1065,8 @@ fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
 
 #[cfg(test)]
 mod tests {
+    use space_shared::EditorSet;
+
     use super::*;
 
     fn configure_app() -> App {
