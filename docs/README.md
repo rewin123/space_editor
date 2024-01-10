@@ -13,7 +13,7 @@ space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its 
 - **Prefab Reusability**: Prefabs can be nested within other prefabs, improving reusability and organization in your projects. 
 - **Many custom components**: Space Editor implements various custom components to seamlessly integrate its saving system with the standard Bevy scene format. 
 - **Easy API for customization**: Customize or register your own components within the editor with ease, tailoring it to your specific project needs.
-- **Event debugging**: Send events directly from the editor UI for easier gameplay debugging.  
+- **Event dispatching**: Send custom events directly from the editor UI for easier gameplay debugging. 
 - **API for adding tabs**: Extend the functionality of the editor by easily adding new tabs, enhancing your workflow. 
 
 # Editor UI
@@ -115,15 +115,25 @@ The representation of components in the editor UI can also be customized by bevy
 
 ## Register new event
 
-Events can be added to the editor gui with the following:
+Custom Events can be added to the editor UI with the following:
 
 ```rs
+#[derive(Event, Default, Resource, Reflect, Clone)]
+#[reflect(Resource)]
+pub struct Name;
+
 use editor::prelude::EditorRegistryExt;
 
 app.editor_registry_event::<Name>();
 ```
 
-One limitation is that events must implement `Default`. Once registered, events can be sent using the `Event Debugger` tab. 
+One limitation is that events must implement `Event, Default, Resource, Reflect, Clone`, with `Resource` reflected. Once registered, events can be sent using the `Event Dispatcher` tab.
+
+> Obs: editor already handles internally objects registration and initialization:
+> 
+> `register_type::<T>() and init_resource::<T>()`
+
+> To disable this, use feature `no_event_registration`.
 
 ## Bundles
 

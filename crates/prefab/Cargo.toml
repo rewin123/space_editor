@@ -10,6 +10,9 @@ description = "Subcrate for the space_editor crate. Contains the prefab systems 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+no_event_registration = []
+
 [dependencies]
 bevy.workspace = true
 ron.workspace = true

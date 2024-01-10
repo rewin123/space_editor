@@ -1,4 +1,6 @@
-use bevy::{ecs::system::EntityCommands, utils::HashMap};
+use std::collections::BTreeMap;
+
+use bevy::ecs::system::EntityCommands;
 
 use space_prefab::{component::*, ext::*};
 use space_shared::{LightAreaToggle, PrefabMarker};
@@ -8,7 +10,7 @@ pub const MESH_CATEGORY: &str = "mesh";
 /// Resource with bundles to spawn
 #[derive(Resource, Default)]
 pub struct BundleReg {
-    pub bundles: HashMap<String, HashMap<String, EditorBundleUntyped>>,
+    pub bundles: BTreeMap<String, BTreeMap<String, EditorBundleUntyped>>,
 }
 
 impl BundleReg {

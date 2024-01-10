@@ -85,7 +85,7 @@ use space_shared::{
     EditorCameraMarker, EditorSet, EditorState, LightAreaToggle, PrefabMarker, PrefabMemoryCache,
     SelectParent,
 };
-use space_undo::UndoPlugin;
+use space_undo::{UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
 
 use self::{
@@ -133,6 +133,7 @@ impl Plugin for EditorPlugin {
             app.add_plugins(bevy_egui::EguiPlugin);
         }
         app.add_plugins(UndoPlugin); //Undo must be included before prefab plugin for undo registration
+        app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }
