@@ -180,7 +180,7 @@ pub fn visualize_meshless(
 /// Additionally, the user can either choose their own mesh and material to use or default to the white sphere
 pub fn visualize_custom_meshless(
     mut commands: Commands,
-    ass: Res<AssetServer>,
+    _ass: Res<AssetServer>,
     objects: Query<
         (
             Entity,
@@ -198,7 +198,7 @@ pub fn visualize_custom_meshless(
             be visualized via their impl, otherwise should be defaulted (or derived default if need be).
     */
 
-    for (entity, transform, custom, mesh, mat) in objects.iter() {
+    for (entity, _transform, _custom, mesh, mat) in objects.iter() {
         match (mesh, mat) {
             (Some(_), Some(_)) => {}
             _ => {
