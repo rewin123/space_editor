@@ -1,11 +1,13 @@
 use bevy::{prelude::*, render::view::RenderLayers};
 use bevy_mod_billboard::{
-    prelude::BillboardPlugin, BillboardTextureBundle, BillboardTextureHandle,
+    prelude::BillboardPlugin, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
 };
 use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
 use space_shared::*;
+
+use crate::LAST_RENDER_LAYER;
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
@@ -21,6 +23,8 @@ impl Plugin for MeshlessVisualizerPlugin {
             })
             .add_plugins(BillboardPlugin)
             .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
+            // runs every frame within the editor set, when the game transitions to the game state, it stops running
+            // then resumes when the editor comes back to the editor state
             .add_systems(Update, visualize_meshless.in_set(EditorSet::Editor));
     }
 }
@@ -85,18 +89,21 @@ pub struct IconMesh {
 
 pub fn visualize_meshless(
     mut commands: Commands,
-    lights: Query<(
-        Entity,
-        &Transform,
-        Option<&Children>,
-        AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
-    )>,
+    lights: Query<
+        (
+            Entity,
+            &Transform,
+            Option<&Children>,
+            AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
+        ),
+        With<PrefabMarker>,
+    >,
     cams: Query<
         (Entity, &Transform, Option<&Children>),
         (
             With<Camera>,
-            Without<EditorCameraMarker>,
             With<PrefabMarker>,
+            Without<EditorCameraMarker>,
         ),
     >,
     light_icons: Res<LightIcons>,
@@ -104,6 +111,8 @@ pub fn visualize_meshless(
     icon_mesh: Res<IconMesh>,
 ) {
     for (parent, _trans, children, light_type) in &lights {
+        // change is none to doesn't contain
+        // this then covers the case that lights could have children other than these
         if children.is_none() {
             let image = match light_type {
                 (Some(_directional), _, _) => light_icons.directional.clone(),
@@ -120,7 +129,7 @@ pub fn visualize_meshless(
                         transform: Transform::default(),
                         ..default()
                     },
-                    RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
+                    RenderLayers::layer(LAST_RENDER_LAYER),
                 ))
                 .with_children(|adult| {
                     adult.spawn((
@@ -146,7 +155,7 @@ pub fn visualize_meshless(
                         transform: Transform::default(),
                         ..default()
                     },
-                    RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
+                    RenderLayers::layer(LAST_RENDER_LAYER),
                 ))
                 .with_children(|adult| {
                     adult.spawn((
@@ -172,13 +181,16 @@ pub fn visualize_meshless(
 pub fn visualize_custom_meshless(
     mut commands: Commands,
     ass: Res<AssetServer>,
-    objects: Query<(
-        Entity,
-        &Transform,
-        &CustomMeshless,
-        Option<&Handle<Mesh>>,
-        Option<&Handle<StandardMaterial>>,
-    )>,
+    objects: Query<
+        (
+            Entity,
+            &Transform,
+            &CustomMeshless,
+            Option<&Handle<Mesh>>,
+            Option<&Handle<StandardMaterial>>,
+        ),
+        // With<CustomMeshlessMarker>,
+    >,
 ) {
     /* NOTES: Maybe this should instead of a struct that is a component, there should be a trait that
             can be impl'd such that the user can pair up different Components and meshes that this function then handles overall.
@@ -198,7 +210,7 @@ pub fn visualize_custom_meshless(
                     //     transform: *transform,
                     //     ..default()
                     // },
-                    RenderLayers::layer((RenderLayers::TOTAL_LAYERS - 1) as u8),
+                    RenderLayers::layer(LAST_RENDER_LAYER),
                 ));
             }
         }
@@ -228,4 +240,13 @@ pub fn load_light_icons(
 }
 
 // this removes the meshes and entities for them when moving to the game state
-pub fn clean_meshless() {}
+pub fn clean_meshless(
+    mut commands: Commands,
+    // this covers all entities that are the children of the lights
+    // this can be extended to cover the custom children as well
+    objects: Query<Entity, Or<(With<BillboardTextureHandle>, With<BillboardMeshHandle>)>>,
+) {
+    for entity in objects.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}

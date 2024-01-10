@@ -74,9 +74,9 @@ use bevy_egui::{egui, EguiContext};
 
 use game_view::has_window_changed;
 use prelude::{
-    reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
-    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
-    MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab,
+    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
+    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
+    GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab,
     ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
 };
 use space_prefab::prelude::*;
@@ -224,6 +224,8 @@ impl Plugin for EditorPlugin {
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
+        // clean up meshless children on entering the game state
+        app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),
             to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
@@ -530,7 +532,11 @@ fn draw_light_gizmo(
                     let dir = transform.forward().normalize();
 
                     // base
-                    gizmos.ray(transform.translation, dir * 3.5, directional.color);
+                    gizmos.ray(
+                        transform.translation,
+                        dir * 3.5,
+                        directional.color.with_a(1.0),
+                    );
                     let dirs = vec![
                         (transform.up().normalize(), transform.down().normalize()),
                         (transform.down().normalize(), transform.up().normalize()),
@@ -539,12 +545,16 @@ fn draw_light_gizmo(
                     ];
                     for (a, b) in dirs.into_iter() {
                         // vertical
-                        gizmos.ray(transform.translation + dir * 3.5, a, directional.color);
+                        gizmos.ray(
+                            transform.translation + dir * 3.5,
+                            a,
+                            directional.color.with_a(1.0),
+                        );
                         // angle
                         gizmos.ray(
                             transform.translation + dir * 3.5 + a,
-                            transform.translation + dir * 1.5 + b,
-                            directional.color,
+                            dir * 1.5 + b,
+                            directional.color.with_a(1.0),
                         );
                     }
                 }
@@ -553,7 +563,7 @@ fn draw_light_gizmo(
                     let range = transform.forward().normalize() * spot.range;
 
                     // center of the light direction
-                    gizmos.ray(transform.translation, range, spot.color);
+                    gizmos.ray(transform.translation, range, spot.color.with_a(1.0));
 
                     let outer_rad = range.length() * spot.outer_angle.tan();
                     let inner_rad = range.length() * spot.inner_angle.tan();
@@ -563,13 +573,13 @@ fn draw_light_gizmo(
                         transform.translation + range,
                         transform.back().normalize(),
                         outer_rad,
-                        spot.color,
+                        spot.color.with_a(1.0),
                     );
                     gizmos.circle(
                         transform.translation + range,
                         transform.back().normalize(),
                         inner_rad,
-                        spot.color,
+                        spot.color.with_a(1.0),
                     );
 
                     // amount of lines to draw around the "cone" that the light creates
@@ -589,8 +599,8 @@ fn draw_light_gizmo(
                                 * (transform.right().normalize() * angle_inner.cos()
                                     + transform.up().normalize() * angle_inner.sin());
 
-                        gizmos.line(transform.translation, outer_point, spot.color);
-                        gizmos.line(transform.translation, inner_point, spot.color);
+                        gizmos.line(transform.translation, outer_point, spot.color.with_a(1.0));
+                        gizmos.line(transform.translation, inner_point, spot.color.with_a(1.0));
                     }
                 }
                 (_, _, Some(point)) => {
@@ -598,7 +608,7 @@ fn draw_light_gizmo(
                         transform.translation,
                         Quat::IDENTITY,
                         point.range,
-                        point.color,
+                        point.color.with_a(1.0),
                     );
                 }
                 _ => unreachable!(),
