@@ -29,10 +29,10 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(
-            PostUpdate,
+            Update,
             set_camera_viewport
                 .in_set(EditorSet::Editor)
-                .after(show_editor_ui),
+                .after(super::game_view::set_camera_viewport),
         );
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -316,7 +316,7 @@ fn set_camera_viewport(
         let wx = watch_cam_size.x;
         let wy = watch_cam_size.y;
 
-        viewport_size.y = wy * viewport_size.x / wx
+        viewport_size.y = viewport_size.x * wy / wx;
     }
 
     // Place viewport in the center of the tab
