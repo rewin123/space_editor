@@ -454,6 +454,8 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
                 .insert(e, OneFrameUndoIgnore::default());
         }
 
+        info!("Reverted AddedComponent for entity: {}", e.index());
+
         Ok(ChangeResult::Success)
     }
 
@@ -501,6 +503,12 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
             entity: dst,
             _phantom: std::marker::PhantomData,
         });
+
+        info!(
+            "Reverted ReflectedAddedComponent for entity: {}",
+            dst.index()
+        );
+
         Ok(ChangeResult::Success)
     }
 
@@ -553,6 +561,8 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
             .entity_mut(dst)
             .insert(self.old_value.clone())
             .insert(OneFrameUndoIgnore::default());
+
+        info!("Reverted RemovedComponent for entity: {}", dst.index());
 
         Ok(ChangeResult::SuccessWithRemap(remap))
     }
@@ -617,6 +627,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
             _phantom: std::marker::PhantomData,
         });
 
+        info!(
+            "Reverted ReflectedRemovedComponent for entity: {}",
+            dst.index()
+        );
+
         Ok(ChangeResult::SuccessWithRemap(remap))
     }
 
@@ -665,6 +680,9 @@ impl EditorChange for ManyChanges {
                 }
             }
         }
+
+        info!("Reverted ManyChanges");
+
         Ok(ChangeResult::SuccessWithRemap(
             remap.iter().map(|(key, value)| (*key, *value)).collect(),
         ))
