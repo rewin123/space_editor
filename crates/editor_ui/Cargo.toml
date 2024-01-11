@@ -20,6 +20,7 @@ space_prefab.workspace = true
 space_undo.workspace = true
 space_persistence.workspace = true
 space_shared.workspace = true
+serde.workspace = true
 
 bevy_egui = "0.24"
 egui-gizmo = "0.13"
@@ -31,7 +32,11 @@ bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git",
     "backend_raycast",
     "selection",
 ] }
+bevy_asset_loader = "0.19"
 bevy_panorbit_camera = "0.9"
 bevy_mod_billboard = "0.5.1"
 pretty-type-name = "1.0.1"
 convert_case = "0.6"
+
+anyhow = "1.0"
+bevy_common_assets = { version = "0.8", features = ["ron"] }

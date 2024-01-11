@@ -26,6 +26,8 @@ pub struct EditorCameraMarker;
 /// Editor states (`Editor`, `GamePrepare`, `Game`)
 #[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
 pub enum EditorState {
+    /// Editor Loading assets
+    Loading,
     /// Diplays Editor / Editor mode
     Editor,
     /// Editor is loading the game

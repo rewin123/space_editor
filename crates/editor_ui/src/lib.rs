@@ -402,7 +402,7 @@ fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
 }
 
 fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
-    state.set(EditorState::Editor);
+    state.set(EditorState::Loading);
 }
 
 fn clear_and_load_on_start(
