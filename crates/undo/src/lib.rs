@@ -936,6 +936,7 @@ fn auto_undo_add_init<T: Component + Clone>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    just_maker_added_query: Query<(Entity, &T), (Added<PrefabMarker>, Without<OneFrameUndoIgnore>)>,
     mut new_changes: EventWriter<NewChange>,
 ) {
     for (e, data) in query.iter() {
@@ -948,12 +949,17 @@ fn auto_undo_add_init<T: Component + Clone>(
             }),
         })
     }
+
+    for (e, data) in just_maker_added_query.iter() {
+        storage.storage.insert(e, data.clone());
+    }
 }
 
 fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
     query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    just_maker_added_query: Query<(Entity, &T), (Added<PrefabMarker>, Without<OneFrameUndoIgnore>)>,
     mut new_changes: EventWriter<NewChange>,
 ) {
     for (e, data) in query.iter() {
@@ -967,6 +973,12 @@ fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
                 entity: e,
             }),
         })
+    }
+
+    for (e, data) in just_maker_added_query.iter() {
+        storage
+            .storage
+            .insert(e, <T as FromReflect>::from_reflect(data).unwrap());
     }
 }
 
