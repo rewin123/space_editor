@@ -265,6 +265,7 @@ impl EditorChange for AddedEntity {
             .resource_mut::<UndoIngnoreStorage>()
             .storage
             .insert(e, OneFrameUndoIgnore::default());
+        info!("Removed Entity: {}", e.index());
         Ok(ChangeResult::Success)
     }
 
@@ -301,8 +302,10 @@ impl EditorChange for RemovedEntity {
                     .spawn_empty()
                     .insert(OneFrameUndoIgnore::default())
                     .id();
+                info!("Reverted Removed Entity: {}", e.index());
                 Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
             } else {
+                info!("Reverted Removed Entity: {}", e.index());
                 Ok(ChangeResult::Success)
             }
         } else {
@@ -310,6 +313,7 @@ impl EditorChange for RemovedEntity {
                 .spawn_empty()
                 .insert(OneFrameUndoIgnore::default())
                 .id();
+            info!("Reverted Removed Entity: {}", self.entity.index());
             Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
         }
     }
@@ -353,6 +357,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
             .entity_mut(e)
             .insert(self.old_value.clone())
             .insert(OneFrameUndoIgnore::default());
+        info!("Reverted ComponentChange for entity: {}", e.index());
         Ok(ChangeResult::Success)
     }
 
@@ -395,6 +400,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
             entity: e,
             _phantom: std::marker::PhantomData,
         });
+
+        info!(
+            "Reverted ReflectedComponentChange for entity: {}",
+            e.index()
+        );
         Ok(ChangeResult::Success)
     }
 
@@ -1065,6 +1075,8 @@ fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
 
 #[cfg(test)]
 mod tests {
+    use space_shared::EditorSet;
+
     use super::*;
 
     fn configure_app() -> App {
