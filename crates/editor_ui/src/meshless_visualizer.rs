@@ -5,6 +5,7 @@ use bevy_mod_billboard::{
 use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
+use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
 use crate::LAST_RENDER_LAYER;
@@ -25,12 +26,18 @@ impl Plugin for MeshlessVisualizerPlugin {
             .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
             // runs every frame within the editor set, when the game transitions to the game state, it stops running
             // then resumes when the editor comes back to the editor state
-            .add_systems(Update, visualize_meshless.in_set(EditorSet::Editor));
+            .add_systems(
+                Update,
+                (visualize_meshless, visualize_custom_meshless).in_set(EditorSet::Editor),
+            )
+            .editor_registry::<CustomMeshless>();
     }
 }
 
 /// Gives the entity some mesh and material to display within the editor
-#[derive(Component, Default)]
+/// Default is a billboard with a quad mesh and question mark icon
+#[derive(Component, Clone, Default, Reflect)]
+#[reflect(Component, Default)]
 pub struct CustomMeshless {
     /// Visual that will be used to show the entity or object
     pub visual: MeshlessModel,
@@ -38,35 +45,26 @@ pub struct CustomMeshless {
 
 /// This determines what a custom entity should use as its editor interactable model if it doesn't
 /// have a mesh associated with it.
-/// Defaults to a
+#[derive(Clone, Reflect)]
 pub enum MeshlessModel {
-    Billboard(BillboardTextureBundle),
-    Object(MaterialMeshBundle<StandardMaterial>),
+    Billboard {
+        mesh: Option<Handle<Mesh>>,     // Default: Quad::new(Vec2::splat(2.))
+        texture: Option<Handle<Image>>, // Default: assets/icons/unknown.png
+    },
+    Object {
+        mesh: Option<Handle<Mesh>>, // Default: Icosphere { radius: 0.75, ..default }
+        material: Option<Handle<StandardMaterial>>, // Default: StandardMaterial {unlit: true, ..default }
+    },
 }
 
 impl Default for MeshlessModel {
     fn default() -> Self {
-        Self::Object(MaterialMeshBundle::default())
+        Self::Billboard {
+            mesh: None,
+            texture: None,
+        }
     }
 }
-
-// pub struct MatMesh {
-//     material: StandardMaterial,
-//     mesh: Mesh,
-// }
-
-// impl Default for MatMesh {
-//     fn default() -> Self {
-//         Self {
-//             material: StandardMaterial::default(),
-//             mesh: shape::UVSphere {
-//                 radius: 0.5,
-//                 ..default()
-//             }
-//             .into(),
-//         }
-//     }
-// }
 
 // definitely want to use bevy_asset_loader
 #[derive(Resource, Default)]
@@ -92,17 +90,18 @@ pub fn visualize_meshless(
     lights: Query<
         (
             Entity,
-            &Transform,
             Option<&Children>,
             AnyOf<(&DirectionalLight, &SpotLight, &PointLight)>,
         ),
-        With<PrefabMarker>,
+        (With<PrefabMarker>, With<Transform>, With<Visibility>),
     >,
     cams: Query<
-        (Entity, &Transform, Option<&Children>),
+        (Entity, Option<&Children>),
         (
             With<Camera>,
             With<PrefabMarker>,
+            With<Transform>,
+            With<Visibility>,
             Without<EditorCameraMarker>,
         ),
     >,
@@ -110,7 +109,7 @@ pub fn visualize_meshless(
     camera_icon: Res<CameraIcon>,
     icon_mesh: Res<IconMesh>,
 ) {
-    for (parent, _trans, children, light_type) in &lights {
+    for (parent, children, light_type) in &lights {
         // change is none to doesn't contain
         // this then covers the case that lights could have children other than these
         if children.is_none() {
@@ -126,7 +125,6 @@ pub fn visualize_meshless(
                     BillboardTextureBundle {
                         mesh: bevy_mod_billboard::BillboardMeshHandle(icon_mesh.mesh.clone()),
                         texture: BillboardTextureHandle(image.clone()),
-                        transform: Transform::default(),
                         ..default()
                     },
                     RenderLayers::layer(LAST_RENDER_LAYER),
@@ -145,14 +143,13 @@ pub fn visualize_meshless(
             commands.entity(parent).add_child(child);
         }
     }
-    for (parent, _trans, children) in &cams {
+    for (parent, children) in &cams {
         if children.is_none() {
             let child = commands
                 .spawn((
                     BillboardTextureBundle {
                         mesh: bevy_mod_billboard::BillboardMeshHandle(icon_mesh.mesh.clone()),
                         texture: BillboardTextureHandle(camera_icon.camera.clone()),
-                        transform: Transform::default(),
                         ..default()
                     },
                     RenderLayers::layer(LAST_RENDER_LAYER),
@@ -173,46 +170,72 @@ pub fn visualize_meshless(
     }
 }
 
-// TODO: update this to follow the new method so that either a mesh or a 3d sprite can be added to whatever
-// a user wants
-
 /// This will create a way to have any entity with CustomMeshlessMarker have a way to be visualized by the user
 /// Additionally, the user can either choose their own mesh and material to use or default to the white sphere
 pub fn visualize_custom_meshless(
     mut commands: Commands,
-    _ass: Res<AssetServer>,
-    objects: Query<
-        (
-            Entity,
-            &Transform,
-            &CustomMeshless,
-            Option<&Handle<Mesh>>,
-            Option<&Handle<StandardMaterial>>,
-        ),
-        // With<CustomMeshlessMarker>,
-    >,
+    ass: Res<AssetServer>,
+    objects: Query<(Entity, &CustomMeshless, Option<&Children>)>,
+    icon_mesh: Res<IconMesh>,
 ) {
-    /* NOTES: Maybe this should instead of a struct that is a component, there should be a trait that
-            can be impl'd such that the user can pair up different Components and meshes that this function then handles overall.
-            An example could be that `objects` is (Entity, &Transform) With<impl CustomMeshless> so then anything that impls it by the user can
-            be visualized via their impl, otherwise should be defaulted (or derived default if need be).
-    */
+    // TODO(MickHarrigan): LONGTERM - Convert from standard material to anything that impl's Material
 
-    for (entity, _transform, _custom, mesh, mat) in objects.iter() {
-        match (mesh, mat) {
-            (Some(_), Some(_)) => {}
-            _ => {
-                commands.entity(entity).insert((
-                    // NOTE: 2d case is not currently covered
-                    // MaterialMeshBundle {
-                    //     mesh: ass.add(custom.visual.mesh.clone()),
-                    //     material: ass.add(custom.visual.material.clone()),
-                    //     transform: *transform,
-                    //     ..default()
-                    // },
-                    RenderLayers::layer(LAST_RENDER_LAYER),
-                ));
-            }
+    for (entity, meshless, children) in objects.iter() {
+        if children.is_none() {
+            let child = match &meshless.visual {
+                MeshlessModel::Billboard {
+                    ref mesh,
+                    ref texture,
+                } => commands
+                    .spawn((
+                        BillboardTextureBundle {
+                            mesh: BillboardMeshHandle(
+                                mesh.clone()
+                                    .unwrap_or(ass.add(shape::Quad::new(Vec2::splat(2.)).into())),
+                            ),
+                            texture: BillboardTextureHandle(
+                                texture.clone().unwrap_or(ass.load("icons/unknown.png")),
+                            ),
+                            ..default()
+                        },
+                        RenderLayers::layer(LAST_RENDER_LAYER),
+                    ))
+                    .with_children(|adult| {
+                        adult.spawn((
+                            MaterialMeshBundle::<StandardMaterial> {
+                                mesh: icon_mesh.sphere.clone(),
+                                visibility: Visibility::Hidden,
+                                ..default()
+                            },
+                            SelectParent { parent: entity },
+                        ));
+                    })
+                    .id(),
+                MeshlessModel::Object { mesh, material } => commands
+                    .spawn((
+                        MaterialMeshBundle {
+                            mesh: mesh.clone().unwrap_or(
+                                ass.add(
+                                    shape::Icosphere {
+                                        radius: 0.75,
+                                        ..default()
+                                    }
+                                    .try_into()
+                                    .unwrap(),
+                                ),
+                            ),
+                            material: material.clone().unwrap_or(ass.add(StandardMaterial {
+                                unlit: true,
+                                ..default()
+                            })),
+                            ..default()
+                        },
+                        SelectParent { parent: entity },
+                        RenderLayers::layer(LAST_RENDER_LAYER),
+                    ))
+                    .id(),
+            };
+            commands.entity(entity).add_child(child);
         }
     }
 }
