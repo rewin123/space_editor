@@ -400,7 +400,11 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
             entity: e,
             _phantom: std::marker::PhantomData,
         });
-        info!("Reverted ReflectedComponentChange for entity: {}", e.index());
+
+        info!(
+            "Reverted ReflectedComponentChange for entity: {}",
+            e.index()
+        );
         Ok(ChangeResult::Success)
     }
 
