@@ -330,7 +330,11 @@ impl EditorTool for GizmoTool {
         }
 
         if disable_pan_orbit {
-            unsafe { cell.get_resource_mut::<crate::PanOrbitEnabled>().unwrap().0 = false };
+            unsafe {
+                cell.get_resource_mut::<crate::EditorCameraEnabled>()
+                    .unwrap()
+                    .0 = false
+            };
         }
     }
 }
