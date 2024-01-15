@@ -560,7 +560,7 @@ impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
             .add(SelectedPlugin)
-            .add(EditorUiCore)
+            .add(EditorUiCore::default())
             .add(GameViewPlugin)
             .add(bottom_menu::BottomMenuPlugin)
             .add(MouseCheck)
@@ -608,7 +608,17 @@ impl Plugin for DefaultEditorLayoutPlugin {
     }
 }
 
-pub struct EditorUiCore;
+pub struct EditorUiCore {
+    pub disable_no_editor_cams: bool,
+}
+
+impl Default for EditorUiCore {
+    fn default() -> Self {
+        Self {
+            disable_no_editor_cams: true,
+        }
+    }
+}
 
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
@@ -682,9 +692,13 @@ impl Plugin for EditorUiCore {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
+            (draw_camera_gizmo, delete_selected)
                 .run_if(in_state(EditorState::Editor)),
         );
+
+        if self.disable_no_editor_cams {
+            app.add_systems(Update, disable_no_editor_cams.run_if(in_state(EditorState::Editor)));
+        }
 
         app.add_event::<SelectEvent>();
 
