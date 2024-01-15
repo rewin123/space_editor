@@ -133,14 +133,13 @@ pub struct EditorPluginGroup;
 impl PluginGroup for EditorPluginGroup {
     fn build(self) -> bevy::app::PluginGroupBuilder {
         let mut res = PluginGroupBuilder::start::<Self>()
+            .add(UndoPlugin)
             .add(PrefabPlugin)
             .add(space_editor_core::EditorCore)
             .add(EditorSetsPlugin)
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
             .add(bevy_egui::EguiPlugin)
-            .add(PrefabPlugin)
-            .add(UndoPlugin)
             .add(EventListenerPlugin::<SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
@@ -613,8 +612,6 @@ pub struct EditorUiCore;
 
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
-
-        info!("EditorUiCore::build");
 
         app.configure_sets(
             Update,
