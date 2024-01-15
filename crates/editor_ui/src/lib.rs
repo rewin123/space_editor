@@ -684,7 +684,6 @@ impl Plugin for EditorUiCore {
             OnEnter(EditorState::Editor),
             (
                 clear_and_load_on_start,
-                change_camera_in_editor,
                 editor_gizmos,
                 set_camera_viewport,
             ),
@@ -698,6 +697,8 @@ impl Plugin for EditorUiCore {
 
         if self.disable_no_editor_cams {
             app.add_systems(Update, disable_no_editor_cams.run_if(in_state(EditorState::Editor)));
+            
+            app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
 
         app.add_event::<SelectEvent>();
