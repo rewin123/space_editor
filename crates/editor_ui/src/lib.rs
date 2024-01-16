@@ -482,6 +482,9 @@ fn disable_no_editor_cams(
     }
 }
 
+#[derive(Component)]
+pub struct NotShowCamera;
+
 fn draw_camera_gizmo(
     mut gizmos: Gizmos,
     cameras: Query<
@@ -490,6 +493,7 @@ fn draw_camera_gizmo(
             With<Camera>,
             Without<EditorCameraMarker>,
             Without<DisableCameraSkip>,
+            Without<NotShowCamera>,
         ),
     >,
 ) {
@@ -707,7 +711,7 @@ impl Plugin for EditorUiCore {
         app.add_systems(
             Update,
             (draw_camera_gizmo, delete_selected)
-                .run_if(in_state(EditorState::Editor)),
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
 
         if self.disable_no_editor_cams {
