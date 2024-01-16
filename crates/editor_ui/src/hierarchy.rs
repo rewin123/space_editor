@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{prelude::*, utils::HashMap, ecs::query::ReadOnlyWorldQuery};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
@@ -19,7 +19,9 @@ pub struct CloneEvent {
 
 /// Plugin to activate hierarchy UI in editor UI
 #[derive(Default)]
-pub struct SpaceHierarchyPlugin {}
+pub struct SpaceHierarchyPlugin {
+    show_all_entities: bool,
+}
 
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
@@ -27,6 +29,7 @@ impl Plugin for SpaceHierarchyPlugin {
             app.add_plugins(SelectedPlugin);
         }
 
+        app.init_resource::<HierarchyTabState>();
         app.editor_tab(EditorTabName::Hierarchy, "Hierarchy".into(), show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
@@ -41,6 +44,11 @@ impl Plugin for SpaceHierarchyPlugin {
     }
 }
 
+#[derive(Resource, Default)]
+pub struct HierarchyTabState {
+    show_all_entities: bool,
+}
+
 type HierarchyQueryIter<'a> = (
     Entity,
     Option<&'a Name>,
@@ -52,28 +60,48 @@ type HierarchyQueryIter<'a> = (
 pub fn show_hierarchy(
     mut commands: Commands,
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
+    all_entites: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
+    mut state: ResMut<HierarchyTabState>,
 ) {
-    let mut all: Vec<_> = query.iter().collect();
+    let mut all: Vec<_> = if state.show_all_entities {
+        all_entites.iter().collect()
+    } else {
+        query.iter().collect()
+    };
     all.sort_by_key(|a| a.0);
 
     let ui = &mut ui.0;
     egui::ScrollArea::vertical().show(ui, |ui| {
         for (entity, _name, _children, parent) in all.iter() {
             if parent.is_none() {
-                draw_entity(
-                    &mut commands,
-                    ui,
-                    &query,
-                    *entity,
-                    &mut selected,
-                    &mut clone_events,
-                    &mut changes,
-                );
+                if state.show_all_entities {
+                    draw_entity::<()>(
+                        &mut commands,
+                        ui,
+                        &all_entites,
+                        *entity,
+                        &mut selected,
+                        &mut clone_events,
+                        &mut changes,
+                        &mut state
+                    );
+                } else {
+                    draw_entity::<With<PrefabMarker>>(
+                        &mut commands,
+                        ui,
+                        &query,
+                        *entity,
+                        &mut selected,
+                        &mut clone_events,
+                        &mut changes,
+                        &mut state
+                    );
+                }
             }
         }
         ui.vertical_centered(|ui| {
@@ -94,6 +122,8 @@ pub fn show_hierarchy(
                 }
             }
         });
+
+        ui.checkbox(&mut state.show_all_entities, "Show all entities");
 
         ui.label("Spawnable bundles");
         for (category_name, category_bundle) in ui_reg.bundles.iter() {
@@ -122,15 +152,17 @@ type DrawIter<'a> = (
     Option<&'a Parent>,
 );
 
-fn draw_entity(
+fn draw_entity<F : ReadOnlyWorldQuery>(
     commands: &mut Commands,
     ui: &mut egui::Ui,
-    query: &Query<DrawIter, With<PrefabMarker>>,
+    query: &Query<DrawIter, F>,
     entity: Entity,
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
     changes: &mut EventWriter<NewChange>,
+    state: &mut HierarchyTabState
 ) {
+
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
     };
@@ -141,6 +173,7 @@ fn draw_entity(
     );
 
     let is_selected = selected.contains(entity);
+
 
     let label = if children
         .is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok()))
@@ -166,7 +199,7 @@ fn draw_entity(
         })
         .body(|ui| {
             for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+                draw_entity(commands, ui, query, *child, selected, clone_events, changes, state);
             }
         })
         .1
