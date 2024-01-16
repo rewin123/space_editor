@@ -695,13 +695,11 @@ impl Plugin for EditorUiCore {
         );
 
         app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
-        app.add_systems(OnEnter(EditorState::GamePrepare), game_gizmos);
 
         app.add_systems(
             OnEnter(EditorState::Editor),
             (
                 clear_and_load_on_start,
-                editor_gizmos,
                 set_camera_viewport,
             ),
         );
