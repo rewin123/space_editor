@@ -90,6 +90,7 @@ use self::{
 
 pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
+
 pub mod prelude {
     pub use super::{
         asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
@@ -556,6 +557,15 @@ impl Default for EditorUiPlugin {
     }
 }
 
+
+/// State to determine if editor ui should be shown (ot hidden for any reason)
+#[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
+pub enum ShowEditorUi {
+    #[default]
+    Show,
+    Hide,
+}
+
 impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
@@ -623,11 +633,17 @@ impl Default for EditorUiCore {
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
 
+        app.add_state::<ShowEditorUi>();
+
         app.configure_sets(
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor)),
+                .run_if(
+                    in_state(EditorState::Editor)
+                    .and_then(
+                        in_state(ShowEditorUi::Show)
+                )),
         );
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
