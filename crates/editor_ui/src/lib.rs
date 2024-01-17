@@ -80,7 +80,7 @@ use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
-use space_undo::{UndoPlugin, UndoSet, SyncUndoMarkersPlugin};
+use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
 
 use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};

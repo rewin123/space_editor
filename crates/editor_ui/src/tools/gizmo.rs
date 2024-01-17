@@ -212,7 +212,6 @@ impl EditorTool for GizmoTool {
 
             if gizmo_interacted && clone_pressed {
                 if self.is_move_cloned_entities {
-
                 } else {
                     for e in selected.iter() {
                         unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
@@ -230,12 +229,13 @@ impl EditorTool for GizmoTool {
                     let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
                         continue;
                     };
-    
+
                     let new_global = global_mean.mul_transform(loc_transform[idx]);
-    
+
                     if let Some(parent) = unsafe { ecell.get::<Parent>() } {
                         if let Some(parent) = cell.get_entity(parent.get()) {
-                            if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
+                            if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() }
+                            {
                                 *transform = new_global.reparented_to(parent_global);
                             }
                         }
@@ -244,7 +244,6 @@ impl EditorTool for GizmoTool {
                     }
                 }
             }
-            
         } else {
             for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {

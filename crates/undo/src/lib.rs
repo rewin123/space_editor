@@ -10,7 +10,6 @@ const AUTO_UNDO_LATENCY: i32 = 2;
 #[derive(Default)]
 pub struct UndoPlugin;
 
-
 /// Components with this marker will be used for undo
 #[derive(Component)]
 pub struct UndoMarker;
@@ -45,22 +44,22 @@ impl Plugin for UndoPlugin {
     }
 }
 
-/// Allows to make UndoMarker attached to another marker M so that 
-/// if there is an entity with marker M, then UndoMarker will be added to that entity, 
+/// Allows to make UndoMarker attached to another marker M so that
+/// if there is an entity with marker M, then UndoMarker will be added to that entity,
 /// and likewise, if there is an entity with UndoMarker but without marker M, then UndoMarker will be removed
 #[derive(Default)]
-pub struct SyncUndoMarkersPlugin<M : Component> {
+pub struct SyncUndoMarkersPlugin<M: Component> {
     _phantom: std::marker::PhantomData<M>,
 }
 
-impl <M : Component> Plugin for SyncUndoMarkersPlugin<M> {
+impl<M: Component> Plugin for SyncUndoMarkersPlugin<M> {
     fn build(&self, app: &mut App) {
         app.add_systems(PostUpdate, sync_system::<M>);
     }
 }
 
-fn sync_system<M : Component>(
-    mut commands : Commands,
+fn sync_system<M: Component>(
+    mut commands: Commands,
     add_undo: Query<Entity, (With<M>, Without<UndoMarker>)>,
     remove_undo: Query<Entity, (Without<M>, With<UndoMarker>)>,
 ) {
