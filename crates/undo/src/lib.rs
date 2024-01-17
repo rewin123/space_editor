@@ -13,8 +13,11 @@ pub struct UndoPlugin;
 
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
 pub enum UndoSet {
+    /// Per component systems
     PerType,
+    /// System which working with change chain and global logic
     UpdateAll,
+    /// Remap entities
     Remaping,
     ///Contains all undo sets
     Global,
@@ -25,8 +28,6 @@ impl Plugin for UndoPlugin {
         app.init_resource::<ChangeChain>();
         app.init_resource::<UndoIngnoreStorage>();
         app.init_resource::<ChangeChainSettings>();
-        #[cfg(feature = "persistence_editor")]
-        app.persistence_resource::<ChangeChainSettings>();
 
         app.add_event::<NewChange>();
         app.add_event::<UndoRedo>();
@@ -147,13 +148,16 @@ fn undo_redo_logic(world: &mut World) {
                             }
                         }
                         UndoRedo::Redo => {
-                            // TODO in 0.4
-                            // if let Some(redo_change) = change_chain.changes_for_redo.pop() {
-                            //     redo_change
-                            //         .apply(world, &change_chain.entity_remap)
-                            //         .unwrap();
-                            //     change_chain.changes.push(redo_change);
-                            // }
+                            if let Some(change) = change_chain.changes_for_redo.pop() {
+                                let inverse_change = change.get_inverse();
+                                let res = inverse_change
+                                    .revert(world, &change_chain.entity_remap)
+                                    .unwrap();
+                                if let ChangeResult::SuccessWithRemap(remap) = res {
+                                    change_chain.entity_remap.extend(remap);
+                                }
+                                change_chain.changes.push(change);
+                            }
                         }
                     }
                 }
@@ -193,13 +197,13 @@ impl ChangeChain {
         }
     }
 
-    pub fn redo(&mut self, _world: &mut World) {
-        todo!()
-        // if let Some(change) = self.changes_for_redo.pop() {
-        //     let res = change.apply(world, &self.entity_remap).unwrap();
-        //     self.changes.push(change);
-        //     self.update_remap(res);
-        // }
+    pub fn redo(&mut self, world: &mut World) {
+        if let Some(change) = self.changes_for_redo.pop() {
+            let inverse_change = change.get_inverse();
+            let res = inverse_change.revert(world, &self.entity_remap).unwrap();
+            self.changes.push(change);
+            self.update_remap(res);
+        }
     }
 
     fn update_remap(&mut self, result: ChangeResult) {
@@ -224,12 +228,10 @@ pub trait EditorChange {
         world: &mut World,
         entity_remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String>;
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String>;
+
     fn debug_text(&self) -> String;
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync>;
 }
 
 pub enum ChangeResult {
@@ -269,20 +271,14 @@ impl EditorChange for AddedEntity {
         Ok(ChangeResult::Success)
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        _: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let new_id = world
-            .spawn_empty()
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, new_id)]))
-    }
-
     fn debug_text(&self) -> String {
         format!("Added Entity: {}", self.entity.index())
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(RemovedEntity {
+            entity: self.entity,
+        })
     }
 }
 
@@ -318,24 +314,14 @@ impl EditorChange for RemovedEntity {
         }
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        world.entity_mut(e).despawn_recursive();
-
-        world
-            .resource_mut::<UndoIngnoreStorage>()
-            .storage
-            .insert(e, OneFrameUndoIgnore::default());
-
-        Ok(ChangeResult::Success)
-    }
-
     fn debug_text(&self) -> String {
         format!("Removed Entity: {}", self.entity.index())
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(AddedEntity {
+            entity: self.entity,
+        })
     }
 }
 
@@ -361,20 +347,16 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
         Ok(ChangeResult::Success)
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        world
-            .entity_mut(get_entity_with_remap(self.entity, entity_remap))
-            .insert(self.new_value.clone())
-            .insert(OneFrameUndoIgnore::default());
-        Ok(ChangeResult::Success)
-    }
-
     fn debug_text(&self) -> String {
         format!("ComponentChange for entity {:?}", self.entity)
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(ComponentChange {
+            old_value: self.new_value.clone(),
+            new_value: self.old_value.clone(),
+            entity: self.entity,
+        })
     }
 }
 
@@ -408,25 +390,20 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
         Ok(ChangeResult::Success)
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        world
-            .entity_mut(e)
-            .insert(<T as FromReflect>::from_reflect(&self.new_value).unwrap())
-            .insert(OneFrameUndoIgnore::default());
-        Ok(ChangeResult::Success)
-    }
-
     fn debug_text(&self) -> String {
         format!(
             "{:?} changed for entity {:?}",
             pretty_type_name::pretty_type_name::<T>(),
             self.entity
         )
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(ReflectedComponentChange {
+            old_value: <T as FromReflect>::from_reflect(&self.new_value).unwrap(),
+            new_value: <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            entity: self.entity,
+        })
     }
 }
 
@@ -459,22 +436,15 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
         Ok(ChangeResult::Success)
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        world
-            .get_or_spawn(e)
-            .unwrap()
-            .insert(self.new_value.clone())
-            .insert(OneFrameUndoIgnore::default());
-        Ok(ChangeResult::Success)
-    }
-
     fn debug_text(&self) -> String {
         format!("AddedComponent for entity {:?}", self.entity)
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(RemovedComponent {
+            entity: self.entity,
+            old_value: self.new_value.clone(),
+        })
     }
 }
 
@@ -512,23 +482,15 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
         Ok(ChangeResult::Success)
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        let id = world
-            .get_or_spawn(e)
-            .unwrap()
-            .insert(<T as FromReflect>::from_reflect(&self.new_value).unwrap())
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-        Ok(ChangeResult::SuccessWithRemap(vec![(e, id)]))
-    }
-
     fn debug_text(&self) -> String {
         format!("ReflectedAddedComponent for entity {:?}", self.entity)
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(ReflectedRemovedComponent {
+            old_value: <T as FromReflect>::from_reflect(&self.new_value).unwrap(),
+            entity: self.entity,
+        })
     }
 }
 
@@ -567,29 +529,15 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         Ok(ChangeResult::SuccessWithRemap(remap))
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        let new_id = world
-            .get_or_spawn(e)
-            .unwrap()
-            .remove::<T>()
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-
-        world
-            .resource_mut::<UndoIngnoreStorage>()
-            .storage
-            .insert(new_id, OneFrameUndoIgnore::default());
-
-        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
-    }
-
     fn debug_text(&self) -> String {
         format!("RemovedComponent for entity {:?}", self.entity)
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(AddedComponent {
+            new_value: self.old_value.clone(),
+            entity: self.entity,
+        })
     }
 }
 
@@ -635,28 +583,15 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         Ok(ChangeResult::SuccessWithRemap(remap))
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let e = get_entity_with_remap(self.entity, entity_remap);
-        let new_id = world
-            .get_or_spawn(e)
-            .unwrap()
-            .remove::<T>()
-            .insert(OneFrameUndoIgnore::default())
-            .id();
-        world
-            .resource_mut::<UndoIngnoreStorage>()
-            .storage
-            .insert(new_id, OneFrameUndoIgnore::default());
-
-        Ok(ChangeResult::SuccessWithRemap(vec![(e, new_id)]))
-    }
-
     fn debug_text(&self) -> String {
         format!("ReflectedRemovedComponent for entity {:?}", self.entity)
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        Arc::new(ReflectedAddedComponent {
+            new_value: <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            entity: self.entity,
+        })
     }
 }
 
@@ -688,26 +623,21 @@ impl EditorChange for ManyChanges {
         ))
     }
 
-    fn apply(
-        &self,
-        world: &mut World,
-        entity_remap: &HashMap<Entity, Entity>,
-    ) -> Result<ChangeResult, String> {
-        let mut remap = Vec::new();
-        for change in self.changes.iter() {
-            let res = change.apply(world, entity_remap)?;
-            match res {
-                ChangeResult::Success => {}
-                ChangeResult::SuccessWithRemap(new_remap) => {
-                    remap.extend(new_remap);
-                }
-            }
-        }
-        Ok(ChangeResult::SuccessWithRemap(remap))
-    }
-
     fn debug_text(&self) -> String {
         "ManyChanges".to_string()
+    }
+
+    fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
+        let mut old_changes = self.changes.clone();
+        old_changes.reverse();
+        let mut new_changes = old_changes
+            .iter()
+            .map(|change| Arc::from(change.get_inverse()))
+            .collect::<Vec<_>>();
+
+        Arc::new(ManyChanges {
+            changes: new_changes,
+        })
     }
 }
 

@@ -29,6 +29,7 @@ impl Plugin for SettingsWindowPlugin {
         {
             app.persistence_resource::<NewWindowSettings>();
             app.register_type::<NewTabBehaviour>();
+            app.persistence_resource::<ChangeChainSettings>();
         }
         app.init_resource::<NewWindowSettings>();
 
