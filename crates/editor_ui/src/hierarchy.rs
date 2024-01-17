@@ -192,15 +192,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         })
         .body(|ui| {
             for child in children.unwrap().iter() {
-                draw_entity(
-                    commands,
-                    ui,
-                    query,
-                    *child,
-                    selected,
-                    clone_events,
-                    changes,
-                );
+                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
             }
         })
         .1
