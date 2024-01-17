@@ -4,24 +4,16 @@ use std::sync::Arc;
 
 use bevy::{prelude::*, utils::HashMap};
 
-use space_shared::PrefabMarker;
-
 const MAX_REFLECT_RECURSION: i32 = 10;
 const AUTO_UNDO_LATENCY: i32 = 2;
 
+#[derive(Default)]
 pub struct UndoPlugin;
 
-#[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
-pub enum UndoSet {
-    /// Per component systems
-    PerType,
-    /// System which working with change chain and global logic
-    UpdateAll,
-    /// Remap entities
-    Remaping,
-    ///Contains all undo sets
-    Global,
-}
+
+/// Components with this marker will be used for undo
+#[derive(Component)]
+pub struct UndoMarker;
 
 impl Plugin for UndoPlugin {
     fn build(&self, app: &mut App) {
@@ -51,6 +43,46 @@ impl Plugin for UndoPlugin {
                 .in_set(UndoSet::UpdateAll),
         );
     }
+}
+
+/// Allows to make UndoMarker attached to another marker M so that 
+/// if there is an entity with marker M, then UndoMarker will be added to that entity, 
+/// and likewise, if there is an entity with UndoMarker but without marker M, then UndoMarker will be removed
+#[derive(Default)]
+pub struct SyncUndoMarkersPlugin<M : Component> {
+    _phantom: std::marker::PhantomData<M>,
+}
+
+impl <M : Component> Plugin for SyncUndoMarkersPlugin<M> {
+    fn build(&self, app: &mut App) {
+        app.add_systems(PostUpdate, sync_system::<M>);
+    }
+}
+
+fn sync_system<M : Component>(
+    mut commands : Commands,
+    add_undo: Query<Entity, (With<M>, Without<UndoMarker>)>,
+    remove_undo: Query<Entity, (Without<M>, With<UndoMarker>)>,
+) {
+    for e in add_undo.iter() {
+        commands.entity(e).insert(UndoMarker);
+    }
+
+    for e in remove_undo.iter() {
+        commands.entity(e).remove::<UndoMarker>();
+    }
+}
+
+#[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone)]
+pub enum UndoSet {
+    /// Per component systems
+    PerType,
+    /// System which working with change chain and global logic
+    UpdateAll,
+    /// Remap entities
+    Remaping,
+    ///Contains all undo sets
+    Global,
 }
 
 #[derive(Event)]
@@ -630,7 +662,7 @@ impl EditorChange for ManyChanges {
     fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
         let mut old_changes = self.changes.clone();
         old_changes.reverse();
-        let mut new_changes = old_changes
+        let new_changes = old_changes
             .iter()
             .map(|change| Arc::from(change.get_inverse()))
             .collect::<Vec<_>>();
@@ -683,7 +715,7 @@ pub trait AppAutoUndo {
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
-        if !self.is_plugin_added::<UndoPlugin>() {
+        if !self.world.contains_resource::<ChangeChain>() {
             return self;
         }
 
@@ -708,7 +740,7 @@ impl AppAutoUndo for App {
     }
 
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
-        if !self.is_plugin_added::<UndoPlugin>() {
+        if !self.world.contains_resource::<ChangeChain>() {
             return self;
         }
 
@@ -865,8 +897,8 @@ fn auto_undo_reflected_update_cache<T: Component + Reflect + FromReflect>(
 fn auto_undo_add_init<T: Component + Clone>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
-    query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
-    just_maker_added_query: Query<(Entity, &T), (Added<PrefabMarker>, Without<OneFrameUndoIgnore>)>,
+    query: Query<(Entity, &T), (With<UndoMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    just_maker_added_query: Query<(Entity, &T), (Added<UndoMarker>, Without<OneFrameUndoIgnore>)>,
     mut new_changes: EventWriter<NewChange>,
 ) {
     for (e, data) in query.iter() {
@@ -888,8 +920,8 @@ fn auto_undo_add_init<T: Component + Clone>(
 fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
     mut commands: Commands,
     mut storage: ResMut<AutoUndoStorage<T>>,
-    query: Query<(Entity, &T), (With<PrefabMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
-    just_maker_added_query: Query<(Entity, &T), (Added<PrefabMarker>, Without<OneFrameUndoIgnore>)>,
+    query: Query<(Entity, &T), (With<UndoMarker>, Added<T>, Without<OneFrameUndoIgnore>)>,
+    just_maker_added_query: Query<(Entity, &T), (Added<UndoMarker>, Without<OneFrameUndoIgnore>)>,
     mut new_changes: EventWriter<NewChange>,
 ) {
     for (e, data) in query.iter() {
@@ -963,7 +995,7 @@ fn auto_undo_reflected_remove_detect<T: Component + Reflect + FromReflect>(
 
 fn auto_undo_system_changed<T: Component>(
     mut commands: Commands,
-    query: Query<Entity, (With<PrefabMarker>, Changed<T>, Without<OneFrameUndoIgnore>)>,
+    query: Query<Entity, (With<UndoMarker>, Changed<T>, Without<OneFrameUndoIgnore>)>,
 ) {
     for entity in query.iter() {
         commands
@@ -1035,14 +1067,12 @@ fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
 
 #[cfg(test)]
 mod tests {
-    use space_shared::EditorSet;
 
     use super::*;
 
     fn configure_app() -> App {
         let mut app = App::new();
         app.add_plugins(MinimalPlugins).add_plugins(UndoPlugin);
-        app.configure_sets(PostUpdate, EditorSet::Editor);
         app
     }
 
@@ -1064,7 +1094,7 @@ mod tests {
         app.world
             .entity_mut(test_id)
             .insert(Name::default())
-            .insert(PrefabMarker);
+            .insert(UndoMarker);
         app.world.get_mut::<Name>(test_id).unwrap().set_changed();
 
         app.update();
@@ -1103,8 +1133,8 @@ mod tests {
         app.auto_reflected_undo::<Parent>();
         app.auto_reflected_undo::<Children>();
 
-        let test_id_1 = app.world.spawn(PrefabMarker).id();
-        let test_id_2 = app.world.spawn(PrefabMarker).id();
+        let test_id_1 = app.world.spawn(UndoMarker).id();
+        let test_id_2 = app.world.spawn(UndoMarker).id();
 
         app.world.send_event(NewChange {
             change: Arc::new(AddedEntity { entity: test_id_1 }),
