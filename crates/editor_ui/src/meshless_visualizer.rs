@@ -37,10 +37,6 @@ impl Plugin for MeshlessVisualizerPlugin {
         .add_plugins(RonAssetPlugin::<EditorIconAssetCollection>::new(&[
             "icons.ron",
         ]))
-        // .add_systems(Startup, load_light_icons.in_set(EditorSet::Editor))
-        // runs every frame within the editor set, when the game transitions to the game state, it stops running
-        // then resumes when the editor comes back to the editor state
-        .add_systems(OnEnter(EditorState::Editor), show_assets)
         .add_systems(
             Update,
             (visualize_meshless, visualize_custom_meshless).in_set(EditorSet::Editor),
@@ -81,33 +77,28 @@ impl Default for MeshlessModel {
     }
 }
 
-pub fn show_assets(icons: Res<EditorIconAssets>) {
-    // for (k, v) in icons.icons.iter() {
-    //     info!("Key: {k:?}, Val: {v:?}");
-    // }
-}
-
+/// Assets to be loaded on app startup
 #[derive(AssetCollection, Resource)]
 pub struct EditorIconAssets {
-    // make this a custom dynamic asset that is a map of names to use in here "directional", "spot", "point", "camera", etc.
-    // best case is that I can do editor_icons.icons.get("directional").unwrap() and ignore all pathing other than just the name
-    // #[asset(key = "icons", collection(typed, mapped))]
-    // pub icons: HashMap<String, Handle<Image>>,
-    // for this check the custom_dynamic_assets.rs example in asset loader
-    // Usage: editor_icons.meshes.get("sphere").unwrap()
-    // pub meshes: HashMap<String, Handle<Mesh>>,
+    /// Image to be used as a backup
     #[asset(key = "unknown")]
     pub unknown: Handle<Image>,
+    /// Image for a directional light
     #[asset(key = "directional")]
     pub directional: Handle<Image>,
+    /// Image for a point light
     #[asset(key = "point")]
     pub point: Handle<Image>,
+    /// Image for a spot light
     #[asset(key = "spot")]
     pub spot: Handle<Image>,
+    /// Image for a camera
     #[asset(key = "camera")]
     pub camera: Handle<Image>,
+    /// Mesh that images are put onto
     #[asset(key = "square")]
     pub square: Handle<Mesh>,
+    /// Mesh that allows the images to be clickable
     #[asset(key = "sphere")]
     pub sphere: Handle<Mesh>,
 }
@@ -192,13 +183,6 @@ impl DynamicAsset for EditorIconAssetType {
     }
 }
 
-// fn usage(editor_icons: Res<EditorIconAssets>) {
-//     match editor_icons.meshes.get("sphere") {
-//         Some(a) => info!("{a:?}"),
-//         None => info!("nothing"),
-//     }
-// }
-
 pub fn visualize_meshless(
     mut commands: Commands,
     lights: Query<
@@ -219,15 +203,17 @@ pub fn visualize_meshless(
             Without<EditorCameraMarker>,
         ),
     >,
-    // light_icons: Res<LightIcons>,
-    // camera_icon: Res<CameraIcon>,
-    // icon_mesh: Res<IconMesh>,
+    visualized: Query<&BillboardMeshHandle>,
     editor_icons: Res<EditorIconAssets>,
 ) {
     for (parent, children, light_type) in &lights {
         // change is none to doesn't contain
         // this then covers the case that lights could have children other than these
-        if children.is_none() {
+        if children.is_none()
+            || children.is_some_and(|children| {
+                children.iter().all(|child| visualized.get(*child).is_err())
+            })
+        {
             let image = match light_type {
                 (Some(_directional), _, _) => editor_icons.directional.clone(),
                 (_, Some(_spot), _) => editor_icons.spot.clone(),
@@ -259,7 +245,11 @@ pub fn visualize_meshless(
         }
     }
     for (parent, children) in &cams {
-        if children.is_none() {
+        if children.is_none()
+            || children.is_some_and(|children| {
+                children.iter().all(|child| visualized.get(*child).is_err())
+            })
+        {
             let child = commands
                 .spawn((
                     BillboardTextureBundle {
@@ -292,11 +282,14 @@ pub fn visualize_custom_meshless(
     ass: Res<AssetServer>,
     objects: Query<(Entity, &CustomMeshless, Option<&Children>)>,
     editor_icons: Res<EditorIconAssets>,
+    visualized: Query<&BillboardMeshHandle>,
 ) {
-    // TODO(MickHarrigan): LONGTERM - Convert from standard material to anything that impl's Material
-
     for (entity, meshless, children) in objects.iter() {
-        if children.is_none() {
+        if children.is_none()
+            || children.is_some_and(|children| {
+                children.iter().all(|child| visualized.get(*child).is_err())
+            })
+        {
             let child = match &meshless.visual {
                 MeshlessModel::Billboard {
                     ref mesh,
@@ -346,29 +339,6 @@ pub fn visualize_custom_meshless(
     }
 }
 
-/// loads the icons for the different types of lights and camera
-// pub fn load_light_icons(
-//     ass: Res<AssetServer>,
-//     mut lights: ResMut<LightIcons>,
-//     mut cams: ResMut<CameraIcon>,
-//     mut icon_mesh: ResMut<IconMesh>,
-// ) {
-//     lights.directional = ass.load("icons/DirectionalLightGizmo.png");
-//     lights.spot = ass.load("icons/SpotLightGizmo.png");
-//     lights.point = ass.load("icons/PointLightGizmo.png");
-//     cams.camera = ass.load("icons/CameraGizmo.png");
-//     icon_mesh.square = ass.add(shape::Quad::new(Vec2::splat(2.)).into());
-//     icon_mesh.sphere = ass.add(
-//         shape::Icosphere {
-//             radius: 0.75,
-//             ..default()
-//         }
-//         .try_into()
-//         .unwrap(),
-//     );
-// }
-
-// this removes the meshes and entities for them when moving to the game state
 pub fn clean_meshless(
     mut commands: Commands,
     // this covers all entities that are the children of the lights
