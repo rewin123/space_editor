@@ -57,6 +57,7 @@ use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
+    app::PluginGroupBuilder,
     ecs::system::CommandQueue,
     input::common_conditions::input_toggle_active,
     pbr::CascadeShadowConfigBuilder,
@@ -67,12 +68,12 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContext};
 
-use game_view::has_window_changed;
+use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
     NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
+    SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_prefab::prelude::*;
 use space_shared::{
@@ -82,10 +83,7 @@ use space_shared::{
 use space_undo::{UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
 
-use self::{
-    mouse_check::MouseCheck,
-    tools::gizmo::{GizmoTool, GizmoToolPlugin},
-};
+use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};
 
 pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
@@ -115,126 +113,90 @@ pub mod ext {
     pub use space_shared::ext::*;
 }
 
-/// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
-///
-/// [`PrefabPlugin`]: prefab::prefabPlugin
-/// [`EditorRegistryPlugin`]: crate::editor_registry::EditorRegistryPlugin
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<bevy_egui::EguiPlugin>() {
-            app.add_plugins(bevy_egui::EguiPlugin);
-        }
-        app.add_plugins(UndoPlugin); //Undo must be included before prefab plugin for undo registration
-        app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
-        if !app.is_plugin_added::<PrefabPlugin>() {
-            app.add_plugins(PrefabPlugin);
-        }
-        app.add_plugins(EditorCore);
+        app.add_plugins(EditorPluginGroup);
+    }
+}
 
-        if !app.is_plugin_added::<PrefabPlugin>() {
-            app.add_plugins(PrefabPlugin);
-        }
+/// Editor UI plugin. Must be used with [`PrefabPlugin`] and [`EditorRegistryPlugin`]
+///
+/// [`PrefabPlugin`]: prefab::prefabPlugin
+/// [`EditorRegistryPlugin`]: crate::editor_registry::EditorRegistryPlugin
+pub struct EditorPluginGroup;
 
-        app.configure_sets(
-            PreUpdate,
-            EditorSet::Game.run_if(in_state(EditorState::Game)),
-        );
-        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_sets(
-            PostUpdate,
-            EditorSet::Game.run_if(in_state(EditorState::Game)),
-        );
+impl PluginGroup for EditorPluginGroup {
+    fn build(self) -> bevy::app::PluginGroupBuilder {
+        let mut res = PluginGroupBuilder::start::<Self>()
+            .add(UndoPlugin)
+            .add(PrefabPlugin)
+            .add(space_editor_core::EditorCore)
+            .add(EditorSetsPlugin)
+            .add(EditorDefaultBundlesPlugin)
+            .add(EditorDefaultCameraPlugin)
+            .add(bevy_egui::EguiPlugin)
+            .add(EventListenerPlugin::<SelectEvent>::default())
+            .add(DefaultInspectorConfigPlugin);
+        res = EditorUiPlugin::default().add_plugins_to_group(res);
+        res.add(PanOrbitCameraPlugin)
+            .add(EditorPickingPlugin)
+            .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
+            .add(
+                WorldInspectorPlugin::default()
+                    .run_if(in_state(EditorState::Game))
+                    .run_if(input_toggle_active(false, KeyCode::Escape)),
+            )
+            .add(EditorGizmoConfigPlugin)
+    }
+}
 
-        app.configure_sets(
-            PreUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-        app.configure_sets(
-            Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
-        app.configure_sets(
-            PostUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
+pub struct EditorDefaultBundlesPlugin;
 
-        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_sets(
-            Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
+impl Plugin for EditorDefaultBundlesPlugin {
+    fn build(&self, app: &mut App) {
+        ui_registration::register_mesh_editor_bundles(app);
+        ui_registration::register_light_editor_bundles(app);
+    }
+}
 
-        app.add_plugins(EventListenerPlugin::<SelectEvent>::default());
+pub struct EditorDefaultCameraPlugin;
 
-        app.add_plugins(DefaultInspectorConfigPlugin)
-            .add_plugins(EditorUiPlugin::default())
-            .add_plugins(PanOrbitCameraPlugin);
-
-        if !app.is_plugin_added::<bevy_mod_picking::prelude::SelectionPlugin>() {
-            app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
-
-            app.world
-                .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
-                .require_markers = true;
-        }
-
-        if !app.is_plugin_added::<bevy_debug_grid::DebugGridPlugin>() {
-            app.add_plugins(bevy_debug_grid::DebugGridPlugin::without_floor_grid());
-        }
-
-        app.init_resource::<EditorLoader>();
-
-        app.insert_resource(PanOrbitEnabled(true));
-
-        app.add_systems(
-            Startup,
-            (set_start_state, apply_state_transition::<EditorState>)
-                .chain()
-                .in_set(EditorSet::Editor),
-        );
-
+impl Plugin for EditorDefaultCameraPlugin {
+    fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            reset_pan_orbit_state
+            reset_editor_camera_state
                 .in_set(EditorSet::Editor)
                 .before(UiSystemSet),
         );
         app.add_systems(
             Update,
             update_pan_orbit
-                .after(reset_pan_orbit_state)
+                .after(reset_editor_camera_state)
                 .before(PanOrbitCameraSystemSet)
                 .in_set(EditorSet::Editor),
         );
         app.add_systems(
             Update,
             ui_camera_block
-                .after(reset_pan_orbit_state)
+                .after(reset_editor_camera_state)
                 .before(update_pan_orbit)
                 .in_set(EditorSet::Editor),
         );
+    }
+}
 
-        //play systems
-        app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
-        app.add_systems(
-            OnEnter(SaveState::Idle),
-            to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
-        );
+pub struct EditorPickingPlugin;
 
-        app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
-        app.add_systems(OnEnter(EditorState::GamePrepare), game_gizmos);
+impl Plugin for EditorPickingPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
-        app.add_systems(
-            OnEnter(EditorState::Editor),
-            (
-                clear_and_load_on_start,
-                change_camera_in_editor,
-                editor_gizmos,
-                set_camera_viewport,
-            ),
-        );
+        app.world
+            .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
+            .require_markers = true;
 
         app.add_systems(
             PostUpdate,
@@ -242,25 +204,43 @@ impl Plugin for EditorPlugin {
                 .run_if(in_state(EditorState::Editor)),
         );
         app.add_systems(PostUpdate, auto_add_picking_dummy);
+    }
+}
 
-        app.add_systems(
+pub struct EditorSetsPlugin;
+
+impl Plugin for EditorSetsPlugin {
+    fn build(&self, app: &mut App) {
+        app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
+
+        app.configure_sets(
+            PreUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Game.run_if(in_state(EditorState::Game)),
+        );
+
+        app.configure_sets(
+            PreUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
             Update,
-            (draw_camera_gizmo, disable_no_editor_cams, delete_selected)
-                .run_if(in_state(EditorState::Editor)),
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+        );
+        app.configure_sets(
+            PostUpdate,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
 
-        app.add_event::<SelectEvent>();
-
-        app.init_resource::<BundleReg>();
-
-        app.add_plugins(
-            WorldInspectorPlugin::default()
-                .run_if(in_state(EditorState::Game))
-                .run_if(input_toggle_active(false, KeyCode::Escape)),
+        app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            Update,
+            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
         );
-
-        ui_registration::register_mesh_editor_bundles(app);
-        ui_registration::register_light_editor_bundles(app);
     }
 }
 
@@ -270,6 +250,16 @@ struct SelectEvent {
     #[target]
     e: Entity,
     event: ListenerInput<Pointer<Down>>,
+}
+
+/// Allow editor manipulate GizmoConfig
+pub struct EditorGizmoConfigPlugin;
+
+impl Plugin for EditorGizmoConfigPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, editor_gizmos);
+        app.add_systems(Update, game_gizmos);
+    }
 }
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
@@ -323,7 +313,7 @@ fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
     mut events: EventReader<SelectEvent>,
-    pan_orbit_state: ResMut<PanOrbitEnabled>,
+    pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<Input<KeyCode>>,
 ) {
     if !pan_orbit_state.0 {
@@ -379,10 +369,12 @@ fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEv
 }
 
 fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
+    info!("Set game state");
     state.set(EditorState::Game);
 }
 
 fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
+    info!("Set start state");
     state.set(EditorState::Editor);
 }
 
@@ -407,20 +399,20 @@ fn clear_and_load_on_start(
     }
 }
 
-/// Resource, which contains pan orbit camera state
+/// Resource, which contains state for editor camera (default or any)
 #[derive(Resource, Default)]
-pub struct PanOrbitEnabled(pub bool);
+pub struct EditorCameraEnabled(pub bool);
 
 /// This system executes before all UI systems and is used to enable pan orbit camera on frame start
-pub fn reset_pan_orbit_state(mut state: ResMut<PanOrbitEnabled>) {
-    *state = PanOrbitEnabled(true);
+pub fn reset_editor_camera_state(mut state: ResMut<EditorCameraEnabled>) {
+    *state = EditorCameraEnabled(true);
 }
 
 /// This system executes after all UI systems and is used to set pan orbit camera state.
 /// For example, it will block pan orbit camera if pointer is used by egui
 pub fn update_pan_orbit(
     mut pan_orbit_query: Query<&mut PanOrbitCamera>,
-    state: Res<PanOrbitEnabled>,
+    state: Res<EditorCameraEnabled>,
 ) {
     for mut pan_orbit in pan_orbit_query.iter_mut() {
         pan_orbit.enabled = state.0;
@@ -430,7 +422,7 @@ pub fn update_pan_orbit(
 /// Sytem to block camera control if egui is using mouse
 pub fn ui_camera_block(
     mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut state: ResMut<PanOrbitEnabled>,
+    mut state: ResMut<EditorCameraEnabled>,
     game_view: Res<GameViewTab>,
 ) {
     let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
@@ -444,10 +436,10 @@ pub fn ui_camera_block(
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
             } else {
-                *state = PanOrbitEnabled(false);
+                *state = EditorCameraEnabled(false);
             }
         } else {
-            *state = PanOrbitEnabled(false);
+            *state = EditorCameraEnabled(false);
         }
     }
 }
@@ -480,6 +472,10 @@ pub fn change_camera_in_editor(
     }
 }
 
+pub trait FlatPluginList {
+    fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder;
+}
+
 ///Camera with this component will not be disabled in Editor state
 #[derive(Component)]
 pub struct DisableCameraSkip;
@@ -492,6 +488,9 @@ fn disable_no_editor_cams(
     }
 }
 
+#[derive(Component)]
+pub struct NotShowCamera;
+
 fn draw_camera_gizmo(
     mut gizmos: Gizmos,
     cameras: Query<
@@ -500,6 +499,7 @@ fn draw_camera_gizmo(
             With<Camera>,
             Without<EditorCameraMarker>,
             Without<DisableCameraSkip>,
+            Without<NotShowCamera>,
         ),
     >,
 ) {
@@ -567,19 +567,86 @@ impl Default for EditorUiPlugin {
     }
 }
 
-impl Plugin for EditorUiPlugin {
-    fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<SelectedPlugin>() {
-            app.add_plugins(SelectedPlugin);
+/// State to determine if editor ui should be shown (ot hidden for any reason)
+#[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
+pub enum ShowEditorUi {
+    #[default]
+    Show,
+    Hide,
+}
+
+impl FlatPluginList for EditorUiPlugin {
+    fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
+        let mut res = group
+            .add(SelectedPlugin)
+            .add(EditorUiCore::default())
+            .add(GameViewPlugin)
+            .add(bottom_menu::BottomMenuPlugin)
+            .add(MouseCheck)
+            .add(CameraViewTabPlugin)
+            .add(SpaceHierarchyPlugin::default())
+            .add(SpaceInspectorPlugin)
+            .add(GizmoToolPlugin)
+            .add(ChangeChainViewPlugin)
+            .add(settings::SettingsWindowPlugin);
+
+        if self.use_standard_layout {
+            res = res.add(DefaultEditorLayoutPlugin);
         }
 
-        app.add_plugins((bottom_menu::BottomMenuPlugin, MouseCheck));
+        res
+    }
+}
+
+impl PluginGroup for EditorUiPlugin {
+    fn build(self) -> PluginGroupBuilder {
+        let mut group = PluginGroupBuilder::start::<Self>();
+        group = self.add_plugins_to_group(group);
+        group
+    }
+}
+
+pub struct DefaultEditorLayoutPlugin;
+
+impl Plugin for DefaultEditorLayoutPlugin {
+    fn build(&self, app: &mut App) {
+        let mut editor = app.world.resource_mut::<EditorUi>();
+        editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
+
+        let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
+            egui_dock::NodeIndex::root(),
+            0.8,
+            vec![EditorTabName::Inspector],
+        );
+        let [_hierarchy, _game] =
+            editor
+                .tree
+                .main_surface_mut()
+                .split_left(_game, 0.2, vec![EditorTabName::Hierarchy]);
+    }
+}
+
+pub struct EditorUiCore {
+    pub disable_no_editor_cams: bool,
+}
+
+impl Default for EditorUiCore {
+    fn default() -> Self {
+        Self {
+            disable_no_editor_cams: true,
+        }
+    }
+}
+
+impl Plugin for EditorUiCore {
+    fn build(&self, app: &mut App) {
+        app.add_state::<ShowEditorUi>();
 
         app.configure_sets(
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor)),
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -594,6 +661,7 @@ impl Plugin for EditorUiPlugin {
             )
                 .in_set(UiSystemSet),
         );
+
         app.add_systems(
             PostUpdate,
             set_camera_viewport
@@ -604,6 +672,7 @@ impl Plugin for EditorUiPlugin {
             Update,
             reset_camera_viewport.run_if(in_state(EditorState::Game)),
         );
+        app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
 
         app.editor_tab_by_trait(
@@ -611,33 +680,47 @@ impl Plugin for EditorUiPlugin {
             self::debug_panels::DebugWorldInspector {},
         );
 
-        app.add_plugins(CameraViewTabPlugin);
+        app.init_resource::<EditorLoader>();
 
-        app.add_plugins(SpaceHierarchyPlugin::default());
-        app.add_plugins(SpaceInspectorPlugin);
+        app.insert_resource(EditorCameraEnabled(true));
 
-        app.editor_tool(GizmoTool::default());
-        app.add_plugins(GizmoToolPlugin);
-        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+        app.add_systems(
+            Startup,
+            (set_start_state, apply_state_transition::<EditorState>).chain(),
+        );
 
-        app.add_plugins(settings::SettingsWindowPlugin);
-        app.add_plugins(ChangeChainViewPlugin);
+        //play systems
+        app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
+        app.add_systems(
+            OnEnter(SaveState::Idle),
+            to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
+        );
 
-        if self.use_standard_layout {
-            let mut editor = app.world.resource_mut::<EditorUi>();
-            editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
+        app.add_systems(OnEnter(EditorState::Game), change_camera_in_play);
 
-            let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
-                egui_dock::NodeIndex::root(),
-                0.8,
-                vec![EditorTabName::Inspector],
+        app.add_systems(
+            OnEnter(EditorState::Editor),
+            (clear_and_load_on_start, set_camera_viewport),
+        );
+
+        app.add_systems(
+            Update,
+            (draw_camera_gizmo, delete_selected)
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+        );
+
+        if self.disable_no_editor_cams {
+            app.add_systems(
+                Update,
+                disable_no_editor_cams.run_if(in_state(EditorState::Editor)),
             );
-            let [_hierarchy, _game] = editor.tree.main_surface_mut().split_left(
-                _game,
-                0.2,
-                vec![EditorTabName::Hierarchy],
-            );
+
+            app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
+
+        app.add_event::<SelectEvent>();
+
+        app.init_resource::<BundleReg>();
     }
 }
 

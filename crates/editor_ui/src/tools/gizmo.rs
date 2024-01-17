@@ -4,11 +4,17 @@ use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
-use crate::prelude::{CloneEvent, EditorTool};
+use crate::{
+    game_view::GameViewTab,
+    prelude::{CloneEvent, EditorTool},
+    tool::ToolExt,
+};
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
+        app.editor_tool(GizmoTool::default());
+        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
@@ -330,7 +336,11 @@ impl EditorTool for GizmoTool {
         }
 
         if disable_pan_orbit {
-            unsafe { cell.get_resource_mut::<crate::PanOrbitEnabled>().unwrap().0 = false };
+            unsafe {
+                cell.get_resource_mut::<crate::EditorCameraEnabled>()
+                    .unwrap()
+                    .0 = false
+            };
         }
     }
 }

@@ -3,7 +3,7 @@ use bevy_xpbd_3d::prelude::*;
 use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
     settings::RegisterSettingsBlockExt,
-    EditorUiPlugin,
+    EditorUiCore,
 };
 
 use crate::{
@@ -76,7 +76,7 @@ impl Plugin for BevyXpbdPlugin {
             (sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
 
-        if app.is_plugin_added::<EditorUiPlugin>() {
+        if app.is_plugin_added::<EditorUiCore>() {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
                 ui.checkbox(
                     &mut world
