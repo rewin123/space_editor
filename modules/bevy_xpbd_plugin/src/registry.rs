@@ -3,7 +3,7 @@ use bevy_xpbd_3d::prelude::*;
 use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
     settings::RegisterSettingsBlockExt,
-    EditorUiPlugin, EditorUiCore,
+    EditorUiCore,
 };
 
 use crate::{

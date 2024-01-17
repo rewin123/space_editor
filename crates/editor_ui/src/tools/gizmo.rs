@@ -4,13 +4,17 @@ use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
-use crate::{prelude::{CloneEvent, EditorTool}, tool::ToolExt, game_view::GameViewTab};
+use crate::{
+    game_view::GameViewTab,
+    prelude::{CloneEvent, EditorTool},
+    tool::ToolExt,
+};
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
-        app.world.resource_mut::<GameViewTab>().active_tool = Some(0); 
+        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);

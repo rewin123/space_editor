@@ -5,7 +5,7 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
-use crate::{EditorUiAppExt, prelude::EditorTabName};
+use crate::{prelude::EditorTabName, EditorUiAppExt};
 
 use super::{editor_tab::EditorTab, tool::EditorTool};
 

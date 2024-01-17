@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use bevy::{prelude::*, utils::HashMap, ecs::query::ReadOnlyWorldQuery};
+use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
@@ -19,9 +19,7 @@ pub struct CloneEvent {
 
 /// Plugin to activate hierarchy UI in editor UI
 #[derive(Default)]
-pub struct SpaceHierarchyPlugin {
-    show_all_entities: bool,
-}
+pub struct SpaceHierarchyPlugin {}
 
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
@@ -88,7 +86,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &mut state
+                        &mut state,
                     );
                 } else {
                     draw_entity::<With<PrefabMarker>>(
@@ -99,7 +97,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &mut state
+                        &mut state,
                     );
                 }
             }
@@ -152,7 +150,7 @@ type DrawIter<'a> = (
     Option<&'a Parent>,
 );
 
-fn draw_entity<F : ReadOnlyWorldQuery>(
+fn draw_entity<F: ReadOnlyWorldQuery>(
     commands: &mut Commands,
     ui: &mut egui::Ui,
     query: &Query<DrawIter, F>,
@@ -160,9 +158,8 @@ fn draw_entity<F : ReadOnlyWorldQuery>(
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
     changes: &mut EventWriter<NewChange>,
-    state: &mut HierarchyTabState
+    state: &mut HierarchyTabState,
 ) {
-
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
     };
@@ -173,7 +170,6 @@ fn draw_entity<F : ReadOnlyWorldQuery>(
     );
 
     let is_selected = selected.contains(entity);
-
 
     let label = if children
         .is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok()))
@@ -199,7 +195,16 @@ fn draw_entity<F : ReadOnlyWorldQuery>(
         })
         .body(|ui| {
             for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes, state);
+                draw_entity(
+                    commands,
+                    ui,
+                    query,
+                    *child,
+                    selected,
+                    clone_events,
+                    changes,
+                    state,
+                );
             }
         })
         .1

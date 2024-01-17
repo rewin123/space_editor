@@ -73,7 +73,7 @@ use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
     EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
     NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin, ToolExt,
+    SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_prefab::prelude::*;
 use space_shared::{
@@ -83,13 +83,9 @@ use space_shared::{
 use space_undo::{UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
 
-use self::{
-    mouse_check::MouseCheck,
-    tools::gizmo::{GizmoTool, GizmoToolPlugin},
-};
+use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};
 
 pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
-
 
 pub mod prelude {
     pub use super::{
@@ -144,8 +140,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(EventListenerPlugin::<SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
-        res
-            .add(PanOrbitCameraPlugin)
+        res.add(PanOrbitCameraPlugin)
             .add(EditorPickingPlugin)
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
@@ -153,6 +148,7 @@ impl PluginGroup for EditorPluginGroup {
                     .run_if(in_state(EditorState::Game))
                     .run_if(input_toggle_active(false, KeyCode::Escape)),
             )
+            .add(EditorGizmoConfigPlugin)
     }
 }
 
@@ -254,6 +250,16 @@ struct SelectEvent {
     #[target]
     e: Entity,
     event: ListenerInput<Pointer<Down>>,
+}
+
+/// Allow editor manipulate GizmoConfig
+pub struct EditorGizmoConfigPlugin;
+
+impl Plugin for EditorGizmoConfigPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Update, editor_gizmos);
+        app.add_systems(Update, game_gizmos);
+    }
 }
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
@@ -561,7 +567,6 @@ impl Default for EditorUiPlugin {
     }
 }
 
-
 /// State to determine if editor ui should be shown (ot hidden for any reason)
 #[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
 pub enum ShowEditorUi {
@@ -595,7 +600,6 @@ impl FlatPluginList for EditorUiPlugin {
 
 impl PluginGroup for EditorUiPlugin {
     fn build(self) -> PluginGroupBuilder {
-
         let mut group = PluginGroupBuilder::start::<Self>();
         group = self.add_plugins_to_group(group);
         group
@@ -607,18 +611,18 @@ pub struct DefaultEditorLayoutPlugin;
 impl Plugin for DefaultEditorLayoutPlugin {
     fn build(&self, app: &mut App) {
         let mut editor = app.world.resource_mut::<EditorUi>();
-            editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
+        editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
 
-            let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
-                egui_dock::NodeIndex::root(),
-                0.8,
-                vec![EditorTabName::Inspector],
-            );
-            let [_hierarchy, _game] = editor.tree.main_surface_mut().split_left(
-                _game,
-                0.2,
-                vec![EditorTabName::Hierarchy],
-            );
+        let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
+            egui_dock::NodeIndex::root(),
+            0.8,
+            vec![EditorTabName::Inspector],
+        );
+        let [_hierarchy, _game] =
+            editor
+                .tree
+                .main_surface_mut()
+                .split_left(_game, 0.2, vec![EditorTabName::Hierarchy]);
     }
 }
 
@@ -636,18 +640,13 @@ impl Default for EditorUiCore {
 
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
-
         app.add_state::<ShowEditorUi>();
 
         app.configure_sets(
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(
-                    in_state(EditorState::Editor)
-                    .and_then(
-                        in_state(ShowEditorUi::Show)
-                )),
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -671,7 +670,7 @@ impl Plugin for EditorUiCore {
         );
         app.add_systems(
             Update,
-            reset_camera_viewport.run_if(in_state(EditorState::Game))
+            reset_camera_viewport.run_if(in_state(EditorState::Game)),
         );
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
@@ -687,8 +686,7 @@ impl Plugin for EditorUiCore {
 
         app.add_systems(
             Startup,
-            (set_start_state, apply_state_transition::<EditorState>)
-                .chain(),
+            (set_start_state, apply_state_transition::<EditorState>).chain(),
         );
 
         //play systems
@@ -702,10 +700,7 @@ impl Plugin for EditorUiCore {
 
         app.add_systems(
             OnEnter(EditorState::Editor),
-            (
-                clear_and_load_on_start,
-                set_camera_viewport,
-            ),
+            (clear_and_load_on_start, set_camera_viewport),
         );
 
         app.add_systems(
@@ -715,8 +710,11 @@ impl Plugin for EditorUiCore {
         );
 
         if self.disable_no_editor_cams {
-            app.add_systems(Update, disable_no_editor_cams.run_if(in_state(EditorState::Editor)));
-            
+            app.add_systems(
+                Update,
+                disable_no_editor_cams.run_if(in_state(EditorState::Editor)),
+            );
+
             app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
 
@@ -729,7 +727,6 @@ impl Plugin for EditorUiCore {
 /// This system use to show all egui editor ui on primary window
 /// Will be usefull in some specific cases to ad new system before/after this system
 pub fn show_editor_ui(world: &mut World) {
-
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
         .get_single(world)
