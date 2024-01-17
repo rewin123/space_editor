@@ -663,7 +663,7 @@ impl EditorChange for ManyChanges {
         old_changes.reverse();
         let new_changes = old_changes
             .iter()
-            .map(|change| Arc::from(change.get_inverse()))
+            .map(|change| change.get_inverse())
             .collect::<Vec<_>>();
 
         Arc::new(ManyChanges {
