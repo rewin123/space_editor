@@ -167,7 +167,7 @@ impl EditorTool for GizmoTool {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
-                let Some(global_transform) = (unsafe { ecell.get_mut::<GlobalTransform>() }) else {
+                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
                     continue;
                 };
                 let tr = global_transform.compute_transform();
@@ -184,7 +184,7 @@ impl EditorTool for GizmoTool {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
-                let Some(global_transform) = (unsafe { ecell.get_mut::<GlobalTransform>() }) else {
+                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
                     continue;
                 };
                 loc_transform.push(global_transform.reparented_to(&global_mean));
@@ -221,24 +221,27 @@ impl EditorTool for GizmoTool {
                 }
             }
 
-            for (idx, e) in selected.iter().enumerate() {
-                let Some(ecell) = cell.get_entity(*e) else {
-                    continue;
-                };
-                let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
-                    continue;
-                };
+            if gizmo_interacted {
+                for (idx, e) in selected.iter().enumerate() {
+                    let Some(ecell) = cell.get_entity(*e) else {
+                        continue;
+                    };
+                    let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
+                        continue;
+                    };
 
-                let new_global = global_mean.mul_transform(loc_transform[idx]);
+                    let new_global = global_mean.mul_transform(loc_transform[idx]);
 
-                if let Some(parent) = unsafe { ecell.get::<Parent>() } {
-                    if let Some(parent) = cell.get_entity(parent.get()) {
-                        if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
-                            *transform = new_global.reparented_to(parent_global);
+                    if let Some(parent) = unsafe { ecell.get::<Parent>() } {
+                        if let Some(parent) = cell.get_entity(parent.get()) {
+                            if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() }
+                            {
+                                *transform = new_global.reparented_to(parent_global);
+                            }
                         }
+                    } else {
+                        *transform = new_global.compute_transform();
                     }
-                } else {
-                    *transform = new_global.compute_transform();
                 }
             }
         } else {
