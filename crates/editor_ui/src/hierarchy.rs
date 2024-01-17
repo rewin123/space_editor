@@ -1,3 +1,4 @@
+#[allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
