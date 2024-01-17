@@ -86,7 +86,6 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &mut state,
                     );
                 } else {
                     draw_entity::<With<PrefabMarker>>(
@@ -97,7 +96,6 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &mut state,
                     );
                 }
             }
@@ -158,7 +156,6 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
     changes: &mut EventWriter<NewChange>,
-    state: &mut HierarchyTabState,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -203,7 +200,6 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                     selected,
                     clone_events,
                     changes,
-                    state,
                 );
             }
         })
