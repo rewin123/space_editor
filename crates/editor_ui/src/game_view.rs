@@ -108,11 +108,13 @@ pub fn reset_camera_viewport(
 
     game_view_tab.viewport_rect = None;
 
-    cam.viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(0, 0),
-        physical_size: UVec2::new(window.width() as u32, window.height() as u32),
-        depth: 0.0..1.0,
-    });
+    // cam.viewport = Some(bevy::render::camera::Viewport {
+    //     physical_position: UVec2::new(0, 0),
+    //     physical_size: UVec2::new(window.width() as u32, window.height() as u32),
+    //     depth: 0.0..1.0,
+    // });
+
+    cam.viewport = None;
 }
 
 pub fn has_window_changed(mut events: EventReader<bevy::window::WindowResized>) -> bool {
