@@ -273,7 +273,6 @@ pub enum ChangeResult {
 #[derive(Event)]
 pub enum UndoRedo {
     Undo,
-    // TODO in 0.4
     Redo,
 }
 

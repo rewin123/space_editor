@@ -16,6 +16,11 @@ pub mod save;
 /// Contains systems for spawning prefabs
 pub mod spawn_system;
 
+
+/// Allow to change gltf/prefab scene without splitting it
+/// Allow to subchanges of reflected structs
+pub mod sub_scene;
+
 pub mod editor_registry;
 
 use bevy::prelude::*;
@@ -34,6 +39,7 @@ pub mod prelude {
     pub use crate::load::PrefabBundle;
     pub use crate::plugins::*;
     pub use crate::save::*;
+    pub use crate::sub_scene::*;
     pub use crate::PrefabSet;
     pub use space_shared::PrefabMarker;
 }
