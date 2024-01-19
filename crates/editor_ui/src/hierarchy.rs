@@ -4,7 +4,7 @@ use std::sync::Arc;
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
-use space_prefab::editor_registry::EditorRegistry;
+use space_prefab::{editor_registry::EditorRegistry, component::SceneAutoChild};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use crate::ui_registration::{BundleReg, EditorBundleUntyped};
@@ -65,6 +65,7 @@ pub fn show_hierarchy(
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
+    mut scene_child: Query<Entity, With<SceneAutoChild>>,
     mut state: ResMut<HierarchyTabState>,
 ) {
     let mut all: Vec<_> = if state.show_all_entities {
@@ -86,6 +87,7 @@ pub fn show_hierarchy(
                         *entity,
                         &mut selected,
                         &mut clone_events,
+                        &mut scene_child,
                         &mut changes,
                     );
                 } else {
@@ -96,6 +98,7 @@ pub fn show_hierarchy(
                         *entity,
                         &mut selected,
                         &mut clone_events,
+                        &mut scene_child,
                         &mut changes,
                     );
                 }
@@ -156,6 +159,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     entity: Entity,
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
+    scene_child: &mut Query<'_, '_, Entity, With<SceneAutoChild>>,
     changes: &mut EventWriter<NewChange>,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
@@ -187,13 +191,15 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                         changes,
                         clone_events,
                         selected,
+                        scene_child,
                         parent,
                     );
                 })
         })
         .body(|ui| {
             for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+                draw_entity(
+                    commands, ui, query, *child, selected, clone_events, scene_child, changes);
             }
         })
         .1
@@ -208,6 +214,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                     changes,
                     clone_events,
                     selected,
+                    scene_child,
                     parent,
                 );
             })
@@ -234,8 +241,12 @@ fn hierarchy_entity_context(
     changes: &mut EventWriter<'_, NewChange>,
     clone_events: &mut EventWriter<'_, CloneEvent>,
     selected: &mut Query<'_, '_, Entity, With<Selected>>,
+    scene_child: &mut Query<'_, '_, Entity, With<SceneAutoChild>>,
     parent: Option<&Parent>,
 ) {
+    if scene_child.get(entity).is_ok() {
+        return;
+    }
     if ui.button("Add child").clicked() {
         let new_id = commands.spawn_empty().insert(PrefabMarker).id();
         commands.entity(entity).add_child(new_id);

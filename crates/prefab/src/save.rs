@@ -7,7 +7,7 @@ use bevy::{
 use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs::File, io::Write};
 
-use crate::prelude::{EditorRegistry, EditorRegistryExt, SubScenePart};
+use crate::prelude::{EditorRegistry, EditorRegistryExt, SubScenePart, SceneAutoRoot};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
@@ -43,6 +43,7 @@ impl Plugin for SavePrefabPlugin {
             OnEnter(SaveState::Save),
             (
                 prepare_children,
+                prepare_auto_scene,
                 apply_deferred,
                 serialize_scene,
                 delete_prepared_children,
@@ -64,6 +65,18 @@ pub enum SaveState {
     Save,
     #[default]
     Idle,
+}
+
+fn prepare_auto_scene(
+    world: &mut World
+) {
+    unsafe {
+        let mut cell = world.as_unsafe_world_cell();
+        
+        // Iter all scene roots
+        let mut scene_root_query = cell.world_mut().query_filtered::<Entity, With<SceneAutoRoot>>();
+        let mut scene_roots = scene_root_query.iter(cell.world()).collect::<Vec<_>>();
+    }
 }
 
 fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), With<PrefabMarker>>) {

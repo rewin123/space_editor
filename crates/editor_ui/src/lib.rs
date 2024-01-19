@@ -42,6 +42,10 @@ pub mod ui_registration;
 /// This module contains UI logic for view game camera image
 pub mod camera_view;
 
+
+/// Contains ui plugin and common for ui functions
+pub mod ui_plugin;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,

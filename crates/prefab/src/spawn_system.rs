@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
+use space_shared::PrefabMarker;
 
 use super::component::*;
 
@@ -13,13 +14,14 @@ pub fn spawn_scene(
             Option<&Children>,
             Option<&Visibility>,
             Option<&Transform>,
+            Option<&SceneAutoChild>
         ),
         Changed<GltfPrefab>,
     >,
     auto_childs: Query<&SceneAutoChild>,
     asset_server: Res<AssetServer>,
 ) {
-    for (e, prefab, children, vis, tr) in prefabs.iter() {
+    for (e, prefab, children, vis, tr, auto_child) in prefabs.iter() {
         if let Some(children) = children {
             for e in children {
                 if auto_childs.contains(*e) {
@@ -28,32 +30,38 @@ pub fn spawn_scene(
             }
         }
 
-        let id = commands
+        let is_auto_child = auto_child.is_some();
+
+        let mut id = commands
             .spawn(HookedSceneBundle {
                 scene: SceneBundle {
                     scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)),
                     ..default()
                 },
-                hook: SceneHook::new(|_e, cmd| {
-                    cmd.insert(SceneAutoChild);
+                hook: SceneHook::new(move|_e, cmd| {
+                    if is_auto_child {
+                        cmd.insert(SceneAutoChild);
+                    } else {
+                        cmd.insert(SceneAutoChild).insert(PrefabMarker);
+                    }
                 }),
-            })
-            .insert(SceneAutoChild)
-            .id();
+            });
+
+        if is_auto_child {
+            id.insert(SceneAutoChild);
+        } else {
+            id.insert(PrefabMarker).insert(SceneAutoRoot);
+        }
+
+        let id = id.id();
+
         commands.entity(e).add_child(id);
 
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());
         }
         if tr.is_none() {
-            #[cfg(feature = "f32")]
             commands.entity(e).insert(TransformBundle::default());
-            #[cfg(feature = "f64")]
-            {
-                commands
-                    .entity(e)
-                    .insert(bevy_transform64::DTransformBundle::default());
-            }
         }
     }
 }
