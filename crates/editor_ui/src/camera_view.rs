@@ -17,7 +17,10 @@ use bevy_egui::{
 use space_prefab::component::CameraPlay;
 use space_shared::*;
 
-use crate::{prelude::EditorTabName, show_editor_ui, DisableCameraSkip, EditorUiAppExt};
+use crate::{
+    prelude::{EditorTabName, GameModeSettings},
+    show_editor_ui, DisableCameraSkip, EditorUiAppExt,
+};
 
 use super::editor_tab::EditorTab;
 
@@ -79,17 +82,7 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 impl EditorTab for CameraViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
         if self.real_camera.is_none() {
-            if world
-                .query_filtered::<Entity, (
-                    With<Camera>,
-                    With<Camera3d>,
-                    Without<EditorCameraMarker>,
-                    Without<ViewCamera>,
-                )>()
-                .iter(world)
-                .count()
-                > 0
-            {
+            if world.resource::<GameModeSettings>().is_3d() {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -114,17 +107,7 @@ impl EditorTab for CameraViewTab {
                         ))
                         .id(),
                 );
-            } else if world
-                .query_filtered::<Entity, (
-                    With<Camera>,
-                    With<Camera2d>,
-                    Without<EditorCameraMarker>,
-                    Without<ViewCamera>,
-                )>()
-                .iter(world)
-                .count()
-                > 0
-            {
+            } else if world.resource::<GameModeSettings>().is_2d() {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -164,28 +147,30 @@ impl EditorTab for CameraViewTab {
 
             ui.add_space(4.);
             ui.separator();
-            ui.add_space(4.);
-            if ui.button("Add 3D Playmode Camera").clicked() {
-                commands.spawn((
-                    Camera3d::default(),
-                    Name::new("Camera3d".to_string()),
-                    Transform::default(),
-                    Visibility::default(),
-                    CameraPlay::default(),
-                    PrefabMarker,
-                ));
-            }
-
-            ui.add_space(4.);
-            if ui.button("Add 2D Playmode Camera").clicked() {
-                commands.spawn((
-                    Camera2d::default(),
-                    Name::new("Camera2d".to_string()),
-                    Transform::default(),
-                    Visibility::default(),
-                    CameraPlay::default(),
-                    PrefabMarker,
-                ));
+            if world.resource::<GameModeSettings>().is_3d() {
+                ui.add_space(4.);
+                if ui.button("Add 3D Playmode Camera").clicked() {
+                    commands.spawn((
+                        Camera3d::default(),
+                        Name::new("Camera3d".to_string()),
+                        Transform::default(),
+                        Visibility::default(),
+                        CameraPlay::default(),
+                        PrefabMarker,
+                    ));
+                }
+            } else {
+                ui.add_space(4.);
+                if ui.button("Add 2D Playmode Camera").clicked() {
+                    commands.spawn((
+                        Camera2d::default(),
+                        Name::new("Camera2d".to_string()),
+                        Transform::default(),
+                        Visibility::default(),
+                        CameraPlay::default(),
+                        PrefabMarker,
+                    ));
+                }
             }
         }
 

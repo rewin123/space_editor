@@ -27,15 +27,15 @@ pub struct SettingsWindowPlugin;
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        app.register_type::<GameMode>()
+            .init_resource::<GameModeSettings>();
         #[cfg(feature = "persistence_editor")]
         {
             app.persistence_resource::<NewWindowSettings>()
                 .register_type::<NewTabBehaviour>()
                 .init_resource::<NewWindowSettings>();
             app.persistence_resource::<ChangeChainSettings>();
-            app.register_type::<GameMode>()
-                .persistence_resource::<GameModeSettings>()
-                .init_resource::<GameModeSettings>();
+            app.persistence_resource::<GameModeSettings>();
         }
 
         // #[cfg(feature = "bevy_xpbd_3d")]
@@ -62,8 +62,8 @@ pub enum GameMode {
 impl ToString for GameMode {
     fn to_string(&self) -> String {
         match self {
-            GameMode::Game2D => format!("2D"),
-            GameMode::Game3D => format!("3D"),
+            GameMode::Game2D => String::from("2D"),
+            GameMode::Game3D => String::from("3D"),
         }
     }
 }
@@ -75,6 +75,14 @@ pub struct GameModeSettings {
 }
 
 impl GameModeSettings {
+    pub fn is_3d(&self) -> bool {
+        self.mode == GameMode::Game3D
+    }
+
+    pub fn is_2d(&self) -> bool {
+        self.mode == GameMode::Game2D
+    }
+
     fn ui(&mut self, ui: &mut egui::Ui) {
         ui.heading("Game Mode");
         ui.horizontal(|ui| {
