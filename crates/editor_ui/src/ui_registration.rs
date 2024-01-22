@@ -251,7 +251,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
 
-    // TODO: Add support for sprite and spritesheet
+    // TODO: Add support for sprite and spritesheet - https://github.com/rewin123/space_editor/issues/181
     // https://bevyengine.org/examples/2D%20Rendering/sprite/
     // https://bevyengine.org/examples/2D%20Rendering/sprite-sheet/
 }
