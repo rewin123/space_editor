@@ -80,8 +80,8 @@ use bevy_egui::{egui, EguiContext};
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
     reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
-    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
-    NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
+    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameModeSettings,
+    GameViewTab, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
     SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_prefab::prelude::*;
@@ -333,4 +333,52 @@ pub fn simple_editor_setup(mut commands: Commands) {
         RaycastPickable,
         RenderLayers::all(),
     ));
+}
+
+pub fn game_mode_changed(
+    mut commands: Commands,
+    mode: Res<GameModeSettings>,
+    editor_camera_query: Query<Entity, (With<EditorCameraMarker>, With<Camera>)>,
+) {
+    if mode.is_changed() {
+        for editor_camera in editor_camera_query.iter() {
+            commands.entity(editor_camera).despawn_recursive();
+        }
+
+        if mode.is_3d() {
+            // 3D camera
+            commands.spawn((
+                Camera3dBundle {
+                    transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                    camera: Camera {
+                        order: 0,
+                        ..default()
+                    },
+                    ..default()
+                },
+                bevy_panorbit_camera::PanOrbitCamera::default(),
+                EditorCameraMarker,
+                Name::from("Editor Camera"),
+                PickableBundle::default(),
+                RaycastPickable,
+                RenderLayers::all(),
+            ));
+        } else {
+            // 2D camera
+            commands.spawn((
+                Camera2dBundle {
+                    camera: Camera {
+                        order: 0,
+                        ..default()
+                    },
+                    ..default()
+                },
+                EditorCameraMarker,
+                Name::from("Editor 2D Camera"),
+                PickableBundle::default(),
+                RaycastPickable,
+                RenderLayers::all(),
+            ));
+        }
+    }
 }
