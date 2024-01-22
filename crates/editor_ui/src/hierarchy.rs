@@ -101,8 +101,11 @@ pub fn show_hierarchy(
                 }
             }
         }
-        ui.vertical_centered(|ui| {
-            ui.separator();
+
+        ui.spacing();
+        ui.separator();
+        ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
+        ui.vertical_centered_justified(|ui| {
             if ui.button("+ Add new entity").clicked() {
                 let id = commands.spawn_empty().insert(PrefabMarker).id();
                 changes.send(NewChange {
@@ -120,7 +123,7 @@ pub fn show_hierarchy(
             }
         });
 
-        ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
+        ui.spacing();
 
         ui.label("Spawnable bundles");
         for (category_name, category_bundle) in ui_reg.bundles.iter() {
