@@ -282,15 +282,18 @@ pub trait FlatPluginList {
 pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
     // light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
+    commands.spawn((
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+            cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
             ..default()
         },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
-        ..default()
-    });
+        Name::from("Editor Level Light"),
+    ));
 
     // grid
     let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
@@ -309,6 +312,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         TrackedGrid::default(),
         TransformBundle::default(),
         VisibilityBundle::default(),
+        Name::from("Debug Grid"),
         grid_render_layer,
     ));
 
