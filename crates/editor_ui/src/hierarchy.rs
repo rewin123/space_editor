@@ -117,7 +117,7 @@ pub fn show_hierarchy(
                     commands.entity(entity).despawn_recursive();
 
                     changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity: entity }),
+                        change: Arc::new(RemovedEntity { entity }),
                     });
                 }
             }
