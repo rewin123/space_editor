@@ -45,7 +45,7 @@ impl Plugin for SpaceHierarchyPlugin {
 
 #[derive(Resource, Default)]
 pub struct HierarchyTabState {
-    show_all_entities: bool,
+    show_editor_entities: bool,
 }
 
 type HierarchyQueryIter<'a> = (
@@ -67,7 +67,7 @@ pub fn show_hierarchy(
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
 ) {
-    let mut all: Vec<_> = if state.show_all_entities {
+    let mut all: Vec<_> = if state.show_editor_entities {
         all_entites.iter().collect()
     } else {
         query.iter().collect()
@@ -78,7 +78,7 @@ pub fn show_hierarchy(
     egui::ScrollArea::vertical().show(ui, |ui| {
         for (entity, _name, _children, parent) in all.iter() {
             if parent.is_none() {
-                if state.show_all_entities {
+                if state.show_editor_entities {
                     draw_entity::<()>(
                         &mut commands,
                         ui,
@@ -101,8 +101,11 @@ pub fn show_hierarchy(
                 }
             }
         }
-        ui.vertical_centered(|ui| {
-            ui.separator();
+
+        ui.spacing();
+        ui.separator();
+        ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
+        ui.vertical_centered_justified(|ui| {
             if ui.button("+ Add new entity").clicked() {
                 let id = commands.spawn_empty().insert(PrefabMarker).id();
                 changes.send(NewChange {
@@ -110,17 +113,17 @@ pub fn show_hierarchy(
                 });
             }
             if ui.button("Clear all entities").clicked() {
-                for (entity, _, _, _parent) in all.iter() {
-                    commands.entity(*entity).despawn_recursive();
+                for (entity, _, _, _parent) in query.iter() {
+                    commands.entity(entity).despawn_recursive();
 
                     changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity: *entity }),
+                        change: Arc::new(RemovedEntity { entity }),
                     });
                 }
             }
         });
 
-        ui.checkbox(&mut state.show_all_entities, "Show all entities");
+        ui.spacing();
 
         ui.label("Spawnable bundles");
         for (category_name, category_bundle) in ui_reg.bundles.iter() {
