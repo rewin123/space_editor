@@ -1,13 +1,15 @@
 use bevy::{
-    ecs::{entity::MapEntities, reflect::ReflectMapEntities},
+    ecs::{entity::MapEntities, reflect::ReflectMapEntities, world::unsafe_world_cell::UnsafeWorldCell, system::CommandQueue},
     prelude::*,
     tasks::IoTaskPool,
-    utils::HashSet,
+    utils::HashSet, scene::serde::SceneDeserializer,
 };
+use bevy_inspector_egui::egui::color_picker::color_picker_color32;
+use serde::de::DeserializeSeed;
 use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs::File, io::Write};
 
-use crate::prelude::{EditorRegistry, EditorRegistryExt, SubScenePart, SceneAutoRoot};
+use crate::prelude::{EditorRegistry, EditorRegistryExt, SceneAutoRoot, SceneAutoChild};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
@@ -37,13 +39,13 @@ impl Plugin for SavePrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
 
+
         app.init_resource::<SaveConfig>().add_state::<SaveState>();
 
         app.add_systems(
             OnEnter(SaveState::Save),
             (
                 prepare_children,
-                prepare_auto_scene,
                 apply_deferred,
                 serialize_scene,
                 delete_prepared_children,
@@ -67,19 +69,8 @@ pub enum SaveState {
     Idle,
 }
 
-fn prepare_auto_scene(
-    world: &mut World
-) {
-    unsafe {
-        let mut cell = world.as_unsafe_world_cell();
-        
-        // Iter all scene roots
-        let mut scene_root_query = cell.world_mut().query_filtered::<Entity, With<SceneAutoRoot>>();
-        let mut scene_roots = scene_root_query.iter(cell.world()).collect::<Vec<_>>();
-    }
-}
 
-fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), With<PrefabMarker>>) {
+fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), (With<PrefabMarker>, Without<SceneAutoRoot>)>) {
     for (entity, children) in query.iter() {
         commands
             .entity(entity)
@@ -97,7 +88,7 @@ fn delete_prepared_children(mut commands: Commands, query: Query<Entity, With<Ch
 pub fn serialize_scene(world: &mut World) {
     let config = world.resource::<SaveConfig>().clone();
 
-    let mut prefab_query = world.query_filtered::<Entity, (With<PrefabMarker>, Without<SubScenePart>)>();
+    let mut prefab_query = world.query_filtered::<Entity, (With<PrefabMarker>, Without<SceneAutoChild>)>();
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
     let registry = world.resource::<EditorRegistry>().clone();

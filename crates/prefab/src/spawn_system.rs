@@ -50,12 +50,13 @@ pub fn spawn_scene(
         if is_auto_child {
             id.insert(SceneAutoChild);
         } else {
-            id.insert(PrefabMarker).insert(SceneAutoRoot);
+            id.insert(PrefabMarker).insert(SceneAutoChild);
         }
 
         let id = id.id();
 
         commands.entity(e).add_child(id);
+        commands.entity(e).insert(SceneAutoRoot);
 
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());

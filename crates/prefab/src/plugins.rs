@@ -60,6 +60,8 @@ impl Plugin for BasePrefabPlugin {
                 .chain(),
         );
 
+        app.add_plugins(crate::prelude::SceneUnpackPlugin);
+
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
         app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
 
