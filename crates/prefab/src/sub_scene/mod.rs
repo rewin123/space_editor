@@ -16,7 +16,7 @@ impl Plugin for SceneUnpackPlugin {
             (prepare_auto_scene, apply_deferred).chain().before(crate::prelude::serialize_scene),
             clear_after_save.after(crate::prelude::serialize_scene),
         ));
-        app.add_systems(PostUpdate, (apply_deferred, apply_compressed_scenes, apply_deferred).chain());
+        app.add_systems(PostUpdate, (decompress_scene, apply_deferred, apply_compressed_scenes, apply_deferred).chain());
 
         app.editor_registry::<CollapsedSubScene>();
         app.editor_registry::<ChildPath>();
@@ -112,15 +112,15 @@ unsafe fn recursive_path<'w>(cell : &UnsafeWorldCell, scene : DynamicSceneBuilde
     }
 }
 
+#[derive(Component, Deref, DerefMut)]
+pub struct DecompressedScene(pub Scene);
 
-fn apply_compressed_scenes(
+fn decompress_scene(
     mut commands: Commands,
-    roots: Query<(Entity, &CollapsedSubScene, &Children)>,
-    child_tree: Query<(Entity, Option<&Children>)>,
+    roots: Query<(Entity, &CollapsedSubScene)>,
     type_registry: Res<AppTypeRegistry>,
-    editor_registry: Res<EditorRegistry>,
 ) {
-    for (root_entity, root, children) in roots.iter() {
+    for (root_entity, root) in roots.iter() {
         let scene_deserializer = SceneDeserializer {
             type_registry: &type_registry.read(),
         };
@@ -130,6 +130,23 @@ fn apply_compressed_scenes(
             .unwrap();
 
         let mut scene = Scene::from_dynamic_scene(&dyn_scene, &type_registry).unwrap();
+
+        commands
+            .entity(root_entity)
+            .insert(DecompressedScene(scene))
+            .remove::<CollapsedSubScene>();
+    }
+}
+
+
+fn apply_compressed_scenes(
+    mut commands: Commands,
+    mut roots: Query<(Entity, &mut DecompressedScene, &Children)>,
+    child_tree: Query<(Entity, Option<&Children>)>,
+    editor_registry: Res<EditorRegistry>,
+) {
+    for (root_entity, mut scene, children) in roots.iter_mut() {
+        
         let mut scene_query = scene.world.query::<Entity>();
 
         let scene_entites = scene_query
@@ -173,16 +190,14 @@ fn apply_compressed_scenes(
                     }
                 }
 
-                // for c in entity.components.iter() {
-                    
-                // }
+                scene.world.entity_mut(entity).despawn();
             } else {
                 warn!("failed to find child path in sub entity");
             }
         }
 
         if ok {
-            commands.entity(root_entity).remove::<CollapsedSubScene>();
+            commands.entity(root_entity).remove::<DecompressedScene>();
         }
     }
 }
