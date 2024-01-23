@@ -32,30 +32,21 @@ pub fn spawn_scene(
 
         let is_auto_child = auto_child.is_some();
 
-        let mut id = commands
-            .spawn(HookedSceneBundle {
-                scene: SceneBundle {
-                    scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)),
-                    ..default()
-                },
-                hook: SceneHook::new(move|_e, cmd| {
-                    if is_auto_child {
-                        cmd.insert(SceneAutoChild);
+        commands.entity(e)
+            .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
+            .insert(SceneHook::new(move|_e, cmd| {
+                    if _e.contains::<SceneAutoRoot>() {
+
                     } else {
-                        cmd.insert(SceneAutoChild).insert(PrefabMarker);
+                        if is_auto_child {
+                            cmd.insert(SceneAutoChild);
+                        } else {
+                            cmd.insert(SceneAutoChild).insert(PrefabMarker);
+                        }
                     }
-                }),
-            });
+                })
+            );
 
-        if is_auto_child {
-            id.insert(SceneAutoChild);
-        } else {
-            id.insert(PrefabMarker).insert(SceneAutoChild);
-        }
-
-        let id = id.id();
-
-        commands.entity(e).add_child(id);
         commands.entity(e).insert(SceneAutoRoot);
 
         if vis.is_none() {
