@@ -20,17 +20,23 @@ const TAB_MODES: [NewTabBehaviour; 3] = [
     NewTabBehaviour::SplitNode,
 ];
 
+const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
+
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        app.register_type::<GameMode>()
+            .init_resource::<GameModeSettings>();
         #[cfg(feature = "persistence_editor")]
         {
-            app.persistence_resource::<NewWindowSettings>();
-            app.register_type::<NewTabBehaviour>();
+            app.persistence_resource::<NewWindowSettings>()
+                .register_type::<NewTabBehaviour>()
+                .init_resource::<NewWindowSettings>();
+            app.persistence_resource::<ChangeChainSettings>();
+            app.persistence_resource::<GameModeSettings>();
         }
-        app.init_resource::<NewWindowSettings>();
 
         // #[cfg(feature = "bevy_xpbd_3d")]
         // {
@@ -43,6 +49,60 @@ impl Plugin for SettingsWindowPlugin {
         //         app.register_type::<[f32; 4]>();
         //     }
         // }
+    }
+}
+
+#[derive(Default, Reflect, PartialEq, Eq, Clone)]
+pub enum GameMode {
+    Game2D,
+    #[default]
+    Game3D,
+}
+
+impl ToString for GameMode {
+    fn to_string(&self) -> String {
+        match self {
+            GameMode::Game2D => String::from("2D"),
+            GameMode::Game3D => String::from("3D"),
+        }
+    }
+}
+
+#[derive(Default, Resource, Reflect)]
+#[reflect(Resource)]
+pub struct GameModeSettings {
+    pub mode: GameMode,
+}
+
+impl GameModeSettings {
+    pub fn is_3d(&self) -> bool {
+        self.mode == GameMode::Game3D
+    }
+
+    pub fn is_2d(&self) -> bool {
+        self.mode == GameMode::Game2D
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui) {
+        ui.heading("Game Mode");
+        ui.horizontal(|ui| {
+            ui.label("Mode:");
+            ui.spacing();
+            egui::ComboBox::new("game_mode", "")
+                .selected_text(self.mode.to_string())
+                .show_ui(ui, |ui| {
+                    for mode in GAME_MODES.into_iter() {
+                        if ui
+                            .selectable_label(self.mode == mode, mode.to_string())
+                            .clicked()
+                        {
+                            self.mode = mode;
+                        }
+                    }
+                });
+        });
+        ui.spacing();
+        ui.separator();
     }
 }
 
@@ -123,13 +183,9 @@ impl RegisterSettingsBlockExt for App {
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-        ui.heading("Undo");
-        world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
-            ui.add(
-                egui::DragValue::new(&mut settings.max_change_chain_size)
-                    .prefix("Max change chain size: "),
-            );
-        });
+        let game_mode_setting = &mut world.resource_mut::<GameModeSettings>();
+        game_mode_setting.ui(ui);
+        ui.spacing();
 
         ui.heading("Undo");
         world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {

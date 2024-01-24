@@ -4,11 +4,17 @@ use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
-use crate::prelude::{CloneEvent, EditorTool};
+use crate::{
+    game_view::GameViewTab,
+    prelude::{CloneEvent, EditorTool},
+    tool::ToolExt,
+};
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
+        app.editor_tool(GizmoTool::default());
+        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
@@ -161,7 +167,7 @@ impl EditorTool for GizmoTool {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
-                let Some(global_transform) = (unsafe { ecell.get_mut::<GlobalTransform>() }) else {
+                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
                     continue;
                 };
                 let tr = global_transform.compute_transform();
@@ -178,7 +184,7 @@ impl EditorTool for GizmoTool {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
-                let Some(global_transform) = (unsafe { ecell.get_mut::<GlobalTransform>() }) else {
+                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
                     continue;
                 };
                 loc_transform.push(global_transform.reparented_to(&global_mean));
@@ -215,24 +221,27 @@ impl EditorTool for GizmoTool {
                 }
             }
 
-            for (idx, e) in selected.iter().enumerate() {
-                let Some(ecell) = cell.get_entity(*e) else {
-                    continue;
-                };
-                let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
-                    continue;
-                };
+            if gizmo_interacted {
+                for (idx, e) in selected.iter().enumerate() {
+                    let Some(ecell) = cell.get_entity(*e) else {
+                        continue;
+                    };
+                    let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
+                        continue;
+                    };
 
-                let new_global = global_mean.mul_transform(loc_transform[idx]);
+                    let new_global = global_mean.mul_transform(loc_transform[idx]);
 
-                if let Some(parent) = unsafe { ecell.get::<Parent>() } {
-                    if let Some(parent) = cell.get_entity(parent.get()) {
-                        if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
-                            *transform = new_global.reparented_to(parent_global);
+                    if let Some(parent) = unsafe { ecell.get::<Parent>() } {
+                        if let Some(parent) = cell.get_entity(parent.get()) {
+                            if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() }
+                            {
+                                *transform = new_global.reparented_to(parent_global);
+                            }
                         }
+                    } else {
+                        *transform = new_global.compute_transform();
                     }
-                } else {
-                    *transform = new_global.compute_transform();
                 }
             }
         } else {
@@ -330,7 +339,11 @@ impl EditorTool for GizmoTool {
         }
 
         if disable_pan_orbit {
-            unsafe { cell.get_resource_mut::<crate::PanOrbitEnabled>().unwrap().0 = false };
+            unsafe {
+                cell.get_resource_mut::<crate::EditorCameraEnabled>()
+                    .unwrap()
+                    .0 = false
+            };
         }
     }
 }

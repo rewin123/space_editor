@@ -5,8 +5,6 @@ use bevy::ecs::system::EntityCommands;
 use space_prefab::{component::*, ext::*};
 use space_shared::{LightAreaToggle, PrefabMarker};
 
-pub const MESH_CATEGORY: &str = "mesh";
-
 /// Resource with bundles to spawn
 #[derive(Resource, Default)]
 pub struct BundleReg {
@@ -209,7 +207,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Regular Polygon",
         (
             MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
-            Name::new("RegularPolygon".to_string()),
+            Name::new("Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -227,7 +225,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Camera",
-        "Playmode Camera",
+        "3D Playmode Camera",
         (
             Camera3d::default(),
             Name::new("Camera3d".to_string()),
@@ -236,4 +234,36 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             CameraPlay::default(),
         ),
     );
+
+    app.editor_bundle(
+        "Camera",
+        "2D Playmode Camera",
+        (
+            Camera2d::default(),
+            Name::new("Camera2d".to_string()),
+            Transform::default(),
+            Visibility::default(),
+            CameraPlay::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Sprite",
+        "Blank Sprite",
+        (
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::BLUE,
+                    custom_size: Some(Vec2::new(100.0, 100.0)),
+                    ..default()
+                },
+                ..default()
+            },
+            Name::new("Sprite".to_string()),
+        ),
+    );
+
+    // TODO: Add support for sprite and spritesheet - https://github.com/rewin123/space_editor/issues/181
+    // https://bevyengine.org/examples/2D%20Rendering/sprite/
+    // https://bevyengine.org/examples/2D%20Rendering/sprite-sheet/
 }

@@ -12,5 +12,4 @@ homepage.workspace = true
 
 [dependencies]
 bevy.workspace = true
-space_shared.workspace = true
 pretty-type-name = "1.0.1"

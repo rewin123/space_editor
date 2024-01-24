@@ -72,6 +72,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<GltfPrefab>();
         app.editor_registry::<MaterialPrefab>();
 
+        app.editor_registry::<Sprite>();
         app.editor_registry::<MeshPrimitivePrefab>();
         app.editor_relation::<MeshPrimitivePrefab, Transform>();
         app.editor_relation::<MeshPrimitivePrefab, Visibility>();
@@ -109,20 +110,25 @@ impl Plugin for BasePrefabPlugin {
         //camera
         app.editor_registry::<Camera>();
         app.editor_registry::<Camera3d>();
+        app.editor_registry::<Camera2d>();
         app.editor_registry::<Projection>();
+        app.editor_registry::<OrthographicProjection>();
         app.editor_registry::<CameraPlay>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
 
+        app.editor_relation::<Camera2d, Camera>();
+        app.editor_relation::<Camera2d, OrthographicProjection>();
         app.editor_relation::<Camera3d, Camera>();
-        app.editor_relation::<Camera, Projection>();
+        app.editor_relation::<Camera3d, Projection>();
+        app.editor_relation::<Camera3d, ColorGrading>();
         app.editor_relation::<Camera, VisibleEntities>();
         app.editor_relation::<Camera, Frustum>();
         app.editor_relation::<Camera, Transform>();
         app.editor_relation::<Camera, Tonemapping>();
         app.editor_relation::<Camera, DebandDither>();
-        app.editor_relation::<Camera, ColorGrading>();
+
         app.add_systems(Update, camera_render_graph_creation);
 
         app.editor_registry::<PlayerStart>();

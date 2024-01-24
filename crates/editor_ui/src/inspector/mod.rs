@@ -319,6 +319,6 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
     state.commands = commands;
 
     if disable_pan_orbit {
-        world.resource_mut::<crate::PanOrbitEnabled>().0 = false;
+        world.resource_mut::<crate::EditorCameraEnabled>().0 = false;
     }
 }

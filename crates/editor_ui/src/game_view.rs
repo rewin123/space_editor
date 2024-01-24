@@ -5,7 +5,17 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
+use crate::{prelude::EditorTabName, EditorUiAppExt};
+
 use super::{editor_tab::EditorTab, tool::EditorTool};
+
+pub struct GameViewPlugin;
+
+impl Plugin for GameViewPlugin {
+    fn build(&self, app: &mut App) {
+        app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
+    }
+}
 
 #[derive(Resource)]
 pub struct GameViewTab {
