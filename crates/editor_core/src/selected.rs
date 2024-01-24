@@ -10,17 +10,28 @@ use space_shared::EditorSet;
 pub struct Selected;
 
 /// Selection system plugins
-pub struct SelectedPlugin;
+pub struct SelectedPlugin {
+    pub show_selected_wireframe: bool,
+}
+
+impl Default for SelectedPlugin {
+    fn default() -> Self {
+        Self { show_selected_wireframe: true }
+    }
+}
 
 impl Plugin for SelectedPlugin {
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<WireframePlugin>() {
             app.add_plugins(WireframePlugin);
         }
-        app.add_systems(
-            Update,
-            selected_entity_wireframe_update.in_set(EditorSet::Editor),
-        );
+
+        if self.show_selected_wireframe {
+            app.add_systems(
+                Update,
+                selected_entity_wireframe_update.in_set(EditorSet::Editor),
+            );
+        }
     }
 }
 

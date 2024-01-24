@@ -583,7 +583,7 @@ pub enum ShowEditorUi {
 impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
-            .add(SelectedPlugin)
+            .add(SelectedPlugin::default())
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
             .add(bottom_menu::BottomMenuPlugin)
