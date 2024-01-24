@@ -306,5 +306,19 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
 
-    // https://bevyengine.org/examples/2D%20Rendering/sprite-sheet/
+    app.editor_bundle(
+        "Sprite",
+        "Sprite Sheet",
+        (
+            SpritesheetTexture {
+                texture: String::from("textures/gabe-idle-run.png"),
+            },
+            Name::from("Spritesheet"),
+            AnimationIndicesSpriteSheet::default(),
+            AnimationClipName::default(),
+            AvailableAnimationClips::default(),
+            AnimationTimerSpriteSheet::default(),
+            TextureAtlasPrefab::default(),
+        ),
+    )
 }
