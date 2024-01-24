@@ -22,11 +22,12 @@ impl Default for SelectedPlugin {
 
 impl Plugin for SelectedPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<WireframePlugin>() {
-            app.add_plugins(WireframePlugin);
-        }
-
+        #[cfg(not(feature = "wasm"))]
         if self.show_selected_wireframe {
+            if !app.is_plugin_added::<WireframePlugin>() {
+                app.add_plugins(WireframePlugin);
+            }
+
             app.add_systems(
                 Update,
                 selected_entity_wireframe_update.in_set(EditorSet::Editor),
