@@ -101,8 +101,8 @@ pub fn register_light_editor_bundles(app: &mut App) {
 /// Register meshs
 pub fn register_mesh_editor_bundles(app: &mut App) {
     app.editor_bundle(
-        "3D Mesh",
-        "Cube",
+        "Mesh",
+        "3D Cube",
         (
             MeshPrimitivePrefab::Cube(1.0),
             Name::new("Cube".to_string()),
@@ -111,8 +111,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Box",
+        "Mesh",
+        "3D Box",
         (
             MeshPrimitivePrefab::Box(BoxPrefab::default()),
             Name::new("Box".to_string()),
@@ -121,8 +121,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Sphere",
+        "Mesh",
+        "3D Sphere",
         (
             MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
             Name::new("UVSphere".to_string()),
@@ -131,8 +131,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Quad",
+        "Mesh",
+        "3D Quad",
         (
             MeshPrimitivePrefab::Quad(QuadPrefab::default()),
             Name::new("Quad".to_string()),
@@ -141,8 +141,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Capsule",
+        "Mesh",
+        "3D Capsule",
         (
             MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
             Name::new("Capsule"),
@@ -151,8 +151,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Circle",
+        "Mesh",
+        "3D Circle",
         (
             MeshPrimitivePrefab::Circle(CirclePrefab::default()),
             Name::new("Circle".to_string()),
@@ -161,8 +161,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Cylinder",
+        "Mesh",
+        "3D Cylinder",
         (
             MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
             Name::new("Cylinder".to_string()),
@@ -171,8 +171,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Icosphere",
+        "Mesh",
+        "3D Icosphere",
         (
             MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
             Name::new("Icosphere".to_string()),
@@ -181,8 +181,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Plane",
+        "Mesh",
+        "3D Plane",
         (
             MeshPrimitivePrefab::Plane(PlanePrefab::default()),
             Name::new("Plane".to_string()),
@@ -191,8 +191,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Regular Polygon",
+        "Mesh",
+        "3D Regular Polygon",
         (
             MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("Regular Polygon".to_string()),
@@ -201,8 +201,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "3D Mesh",
-        "Torus",
+        "Mesh",
+        "3D Torus",
         (
             MeshPrimitivePrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
@@ -212,7 +212,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "2D Mesh",
+        "Mesh",
         "2D Quad",
         (
             MeshPrimitive2dPrefab::Quad(QuadPrefab::default()),
@@ -223,7 +223,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "2D Mesh",
+        "Mesh",
         "2D Circle",
         (
             MeshPrimitive2dPrefab::Circle(CirclePrefab::default()),
@@ -234,7 +234,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "2D Mesh",
+        "Mesh",
         "2D Plane",
         (
             MeshPrimitive2dPrefab::Plane(PlanePrefab::default()),
@@ -245,7 +245,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "2D Mesh",
+        "Mesh",
         "2D Regular Polygon",
         (
             MeshPrimitive2dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
