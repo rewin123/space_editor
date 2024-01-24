@@ -101,7 +101,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
 /// Register meshs
 pub fn register_mesh_editor_bundles(app: &mut App) {
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Cube",
         (
             MeshPrimitivePrefab::Cube(1.0),
@@ -111,7 +111,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Box",
         (
             MeshPrimitivePrefab::Box(BoxPrefab::default()),
@@ -121,7 +121,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Sphere",
         (
             MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
@@ -131,7 +131,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Quad",
         (
             MeshPrimitivePrefab::Quad(QuadPrefab::default()),
@@ -141,7 +141,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Capsule",
         (
             MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
@@ -151,7 +151,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Circle",
         (
             MeshPrimitivePrefab::Circle(CirclePrefab::default()),
@@ -161,7 +161,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Cylinder",
         (
             MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
@@ -171,7 +171,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Icosphere",
         (
             MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
@@ -181,7 +181,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Plane",
         (
             MeshPrimitivePrefab::Plane(PlanePrefab::default()),
@@ -191,7 +191,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Regular Polygon",
         (
             MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
@@ -201,11 +201,55 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
     app.editor_bundle(
-        "Mesh",
+        "3D Mesh",
         "Torus",
         (
             MeshPrimitivePrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "2D Mesh",
+        "2D Quad",
+        (
+            MeshPrimitive2dPrefab::Quad(QuadPrefab::default()),
+            Name::new("2D Quad".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "2D Mesh",
+        "2D Circle",
+        (
+            MeshPrimitive2dPrefab::Circle(CirclePrefab::default()),
+            Name::new("2D Circle".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "2D Mesh",
+        "2D Plane",
+        (
+            MeshPrimitive2dPrefab::Plane(PlanePrefab::default()),
+            Name::new("2D Plane".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "2D Mesh",
+        "2D Regular Polygon",
+        (
+            MeshPrimitive2dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
+            Name::new("2D Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -251,7 +295,16 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         ),
     );
 
-    // TODO: Add support for sprite and spritesheet - https://github.com/rewin123/space_editor/issues/181
-    // https://bevyengine.org/examples/2D%20Rendering/sprite/
+    app.editor_bundle(
+        "Sprite",
+        "Texture Sprite",
+        (
+            SpriteTexture {
+                texture: "branding/bevy_bird_dark.png".to_string(),
+            },
+            Name::new("Texture Sprite".to_string()),
+        ),
+    );
+
     // https://bevyengine.org/examples/2D%20Rendering/sprite-sheet/
 }

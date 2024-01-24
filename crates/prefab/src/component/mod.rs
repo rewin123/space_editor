@@ -6,6 +6,10 @@ pub use shape::*;
 pub mod material;
 pub use material::*;
 
+/// Module contatins structures for determining sprite
+pub mod sprite;
+pub use sprite::*;
+
 /// Module contatins structures for determining camera
 pub mod camera;
 pub use camera::*;
