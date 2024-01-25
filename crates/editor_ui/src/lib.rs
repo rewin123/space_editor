@@ -27,6 +27,9 @@ pub mod hierarchy;
 /// This module contains Inspector tab logic
 pub mod inspector;
 
+/// This module contains methods to visualize entities without a mesh attached
+pub mod meshless_visualizer;
+
 /// This module contains Settings tab logic
 pub mod settings;
 
@@ -79,15 +82,15 @@ use bevy_egui::{egui, EguiContext};
 
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
-    reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
-    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameModeSettings,
-    GameViewTab, NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin,
+    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
+    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
+    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
+    ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache, SelectParent,
 };
 use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
@@ -102,8 +105,8 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 pub mod prelude {
     pub use super::{
         asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
-        game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
-        ui_registration::*,
+        game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
+        tools::*, ui_registration::*,
     };
 
     pub use space_editor_core::prelude::*;
@@ -250,7 +253,7 @@ fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
 
 fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
     info!("Set start state");
-    state.set(EditorState::Editor);
+    state.set(EditorState::Loading);
 }
 
 fn clear_and_load_on_start(

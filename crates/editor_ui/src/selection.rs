@@ -55,6 +55,8 @@ pub fn auto_add_picking_dummy(
 pub fn select_listener(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
+    // may need to be optimized a bit so that there is less overlap
+    query_parent: Query<&SelectParent>,
     mut events: EventReader<SelectEvent>,
     pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<Input<KeyCode>>,
@@ -64,9 +66,13 @@ pub fn select_listener(
     }
     for event in events.read() {
         info!("Select Event: {:?}", event.e);
+        let entity = match query_parent.get(event.e) {
+            Ok(a) => a.parent,
+            Err(_) => event.e,
+        };
         match event.event.button {
             PointerButton::Primary => {
-                commands.entity(event.e).insert(Selected);
+                commands.entity(entity).insert(Selected);
                 if !keyboard.pressed(KeyCode::ShiftLeft) {
                     for e in query.iter() {
                         commands.entity(e).remove::<Selected>();

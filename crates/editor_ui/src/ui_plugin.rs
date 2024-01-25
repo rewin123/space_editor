@@ -1,5 +1,7 @@
 use crate::*;
 use bevy::prelude::*;
+use camera_plugin::draw_camera_gizmo;
+use meshless_visualizer::draw_light_gizmo;
 
 /// All systems for editor ui wil be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -30,6 +32,7 @@ impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
             .add(SelectedPlugin)
+            .add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
             .add(bottom_menu::BottomMenuPlugin)
@@ -142,6 +145,8 @@ impl Plugin for EditorUiCore {
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
+        // clean up meshless children on entering the game state
+        app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),
             to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
@@ -156,7 +161,11 @@ impl Plugin for EditorUiCore {
 
         app.add_systems(
             Update,
-            (draw_camera_gizmo, selection::delete_selected)
+            (
+                draw_camera_gizmo,
+                draw_light_gizmo,
+                selection::delete_selected,
+            )
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
 

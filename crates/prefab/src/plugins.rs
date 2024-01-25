@@ -12,7 +12,7 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
-use space_shared::PrefabMarker;
+use space_shared::{LightAreaToggle, PrefabMarker};
 
 use crate::{
     component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,
@@ -141,6 +141,8 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<Transform, GlobalTransform>();
 
         //Light
+        app.editor_registry::<LightAreaToggle>();
+
         app.editor_registry::<PointLight>();
         app.editor_relation::<PointLight, CubemapVisibleEntities>();
         app.editor_relation::<PointLight, CubemapFrusta>();

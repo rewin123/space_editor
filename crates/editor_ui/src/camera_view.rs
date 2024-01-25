@@ -5,7 +5,6 @@ use bevy::{
         render_resource::{
             Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
         },
-        view::RenderLayers,
     },
     window::PrimaryWindow,
 };
@@ -19,7 +18,7 @@ use space_shared::*;
 
 use crate::{
     prelude::{EditorTabName, GameModeSettings},
-    show_editor_ui, DisableCameraSkip, EditorUiAppExt,
+    show_editor_ui, DisableCameraSkip, EditorUiAppExt, RenderLayers,
 };
 
 use super::editor_tab::EditorTab;
