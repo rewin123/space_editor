@@ -83,6 +83,13 @@ impl GameModeSettings {
         self.mode == GameMode::Game2D
     }
 
+    pub const MODE_2D: Self = Self {
+        mode: GameMode::Game2D,
+    };
+    pub const MODE_3D: Self = Self {
+        mode: GameMode::Game3D,
+    };
+
     fn ui(&mut self, ui: &mut egui::Ui) {
         ui.heading("Game Mode");
         ui.horizontal(|ui| {
