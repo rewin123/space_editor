@@ -54,6 +54,8 @@ pub mod camera_plugin;
 ///Selection logic
 pub mod selection;
 
+pub mod icons;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,

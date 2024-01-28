@@ -1,13 +1,13 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
+use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap, window::PrimaryWindow};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::ui_registration::{BundleReg, EditorBundleUntyped};
+use crate::{ui_registration::{BundleReg, EditorBundleUntyped}};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
@@ -61,12 +61,20 @@ pub fn show_hierarchy(
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
     all_entites: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
+    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
 ) {
+    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
+        return;
+    };
+    let ctx = ctx_ref.get_mut();
+    
+    egui_extras::install_image_loaders(ctx);
+
     let mut all: Vec<_> = if state.show_editor_entities {
         all_entites.iter().collect()
     } else {
@@ -124,8 +132,12 @@ pub fn show_hierarchy(
         });
 
         ui.spacing();
-
+        
+        
+        let image = egui::Image::from_bytes("Bundle.svg", crate::icons::BUNDLE.as_bytes()).max_size(bevy_egui::egui::vec2(16., 16.));
+        ui.add(egui::Button::image_and_text(image, "Bundles"));
         ui.label("Spawnable bundles");
+        
         for (category_name, category_bundle) in ui_reg.bundles.iter() {
             ui.menu_button(category_name, |ui| {
                 let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
