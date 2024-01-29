@@ -1,11 +1,12 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
-use bevy_egui::egui::{self, Key};
+use bevy_egui::egui::{self, Color32, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
 use crate::{
     game_view::GameViewTab,
+    icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
     tool::ToolExt,
 };
@@ -75,21 +76,22 @@ impl EditorTool for GizmoTool {
         // All hotkeys can be changes in editor ui
 
         let mode2name = vec![
-            (GizmoMode::Translate, "⬌", "Translate"),
-            (GizmoMode::Rotate, "↺", "Rotate"),
-            (GizmoMode::Scale, "⛶", "Scale"),
+            (GizmoMode::Translate, "Translate"),
+            (GizmoMode::Rotate, "Rotate"),
+            (GizmoMode::Scale, "Scale"),
         ];
 
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            for (mode, name, hint) in mode2name {
+            for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.button(egui::RichText::new(name).strong())
+                    ui.add(mode.to_button()
+                        .fill(Color32::from_rgb(76, 93, 235)))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();
                 } else if ui
-                    .button(name)
+                    .add(mode.to_button())
                     .on_disabled_hover_text(hint)
                     .on_hover_text(hint)
                     .clicked()
@@ -344,6 +346,20 @@ impl EditorTool for GizmoTool {
                     .unwrap()
                     .0 = false
             };
+        }
+    }
+}
+
+trait ToButton {
+    fn to_button(&self) -> egui::Button;
+}
+
+impl ToButton for GizmoMode {
+    fn to_button(&self) -> egui::Button {
+        match self {
+            GizmoMode::Rotate => rotation_icon(16., 16., ""),
+            GizmoMode::Translate => translate_icon(16., 16., ""),
+            GizmoMode::Scale => scale_icon(16., 16., ""),
         }
     }
 }
