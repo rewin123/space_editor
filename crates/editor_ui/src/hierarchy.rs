@@ -1,13 +1,19 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap, window::PrimaryWindow};
-use bevy_egui::{egui::collapsing_header::CollapsingState, *};
+use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
+use bevy_egui::{
+    egui::{collapsing_header::CollapsingState, Color32, Stroke},
+    *,
+};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::{ui_registration::{BundleReg, EditorBundleUntyped}};
+use crate::{
+    icons::{bundle_icon, clear_icon, entity_icon},
+    ui_registration::{BundleReg, EditorBundleUntyped},
+};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
@@ -46,6 +52,7 @@ impl Plugin for SpaceHierarchyPlugin {
 #[derive(Resource, Default)]
 pub struct HierarchyTabState {
     show_editor_entities: bool,
+    show_spawnable_bundles: bool,
 }
 
 type HierarchyQueryIter<'a> = (
@@ -61,20 +68,12 @@ pub fn show_hierarchy(
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
     all_entites: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
-    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
 ) {
-    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
-        return;
-    };
-    let ctx = ctx_ref.get_mut();
-    
-    egui_extras::install_image_loaders(ctx);
-
     let mut all: Vec<_> = if state.show_editor_entities {
         all_entites.iter().collect()
     } else {
@@ -114,13 +113,13 @@ pub fn show_hierarchy(
         ui.separator();
         ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
         ui.vertical_centered_justified(|ui| {
-            if ui.button("+ Add new entity").clicked() {
+            if ui.add(entity_icon(16., 16., "Add entity")).clicked() {
                 let id = commands.spawn_empty().insert(PrefabMarker).id();
                 changes.send(NewChange {
                     change: Arc::new(AddedEntity { entity: id }),
                 });
             }
-            if ui.button("Clear all entities").clicked() {
+            if ui.add(clear_icon(16., 16., "Clear entities")).clicked() {
                 for (entity, _, _, _parent) in query.iter() {
                     commands.entity(entity).despawn_recursive();
 
@@ -132,28 +131,46 @@ pub fn show_hierarchy(
         });
 
         ui.spacing();
-        
-        
-        let image = egui::Image::from_bytes("Bundle.svg", crate::icons::BUNDLE.as_bytes()).max_size(bevy_egui::egui::vec2(16., 16.));
-        ui.add(egui::Button::image_and_text(image, "Bundles"));
-        ui.label("Spawnable bundles");
-        
-        for (category_name, category_bundle) in ui_reg.bundles.iter() {
-            ui.menu_button(category_name, |ui| {
-                let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
-                    category_bundle.iter().collect();
-                categories_vec.sort_by(|a, b| a.0.cmp(b.0));
 
-                for (name, dyn_bundle) in categories_vec {
-                    if ui.button(name).clicked() {
-                        let entity = dyn_bundle.spawn(&mut commands);
-                        changes.send(NewChange {
-                            change: Arc::new(AddedEntity { entity }),
-                        });
-                    }
-                }
+        ui.ctx().style_mut(|stl| {
+            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
+        });
+        egui::menu::bar(ui, |ui| {
+            ui.ctx().style_mut(|stl| {
+                stl.spacing.button_padding = egui::Vec2::new(8., 2.);
             });
-        }
+            if ui
+                .add(
+                    bundle_icon(16., 16., "Bundles")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Spawnable preset bundles")
+                .clicked()
+            {
+                state.show_spawnable_bundles = !state.show_spawnable_bundles;
+            }
+            if state.show_spawnable_bundles {
+                ui.vertical(|ui| {
+                    for (category_name, category_bundle) in ui_reg.bundles.iter() {
+                        ui.menu_button(category_name, |ui| {
+                            let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
+                                category_bundle.iter().collect();
+                            categories_vec.sort_by(|a, b| a.0.cmp(b.0));
+
+                            for (name, dyn_bundle) in categories_vec {
+                                if ui.button(name).clicked() {
+                                    let entity = dyn_bundle.spawn(&mut commands);
+                                    changes.send(NewChange {
+                                        change: Arc::new(AddedEntity { entity }),
+                                    });
+                                }
+                            }
+                        });
+                        ui.separator();
+                    }
+                });
+            }
+        })
     });
 }
 

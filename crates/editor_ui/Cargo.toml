@@ -24,7 +24,6 @@ serde.workspace = true
 
 bevy_egui = "0.24"
 egui_extras = { version = "0.24", features = ["all_loaders"] }
-image = { version = "0.24", features = ["jpeg", "png"] }
 resvg = "0.37"
 egui-gizmo = "0.13"
 egui_dock = "0.9"

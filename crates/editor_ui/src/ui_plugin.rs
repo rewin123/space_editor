@@ -1,5 +1,10 @@
 use crate::*;
 use bevy::prelude::*;
+use bevy_egui::egui::{
+    Color32,
+    FontFamily::{Monospace, Proportional},
+    FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
+};
 use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
 
@@ -194,9 +199,35 @@ pub fn show_editor_ui(world: &mut World) {
         return;
     };
     let mut egui_context = egui_context.clone();
+    let ctx = egui_context.get_mut();
+    egui_extras::install_image_loaders(ctx);
+    ctx.style_mut(|stl| {
+        stl.spacing.button_padding = Vec2::new(8., 2.);
+        stl.spacing.icon_spacing = 4.;
+        stl.spacing.icon_width = 16.;
+        // stl.spacing.item_spacing = Vec2::new(4., 8.);
+        stl.spacing.menu_margin = Margin {
+            left: 8.,
+            right: 8.,
+            top: 4.,
+            bottom: 8.,
+        };
+        stl.visuals.error_fg_color = Color32::from_rgb(255, 59, 33);
+        stl.visuals.hyperlink_color = Color32::from_rgb(99, 235, 231);
+        stl.visuals.warn_fg_color = Color32::from_rgb(225, 206, 67);
+        stl.visuals.menu_rounding = Rounding::same(0.5);
+        stl.text_styles = [
+            (ETextStyle::Small, FontId::new(10.0, Proportional)),
+            (ETextStyle::Body, FontId::new(12., Proportional)),
+            (ETextStyle::Button, FontId::new(14., Proportional)),
+            (ETextStyle::Heading, FontId::new(20.0, Proportional)),
+            (ETextStyle::Monospace, FontId::new(12.0, Monospace)),
+        ]
+        .into()
+    });
 
     world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
-        editor_ui.ui(world, egui_context.get_mut());
+        editor_ui.ui(world, ctx);
     });
 }
 
