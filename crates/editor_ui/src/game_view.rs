@@ -66,18 +66,20 @@ impl EditorTab for GameViewTab {
                 "None"
             };
 
-            egui::ComboBox::new("tool", "")
-                .selected_text(selected_tool_name)
-                .show_ui(ui, |ui| {
-                    for (i, tool) in self.tools.iter().enumerate() {
-                        if ui
-                            .selectable_label(self.active_tool == Some(i), tool.name())
-                            .clicked()
-                        {
-                            self.active_tool = Some(i);
+            if self.tools.len() > 1 {
+                egui::ComboBox::new("tool", "")
+                    .selected_text(selected_tool_name)
+                    .show_ui(ui, |ui| {
+                        for (i, tool) in self.tools.iter().enumerate() {
+                            if ui
+                                .selectable_label(self.active_tool == Some(i), tool.name())
+                                .clicked()
+                            {
+                                self.active_tool = Some(i);
+                            }
                         }
-                    }
-                });
+                    });
+            }
 
             if let Some(tool_id) = self.active_tool {
                 self.tools[tool_id].ui(ui, commands, world);
