@@ -11,7 +11,7 @@ use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use crate::{
-    icons::{bundle_icon, clear_icon, entity_icon},
+    icons::{add_bundle_icon, add_entity_icon, delete_entity_icon},
     ui_registration::{BundleReg, EditorBundleUntyped},
 };
 use space_shared::*;
@@ -112,14 +112,21 @@ pub fn show_hierarchy(
         ui.spacing();
         ui.separator();
         ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
-        ui.vertical_centered_justified(|ui| {
-            if ui.add(entity_icon(16., 16., "Add entity")).clicked() {
-                let id = commands.spawn_empty().insert(PrefabMarker).id();
-                changes.send(NewChange {
-                    change: Arc::new(AddedEntity { entity: id }),
-                });
-            }
-            if ui.add(clear_icon(16., 16., "Clear entities")).clicked() {
+
+        ui.spacing();
+
+        egui::menu::bar(ui, |ui| {
+            let stl = ui.style_mut();
+            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
+
+            if ui
+                .add(
+                    delete_entity_icon(16., 16., "")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Clear all entities")
+                .clicked()
+            {
                 for (entity, _, _, _parent) in query.iter() {
                     commands.entity(entity).despawn_recursive();
 
@@ -128,20 +135,22 @@ pub fn show_hierarchy(
                     });
                 }
             }
-        });
-
-        ui.spacing();
-
-        ui.ctx().style_mut(|stl| {
-            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
-        });
-        egui::menu::bar(ui, |ui| {
-            ui.ctx().style_mut(|stl| {
-                stl.spacing.button_padding = egui::Vec2::new(8., 2.);
-            });
             if ui
                 .add(
-                    bundle_icon(16., 16., "Bundles")
+                    add_entity_icon(16., 16., "")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Add new entity")
+                .clicked()
+            {
+                let id = commands.spawn_empty().insert(PrefabMarker).id();
+                changes.send(NewChange {
+                    change: Arc::new(AddedEntity { entity: id }),
+                });
+            }
+            if ui
+                .add(
+                    add_bundle_icon(16., 16., "")
                         .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
                 )
                 .on_hover_text("Spawnable preset bundles")

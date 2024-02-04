@@ -83,10 +83,12 @@ impl EditorTool for GizmoTool {
 
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
+            let stl = ui.style_mut();
+            stl.spacing.button_padding = egui::Vec2::new(8., 4.);
+            stl.spacing.item_spacing = egui::Vec2::new(0., 4.);
             for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.add(mode.to_button()
-                        .fill(Color32::from_rgb(76, 93, 235)))
+                    ui.add(mode.to_button().fill(Color32::from_rgb(76, 93, 235)))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();
@@ -357,9 +359,9 @@ trait ToButton {
 impl ToButton for GizmoMode {
     fn to_button(&self) -> egui::Button {
         match self {
-            GizmoMode::Rotate => rotation_icon(16., 16., ""),
-            GizmoMode::Translate => translate_icon(16., 16., ""),
-            GizmoMode::Scale => scale_icon(16., 16., ""),
+            GizmoMode::Rotate => rotation_icon(18., 18., ""),
+            GizmoMode::Translate => translate_icon(18., 18., ""),
+            GizmoMode::Scale => scale_icon(18., 18., ""),
         }
     }
 }

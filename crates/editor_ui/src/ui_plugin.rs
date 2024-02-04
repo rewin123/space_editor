@@ -205,7 +205,6 @@ pub fn show_editor_ui(world: &mut World) {
         stl.spacing.button_padding = Vec2::new(8., 2.);
         stl.spacing.icon_spacing = 4.;
         stl.spacing.icon_width = 16.;
-        // stl.spacing.item_spacing = Vec2::new(4., 8.);
         stl.spacing.menu_margin = Margin {
             left: 8.,
             right: 8.,
