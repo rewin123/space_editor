@@ -52,42 +52,46 @@ impl EditorTab for GameViewTab {
 
         self.viewport_rect = Some(ui.clip_rect());
 
-        //Draw FPS
-        let dt = world.get_resource::<Time>().unwrap().delta_seconds();
-        self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
-        ui.colored_label(
-            egui::Color32::WHITE,
-            format!("FPS: {:.0}", 1.0 / self.smoothed_dt),
-        );
+        ui.horizontal(|ui| {
+            ui.style_mut().visuals.override_text_color = Some(egui::Color32::WHITE);
 
-        //Tool processing
-        if self.tools.is_empty() {
-            return;
-        }
+            //Tool processing
+            if self.tools.is_empty() {
+                return;
+            }
 
-        let selected_tool_name = if let Some(tool_id) = self.active_tool {
-            self.tools[tool_id].name()
-        } else {
-            "None"
-        };
+            let selected_tool_name = if let Some(tool_id) = self.active_tool {
+                self.tools[tool_id].name()
+            } else {
+                "None"
+            };
 
-        ui.style_mut().visuals.override_text_color = Some(egui::Color32::WHITE);
-        egui::ComboBox::new("tool", "Tool")
-            .selected_text(selected_tool_name)
-            .show_ui(ui, |ui| {
-                for (i, tool) in self.tools.iter().enumerate() {
-                    if ui
-                        .selectable_label(self.active_tool == Some(i), tool.name())
-                        .clicked()
-                    {
-                        self.active_tool = Some(i);
+            egui::ComboBox::new("tool", "")
+                .selected_text(selected_tool_name)
+                .show_ui(ui, |ui| {
+                    for (i, tool) in self.tools.iter().enumerate() {
+                        if ui
+                            .selectable_label(self.active_tool == Some(i), tool.name())
+                            .clicked()
+                        {
+                            self.active_tool = Some(i);
+                        }
                     }
-                }
-            });
+                });
 
-        if let Some(tool_id) = self.active_tool {
-            self.tools[tool_id].ui(ui, commands, world);
-        }
+            if let Some(tool_id) = self.active_tool {
+                self.tools[tool_id].ui(ui, commands, world);
+            }
+
+            ui.spacing();
+            //Draw FPS
+            let dt = world.get_resource::<Time>().unwrap().delta_seconds();
+            self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
+            ui.colored_label(
+                egui::Color32::WHITE,
+                format!("FPS: {:.0}", 1.0 / self.smoothed_dt),
+            );
+        });
     }
 
     fn title(&self) -> bevy_egui::egui::WidgetText {

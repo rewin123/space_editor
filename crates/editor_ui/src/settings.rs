@@ -202,12 +202,12 @@ impl EditorTab for SettingsWindow {
             );
         });
 
-        ui.add_space(8.);
+        ui.spacing();
         ui.heading("New Tab Behaviour");
         let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
         new_window_settings.ui(ui);
 
-        ui.add_space(8.);
+        ui.spacing();
         ui.heading("Hotkeys in Game view tab");
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")

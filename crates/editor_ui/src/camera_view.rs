@@ -139,15 +139,15 @@ impl EditorTab for CameraViewTab {
                         );
                     }
                 });
-            ui.add_space(4.);
+            ui.spacing();
             ui.separator();
         } else {
             ui.label(egui::RichText::new("No available Cameras").color(Color32::LIGHT_RED));
 
-            ui.add_space(4.);
+            ui.spacing();
             ui.separator();
             if world.resource::<GameModeSettings>().is_3d() {
-                ui.add_space(4.);
+                ui.spacing();
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
                         Camera3d::default(),
@@ -159,7 +159,7 @@ impl EditorTab for CameraViewTab {
                     ));
                 }
             } else {
-                ui.add_space(4.);
+                ui.spacing();
                 if ui.button("Add 2D Playmode Camera").clicked() {
                     commands.spawn((
                         Camera2d::default(),

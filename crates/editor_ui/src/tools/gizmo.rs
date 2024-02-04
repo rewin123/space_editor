@@ -84,8 +84,8 @@ impl EditorTool for GizmoTool {
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
             let stl = ui.style_mut();
-            stl.spacing.button_padding = egui::Vec2::new(8., 4.);
-            stl.spacing.item_spacing = egui::Vec2::new(0., 4.);
+            stl.spacing.button_padding = egui::Vec2::new(4., 2.);
+            stl.spacing.item_spacing = egui::Vec2::new(1., 0.);
             for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
                     ui.add(mode.to_button().fill(Color32::from_rgb(76, 93, 235)))

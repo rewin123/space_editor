@@ -63,7 +63,7 @@ pub fn menu(
     egui::TopBottomPanel::bottom("bottom_menu")
         .exact_height(28.)
         .show(ctx, |ui| {
-            ui.add_space(2.);
+            ui.spacing();
             ui.horizontal(|ui| {
                 ui.label("Save path:");
                 ui.add(egui::TextEdit::singleline(&mut menu_state.path));
