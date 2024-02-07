@@ -40,7 +40,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
-            .add(bottom_menu::BottomMenuPlugin)
+            .add(menu_toolbars::BottomMenuPlugin)
             .add(MouseCheck)
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
@@ -115,8 +115,8 @@ impl Plugin for EditorUiCore {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
-                    .after(bottom_menu::top_menu)
-                    .after(bottom_menu::bottom_menu),
+                    .after(menu_toolbars::top_menu)
+                    .after(menu_toolbars::bottom_menu),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),

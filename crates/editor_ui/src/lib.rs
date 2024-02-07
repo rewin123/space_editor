@@ -6,8 +6,8 @@ mod mouse_check;
 /// This module will be used to create Unity like project file dialog. Currently NOT USED
 pub mod asset_inspector;
 
-/// This module contains logic for bottom menu
-pub mod bottom_menu;
+/// This module contains logic for menu toolbars
+pub mod menu_toolbars;
 
 /// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
@@ -106,7 +106,7 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
+        asset_inspector::*, menu_toolbars::*, change_chain::*, debug_panels::*, editor_tab::*,
         game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
         tools::*, ui_registration::*,
     };
