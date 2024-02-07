@@ -8,15 +8,13 @@ use bevy::{
     },
     window::PrimaryWindow,
 };
-use bevy_egui::{
-    egui::{self, Color32},
-    EguiContexts,
-};
+use bevy_egui::{egui, EguiContexts};
 
 use space_prefab::component::CameraPlay;
 use space_shared::*;
 
 use crate::{
+    colors::ERROR_COLOR,
     prelude::{EditorTabName, GameModeSettings},
     show_editor_ui, DisableCameraSkip, EditorUiAppExt, RenderLayers,
 };
@@ -142,7 +140,7 @@ impl EditorTab for CameraViewTab {
             ui.spacing();
             ui.separator();
         } else {
-            ui.label(egui::RichText::new("No available Cameras").color(Color32::LIGHT_RED));
+            ui.label(egui::RichText::new("No available Cameras").color(ERROR_COLOR));
 
             ui.spacing();
             ui.separator();

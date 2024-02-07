@@ -1,12 +1,13 @@
 use crate::*;
 use bevy::prelude::*;
 use bevy_egui::egui::{
-    Color32,
     FontFamily::{Monospace, Proportional},
     FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
 };
 use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
+
+use self::colors::*;
 
 /// All systems for editor ui wil be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -212,9 +213,9 @@ pub fn show_editor_ui(world: &mut World) {
             top: 4.,
             bottom: 8.,
         };
-        stl.visuals.error_fg_color = Color32::from_rgb(255, 59, 33);
-        stl.visuals.hyperlink_color = Color32::from_rgb(99, 235, 231);
-        stl.visuals.warn_fg_color = Color32::from_rgb(225, 206, 67);
+        stl.visuals.error_fg_color = ERROR_COLOR;
+        stl.visuals.hyperlink_color = HYPERLINK_COLOR;
+        stl.visuals.warn_fg_color = WARM_COLOR;
         stl.visuals.menu_rounding = Rounding::same(0.5);
         stl.text_styles = [
             (ETextStyle::Small, FontId::new(10.0, Proportional)),

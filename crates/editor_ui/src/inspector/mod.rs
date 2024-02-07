@@ -253,7 +253,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                                         ui.with_layout(
                                             egui::Layout::top_down(egui::Align::Min),
                                             |ui| {
-                                                if ui.button("X").clicked() {
+                                                if ui.button("🗙").clicked() {
                                                     commands.push(InspectCommand::RemoveComponent(
                                                         e.id(),
                                                         *t_id,

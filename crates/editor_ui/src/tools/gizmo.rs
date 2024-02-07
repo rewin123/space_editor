@@ -1,10 +1,11 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
-use bevy_egui::egui::{self, Color32, Key};
+use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
 use crate::{
+    colors::SELECTED_ITEM_COLOR,
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
@@ -88,7 +89,7 @@ impl EditorTool for GizmoTool {
             stl.spacing.item_spacing = egui::Vec2::new(1., 0.);
             for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.add(mode.to_button().fill(Color32::from_rgb(76, 93, 235)))
+                    ui.add(mode.to_button().fill(SELECTED_ITEM_COLOR))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();

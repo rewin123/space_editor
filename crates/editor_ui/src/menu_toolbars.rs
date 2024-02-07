@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use bevy::prelude::*;
 use bevy_egui::{
-    egui::{Align, Color32, Stroke},
+    egui::{Align, Align2, Margin, Pos2, Widget},
     *,
 };
 use space_editor_core::prelude::*;
@@ -11,6 +11,7 @@ use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
+    colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon},
     ui_registration::{BundleReg, EditorBundleUntyped},
@@ -96,10 +97,7 @@ pub fn bottom_menu(
             stl.spacing.button_padding = egui::Vec2::new(8., 2.);
 
             if ui
-                .add(
-                    delete_entity_icon(16., 16., "")
-                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
-                )
+                .add(delete_entity_icon(16., 16., "").stroke(stroke_default_color()))
                 .on_hover_text("Clear all entities")
                 .clicked()
             {
@@ -112,10 +110,7 @@ pub fn bottom_menu(
                 }
             }
             if ui
-                .add(
-                    add_entity_icon(16., 16., "")
-                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
-                )
+                .add(add_entity_icon(16., 16., "").stroke(stroke_default_color()))
                 .on_hover_text("Add new entity")
                 .clicked()
             {
@@ -124,38 +119,67 @@ pub fn bottom_menu(
                     change: Arc::new(AddedEntity { entity: id }),
                 });
             }
-            if ui
-                .add(
-                    add_bundle_icon(16., 16., "")
-                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
-                )
+            let spawnable_button = add_bundle_icon(16., 16., "").stroke(stroke_default_color());
+
+            let spawnables = ui.add(if state.show_spawnable_bundles {
+                spawnable_button.fill(SELECTED_ITEM_COLOR)
+            } else {
+                spawnable_button
+            });
+            let spawnable_pos = Pos2 {
+                x: 16.,
+                y: spawnables.rect.right_top().y - 4.,
+            };
+            if spawnables
                 .on_hover_text("Spawnable preset bundles")
                 .clicked()
             {
                 state.show_spawnable_bundles = !state.show_spawnable_bundles;
             }
-            ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
-            if state.show_spawnable_bundles {
-                ui.vertical(|ui| {
-                    for (category_name, category_bundle) in ui_reg.bundles.iter() {
-                        ui.menu_button(category_name, |ui| {
-                            let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
-                                category_bundle.iter().collect();
-                            categories_vec.sort_by(|a, b| a.0.cmp(b.0));
 
-                            for (name, dyn_bundle) in categories_vec {
-                                if ui.button(name).clicked() {
-                                    let entity = dyn_bundle.spawn(&mut commands);
-                                    changes.send(NewChange {
-                                        change: Arc::new(AddedEntity { entity }),
-                                    });
-                                }
+            if state.show_spawnable_bundles {
+                egui::Window::new("Bundles")
+                    .frame(
+                        egui::Frame::none()
+                            .inner_margin(Margin::symmetric(8., 4.))
+                            .rounding(3.)
+                            .stroke(stroke_default_color())
+                            .fill(SPECIAL_BG_COLOR),
+                    )
+                    .collapsible(false)
+                    .pivot(Align2::LEFT_BOTTOM)
+                    .default_pos(spawnable_pos)
+                    .default_size(egui::Vec2::new(80., 80.))
+                    .title_bar(false)
+                    .show(ctx, |ui| {
+                        egui::menu::bar(ui, |ui| {
+                            ui.spacing();
+                            for (category_name, category_bundle) in ui_reg.bundles.iter() {
+                                ui.menu_button(category_name, |ui| {
+                                    let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
+                                        category_bundle.iter().collect();
+                                    categories_vec.sort_by(|a, b| a.0.cmp(b.0));
+
+                                    for (name, dyn_bundle) in categories_vec {
+                                        let button = egui::Button::new(name).ui(ui);
+                                        if button.clicked() {
+                                            let entity = dyn_bundle.spawn(&mut commands);
+                                            changes.send(NewChange {
+                                                change: Arc::new(AddedEntity { entity }),
+                                            });
+                                        }
+                                    }
+                                });
+                                ui.add_space(32.);
+                            }
+                            if ui.button("🗙").clicked() {
+                                state.show_spawnable_bundles = !state.show_spawnable_bundles;
                             }
                         });
-                        ui.separator();
-                    }
-                });
+                    });
             }
+            ui.spacing();
+            ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
         });
     });
 }
@@ -175,8 +199,8 @@ pub fn top_menu(
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
-
-                if ui.button("📂").clicked() {
+                let open_button = egui::Button::new("📂").stroke(stroke_default_color());
+                if ui.add(open_button).clicked() {
                     let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
                         .show_files_filter(Box::new(|path| {
                             path.to_str().unwrap().ends_with(".scn.ron")
@@ -244,14 +268,20 @@ pub fn top_menu(
 
                 ui.label("Scene save path:");
                 ui.add(egui::TextEdit::singleline(&mut menu_state.path));
-                if ui.button("Save scene").clicked() {
-                    editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
-                        "{}.scn.ron",
-                        menu_state.path.clone()
-                    ))));
+                let save_button = egui::Button::new("💾 Save scene").stroke(stroke_default_color());
+                if ui.add(save_button).clicked() {
+                    if !menu_state.path.is_empty() {
+                        editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
+                            "{}.scn.ron",
+                            menu_state.path.clone()
+                        ))));
+                    } else {
+                        error!("[Cannot save empty path]: Save scene name is empty")
+                    }
                 }
 
-                if ui.button("Load scene").clicked() && !menu_state.path.is_empty() {
+                let load_button = egui::Button::new("📤 Load scene").stroke(stroke_default_color());
+                if ui.add(load_button).clicked() && !menu_state.path.is_empty() {
                     editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
                         "{}.scn.ron",
                         menu_state.path.clone()
@@ -261,7 +291,9 @@ pub fn top_menu(
                     // );
                 }
 
-                if ui.button("Open gltf prefab").clicked() {
+                let open_gltf_button =
+                    egui::Button::new("Open gltf prefab").stroke(stroke_default_color());
+                if ui.add(open_gltf_button).clicked() {
                     let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
                         .show_files_filter(Box::new(|path| {
                             path.to_str().unwrap().ends_with(".gltf")
@@ -276,7 +308,10 @@ pub fn top_menu(
                 }
 
                 ui.spacing();
-                if ui.button("▶").clicked() {
+                let load_button = egui::Button::new("▶")
+                    .fill(SPECIAL_BG_COLOR)
+                    .stroke(stroke_default_color());
+                if ui.add(load_button).clicked() {
                     editor_events.send(EditorEvent::StartGame);
                 }
 

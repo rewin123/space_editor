@@ -5,7 +5,7 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
-use crate::{prelude::EditorTabName, EditorUiAppExt};
+use crate::{colors::TEXT_COLOR, prelude::EditorTabName, EditorUiAppExt};
 
 use super::{editor_tab::EditorTab, tool::EditorTool};
 
@@ -53,7 +53,7 @@ impl EditorTab for GameViewTab {
         self.viewport_rect = Some(ui.clip_rect());
 
         ui.horizontal(|ui| {
-            ui.style_mut().visuals.override_text_color = Some(egui::Color32::WHITE);
+            ui.style_mut().visuals.override_text_color = Some(TEXT_COLOR);
 
             //Tool processing
             if self.tools.is_empty() {
@@ -89,10 +89,7 @@ impl EditorTab for GameViewTab {
             //Draw FPS
             let dt = world.get_resource::<Time>().unwrap().delta_seconds();
             self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
-            ui.colored_label(
-                egui::Color32::WHITE,
-                format!("FPS: {:.0}", 1.0 / self.smoothed_dt),
-            );
+            ui.colored_label(TEXT_COLOR, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
         });
     }
 
