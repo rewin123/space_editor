@@ -72,16 +72,16 @@ impl Plugin for DefaultEditorLayoutPlugin {
         let mut editor = app.world.resource_mut::<EditorUi>();
         editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
 
-        let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
+        let [_game, hierarchy] = editor.tree.main_surface_mut().split_left(
             egui_dock::NodeIndex::root(),
-            0.8,
+            0.2,
+            vec![EditorTabName::Hierarchy],
+        );
+        let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(
+            hierarchy,
+            0.3,
             vec![EditorTabName::Inspector],
         );
-        let [_hierarchy, _game] =
-            editor
-                .tree
-                .main_surface_mut()
-                .split_left(_game, 0.2, vec![EditorTabName::Hierarchy]);
     }
 }
 
@@ -115,7 +115,8 @@ impl Plugin for EditorUiCore {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
-                    .after(bottom_menu::menu),
+                    .after(bottom_menu::top_menu)
+                    .after(bottom_menu::bottom_menu),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),

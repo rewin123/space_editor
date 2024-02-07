@@ -1,8 +1,20 @@
+use std::sync::Arc;
+
 use bevy::prelude::*;
-use bevy_egui::*;
+use bevy_egui::{
+    egui::{Align, Color32, Stroke},
+    *,
+};
 use space_editor_core::prelude::*;
 use space_prefab::plugins::PrefabPlugin;
 use space_shared::{ext::egui_file, *};
+use space_undo::{AddedEntity, NewChange, RemovedEntity};
+
+use crate::{
+    hierarchy::{HierarchyQueryIter, HierarchyTabState},
+    icons::{add_bundle_icon, add_entity_icon, delete_entity_icon},
+    ui_registration::{BundleReg, EditorBundleUntyped},
+};
 
 /// Plugin to activate bottom menu in editor UI
 pub struct BottomMenuPlugin;
@@ -15,7 +27,14 @@ impl Plugin for BottomMenuPlugin {
         app.init_resource::<EditorLoader>();
         app.init_resource::<BottomMenuState>();
 
-        app.add_systems(Update, menu.before(EditorLoadSet).in_set(EditorSet::Editor));
+        app.add_systems(
+            Update,
+            bottom_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
+        );
+        app.add_systems(
+            Update,
+            top_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
+        );
         app.add_systems(Update, in_game_menu.in_set(EditorSet::Game));
         app.add_event::<MenuLoadEvent>();
     }
@@ -30,18 +49,28 @@ fn in_game_menu(
     mut smoothed_dt: Local<f32>,
     mut ctxs: EguiContexts,
     mut state: ResMut<NextState<EditorState>>,
-    time: Res<Time>,
+    mut time: ResMut<Time<Virtual>>,
 ) {
-    egui::TopBottomPanel::bottom("bottom_gameplay_panel").show(ctxs.ctx_mut(), |ui| {
-        ui.vertical_centered(|ui| {
-            if ui.button("⏸").clicked() {
-                state.set(EditorState::Editor);
-            }
-
+    egui::TopBottomPanel::top("top_gameplay_panel")
+        .exact_height(28.)
+        .show(ctxs.ctx_mut(), |ui| {
             *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
-            ui.label(format!("FPS: {:.0}", 1.0 / *smoothed_dt));
+            let layout = egui::Layout::left_to_right(Align::Center).with_main_align(Align::Center);
+            ui.with_layout(layout, |ui| {
+                if ui.button("⏸").clicked() {
+                    if time.is_paused() {
+                        time.unpause();
+                    } else {
+                        time.pause();
+                    }
+                }
+                if ui.button("⏹").clicked() {
+                    state.set(EditorState::Editor);
+                }
+                ui.spacing();
+                ui.label(format!("FPS: {:.0}", 1.0 / *smoothed_dt));
+            });
         });
-    });
 }
 
 #[derive(Resource, Default)]
@@ -51,7 +80,87 @@ pub struct BottomMenuState {
     pub path: String,
 }
 
-pub fn menu(
+pub fn bottom_menu(
+    mut commands: Commands,
+    query: Query<HierarchyQueryIter, With<PrefabMarker>>,
+    mut ctxs: EguiContexts,
+    _state: ResMut<NextState<EditorState>>,
+    mut changes: EventWriter<NewChange>,
+    mut state: ResMut<HierarchyTabState>,
+    ui_reg: Res<BundleReg>,
+) {
+    let ctx = ctxs.ctx_mut();
+    egui::TopBottomPanel::bottom("bottom_menu").show(ctx, |ui| {
+        egui::menu::bar(ui, |ui| {
+            let stl = ui.style_mut();
+            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
+
+            if ui
+                .add(
+                    delete_entity_icon(16., 16., "")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Clear all entities")
+                .clicked()
+            {
+                for (entity, _, _, _parent) in query.iter() {
+                    commands.entity(entity).despawn_recursive();
+
+                    changes.send(NewChange {
+                        change: Arc::new(RemovedEntity { entity }),
+                    });
+                }
+            }
+            if ui
+                .add(
+                    add_entity_icon(16., 16., "")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Add new entity")
+                .clicked()
+            {
+                let id = commands.spawn_empty().insert(PrefabMarker).id();
+                changes.send(NewChange {
+                    change: Arc::new(AddedEntity { entity: id }),
+                });
+            }
+            if ui
+                .add(
+                    add_bundle_icon(16., 16., "")
+                        .stroke(Stroke::new(1., Color32::from_rgb(70, 70, 70))),
+                )
+                .on_hover_text("Spawnable preset bundles")
+                .clicked()
+            {
+                state.show_spawnable_bundles = !state.show_spawnable_bundles;
+            }
+            ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
+            if state.show_spawnable_bundles {
+                ui.vertical(|ui| {
+                    for (category_name, category_bundle) in ui_reg.bundles.iter() {
+                        ui.menu_button(category_name, |ui| {
+                            let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
+                                category_bundle.iter().collect();
+                            categories_vec.sort_by(|a, b| a.0.cmp(b.0));
+
+                            for (name, dyn_bundle) in categories_vec {
+                                if ui.button(name).clicked() {
+                                    let entity = dyn_bundle.spawn(&mut commands);
+                                    changes.send(NewChange {
+                                        change: Arc::new(AddedEntity { entity }),
+                                    });
+                                }
+                            }
+                        });
+                        ui.separator();
+                    }
+                });
+            }
+        });
+    });
+}
+
+pub fn top_menu(
     mut ctxs: EguiContexts,
     _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
@@ -60,13 +169,12 @@ pub fn menu(
     background_tasks: Res<BackgroundTaskStorage>,
 ) {
     let ctx = ctxs.ctx_mut();
-    egui::TopBottomPanel::bottom("bottom_menu")
+    egui::TopBottomPanel::top("top_menu_bar")
         .exact_height(28.)
         .show(ctx, |ui| {
-            ui.spacing();
-            ui.horizontal(|ui| {
-                ui.label("Save path:");
-                ui.add(egui::TextEdit::singleline(&mut menu_state.path));
+            egui::menu::bar(ui, |ui| {
+                let stl = ui.style_mut();
+                stl.spacing.button_padding = egui::Vec2::new(8., 2.);
 
                 if ui.button("📂").clicked() {
                     let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
@@ -134,14 +242,16 @@ pub fn menu(
                     }
                 }
 
-                if ui.button("Save").clicked() {
+                ui.label("Scene save path:");
+                ui.add(egui::TextEdit::singleline(&mut menu_state.path));
+                if ui.button("Save scene").clicked() {
                     editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
                         "{}.scn.ron",
                         menu_state.path.clone()
                     ))));
                 }
 
-                if ui.button("Load").clicked() && !menu_state.path.is_empty() {
+                if ui.button("Load scene").clicked() && !menu_state.path.is_empty() {
                     editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
                         "{}.scn.ron",
                         menu_state.path.clone()
@@ -151,7 +261,7 @@ pub fn menu(
                     // );
                 }
 
-                if ui.button("Open gltf as prefab").clicked() {
+                if ui.button("Open gltf prefab").clicked() {
                     let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
                         .show_files_filter(Box::new(|path| {
                             path.to_str().unwrap().ends_with(".gltf")
@@ -165,6 +275,7 @@ pub fn menu(
                     // ));
                 }
 
+                ui.spacing();
                 if ui.button("▶").clicked() {
                     editor_events.send(EditorEvent::StartGame);
                 }

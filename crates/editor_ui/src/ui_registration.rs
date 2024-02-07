@@ -80,7 +80,7 @@ impl EditorUiExt for App {
 
 pub fn register_light_editor_bundles(app: &mut App) {
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Point light",
         (
             Name::new("Point light"),
@@ -90,7 +90,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Directional light",
         (
             Name::new("Directional light"),
@@ -100,7 +100,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Spot light",
         (
             Name::new("Spot light"),
