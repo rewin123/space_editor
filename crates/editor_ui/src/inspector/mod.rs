@@ -22,7 +22,7 @@ use space_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::icons::add_component_icon;
+use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon};
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -253,7 +253,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                                         ui.with_layout(
                                             egui::Layout::top_down(egui::Align::Min),
                                             |ui| {
-                                                if ui.button("🗙").clicked() {
+                                                let button =
+                                                    egui::Button::new("🗙").fill(DEFAULT_BG_COLOR);
+                                                if ui.add(button).clicked() {
                                                     commands.push(InspectCommand::RemoveComponent(
                                                         e.id(),
                                                         *t_id,
