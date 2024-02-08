@@ -193,143 +193,142 @@ pub fn top_menu(
     background_tasks: Res<BackgroundTaskStorage>,
 ) {
     let ctx = ctxs.ctx_mut();
-    egui::TopBottomPanel::top("top_menu_bar")
-        .exact_height(28.)
-        .show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
-                let stl = ui.style_mut();
-                stl.spacing.button_padding = egui::Vec2::new(8., 2.);
-                let open_button = egui::Button::new("📂").stroke(stroke_default_color());
-                if ui.add(open_button).clicked() {
-                    let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                        .show_files_filter(Box::new(|path| {
-                            path.to_str().unwrap().ends_with(".scn.ron")
-                        }))
-                        .title("Open prefab (*.scn.ron)");
-                    dialog.open();
-                    menu_state.file_dialog = Some(dialog);
-                }
+    egui::TopBottomPanel::top("top_menu_bar").show(ctx, |ui| {
+        egui::menu::bar(ui, |ui| {
+            let stl = ui.style_mut();
+            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
+            let open_button = egui::Button::new("📂").stroke(stroke_default_color());
+            if ui.add(open_button).clicked() {
+                let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
+                    .show_files_filter(Box::new(|path| {
+                        path.to_str().unwrap().ends_with(".scn.ron")
+                    }))
+                    .title("Open prefab (*.scn.ron)");
+                dialog.open();
+                menu_state.file_dialog = Some(dialog);
+            }
 
-                if let Some(dialog) = &mut menu_state.file_dialog {
-                    if dialog.show(ctx).selected() {
-                        if let Some(file) = dialog.path() {
-                            let mut path = file.to_str().unwrap().to_string();
-                            //remove assets/ from path
-                            if path.starts_with("assets/") {
-                                path = path.replace("assets/", "");
-                                //remove .scn.ron
-                                path = path.replace(".scn.ron", "");
-                                menu_state.path = path;
-                                editor_events.send(EditorEvent::Load(EditorPrefabPath::File(
-                                    format!("{}.scn.ron", menu_state.path.clone()),
-                                )));
-                            }
+            if let Some(dialog) = &mut menu_state.file_dialog {
+                if dialog.show(ctx).selected() {
+                    if let Some(file) = dialog.path() {
+                        let mut path = file.to_str().unwrap().to_string();
+                        //remove assets/ from path
+                        if path.starts_with("assets/") {
+                            path = path.replace("assets/", "");
+                            //remove .scn.ron
+                            path = path.replace(".scn.ron", "");
+                            menu_state.path = path;
+                            editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
+                                "{}.scn.ron",
+                                menu_state.path.clone()
+                            ))));
                         }
-                    } else {
-                        let mut need_move_to_default_dir = false;
-                        if let Some(path) = dialog.directory().to_str() {
-                            if !path.contains("assets") {
-                                need_move_to_default_dir = true;
-                            }
-                        } else {
+                    }
+                } else {
+                    let mut need_move_to_default_dir = false;
+                    if let Some(path) = dialog.directory().to_str() {
+                        if !path.contains("assets") {
                             need_move_to_default_dir = true;
                         }
-                        if need_move_to_default_dir {
-                            dialog.set_path("assets/");
-                        }
+                    } else {
+                        need_move_to_default_dir = true;
+                    }
+                    if need_move_to_default_dir {
+                        dialog.set_path("assets/");
                     }
                 }
+            }
 
-                if let Some(gltf_dialog) = &mut menu_state.gltf_dialog {
-                    if gltf_dialog.show(ctx).selected() {
-                        if let Some(file) = gltf_dialog.path() {
-                            let mut path = file.to_str().unwrap().to_string();
-                            //remove assets/ from path
-                            if path.starts_with("assets/") {
-                                path = path.replace("assets/", "");
+            if let Some(gltf_dialog) = &mut menu_state.gltf_dialog {
+                if gltf_dialog.show(ctx).selected() {
+                    if let Some(file) = gltf_dialog.path() {
+                        let mut path = file.to_str().unwrap().to_string();
+                        //remove assets/ from path
+                        if path.starts_with("assets/") {
+                            path = path.replace("assets/", "");
 
-                                editor_events.send(EditorEvent::LoadGltfAsPrefab(path));
-                            }
+                            editor_events.send(EditorEvent::LoadGltfAsPrefab(path));
                         }
-                    } else {
-                        let mut need_move_to_default_dir = false;
-                        if let Some(path) = gltf_dialog.directory().to_str() {
-                            if !path.contains("assets") {
-                                need_move_to_default_dir = true;
-                            }
-                        } else {
+                    }
+                } else {
+                    let mut need_move_to_default_dir = false;
+                    if let Some(path) = gltf_dialog.directory().to_str() {
+                        if !path.contains("assets") {
                             need_move_to_default_dir = true;
                         }
-                        if need_move_to_default_dir {
-                            gltf_dialog.set_path("assets/");
-                        }
-                    }
-                }
-
-                ui.label("Scene save path:");
-                ui.add(egui::TextEdit::singleline(&mut menu_state.path));
-                let save_button = egui::Button::new("💾 Save scene").stroke(stroke_default_color());
-                if ui.add(save_button).clicked() {
-                    if !menu_state.path.is_empty() {
-                        editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
-                            "{}.scn.ron",
-                            menu_state.path.clone()
-                        ))));
                     } else {
-                        error!("[Cannot save empty path]: Save scene name is empty")
+                        need_move_to_default_dir = true;
+                    }
+                    if need_move_to_default_dir {
+                        gltf_dialog.set_path("assets/");
                     }
                 }
+            }
 
-                let load_button = egui::Button::new("📤 Load scene").stroke(stroke_default_color());
-                if ui.add(load_button).clicked() && !menu_state.path.is_empty() {
-                    editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
+            ui.label("Scene save path:");
+            ui.add(egui::TextEdit::singleline(&mut menu_state.path));
+            let save_button = egui::Button::new("💾 Save scene").stroke(stroke_default_color());
+            if ui.add(save_button).clicked() {
+                if !menu_state.path.is_empty() {
+                    editor_events.send(EditorEvent::Save(EditorPrefabPath::File(format!(
                         "{}.scn.ron",
                         menu_state.path.clone()
                     ))));
-                    // load_server.scene = Some(
-                    //     assets.load(format!("{}.scn.ron",save_confg.path))
-                    // );
+                } else {
+                    error!("[Cannot save empty path]: Save scene name is empty")
                 }
+            }
 
-                let open_gltf_button =
-                    egui::Button::new("Open gltf prefab").stroke(stroke_default_color());
-                if ui.add(open_gltf_button).clicked() {
-                    let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
-                        .show_files_filter(Box::new(|path| {
-                            path.to_str().unwrap().ends_with(".gltf")
-                                || path.to_str().unwrap().ends_with(".glb")
-                        }))
-                        .title("Open gltf scene");
-                    gltf_dialog.open();
-                    menu_state.gltf_dialog = Some(gltf_dialog);
-                    // editor_events.send(EditorEvent::LoadGltfAsPrefab(
-                    //     "low_poly_fighter_2.gltf".to_string()
-                    // ));
-                }
+            let load_button = egui::Button::new("📤 Load scene").stroke(stroke_default_color());
+            if ui.add(load_button).clicked() && !menu_state.path.is_empty() {
+                editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
+                    "{}.scn.ron",
+                    menu_state.path.clone()
+                ))));
+                // load_server.scene = Some(
+                //     assets.load(format!("{}.scn.ron",save_confg.path))
+                // );
+            }
 
-                ui.spacing();
-                let load_button = egui::Button::new("▶")
-                    .fill(SPECIAL_BG_COLOR)
-                    .stroke(stroke_default_color());
-                if ui.add(load_button).clicked() {
-                    editor_events.send(EditorEvent::StartGame);
-                }
+            let open_gltf_button =
+                egui::Button::new("Open gltf prefab").stroke(stroke_default_color());
+            if ui.add(open_gltf_button).clicked() {
+                let mut gltf_dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
+                    .show_files_filter(Box::new(|path| {
+                        path.to_str().unwrap().ends_with(".gltf")
+                            || path.to_str().unwrap().ends_with(".glb")
+                    }))
+                    .title("Open gltf scene");
+                gltf_dialog.open();
+                menu_state.gltf_dialog = Some(gltf_dialog);
+                // editor_events.send(EditorEvent::LoadGltfAsPrefab(
+                //     "low_poly_fighter_2.gltf".to_string()
+                // ));
+            }
 
-                ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
-                    if !background_tasks.tasks.is_empty() {
-                        //Spinning circle
-                        ui.spinner();
+            ui.spacing();
+            let load_button = egui::Button::new("▶")
+                .fill(SPECIAL_BG_COLOR)
+                .stroke(stroke_default_color());
+            if ui.add(load_button).clicked() {
+                editor_events.send(EditorEvent::StartGame);
+            }
 
-                        match &background_tasks.tasks[0] {
-                            BackgroundTask::AssetLoading(path, _) => {
-                                ui.label(format!("Loading {}", path));
-                            }
-                            BackgroundTask::None => {}
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
+                if !background_tasks.tasks.is_empty() {
+                    //Spinning circle
+                    ui.spinner();
+
+                    match &background_tasks.tasks[0] {
+                        BackgroundTask::AssetLoading(path, _) => {
+                            ui.label(format!("Loading {}", path));
                         }
+                        BackgroundTask::None => {}
                     }
-                });
+                }
             });
         });
+    });
 
     for event in events.read() {
         menu_state.path = event.path.clone();
