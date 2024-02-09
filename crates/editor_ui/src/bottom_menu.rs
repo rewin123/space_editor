@@ -30,11 +30,18 @@ fn in_game_menu(
     mut smoothed_dt: Local<f32>,
     mut ctxs: EguiContexts,
     mut state: ResMut<NextState<EditorState>>,
-    time: Res<Time>,
+    mut time: ResMut<Time<Virtual>>,
 ) {
-    egui::TopBottomPanel::bottom("bottom_gameplay_panel").show(ctxs.ctx_mut(), |ui| {
-        ui.vertical_centered(|ui| {
+    egui::TopBottomPanel::top("bottom_gameplay_panel").show(ctxs.ctx_mut(), |ui| {
+        ui.horizontal_wrapped(|ui| {
             if ui.button("⏸").clicked() {
+                if time.is_paused() {
+                    time.unpause();
+                } else {
+                    time.pause();
+                }
+            }
+            if ui.button("■").clicked() {
                 state.set(EditorState::Editor);
             }
 
