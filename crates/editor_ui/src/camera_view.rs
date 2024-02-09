@@ -310,10 +310,14 @@ fn set_camera_viewport(
 
     *real_cam_transform = *camera_transform;
 
+    #[cfg(target_os = "macos")]
     let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    #[cfg(not(target_os = "macos"))]
+    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
     let cam_aspect_ratio = watch_cam
         .logical_viewport_size()
         .map(|cam| cam.y as f64 / cam.x as f64);
+    #[cfg(target_os = "macos")]
     if let Some(ratio) = cam_aspect_ratio {
         scale_factor *= ratio;
     }
