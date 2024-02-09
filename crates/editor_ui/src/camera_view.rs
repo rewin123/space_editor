@@ -18,7 +18,7 @@ use space_shared::*;
 
 use crate::{
     prelude::{EditorTabName, GameModeSettings},
-    show_editor_ui, DisableCameraSkip, EditorUiAppExt, RenderLayers,
+    DisableCameraSkip, EditorUiAppExt, RenderLayers,
 };
 
 use super::editor_tab::EditorTab;
