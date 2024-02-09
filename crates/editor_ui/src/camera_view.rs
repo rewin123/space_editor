@@ -18,7 +18,7 @@ use space_shared::*;
 
 use crate::{
     prelude::{EditorTabName, GameModeSettings},
-    show_editor_ui, DisableCameraSkip, EditorUiAppExt, RenderLayers,
+    DisableCameraSkip, EditorUiAppExt, RenderLayers,
 };
 
 use super::editor_tab::EditorTab;
@@ -29,10 +29,10 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(
-            PostUpdate,
+            Update,
             set_camera_viewport
                 .in_set(EditorSet::Editor)
-                .after(show_editor_ui),
+                .after(super::game_view::set_camera_viewport),
         );
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -127,7 +127,11 @@ impl EditorTab for CameraViewTab {
             Without<ViewCamera>,
         )>();
 
-        if camera_query.iter(world).count() > 0 {
+        if camera_query.iter(world).count() == 1 {
+            let selected_entity = camera_query.iter(world).next();
+            self.camera_entity = selected_entity;
+            ui.label(format!("Camera: {:?}", selected_entity.unwrap()));
+        } else if camera_query.iter(world).count() > 0 {
             egui::ComboBox::from_label("Camera")
                 .selected_text(format!("{:?}", self.camera_entity))
                 .show_ui(ui, |ui| {
@@ -306,17 +310,24 @@ fn set_camera_viewport(
 
     *real_cam_transform = *camera_transform;
 
+    #[cfg(target_os = "macos")]
+    let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    #[cfg(not(target_os = "macos"))]
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    let cam_aspect_ratio = watch_cam
+        .logical_viewport_size()
+        .map(|cam| cam.y as f64 / cam.x as f64);
+    #[cfg(target_os = "macos")]
+    if let Some(ratio) = cam_aspect_ratio {
+        scale_factor *= ratio;
+    }
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
     let mut viewport_size = viewport_rect.size() * scale_factor as f32;
 
     // Fixes camera viewport size to be proportional to main watch camera
-    if let Some(watch_cam_size) = watch_cam.logical_viewport_size() {
-        let wx = watch_cam_size.x;
-        let wy = watch_cam_size.y;
-
-        viewport_size.y = wy * viewport_size.x / wx
+    if let Some(ratio) = cam_aspect_ratio {
+        viewport_size.y = viewport_size.x * ratio as f32;
     }
 
     // Place viewport in the center of the tab
