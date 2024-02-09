@@ -20,3 +20,6 @@ bevy.workspace = true
 
 [features]
 persistence_editor = []
+
+[lints]
+workspace = true

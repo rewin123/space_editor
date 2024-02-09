@@ -62,8 +62,8 @@ pub enum GameMode {
 impl ToString for GameMode {
     fn to_string(&self) -> String {
         match self {
-            GameMode::Game2D => String::from("2D"),
-            GameMode::Game3D => String::from("3D"),
+            Self::Game2D => String::from("2D"),
+            Self::Game3D => String::from("3D"),
         }
     }
 }
