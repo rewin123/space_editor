@@ -139,15 +139,15 @@ impl EditorTab for CameraViewTab {
                         );
                     }
                 });
-            ui.add_space(4.);
+            ui.spacing();
             ui.separator();
         } else {
             ui.label(egui::RichText::new("No available Cameras").color(Color32::LIGHT_RED));
 
-            ui.add_space(4.);
+            ui.spacing();
             ui.separator();
+            ui.spacing();
             if world.resource::<GameModeSettings>().is_3d() {
-                ui.add_space(4.);
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
                         Camera3d::default(),
@@ -158,18 +158,15 @@ impl EditorTab for CameraViewTab {
                         PrefabMarker,
                     ));
                 }
-            } else {
-                ui.add_space(4.);
-                if ui.button("Add 2D Playmode Camera").clicked() {
-                    commands.spawn((
-                        Camera2d::default(),
-                        Name::new("Camera2d".to_string()),
-                        Transform::default(),
-                        Visibility::default(),
-                        CameraPlay::default(),
-                        PrefabMarker,
-                    ));
-                }
+            } else if ui.button("Add 2D Playmode Camera").clicked() {
+                commands.spawn((
+                    Camera2d::default(),
+                    Name::new("Camera2d".to_string()),
+                    Transform::default(),
+                    Visibility::default(),
+                    CameraPlay::default(),
+                    PrefabMarker,
+                ));
             }
         }
 
@@ -187,7 +184,7 @@ impl EditorTab for CameraViewTab {
                     clipped.width() as u32,
                     clipped.height() as u32,
                 ));
-            self.target_image = Some(handle.clone());
+            self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
         } else if let Some(handle) = &self.target_image {
             if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
@@ -305,7 +302,7 @@ fn set_camera_viewport(
     // set editor params for real_cam
     real_cam.order = 2;
     real_cam.is_active = true;
-    real_cam.target = RenderTarget::Image(target_image.clone());
+    real_cam.target = RenderTarget::Image(target_image);
 
     *real_cam_transform = *camera_transform;
 

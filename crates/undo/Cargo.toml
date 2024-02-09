@@ -13,3 +13,6 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 pretty-type-name = "1.0.1"
+
+[lints]
+workspace = true

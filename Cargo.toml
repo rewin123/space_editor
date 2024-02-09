@@ -46,13 +46,13 @@ space_prefab = {workspace = true, version = "0.3.1" }
 space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
 
 # For versions 1.74+
-[lints.rust]
+[workspace.lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
 # Remove once fully deprecated
 type_complexity = { level = "allow", priority = 2 }
 
-[lints.clippy]
+[workspace.lints.clippy]
 nursery = { level = "deny", priority = 0 }
 all = { level = "deny", priority = 1 }
 # Bevy Related
@@ -62,6 +62,9 @@ significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
 type_complexity = { level = "allow", priority = 2 }
 too_many_arguments = { level = "allow", priority = 2 }
+
+[lints]
+workspace = true
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3

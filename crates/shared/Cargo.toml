@@ -20,3 +20,6 @@ bevy-inspector-egui = { version = "0.22", features = [
     "highlight_changes",
 ] }
 egui_file = { git = "https://github.com/Barugon/egui_file.git", rev = "de5f8f41df160d67be328ab50974966ceb74e70f" }
+
+[lints]
+workspace = true
