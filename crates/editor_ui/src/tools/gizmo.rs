@@ -360,9 +360,9 @@ trait ToButton {
 impl ToButton for GizmoMode {
     fn to_button(&self) -> egui::Button {
         match self {
-            GizmoMode::Rotate => rotation_icon(18., 18., ""),
-            GizmoMode::Translate => translate_icon(18., 18., ""),
-            GizmoMode::Scale => scale_icon(18., 18., ""),
+            Self::Rotate => rotation_icon(18., 18., ""),
+            Self::Translate => translate_icon(18., 18., ""),
+            Self::Scale => scale_icon(18., 18., ""),
         }
     }
 }
