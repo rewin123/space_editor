@@ -55,10 +55,16 @@ fn in_game_menu(
     egui::TopBottomPanel::top("top_gameplay_panel")
         .exact_height(28.)
         .show(ctxs.ctx_mut(), |ui| {
-            *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
+            if !time.is_paused() {
+                *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
+            }
             let layout = egui::Layout::left_to_right(Align::Center).with_main_align(Align::Center);
             ui.with_layout(layout, |ui| {
-                if ui.button("⏸").clicked() {
+                ui.label(format!("FPS: {:04.0}", 1.0 / *smoothed_dt));
+                let distance = ui.available_width() / 2. - 64.;
+                ui.add_space(distance);
+                let button = if time.is_paused() { "▶" } else { "⏸" };
+                if ui.button(button).clicked() {
                     if time.is_paused() {
                         time.unpause();
                     } else {
@@ -68,8 +74,6 @@ fn in_game_menu(
                 if ui.button("⏹").clicked() {
                     state.set(EditorState::Editor);
                 }
-                ui.spacing();
-                ui.label(format!("FPS: {:.0}", 1.0 / *smoothed_dt));
             });
         });
 }
