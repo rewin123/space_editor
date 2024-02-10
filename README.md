@@ -13,6 +13,12 @@ space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its 
 
 Aspires to be editor for bevy while there is no official editor.
 
+## Core Team
+
+* Project Lead:         rewin <rewin1996@gmail.com>
+* Developer Experience: Julia Naomi <jnboeira@outlook.com>
+* UX Designer:          Jay Kim <jaykim9419@gmail.com>
+
 ## Main features
 
 - **Intuitive Scene and Prefab Management**: Space Editor allows you to prepare and save scenes and prefabs with an intuitive user interface. You can easily reuse them in your game development workflow. 
