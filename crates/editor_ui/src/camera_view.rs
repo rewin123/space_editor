@@ -16,7 +16,7 @@ use space_shared::*;
 use crate::{
     colors::ERROR_COLOR,
     prelude::{EditorTabName, GameModeSettings},
-    show_editor_ui, DisableCameraSkip, EditorUiAppExt, RenderLayers,
+    DisableCameraSkip, EditorUiAppExt, RenderLayers,
 };
 
 use super::editor_tab::EditorTab;
@@ -27,10 +27,10 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(
-            PostUpdate,
+            Update,
             set_camera_viewport
                 .in_set(EditorSet::Editor)
-                .after(show_editor_ui),
+                .after(super::game_view::set_camera_viewport),
         );
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -125,7 +125,11 @@ impl EditorTab for CameraViewTab {
             Without<ViewCamera>,
         )>();
 
-        if camera_query.iter(world).count() > 0 {
+        if camera_query.iter(world).count() == 1 {
+            let selected_entity = camera_query.iter(world).next();
+            self.camera_entity = selected_entity;
+            ui.label(format!("Camera: {:?}", selected_entity.unwrap()));
+        } else if camera_query.iter(world).count() > 0 {
             egui::ComboBox::from_label("Camera")
                 .selected_text(format!("{:?}", self.camera_entity))
                 .show_ui(ui, |ui| {
@@ -144,6 +148,7 @@ impl EditorTab for CameraViewTab {
 
             ui.spacing();
             ui.separator();
+            ui.spacing();
             if world.resource::<GameModeSettings>().is_3d() {
                 ui.spacing();
                 if ui.button("Add 3D Playmode Camera").clicked() {
@@ -156,18 +161,15 @@ impl EditorTab for CameraViewTab {
                         PrefabMarker,
                     ));
                 }
-            } else {
-                ui.spacing();
-                if ui.button("Add 2D Playmode Camera").clicked() {
-                    commands.spawn((
-                        Camera2d::default(),
-                        Name::new("Camera2d".to_string()),
-                        Transform::default(),
-                        Visibility::default(),
-                        CameraPlay::default(),
-                        PrefabMarker,
-                    ));
-                }
+            } else if ui.button("Add 2D Playmode Camera").clicked() {
+                commands.spawn((
+                    Camera2d::default(),
+                    Name::new("Camera2d".to_string()),
+                    Transform::default(),
+                    Visibility::default(),
+                    CameraPlay::default(),
+                    PrefabMarker,
+                ));
             }
         }
 
@@ -185,7 +187,7 @@ impl EditorTab for CameraViewTab {
                     clipped.width() as u32,
                     clipped.height() as u32,
                 ));
-            self.target_image = Some(handle.clone());
+            self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
         } else if let Some(handle) = &self.target_image {
             if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
@@ -303,21 +305,28 @@ fn set_camera_viewport(
     // set editor params for real_cam
     real_cam.order = 2;
     real_cam.is_active = true;
-    real_cam.target = RenderTarget::Image(target_image.clone());
+    real_cam.target = RenderTarget::Image(target_image);
 
     *real_cam_transform = *camera_transform;
 
+    #[cfg(target_os = "macos")]
+    let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    #[cfg(not(target_os = "macos"))]
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    let cam_aspect_ratio = watch_cam
+        .logical_viewport_size()
+        .map(|cam| cam.y as f64 / cam.x as f64);
+    #[cfg(target_os = "macos")]
+    if let Some(ratio) = cam_aspect_ratio {
+        scale_factor *= ratio;
+    }
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
     let mut viewport_size = viewport_rect.size() * scale_factor as f32;
 
     // Fixes camera viewport size to be proportional to main watch camera
-    if let Some(watch_cam_size) = watch_cam.logical_viewport_size() {
-        let wx = watch_cam_size.x;
-        let wy = watch_cam_size.y;
-
-        viewport_size.y = wy * viewport_size.x / wx
+    if let Some(ratio) = cam_aspect_ratio {
+        viewport_size.y = viewport_size.x * ratio as f32;
     }
 
     // Place viewport in the center of the tab

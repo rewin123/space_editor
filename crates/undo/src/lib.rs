@@ -383,7 +383,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
     }
 
     fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
-        Arc::new(ComponentChange {
+        Arc::new(Self {
             old_value: self.new_value.clone(),
             new_value: self.old_value.clone(),
             entity: self.entity,
@@ -430,7 +430,7 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
     }
 
     fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
-        Arc::new(ReflectedComponentChange {
+        Arc::new(Self {
             old_value: <T as FromReflect>::from_reflect(&self.new_value).unwrap(),
             new_value: <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
             entity: self.entity,
@@ -661,14 +661,12 @@ impl EditorChange for ManyChanges {
     fn get_inverse(&self) -> Arc<dyn EditorChange + Send + Sync> {
         let mut old_changes = self.changes.clone();
         old_changes.reverse();
-        let new_changes = old_changes
+        let changes = old_changes
             .iter()
             .map(|change| change.get_inverse())
             .collect::<Vec<_>>();
 
-        Arc::new(ManyChanges {
-            changes: new_changes,
-        })
+        Arc::new(Self { changes })
     }
 }
 

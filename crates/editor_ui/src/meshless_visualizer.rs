@@ -128,7 +128,7 @@ enum EditorIconAssetType {
 impl DynamicAsset for EditorIconAssetType {
     fn load(&self, asset_server: &AssetServer) -> Vec<UntypedHandle> {
         match self {
-            EditorIconAssetType::Image { path } => vec![asset_server.load::<Image>(path).untyped()],
+            Self::Image { path } => vec![asset_server.load::<Image>(path).untyped()],
             _ => vec![],
         }
     }
@@ -141,11 +141,11 @@ impl DynamicAsset for EditorIconAssetType {
             .get_resource::<AssetServer>()
             .expect("Failed to get the AssetServer");
         match self {
-            EditorIconAssetType::Image { path } => {
+            Self::Image { path } => {
                 let handle = asset_server.load::<Image>(path);
                 Ok(DynamicAssetType::Single(handle.untyped()))
             }
-            EditorIconAssetType::Quad { size } => {
+            Self::Quad { size } => {
                 let mut meshes = cell
                     .get_resource_mut::<Assets<Mesh>>()
                     .expect("Failed to get Mesh Assets");
@@ -157,7 +157,7 @@ impl DynamicAsset for EditorIconAssetType {
                     .untyped();
                 Ok(DynamicAssetType::Single(handle))
             }
-            EditorIconAssetType::Sphere { radius } => {
+            Self::Sphere { radius } => {
                 let mut meshes = cell
                     .get_resource_mut::<Assets<Mesh>>()
                     .expect("Failed to get Mesh Assets");
@@ -168,14 +168,14 @@ impl DynamicAsset for EditorIconAssetType {
                             ..default()
                         })
                         // in case the provided value is bad, defaults to a value that has been tested as good enough
-                        .unwrap_or(
+                        .unwrap_or_else(|_| {
                             shape::Icosphere {
                                 radius: 0.75,
                                 ..default()
                             }
                             .try_into()
-                            .unwrap(),
-                        ),
+                            .unwrap()
+                        }),
                     )
                     .untyped();
                 Ok(DynamicAssetType::Single(handle))
@@ -298,12 +298,13 @@ pub fn visualize_custom_meshless(
                 } => commands
                     .spawn((
                         BillboardTextureBundle {
-                            mesh: BillboardMeshHandle(
-                                mesh.clone()
-                                    .unwrap_or(ass.add(shape::Quad::new(Vec2::splat(2.)).into())),
-                            ),
+                            mesh: BillboardMeshHandle(mesh.clone().unwrap_or_else(|| {
+                                ass.add(shape::Quad::new(Vec2::splat(2.)).into())
+                            })),
                             texture: BillboardTextureHandle(
-                                texture.clone().unwrap_or(ass.load("icons/unknown.png")),
+                                texture
+                                    .clone()
+                                    .unwrap_or_else(|| ass.load("icons/unknown.png")),
                             ),
                             ..default()
                         },
@@ -323,11 +324,13 @@ pub fn visualize_custom_meshless(
                 MeshlessModel::Object { mesh, material } => commands
                     .spawn((
                         MaterialMeshBundle {
-                            mesh: mesh.clone().unwrap_or(editor_icons.sphere.clone()),
-                            material: material.clone().unwrap_or(ass.add(StandardMaterial {
-                                unlit: true,
-                                ..default()
-                            })),
+                            mesh: mesh.clone().unwrap_or_else(|| editor_icons.sphere.clone()),
+                            material: material.clone().unwrap_or_else(|| {
+                                ass.add(StandardMaterial {
+                                    unlit: true,
+                                    ..default()
+                                })
+                            }),
                             ..default()
                         },
                         SelectParent { parent: entity },

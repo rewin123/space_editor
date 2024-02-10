@@ -66,10 +66,7 @@ pub fn select_listener(
     }
     for event in events.read() {
         info!("Select Event: {:?}", event.e);
-        let entity = match query_parent.get(event.e) {
-            Ok(a) => a.parent,
-            Err(_) => event.e,
-        };
+        let entity = query_parent.get(event.e).map_or(event.e, |a| a.parent);
         match event.event.button {
             PointerButton::Primary => {
                 commands.entity(entity).insert(Selected);
