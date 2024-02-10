@@ -95,6 +95,7 @@ pub fn bottom_menu(
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
     ui_reg: Res<BundleReg>,
+    menu_state: Res<MenuToolbarState>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu").show(ctx, |ui| {
@@ -186,6 +187,9 @@ pub fn bottom_menu(
             }
             ui.spacing();
             ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
+            let distance = ui.available_width() * 0.66;
+            ui.add_space(distance);
+            ui.label(format!("Current Scene: {}", menu_state.path));
         });
     });
 }
@@ -387,13 +391,13 @@ pub fn top_menu(
 
                 let distance = ui.available_width() / 2. - 40.;
                 ui.add_space(distance);
-                let load_button = egui::Button::new("▶")
+                let play_button = egui::Button::new("▶")
                     .fill(SPECIAL_BG_COLOR)
                     .stroke(Stroke {
                         width: 1.,
                         color: SELECTED_ITEM_COLOR,
                     });
-                if ui.add(load_button).clicked() {
+                if ui.add(play_button).clicked() {
                     editor_events.send(EditorEvent::StartGame);
                 }
 
