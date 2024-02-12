@@ -23,8 +23,8 @@ space_shared.workspace = true
 serde.workspace = true
 
 bevy_egui = "0.24"
-egui-gizmo = "0.13"
-egui_dock = "0.9"
+egui-gizmo = "0.15"
+egui_dock = "0.11"
 
 bevy_debug_grid = "0.4"
 
@@ -35,7 +35,7 @@ bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git",
 bevy_asset_loader = "0.19"
 bevy_panorbit_camera = "0.9"
 bevy_mod_billboard = "0.5.1"
-pretty-type-name = "1.0.1"
+pretty-type-name.workspace = true
 convert_case = "0.6"
 
 anyhow = "1.0"

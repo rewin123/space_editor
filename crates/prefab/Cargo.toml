@@ -20,11 +20,8 @@ serde.workspace = true
 space_shared.workspace = true
 space_undo.workspace = true
 
-bevy-scene-hook = "9"
-bevy-inspector-egui = { version = "0.22", features = [
-    "bevy_pbr",
-    "highlight_changes",
-] }
+bevy-scene-hook.workspace = true
+bevy-inspector-egui.workspace = true
 
 [lints]
 workspace = true
