@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
-use bevy_egui::egui::{self, Key};
+use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;

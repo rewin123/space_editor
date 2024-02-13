@@ -8,7 +8,7 @@ use bevy::{
     },
     window::PrimaryWindow,
 };
-use bevy_egui::{
+use bevy_egui_next::{
     egui::{self, Color32},
     EguiContexts,
 };
@@ -79,7 +79,12 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 }
 
 impl EditorTab for CameraViewTab {
-    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
+    fn ui(
+        &mut self,
+        ui: &mut bevy_egui_next::egui::Ui,
+        commands: &mut Commands,
+        world: &mut World,
+    ) {
         if self.real_camera.is_none() {
             if world.resource::<GameModeSettings>().is_3d() {
                 self.real_camera = Some(
@@ -220,7 +225,7 @@ impl EditorTab for CameraViewTab {
         }
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
+    fn title(&self) -> bevy_egui_next::egui::WidgetText {
         "Camera view".into()
     }
 }
@@ -254,7 +259,7 @@ fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
     mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
+    egui_settings: Res<bevy_egui_next::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
 ) {

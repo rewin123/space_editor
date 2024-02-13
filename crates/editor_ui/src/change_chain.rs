@@ -20,7 +20,7 @@ pub struct ChangeChainView;
 impl EditorTab for ChangeChainView {
     fn ui(
         &mut self,
-        ui: &mut bevy_egui::egui::Ui,
+        ui: &mut bevy_egui_next::egui::Ui,
         _commands: &mut bevy::prelude::Commands,
         world: &mut bevy::prelude::World,
     ) {
@@ -31,7 +31,7 @@ impl EditorTab for ChangeChainView {
         }
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
+    fn title(&self) -> bevy_egui_next::egui::WidgetText {
         "Change Chain".into()
     }
 }

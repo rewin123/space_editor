@@ -2,8 +2,7 @@ use bevy::prelude::*;
 use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 
-use space_editor_ui::ext::bevy_inspector_egui;
-use space_editor_ui::ext::bevy_inspector_egui::prelude::*;
+use space_editor_ui::ext::bevy_inspector_egui::InspectorOptions;
 use space_editor_ui::prelude::MeshPrimitivePrefab;
 
 use crate::registry::RigidBodyPrefab;

@@ -2,7 +2,7 @@ use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
 };
-use bevy_egui::*;
+use bevy_egui_next::*;
 use space_editor_core::hotkeys::AllHotkeys;
 use space_undo::ChangeChainSettings;
 

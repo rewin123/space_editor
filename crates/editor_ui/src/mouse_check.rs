@@ -1,5 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::EguiContexts;
+use bevy_egui_next::EguiContexts;
 
 #[derive(Default)]
 pub struct MouseCheck;
