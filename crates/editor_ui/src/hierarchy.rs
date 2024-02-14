@@ -2,9 +2,9 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
-use bevy_egui::{egui::collapsing_header::CollapsingState, *};
+use bevy_egui::{egui::collapsing_header::CollapsingState, *, egui::{RichText, WidgetText}};
 use space_editor_core::prelude::*;
-use space_prefab::{editor_registry::EditorRegistry, component::SceneAutoChild};
+use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry, load::PrefabAutoChild};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use crate::ui_registration::{BundleReg, EditorBundleUntyped};
@@ -61,6 +61,7 @@ pub fn show_hierarchy(
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
     all_entites: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
+    mut auto_children: Query<(), (With<SceneAutoChild>, With<PrefabMarker>)>,
     mut clone_events: EventWriter<CloneEvent>,
     ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
@@ -86,6 +87,7 @@ pub fn show_hierarchy(
                         &all_entites,
                         *entity,
                         &mut selected,
+                        &mut auto_children,
                         &mut clone_events,
                         &mut scene_child,
                         &mut changes,
@@ -97,6 +99,7 @@ pub fn show_hierarchy(
                         &query,
                         *entity,
                         &mut selected,
+                        &mut auto_children,
                         &mut clone_events,
                         &mut scene_child,
                         &mut changes,
@@ -158,6 +161,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     query: &Query<DrawIter, F>,
     entity: Entity,
     selected: &mut Query<Entity, With<Selected>>,
+    auto_children: &mut Query<(), (With<SceneAutoChild>, With<PrefabMarker>)>,
     clone_events: &mut EventWriter<CloneEvent>,
     scene_child: &mut Query<'_, '_, Entity, With<SceneAutoChild>>,
     changes: &mut EventWriter<NewChange>,
@@ -182,7 +186,12 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             true,
         )
         .show_header(ui, |ui| {
-            ui.selectable_label(is_selected, entity_name)
+            let name = if scene_child.contains(entity) {
+                WidgetText::RichText(RichText::new(&entity_name).italics())
+            } else {
+                WidgetText::RichText(RichText::new(&entity_name))
+            };
+            ui.selectable_label(is_selected, name)
                 .context_menu(|ui| {
                     hierarchy_entity_context(
                         ui,
@@ -199,7 +208,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         .body(|ui| {
             for child in children.unwrap().iter() {
                 draw_entity(
-                    commands, ui, query, *child, selected, clone_events, scene_child, changes);
+                    commands, ui, query, *child, selected, auto_children, clone_events, scene_child, changes);
             }
         })
         .1
