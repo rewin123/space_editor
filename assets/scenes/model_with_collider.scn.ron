@@ -1,0 +1,209 @@
+(
+  resources: {},
+  entities: {
+    9: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.6145791,
+            y: 0.054736555,
+            z: 0.14563978,
+          ),
+          rotation: (
+            x: 0.5,
+            y: 0.5,
+            z: -0.5,
+            w: 0.50000006,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "models\\low_poly_fighter_2.gltf#Mesh1/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "models\\low_poly_fighter_2.gltf#Material1",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          10,
+        ]),
+      },
+    ),
+    10: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -0.0015763491,
+            y: 0.27077,
+            z: 0.0018413959,
+          ),
+          rotation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 1.0,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "models\\low_poly_fighter_2.gltf#Mesh0/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "models\\low_poly_fighter_2.gltf#Material0",
+        ),
+      },
+    ),
+    11: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.6125513,
+            y: 0.058001567,
+            z: -0.13519481,
+          ),
+          rotation: (
+            x: 0.5,
+            y: 0.5,
+            z: -0.5,
+            w: 0.50000006,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "models\\low_poly_fighter_2.gltf#Mesh1/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "models\\low_poly_fighter_2.gltf#Material1",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          12,
+        ]),
+      },
+    ),
+    12: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0074897856,
+            y: 0.27279782,
+            z: 0.005106408,
+          ),
+          rotation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 1.0,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "models\\low_poly_fighter_2.gltf#Mesh0/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "models\\low_poly_fighter_2.gltf#Material0",
+        ),
+      },
+    ),
+    4294967301: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (
+            x: 0.0,
+            y: -0.7071068,
+            z: 0.0,
+            w: 0.7071068,
+          ),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "models\\low_poly_fighter_2.gltf#Mesh2/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "models\\low_poly_fighter_2.gltf#Material2",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          9,
+          11,
+        ]),
+        "space_bevy_xpbd_plugin::collider::ColliderPrefab": Primitive(
+          pos: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rot: (
+            x: 1.6,
+            y: 0.0,
+            z: 0.0,
+          ),
+          primitive: Capsule(
+            height: 2.0,
+            radius: 1.0,
+          ),
+        ),
+        "space_bevy_xpbd_plugin::registry::RigidBodyPrefab": Static,
+        "bevy_xpbd_3d::components::mass_properties::Mass": (20.944126),
+        "bevy_xpbd_3d::components::Friction": (
+          dynamic_coefficient: 0.3,
+          static_coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::Restitution": (
+          coefficient: 0.3,
+          combine_rule: Average,
+        ),
+        "bevy_xpbd_3d::components::mass_properties::Inertia": ((
+          x_axis: (
+            x: 25.338547,
+            y: 0.0,
+            z: 0.0,
+          ),
+          y_axis: (
+            x: 0.0,
+            y: 18.163773,
+            z: -1.9881122,
+          ),
+          z_axis: (
+            x: 0.0,
+            y: -1.9881113,
+            z: 16.805347,
+          ),
+        )),
+        "bevy_xpbd_3d::components::mass_properties::CenterOfMass": ((
+          x: 0.0,
+          y: 0.0,
+          z: 0.0,
+        )),
+      },
+    ),
+  },
+)

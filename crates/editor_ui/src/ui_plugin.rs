@@ -1,7 +1,13 @@
 use crate::*;
 use bevy::prelude::*;
+use bevy_egui::egui::{
+    FontFamily::{Monospace, Proportional},
+    FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
+};
 use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
+
+use self::colors::*;
 
 /// All systems for editor ui wil be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -35,7 +41,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
-            .add(bottom_menu::BottomMenuPlugin)
+            .add(menu_toolbars::BottomMenuPlugin)
             .add(MouseCheck)
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
@@ -67,16 +73,16 @@ impl Plugin for DefaultEditorLayoutPlugin {
         let mut editor = app.world.resource_mut::<EditorUi>();
         editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
 
-        let [_game, _inspector] = editor.tree.main_surface_mut().split_right(
+        let [_game, hierarchy] = editor.tree.main_surface_mut().split_left(
             egui_dock::NodeIndex::root(),
-            0.8,
+            0.2,
+            vec![EditorTabName::Hierarchy],
+        );
+        let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(
+            hierarchy,
+            0.3,
             vec![EditorTabName::Inspector],
         );
-        let [_hierarchy, _game] =
-            editor
-                .tree
-                .main_surface_mut()
-                .split_left(_game, 0.2, vec![EditorTabName::Hierarchy]);
     }
 }
 
@@ -110,7 +116,8 @@ impl Plugin for EditorUiCore {
                 show_editor_ui
                     .before(update_pan_orbit)
                     .before(ui_camera_block)
-                    .after(bottom_menu::menu),
+                    .after(menu_toolbars::top_menu)
+                    .after(menu_toolbars::bottom_menu),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),
@@ -194,9 +201,34 @@ pub fn show_editor_ui(world: &mut World) {
         return;
     };
     let mut egui_context = egui_context.clone();
+    let ctx = egui_context.get_mut();
+    egui_extras::install_image_loaders(ctx);
+    ctx.style_mut(|stl| {
+        stl.spacing.button_padding = Vec2::new(8., 2.);
+        stl.spacing.icon_spacing = 4.;
+        stl.spacing.icon_width = 16.;
+        stl.spacing.menu_margin = Margin {
+            left: 8.,
+            right: 8.,
+            top: 4.,
+            bottom: 8.,
+        };
+        stl.visuals.error_fg_color = ERROR_COLOR;
+        stl.visuals.hyperlink_color = HYPERLINK_COLOR;
+        stl.visuals.warn_fg_color = WARM_COLOR;
+        stl.visuals.menu_rounding = Rounding::same(0.5);
+        stl.text_styles = [
+            (ETextStyle::Small, FontId::new(10.0, Proportional)),
+            (ETextStyle::Body, FontId::new(12., Proportional)),
+            (ETextStyle::Button, FontId::new(14., Proportional)),
+            (ETextStyle::Heading, FontId::new(20.0, Proportional)),
+            (ETextStyle::Monospace, FontId::new(12.0, Monospace)),
+        ]
+        .into()
+    });
 
     world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
-        editor_ui.ui(world, egui_context.get_mut());
+        editor_ui.ui(world, ctx);
     });
 }
 

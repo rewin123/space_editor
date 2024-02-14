@@ -1,9 +1,9 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use bevy_egui::{egui::Color32, *};
+use bevy_egui::*;
 use space_shared::ext::bevy_inspector_egui;
 
-use crate::prelude::*;
+use crate::{colors::ERROR_COLOR, prelude::*};
 
 #[derive(Resource, Default)]
 pub struct EventDispatcherTab {
@@ -25,7 +25,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_events: &mut HashMap<S
     events.sort_by(|a, b| a.name().cmp(b.name()));
 
     if events.is_empty() {
-        ui.label(egui::RichText::new("No events registered").color(Color32::LIGHT_RED));
+        ui.label(egui::RichText::new("No events registered").color(ERROR_COLOR));
     } else {
         let type_registry = world.resource::<AppTypeRegistry>().clone();
         let type_registry = type_registry.read();

@@ -5,7 +5,9 @@ use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
 
 use crate::{
+    colors::SELECTED_ITEM_COLOR,
     game_view::GameViewTab,
+    icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
     tool::ToolExt,
 };
@@ -75,21 +77,24 @@ impl EditorTool for GizmoTool {
         // All hotkeys can be changes in editor ui
 
         let mode2name = vec![
-            (GizmoMode::Translate, "⬌", "Translate"),
-            (GizmoMode::Rotate, "↺", "Rotate"),
-            (GizmoMode::Scale, "⛶", "Scale"),
+            (GizmoMode::Translate, "Translate"),
+            (GizmoMode::Rotate, "Rotate"),
+            (GizmoMode::Scale, "Scale"),
         ];
 
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
-            for (mode, name, hint) in mode2name {
+            let stl = ui.style_mut();
+            stl.spacing.button_padding = egui::Vec2::new(4., 2.);
+            stl.spacing.item_spacing = egui::Vec2::new(1., 0.);
+            for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.button(egui::RichText::new(name).strong())
+                    ui.add(mode.to_button().fill(SELECTED_ITEM_COLOR))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();
                 } else if ui
-                    .button(name)
+                    .add(mode.to_button())
                     .on_disabled_hover_text(hint)
                     .on_hover_text(hint)
                     .clicked()
@@ -344,6 +349,20 @@ impl EditorTool for GizmoTool {
                     .unwrap()
                     .0 = false
             };
+        }
+    }
+}
+
+trait ToButton {
+    fn to_button(&self) -> egui::Button;
+}
+
+impl ToButton for GizmoMode {
+    fn to_button(&self) -> egui::Button {
+        match self {
+            Self::Rotate => rotation_icon(18., 18., ""),
+            Self::Translate => translate_icon(18., 18., ""),
+            Self::Scale => scale_icon(18., 18., ""),
         }
     }
 }

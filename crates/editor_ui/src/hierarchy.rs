@@ -7,7 +7,6 @@ use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::ui_registration::{BundleReg, EditorBundleUntyped};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
@@ -45,10 +44,11 @@ impl Plugin for SpaceHierarchyPlugin {
 
 #[derive(Resource, Default)]
 pub struct HierarchyTabState {
-    show_editor_entities: bool,
+    pub show_editor_entities: bool,
+    pub show_spawnable_bundles: bool,
 }
 
-type HierarchyQueryIter<'a> = (
+pub type HierarchyQueryIter<'a> = (
     Entity,
     Option<&'a Name>,
     Option<&'a Children>,
@@ -62,10 +62,9 @@ pub fn show_hierarchy(
     all_entites: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
     mut clone_events: EventWriter<CloneEvent>,
-    ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
-    mut state: ResMut<HierarchyTabState>,
+    state: Res<HierarchyTabState>,
 ) {
     let mut all: Vec<_> = if state.show_editor_entities {
         all_entites.iter().collect()
@@ -100,47 +99,6 @@ pub fn show_hierarchy(
                     );
                 }
             }
-        }
-
-        ui.spacing();
-        ui.separator();
-        ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
-        ui.vertical_centered_justified(|ui| {
-            if ui.button("+ Add new entity").clicked() {
-                let id = commands.spawn_empty().insert(PrefabMarker).id();
-                changes.send(NewChange {
-                    change: Arc::new(AddedEntity { entity: id }),
-                });
-            }
-            if ui.button("Clear all entities").clicked() {
-                for (entity, _, _, _parent) in query.iter() {
-                    commands.entity(entity).despawn_recursive();
-
-                    changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity }),
-                    });
-                }
-            }
-        });
-
-        ui.spacing();
-
-        ui.label("Spawnable bundles");
-        for (category_name, category_bundle) in ui_reg.bundles.iter() {
-            ui.menu_button(category_name, |ui| {
-                let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
-                    category_bundle.iter().collect();
-                categories_vec.sort_by(|a, b| a.0.cmp(b.0));
-
-                for (name, dyn_bundle) in categories_vec {
-                    if ui.button(name).clicked() {
-                        let entity = dyn_bundle.spawn(&mut commands);
-                        changes.send(NewChange {
-                            change: Arc::new(AddedEntity { entity }),
-                        });
-                    }
-                }
-            });
         }
     });
 }

@@ -6,8 +6,8 @@ mod mouse_check;
 /// This module will be used to create Unity like project file dialog. Currently NOT USED
 pub mod asset_inspector;
 
-/// This module contains logic for bottom menu
-pub mod bottom_menu;
+/// This module contains logic for menu toolbars
+pub mod menu_toolbars;
 
 /// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
@@ -53,6 +53,8 @@ pub mod camera_plugin;
 
 ///Selection logic
 pub mod selection;
+
+pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
@@ -104,8 +106,8 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
-        game_view::*, hierarchy::*, inspector::*, meshless_visualizer::*, settings::*, tool::*,
+        asset_inspector::*, change_chain::*, debug_panels::*, editor_tab::*, game_view::*,
+        hierarchy::*, inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*,
         tools::*, ui_registration::*,
     };
 
@@ -384,4 +386,20 @@ pub fn game_mode_changed(
             ));
         }
     }
+}
+
+pub mod colors {
+    use bevy_egui::egui::{Color32, Stroke};
+
+    pub fn stroke_default_color() -> Stroke {
+        Stroke::new(1., STROKE_COLOR)
+    }
+    pub const STROKE_COLOR: Color32 = Color32::from_rgb(70, 70, 70);
+    pub const SPECIAL_BG_COLOR: Color32 = Color32::from_rgb(20, 20, 20);
+    pub const DEFAULT_BG_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
+    pub const ERROR_COLOR: Color32 = Color32::from_rgb(255, 59, 33);
+    pub const HYPERLINK_COLOR: Color32 = Color32::from_rgb(99, 235, 231);
+    pub const WARM_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
+    pub const SELECTED_ITEM_COLOR: Color32 = Color32::from_rgb(76, 93, 235);
+    pub const TEXT_COLOR: Color32 = Color32::WHITE;
 }

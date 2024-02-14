@@ -11,6 +11,6 @@ fn main() {
 
 fn setup(mut editor_events: EventWriter<EditorEvent>) {
     editor_events.send(EditorEvent::LoadGltfAsPrefab(
-        "low_poly_fighter_2.gltf".to_string(),
+        "models/low_poly_fighter_2.gltf".to_string(),
     ));
 }

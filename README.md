@@ -1,13 +1,23 @@
 # space_editor: The Bevy Prefab Editor
 License: MIT 
 
-![Editor screenshot](docs/imgs/showcase-03.png)
+### Editor in Edit Mode
+![Editor in edit mode](docs/imgs/space_editor.png)
+
+### Editor in Play Mode
+![Editor in play mode](docs/imgs/space_editor_playmode.png)
 
 space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 
 ## Project goal
 
 Aspires to be editor for bevy while there is no official editor.
+
+## Core Team
+
+* Project Lead:         rewin <rewin1996@gmail.com>
+* Developer Experience: Julia Naomi <jnboeira@outlook.com>
+* UX Designer:          Jay Kim <jaykim9419@gmail.com>
 
 ## Main features
 
