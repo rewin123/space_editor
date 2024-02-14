@@ -68,6 +68,7 @@ use bevy_mod_picking::{
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
+use sizing::IconSize;
 use space_editor_core::prelude::*;
 
 use bevy::{
@@ -184,6 +185,8 @@ pub struct EditorSetsPlugin;
 
 impl Plugin for EditorSetsPlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<IconSize>()
+            .register_type::<IconSize>();
         app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
 
         app.configure_sets(
@@ -402,4 +405,29 @@ pub mod colors {
     pub const WARM_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
     pub const SELECTED_ITEM_COLOR: Color32 = Color32::from_rgb(76, 93, 235);
     pub const TEXT_COLOR: Color32 = Color32::WHITE;
+}
+
+pub mod sizing {
+    use bevy::prelude::*;
+
+    #[derive(Resource, Clone, Default, PartialEq, Eq, Reflect)]
+    #[reflect(Resource, Default)]
+    pub enum IconSize {
+        Small,
+        Gizmos,
+        #[default]
+        Medium,
+        Large,
+    }
+
+    impl IconSize {
+        pub fn to_size(&self) -> f32 {
+            match self {
+                Self::Small => 16.,
+                Self::Gizmos => 20.,
+                Self::Medium => 24.,
+                Self::Large => 32.,
+            }
+        }
+    }
 }
