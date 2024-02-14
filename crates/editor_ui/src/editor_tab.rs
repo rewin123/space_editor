@@ -4,6 +4,8 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui::{self, WidgetText};
 use convert_case::{Case, Casing};
 
+use crate::colors::ERROR_COLOR;
+
 use super::{EditorUiRef, EditorUiReg};
 
 pub trait EditorTab {
@@ -62,17 +64,14 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                             if let Some(tab) = storage.0.get_mut(tab_name) {
                                 tab.ui(ui, self.commands, world);
                             } else {
-                                ui.colored_label(
-                                    egui::Color32::RED,
-                                    "Not implemented schedule tab",
-                                );
+                                ui.colored_label(ERROR_COLOR, "Not implemented schedule tab");
                             }
                         },
                     );
                 }
             }
         } else {
-            ui.colored_label(egui::Color32::RED, "Not implemented panel");
+            ui.colored_label(ERROR_COLOR, "Not implemented panel");
         }
     }
 

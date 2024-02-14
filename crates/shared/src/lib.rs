@@ -8,7 +8,7 @@ pub mod ext {
 pub mod prelude {
     pub use crate::{
         EditorCameraMarker, EditorEvent, EditorPrefabPath, EditorSet, EditorState, PrefabMarker,
-        PrefabMemoryCache,
+        PrefabMemoryCache, SelectParent,
     };
 }
 
@@ -26,6 +26,8 @@ pub struct EditorCameraMarker;
 /// Editor states (`Editor`, `GamePrepare`, `Game`)
 #[derive(States, Default, Debug, Clone, Hash, Eq, PartialEq)]
 pub enum EditorState {
+    /// Editor Loading assets
+    Loading,
     /// Diplays Editor / Editor mode
     Editor,
     /// Editor is loading the game
@@ -63,3 +65,16 @@ pub enum EditorEvent {
     LoadGltfAsPrefab(String),
     StartGame,
 }
+
+/// Component that makes the parent become selected when this mesh is.
+/// Stores the parent entity for reading.
+/// Must be not be paired with an entity that has PrefabMarker.
+#[derive(Component)]
+pub struct SelectParent {
+    pub parent: Entity,
+}
+
+/// Component that determines if the light gizmo shall be visualized
+#[derive(Component, Default, Clone, Reflect)]
+#[reflect(Component)]
+pub struct LightAreaToggle(pub bool);

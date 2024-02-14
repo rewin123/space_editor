@@ -14,7 +14,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(SpaceEditorPlugin)
         .add_systems(Startup, simple_editor_setup)
-        .add_systems(Startup, configure_editor)
+        .add_systems(OnEnter(EditorState::Editor), configure_editor)
         .editor_registry::<PlayerController>()
         .editor_relation::<PlayerController, RigidBodyPrefab>()
         .editor_relation::<PlayerController, RayCasterPrefab>()

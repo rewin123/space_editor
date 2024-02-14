@@ -26,3 +26,6 @@ bevy-inspector-egui = { version = "0.22", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
+
+[lints]
+workspace = true

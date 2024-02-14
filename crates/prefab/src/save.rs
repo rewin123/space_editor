@@ -117,7 +117,7 @@ pub fn serialize_scene(world: &mut World) {
                 EditorPrefabPath::File(path) => {
                     IoTaskPool::get()
                         .spawn(async move {
-                            File::create(format!("assets/{path}"))
+                            File::create(&path)
                                 .and_then(|mut file| file.write(str.as_bytes()))
                                 .expect("Error while writing scene to file");
                             info!("Saved prefab to file {}", path);

@@ -6,8 +6,8 @@ mod mouse_check;
 /// This module will be used to create Unity like project file dialog. Currently NOT USED
 pub mod asset_inspector;
 
-/// This module contains logic for bottom menu
-pub mod bottom_menu;
+/// This module contains logic for menu toolbars
+pub mod menu_toolbars;
 
 /// This module contains UI logic for undo/redo functionality
 pub mod change_chain;
@@ -27,6 +27,9 @@ pub mod hierarchy;
 /// This module contains Inspector tab logic
 pub mod inspector;
 
+/// This module contains methods to visualize entities without a mesh attached
+pub mod meshless_visualizer;
+
 /// This module contains Settings tab logic
 pub mod settings;
 
@@ -45,6 +48,17 @@ pub mod camera_view;
 
 /// Contains ui plugin and common for ui functions
 pub mod ui_plugin;
+
+/// UI plugin and common systems
+pub mod ui_plugin;
+
+/// Camera plugin and logic
+pub mod camera_plugin;
+
+///Selection logic
+pub mod selection;
+
+pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
 use bevy_mod_picking::{
@@ -74,18 +88,21 @@ use bevy_egui::{egui, EguiContext};
 
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
-    reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab, EditorTabCommand,
-    EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer, GameViewTab,
-    NewTabBehaviour, NewWindowSettings, ScheduleEditorTab, ScheduleEditorTabStorage,
-    SpaceHierarchyPlugin, SpaceInspectorPlugin,
+    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
+    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
+    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
+    ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache, SelectParent,
 };
 use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
+
+use camera_plugin::*;
+use ui_plugin::*;
 
 use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};
 
@@ -93,9 +110,9 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, bottom_menu::*, change_chain::*, debug_panels::*, editor_tab::*,
-        game_view::*, hierarchy::*, inspector::*, settings::*, tool::*, tools::*,
-        ui_registration::*,
+        asset_inspector::*, change_chain::*, debug_panels::*, editor_tab::*, game_view::*,
+        hierarchy::*, inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*,
+        tools::*, ui_registration::*,
     };
 
     pub use space_editor_core::prelude::*;
@@ -103,10 +120,11 @@ pub mod prelude {
     pub use space_prefab::prelude::*;
     pub use space_shared::prelude::*;
 
+    pub use crate::camera_plugin::*;
+    pub use crate::selection::*;
     pub use crate::simple_editor_setup;
+    pub use crate::ui_plugin::*;
     pub use crate::EditorPlugin;
-    pub use crate::EditorUiAppExt;
-    pub use crate::EditorUiRef;
 }
 
 /// External dependencies for editor crate
@@ -142,11 +160,11 @@ impl PluginGroup for EditorPluginGroup {
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
             .add(bevy_egui::EguiPlugin)
-            .add(EventListenerPlugin::<SelectEvent>::default())
+            .add(EventListenerPlugin::<selection::SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
         res.add(PanOrbitCameraPlugin)
-            .add(EditorPickingPlugin)
+            .add(selection::EditorPickingPlugin)
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
                 WorldInspectorPlugin::default()
@@ -163,52 +181,6 @@ impl Plugin for EditorDefaultBundlesPlugin {
     fn build(&self, app: &mut App) {
         ui_registration::register_mesh_editor_bundles(app);
         ui_registration::register_light_editor_bundles(app);
-    }
-}
-
-pub struct EditorDefaultCameraPlugin;
-
-impl Plugin for EditorDefaultCameraPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            reset_editor_camera_state
-                .in_set(EditorSet::Editor)
-                .before(UiSystemSet),
-        );
-        app.add_systems(
-            Update,
-            update_pan_orbit
-                .after(reset_editor_camera_state)
-                .before(PanOrbitCameraSystemSet)
-                .in_set(EditorSet::Editor),
-        );
-        app.add_systems(
-            Update,
-            ui_camera_block
-                .after(reset_editor_camera_state)
-                .before(update_pan_orbit)
-                .in_set(EditorSet::Editor),
-        );
-    }
-}
-
-pub struct EditorPickingPlugin;
-
-impl Plugin for EditorPickingPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
-
-        app.world
-            .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
-            .require_markers = true;
-
-        app.add_systems(
-            PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet))
-                .run_if(in_state(EditorState::Editor)),
-        );
-        app.add_systems(PostUpdate, auto_add_picking_dummy);
     }
 }
 
@@ -249,14 +221,6 @@ impl Plugin for EditorSetsPlugin {
     }
 }
 
-/// This event used for selecting entities
-#[derive(Event, Clone, EntityEvent)]
-struct SelectEvent {
-    #[target]
-    e: Entity,
-    event: ListenerInput<Pointer<Down>>,
-}
-
 /// Allow editor manipulate GizmoConfig
 pub struct EditorGizmoConfigPlugin;
 
@@ -275,97 +239,12 @@ fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
     gizmos_config.render_layers = RenderLayers::layer(0)
 }
 
-fn auto_add_picking(
-    mut commands: Commands,
-    query: Query<Entity, (With<PrefabMarker>, Without<Pickable>)>,
-) {
-    for e in query.iter() {
-        commands
-            .entity(e)
-            .insert(PickableBundle::default())
-            .insert(On::<Pointer<Down>>::send_event::<SelectEvent>())
-            .insert(RaycastPickable);
-    }
-}
-
 type AutoAddQueryFilter = (
     Without<PrefabMarker>,
     Without<Pickable>,
     With<Parent>,
     Changed<Handle<Mesh>>,
 );
-
-//Auto add picking for each child to propagate picking event up to prefab entitiy
-fn auto_add_picking_dummy(
-    mut commands: Commands,
-    query: Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
-    meshs: Res<Assets<Mesh>>,
-) {
-    for (e, mesh) in query.iter() {
-        //Only meshed entity need to be pickable
-        if let Some(mesh) = meshs.get(mesh) {
-            if mesh.primitive_topology() == PrimitiveTopology::TriangleList {
-                commands
-                    .entity(e)
-                    .insert(PickableBundle::default())
-                    .insert(RaycastPickable);
-            }
-        }
-    }
-}
-
-fn select_listener(
-    mut commands: Commands,
-    query: Query<Entity, With<Selected>>,
-    mut events: EventReader<SelectEvent>,
-    pan_orbit_state: ResMut<EditorCameraEnabled>,
-    keyboard: Res<Input<KeyCode>>,
-) {
-    if !pan_orbit_state.0 {
-        return;
-    }
-    for event in events.read() {
-        info!("Select Event: {:?}", event.e);
-        match event.event.button {
-            PointerButton::Primary => {
-                commands.entity(event.e).insert(Selected);
-                if !keyboard.pressed(KeyCode::ShiftLeft) {
-                    for e in query.iter() {
-                        commands.entity(e).remove::<Selected>();
-                    }
-                }
-            }
-            PointerButton::Secondary => { /*Show context menu?*/ }
-            PointerButton::Middle => {}
-        }
-    }
-}
-
-fn delete_selected(
-    mut commands: Commands,
-    query: Query<Entity, With<Selected>>,
-    keyboard: Res<Input<KeyCode>>,
-) {
-    let shift = keyboard.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
-    let ctrl = keyboard.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
-    let delete = keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete);
-
-    if ctrl && shift && delete {
-        for entity in query.iter() {
-            info!("Delete Entity: {entity:?}");
-            commands.entity(entity).despawn_recursive();
-        }
-    }
-}
-
-impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        Self {
-            e: value.target(),
-            event: value,
-        }
-    }
-}
 
 fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
     editor_events.send(space_shared::EditorEvent::Save(
@@ -380,7 +259,7 @@ fn to_game_after_save(mut state: ResMut<NextState<EditorState>>) {
 
 fn set_start_state(mut state: ResMut<NextState<EditorState>>) {
     info!("Set start state");
-    state.set(EditorState::Editor);
+    state.set(EditorState::Loading);
 }
 
 fn clear_and_load_on_start(
@@ -401,79 +280,6 @@ fn clear_and_load_on_start(
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }
-    }
-}
-
-/// Resource, which contains state for editor camera (default or any)
-#[derive(Resource, Default)]
-pub struct EditorCameraEnabled(pub bool);
-
-/// This system executes before all UI systems and is used to enable pan orbit camera on frame start
-pub fn reset_editor_camera_state(mut state: ResMut<EditorCameraEnabled>) {
-    *state = EditorCameraEnabled(true);
-}
-
-/// This system executes after all UI systems and is used to set pan orbit camera state.
-/// For example, it will block pan orbit camera if pointer is used by egui
-pub fn update_pan_orbit(
-    mut pan_orbit_query: Query<&mut PanOrbitCamera>,
-    state: Res<EditorCameraEnabled>,
-) {
-    for mut pan_orbit in pan_orbit_query.iter_mut() {
-        pan_orbit.enabled = state.0;
-    }
-}
-
-/// Sytem to block camera control if egui is using mouse
-pub fn ui_camera_block(
-    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut state: ResMut<EditorCameraEnabled>,
-    game_view: Res<GameViewTab>,
-) {
-    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
-        return;
-    };
-    let ctx = ctx_ref.get_mut();
-    if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
-        let Some(pos) = ctx.pointer_latest_pos() else {
-            return;
-        };
-        if let Some(area) = game_view.viewport_rect {
-            if area.contains(pos) {
-            } else {
-                *state = EditorCameraEnabled(false);
-            }
-        } else {
-            *state = EditorCameraEnabled(false);
-        }
-    }
-}
-
-type ChangeCameraQueryFilter = (Without<EditorCameraMarker>, With<CameraPlay>);
-
-/// System to change camera from editor camera to game camera (if exist)
-pub fn change_camera_in_play(
-    mut cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
-    mut play_cameras: Query<(&mut Camera, &CameraPlay), ChangeCameraQueryFilter>,
-) {
-    if !play_cameras.is_empty() {
-        let (mut some_camera, _) = play_cameras.iter_mut().next().unwrap();
-        cameras.single_mut().is_active = false;
-        some_camera.is_active = true;
-    }
-}
-
-/// System to change camera from game camera to editor camera (if exist)
-pub fn change_camera_in_editor(
-    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
-    mut play_cameras: Query<&mut Camera, Without<EditorCameraMarker>>,
-) {
-    for mut ecam in cameras.iter_mut() {
-        ecam.is_active = true;
-    }
-
-    for mut play_cam in play_cameras.iter_mut() {
-        play_cam.is_active = false;
     }
 }
 
@@ -926,15 +732,18 @@ pub struct EditorUiRef(pub egui::Ui);
 pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
     // light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
-            shadows_enabled: true,
+    commands.spawn((
+        DirectionalLightBundle {
+            directional_light: DirectionalLight {
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+            cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
             ..default()
         },
-        transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
-        ..default()
-    });
+        Name::from("Editor Level Light"),
+    ));
 
     // grid
     let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
@@ -953,6 +762,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         TrackedGrid::default(),
         TransformBundle::default(),
         VisibilityBundle::default(),
+        Name::from("Debug Grid"),
         grid_render_layer,
     ));
 
@@ -973,4 +783,68 @@ pub fn simple_editor_setup(mut commands: Commands) {
         RaycastPickable,
         RenderLayers::all(),
     ));
+}
+
+pub fn game_mode_changed(
+    mut commands: Commands,
+    mode: Res<GameModeSettings>,
+    editor_camera_query: Query<Entity, (With<EditorCameraMarker>, With<Camera>)>,
+) {
+    if mode.is_changed() {
+        for editor_camera in editor_camera_query.iter() {
+            commands.entity(editor_camera).despawn_recursive();
+        }
+
+        if mode.is_3d() {
+            // 3D camera
+            commands.spawn((
+                Camera3dBundle {
+                    transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+                    camera: Camera {
+                        order: 0,
+                        ..default()
+                    },
+                    ..default()
+                },
+                bevy_panorbit_camera::PanOrbitCamera::default(),
+                EditorCameraMarker,
+                Name::from("Editor Camera"),
+                PickableBundle::default(),
+                RaycastPickable,
+                RenderLayers::all(),
+            ));
+        } else {
+            // 2D camera
+            commands.spawn((
+                Camera2dBundle {
+                    camera: Camera {
+                        order: 0,
+                        ..default()
+                    },
+                    ..default()
+                },
+                EditorCameraMarker,
+                Name::from("Editor 2D Camera"),
+                PickableBundle::default(),
+                RaycastPickable,
+                RenderLayers::all(),
+            ));
+        }
+    }
+}
+
+pub mod colors {
+    use bevy_egui::egui::{Color32, Stroke};
+
+    pub fn stroke_default_color() -> Stroke {
+        Stroke::new(1., STROKE_COLOR)
+    }
+    pub const STROKE_COLOR: Color32 = Color32::from_rgb(70, 70, 70);
+    pub const SPECIAL_BG_COLOR: Color32 = Color32::from_rgb(20, 20, 20);
+    pub const DEFAULT_BG_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
+    pub const ERROR_COLOR: Color32 = Color32::from_rgb(255, 59, 33);
+    pub const HYPERLINK_COLOR: Color32 = Color32::from_rgb(99, 235, 231);
+    pub const WARM_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
+    pub const SELECTED_ITEM_COLOR: Color32 = Color32::from_rgb(76, 93, 235);
+    pub const TEXT_COLOR: Color32 = Color32::WHITE;
 }

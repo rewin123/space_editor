@@ -52,11 +52,14 @@ impl CloneComponent {
             func: Arc::new(move |cmds, src| {
                 if let Some(c) = src.get::<T>() {
                     let cloned = c.clone_value();
-                    if let Some(taken) = <T as FromReflect>::from_reflect(&*cloned) {
-                        cmds.insert(taken);
-                    } else {
-                        error!("Failed to clone component");
-                    }
+                    <T as FromReflect>::from_reflect(&*cloned).map_or_else(
+                        || {
+                            error!("Failed to clone component");
+                        },
+                        |taken| {
+                            cmds.insert(taken);
+                        },
+                    );
                 }
             })
         }

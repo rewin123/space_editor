@@ -30,6 +30,24 @@ impl Default for MeshPrimitivePrefab {
     }
 }
 
+#[derive(Component, Reflect, Clone)]
+#[reflect(Default, Component)]
+pub enum MeshPrimitive2dPrefab {
+    Quad(QuadPrefab),
+    Circle(CirclePrefab),
+    Plane(PlanePrefab),
+    RegularPolygon(RegularPolygonPrefab),
+}
+
+impl Default for MeshPrimitive2dPrefab {
+    fn default() -> Self {
+        Self::Quad(QuadPrefab {
+            size: Vec2::ONE,
+            flip: false,
+        })
+    }
+}
+
 impl MeshPrimitivePrefab {
     /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
@@ -45,6 +63,18 @@ impl MeshPrimitivePrefab {
             Self::Plane(c) => c.to_mesh(),
             Self::RegularPolygon(c) => c.to_mesh(),
             Self::Torus(c) => c.to_mesh(),
+        }
+    }
+}
+
+impl MeshPrimitive2dPrefab {
+    /// Convert [`MeshPrimitive2dPrefab`] to bevy [`Mesh`]
+    pub fn to_mesh(&self) -> Mesh {
+        match self {
+            Self::Quad(q) => q.to_mesh(),
+            Self::Circle(c) => c.to_mesh(),
+            Self::Plane(c) => c.to_mesh(),
+            Self::RegularPolygon(c) => c.to_mesh(),
         }
     }
 }

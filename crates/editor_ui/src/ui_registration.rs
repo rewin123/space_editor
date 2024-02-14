@@ -3,9 +3,7 @@ use std::collections::BTreeMap;
 use bevy::ecs::system::EntityCommands;
 
 use space_prefab::{component::*, ext::*};
-use space_shared::PrefabMarker;
-
-pub const MESH_CATEGORY: &str = "mesh";
+use space_shared::{LightAreaToggle, PrefabMarker};
 
 /// Resource with bundles to spawn
 #[derive(Resource, Default)]
@@ -82,21 +80,33 @@ impl EditorUiExt for App {
 
 pub fn register_light_editor_bundles(app: &mut App) {
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Point light",
-        (Name::new("Point light"), PointLight::default()),
+        (
+            Name::new("Point light"),
+            PointLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Directional light",
-        (Name::new("Directional light"), DirectionalLight::default()),
+        (
+            Name::new("Directional light"),
+            DirectionalLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 
     app.editor_bundle(
-        "Light",
+        "🔆 Light",
         "Spot light",
-        (Name::new("Spot light"), SpotLight::default()),
+        (
+            Name::new("Spot light"),
+            SpotLight::default(),
+            LightAreaToggle::default(),
+        ),
     );
 }
 
@@ -104,7 +114,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
 pub fn register_mesh_editor_bundles(app: &mut App) {
     app.editor_bundle(
         "Mesh",
-        "Cube",
+        "3D Cube",
         (
             MeshPrimitivePrefab::Cube(1.0),
             Name::new("Cube".to_string()),
@@ -114,7 +124,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Box",
+        "3D Box",
         (
             MeshPrimitivePrefab::Box(BoxPrefab::default()),
             Name::new("Box".to_string()),
@@ -124,7 +134,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Sphere",
+        "3D Sphere",
         (
             MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
             Name::new("UVSphere".to_string()),
@@ -134,7 +144,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Quad",
+        "3D Quad",
         (
             MeshPrimitivePrefab::Quad(QuadPrefab::default()),
             Name::new("Quad".to_string()),
@@ -144,7 +154,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Capsule",
+        "3D Capsule",
         (
             MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
             Name::new("Capsule"),
@@ -154,7 +164,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Circle",
+        "3D Circle",
         (
             MeshPrimitivePrefab::Circle(CirclePrefab::default()),
             Name::new("Circle".to_string()),
@@ -164,7 +174,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Cylinder",
+        "3D Cylinder",
         (
             MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
             Name::new("Cylinder".to_string()),
@@ -174,7 +184,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Icosphere",
+        "3D Icosphere",
         (
             MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
             Name::new("Icosphere".to_string()),
@@ -184,7 +194,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Plane",
+        "3D Plane",
         (
             MeshPrimitivePrefab::Plane(PlanePrefab::default()),
             Name::new("Plane".to_string()),
@@ -194,17 +204,17 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "Regular Polygon",
+        "3D Regular Polygon",
         (
             MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
-            Name::new("RegularPolygon".to_string()),
+            Name::new("Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
     );
     app.editor_bundle(
         "Mesh",
-        "Torus",
+        "3D Torus",
         (
             MeshPrimitivePrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
@@ -214,8 +224,52 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
 
     app.editor_bundle(
+        "Mesh",
+        "2D Quad",
+        (
+            MeshPrimitive2dPrefab::Quad(QuadPrefab::default()),
+            Name::new("2D Quad".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Circle",
+        (
+            MeshPrimitive2dPrefab::Circle(CirclePrefab::default()),
+            Name::new("2D Circle".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Plane",
+        (
+            MeshPrimitive2dPrefab::Plane(PlanePrefab::default()),
+            Name::new("2D Plane".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Regular Polygon",
+        (
+            MeshPrimitive2dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
+            Name::new("2D Regular Polygon".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
         "Camera",
-        "Playmode Camera",
+        "3D Playmode Camera",
         (
             Camera3d::default(),
             Name::new("Camera3d".to_string()),
@@ -224,4 +278,59 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             CameraPlay::default(),
         ),
     );
+
+    app.editor_bundle(
+        "Camera",
+        "2D Playmode Camera",
+        (
+            Camera2d::default(),
+            Name::new("Camera2d".to_string()),
+            Transform::default(),
+            Visibility::default(),
+            CameraPlay::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Sprite",
+        "Blank Sprite",
+        (
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::BLUE,
+                    custom_size: Some(Vec2::new(100.0, 100.0)),
+                    ..default()
+                },
+                ..default()
+            },
+            Name::new("Sprite".to_string()),
+        ),
+    );
+
+    app.editor_bundle(
+        "Sprite",
+        "Texture Sprite",
+        (
+            SpriteTexture {
+                texture: "branding/bevy_bird_dark.png".to_string(),
+            },
+            Name::new("Texture Sprite".to_string()),
+        ),
+    );
+
+    app.editor_bundle(
+        "Sprite",
+        "Sprite Sheet",
+        (
+            SpritesheetTexture {
+                texture: String::from("textures/gabe-idle-run.png"),
+            },
+            Name::from("Spritesheet"),
+            AnimationIndicesSpriteSheet::default(),
+            AnimationClipName::default(),
+            AvailableAnimationClips::default(),
+            AnimationTimerSpriteSheet::default(),
+            TextureAtlasPrefab::default(),
+        ),
+    )
 }

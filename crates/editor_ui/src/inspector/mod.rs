@@ -22,6 +22,8 @@ use space_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
+use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon};
+
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
     events_dispatcher::EventDispatcherTab,
@@ -251,7 +253,9 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                                         ui.with_layout(
                                             egui::Layout::top_down(egui::Align::Min),
                                             |ui| {
-                                                if ui.button("X").clicked() {
+                                                let button =
+                                                    egui::Button::new("🗙").fill(DEFAULT_BG_COLOR);
+                                                if ui.add(button).clicked() {
                                                     commands.push(InspectCommand::RemoveComponent(
                                                         e.id(),
                                                         *t_id,
@@ -274,8 +278,11 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
 
     //Open context window by button
     ui.vertical_centered(|ui| {
-        ui.add_space(8.);
-        if ui.button("Add component").clicked() {
+        ui.spacing();
+        if ui
+            .add(add_component_icon(16., 16., "Add component"))
+            .clicked()
+        {
             state.show_add_component_window = true;
         }
     });

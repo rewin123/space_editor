@@ -39,20 +39,18 @@ space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
 
 [dependencies]
 bevy.workspace = true
-space_editor_ui = {workspace = true, version = "0.3.1" }
-space_prefab = {workspace = true, version = "0.3.1" }
+space_editor_ui.workspace = true
+space_prefab.workspace = true
 
 # Modules for external crates
-space_bevy_xpbd_plugin = {version = "0.3.1", workspace = true, optional = true }
+space_bevy_xpbd_plugin = { workspace = true, optional = true }
 
 # For versions 1.74+
-[lints.rust]
+[workspace.lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
-# Remove once fully deprecated
-type_complexity = { level = "allow", priority = 2 }
 
-[lints.clippy]
+[workspace.lints.clippy]
 nursery = { level = "deny", priority = 0 }
 all = { level = "deny", priority = 1 }
 # Bevy Related
@@ -60,8 +58,10 @@ cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }
 significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
-type_complexity = { level = "allow", priority = 2 }
 too_many_arguments = { level = "allow", priority = 2 }
+
+[lints]
+workspace = true
 
 [profile.dev.package.bevy_xpbd_3d]
 opt-level = 3

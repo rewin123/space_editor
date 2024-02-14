@@ -1,7 +1,11 @@
 # space_editor: The Bevy Prefab Editor
 License: MIT 
 
-![Editor screenshot](docs/imgs/showcase-03.png)
+### Editor in Edit Mode
+![Editor in edit mode](docs/imgs/space_editor.png)
+
+### Editor in Play Mode
+![Editor in play mode](docs/imgs/space_editor_playmode.png)
 
 space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 
@@ -9,10 +13,16 @@ space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its 
 
 Aspires to be editor for bevy while there is no official editor.
 
+## Core Team
+
+* Project Lead:         rewin <rewin1996@gmail.com>
+* Developer Experience: Julia Naomi <jnboeira@outlook.com>
+* UX Designer:          Jay Kim <jaykim9419@gmail.com>
+
 ## Main features
 
 - **Intuitive Scene and Prefab Management**: Space Editor allows you to prepare and save scenes and prefabs with an intuitive user interface. You can easily reuse them in your game development workflow. 
-- **bevy_xpbd_3d compatibility**: Space Editor supports bevy_xpbd_3d, including all editor features. 
+- **bevy_xpbd_3d compatibility**: Space Editor supports bevy_xpbd_3d, including all editor features. (bevy_xpbd_2d not supported)
 - **Gizmo-Based manipulations**: Manipulate entity positions, rotations, and scales using gizmos. 
 - **Component values editing**: Easily edit component parameters within the editor UI 
 - **Seamless Editor-Game switching**: Switch between the editor UI and the game effortlessly for fast prototyping and testing. 
@@ -119,6 +129,14 @@ One limitation is that events must implement `Event, Default, Resource, Reflect,
 A prefab is simply a Bevy scene serialized to a readable and editable RON format. However, it needs to be spawned through PrefabBundle to activate custom logic such as adding global transforms to an object.
 
 > More documentation can be found at the [docs folder](docs/README.md)
+
+## 2D Mode support
+
+SpaceEditor can handle most 2D bevy elements, such as 2D Camera, 2D meshes and Sprites. 
+
+Game mode can be changed between 3D and 2D in `settings > GameMode`. This changes the editor camera configuration.
+
+![Game Mode Settings](docs/imgs/gamemode.png)
 
 ### Contributing
 Any request for adding functionality to the editor is welcome. Open an issue on the [issue tracker](https://github.com/rewin123/space_editor/issues).

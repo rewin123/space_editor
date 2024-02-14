@@ -32,7 +32,7 @@ fn main() {
 
 fn setup(mut commands: Commands) {
     commands.spawn((
-        PrefabBundle::new("cube.scn.ron"),
+        PrefabBundle::new("scenes/cube.scn.ron"),
         Spin(false, 0.),
         PrefabMarker,
     ));

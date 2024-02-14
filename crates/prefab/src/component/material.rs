@@ -61,14 +61,6 @@ impl Default for MaterialPrefab {
     }
 }
 
-fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
-    if path.is_empty() {
-        None
-    } else {
-        Some(asset_server.load(path))
-    }
-}
-
 impl MaterialPrefab {
     /// Convert [`MaterialPrefab`] to [`StandardMaterial`]
     pub fn to_material(&self, asset_server: &AssetServer) -> StandardMaterial {
@@ -101,5 +93,41 @@ impl MaterialPrefab {
             max_parallax_layer_count: self.max_parallax_layer_count,
             ..Default::default()
         }
+    }
+}
+
+/// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
+#[derive(Component, Reflect, Clone, InspectorOptions)]
+#[reflect(Default, Component, InspectorOptions)]
+pub struct ColorMaterialPrefab {
+    pub color: Color,
+    pub texture: String,
+}
+
+impl Default for ColorMaterialPrefab {
+    fn default() -> Self {
+        Self {
+            color: Color::rgb(1.0, 1.0, 1.0),
+            texture: String::default(),
+        }
+    }
+}
+
+impl ColorMaterialPrefab {
+    /// Convert [`ColorMaterialPrefab`] to [`ColorMaterial`]
+    pub fn to_material(&self, asset_server: &AssetServer) -> ColorMaterial {
+        let texture = try_image(&self.texture, asset_server);
+        ColorMaterial {
+            color: self.color,
+            texture,
+        }
+    }
+}
+
+fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
+    if path.is_empty() {
+        None
+    } else {
+        Some(asset_server.load(path))
     }
 }

@@ -7,7 +7,6 @@ use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry, load::PrefabAutoChild};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::ui_registration::{BundleReg, EditorBundleUntyped};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
@@ -45,10 +44,11 @@ impl Plugin for SpaceHierarchyPlugin {
 
 #[derive(Resource, Default)]
 pub struct HierarchyTabState {
-    show_all_entities: bool,
+    pub show_editor_entities: bool,
+    pub show_spawnable_bundles: bool,
 }
 
-type HierarchyQueryIter<'a> = (
+pub type HierarchyQueryIter<'a> = (
     Entity,
     Option<&'a Name>,
     Option<&'a Children>,
@@ -63,13 +63,12 @@ pub fn show_hierarchy(
     mut selected: Query<Entity, With<Selected>>,
     mut auto_children: Query<(), (With<SceneAutoChild>, With<PrefabMarker>)>,
     mut clone_events: EventWriter<CloneEvent>,
-    ui_reg: Res<BundleReg>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
     mut scene_child: Query<Entity, With<SceneAutoChild>>,
-    mut state: ResMut<HierarchyTabState>,
+    state: Res<HierarchyTabState>,
 ) {
-    let mut all: Vec<_> = if state.show_all_entities {
+    let mut all: Vec<_> = if state.show_editor_entities {
         all_entites.iter().collect()
     } else {
         query.iter().collect()
@@ -80,7 +79,7 @@ pub fn show_hierarchy(
     egui::ScrollArea::vertical().show(ui, |ui| {
         for (entity, _name, _children, parent) in all.iter() {
             if parent.is_none() {
-                if state.show_all_entities {
+                if state.show_editor_entities {
                     draw_entity::<()>(
                         &mut commands,
                         ui,
@@ -106,44 +105,6 @@ pub fn show_hierarchy(
                     );
                 }
             }
-        }
-        ui.vertical_centered(|ui| {
-            ui.separator();
-            if ui.button("+ Add new entity").clicked() {
-                let id = commands.spawn_empty().insert(PrefabMarker).id();
-                changes.send(NewChange {
-                    change: Arc::new(AddedEntity { entity: id }),
-                });
-            }
-            if ui.button("Clear all entities").clicked() {
-                for (entity, _, _, _parent) in all.iter() {
-                    commands.entity(*entity).despawn_recursive();
-
-                    changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity: *entity }),
-                    });
-                }
-            }
-        });
-
-        ui.checkbox(&mut state.show_all_entities, "Show all entities");
-
-        ui.label("Spawnable bundles");
-        for (category_name, category_bundle) in ui_reg.bundles.iter() {
-            ui.menu_button(category_name, |ui| {
-                let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
-                    category_bundle.iter().collect();
-                categories_vec.sort_by(|a, b| a.0.cmp(b.0));
-
-                for (name, dyn_bundle) in categories_vec {
-                    if ui.button(name).clicked() {
-                        let entity = dyn_bundle.spawn(&mut commands);
-                        changes.send(NewChange {
-                            change: Arc::new(AddedEntity { entity }),
-                        });
-                    }
-                }
-            });
         }
     });
 }
