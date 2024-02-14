@@ -15,6 +15,7 @@ impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
@@ -217,6 +218,7 @@ impl EditorTool for GizmoTool {
                         unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
                     }
                     self.is_move_cloned_entities = true;
+                    disable_pan_orbit = true;
                     return;
                 }
             }
@@ -271,6 +273,7 @@ impl EditorTool for GizmoTool {
                                         .mode(self.gizmo_mode)
                                         .interact(ui)
                                 {
+                                    disable_pan_orbit = true;
                                     let new_transform = Transform {
                                         translation: Vec3::from(<[f32; 3]>::from(
                                             result.translation,
@@ -298,7 +301,6 @@ impl EditorTool for GizmoTool {
                                         let new_transform = GlobalTransform::from(new_transform);
                                         *transform = new_transform.reparented_to(parent_global);
                                         transform.set_changed();
-                                        disable_pan_orbit = true;
                                     }
                                 }
                                 continue;
@@ -313,6 +315,8 @@ impl EditorTool for GizmoTool {
                     .mode(self.gizmo_mode)
                     .interact(ui)
                 {
+                    disable_pan_orbit = true;
+
                     if clone_pressed {
                         if self.is_move_cloned_entities {
                             *transform = Transform {
@@ -333,9 +337,12 @@ impl EditorTool for GizmoTool {
                         };
                         transform.set_changed();
                     }
-                    disable_pan_orbit = true;
                 }
             }
+        }
+
+        if ui.ctx().wants_pointer_input() {
+            disable_pan_orbit = true;
         }
 
         if disable_pan_orbit {
