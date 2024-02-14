@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
-use bevy_egui::{egui::collapsing_header::CollapsingState, *};
+use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
@@ -174,7 +174,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             })
     };
 
-    if label.clicked() {
+    if label.map_or(false, |label_response| label_response.response.clicked()) {
         if !is_selected {
             if !ui.input(|i| i.modifiers.shift) {
                 for e in selected.iter() {

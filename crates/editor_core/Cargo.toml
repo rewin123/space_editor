@@ -11,12 +11,12 @@ homepage.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bevy.workspace = true
+
 space_prefab.workspace = true
 space_undo.workspace = true
 space_persistence.workspace = true
 space_shared.workspace = true
-
-bevy.workspace = true
 
 [features]
 persistence_editor = []

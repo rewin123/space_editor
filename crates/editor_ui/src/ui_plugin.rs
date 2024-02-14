@@ -1,6 +1,6 @@
 use crate::*;
 use bevy::prelude::*;
-use bevy_egui::egui::{
+use bevy_egui_next::egui::{
     FontFamily::{Monospace, Proportional},
     FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
 };

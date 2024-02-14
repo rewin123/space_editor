@@ -12,7 +12,7 @@ homepage.workspace = true
 
 [dependencies]
 bevy.workspace = true
-pretty-type-name = "1.0.1"
+pretty-type-name.workspace = true
 
 [lints]
 workspace = true

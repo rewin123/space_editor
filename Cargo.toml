@@ -32,10 +32,40 @@ space_undo = { version = "0.3.1", path = "crates/undo" }
 space_persistence = { version = "0.3.1", path = "crates/persistence"}
 space_editor_core = { version = "0.3.1", path = "crates/editor_core", features = ["persistence_editor"] }
 space_editor_ui = { version = "0.3.1", path = "crates/editor_ui", features = ["persistence_editor"] }
+
+# Crates inner libraries
+anyhow = "1.0"
+bevy_asset_loader = "0.19"
+bevy_common_assets = { version = "0.8", features = ["ron"] }
+bevy_debug_grid = "0.4"
+bevy_egui_next = "0.26"
+bevy-inspector-egui = { version = "0.22", features = [
+    "bevy_pbr",
+    "highlight_changes",
+] }
+bevy_mod_billboard = "0.5.1"
+bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git", branch = "pick_hidden", default-features = false, features = [
+    "backend_raycast",
+    "selection",
+] }
+bevy_panorbit_camera = "0.9"
+bevy-scene-hook = "9"
+convert_case = "0.6"
+egui_dock = "0.11"
+egui_extras = { version = "0.26", features = ["all_loaders"] }
+egui_file = "0.15"
+egui-gizmo = "0.16"
+pretty-type-name = "1"
 ron = "0.8"
+resvg = "0.37"
 serde = "1"
 
+# Community Modules
 space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
+
+[patch.crates-io]
+egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
+bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 
 [dependencies]
 bevy.workspace = true

@@ -1,5 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::egui::{self};
+use bevy_egui_next::egui::{self};
 use egui_gizmo::GizmoMode;
 use space_undo::UndoRedo;
 
@@ -39,7 +39,12 @@ impl Default for GameViewTab {
 }
 
 impl EditorTab for GameViewTab {
-    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
+    fn ui(
+        &mut self,
+        ui: &mut bevy_egui_next::egui::Ui,
+        commands: &mut Commands,
+        world: &mut World,
+    ) {
         if ui.input_mut(|i| i.key_released(egui::Key::Z) && i.modifiers.ctrl && !i.modifiers.shift)
         {
             world.send_event(UndoRedo::Undo);
@@ -93,7 +98,7 @@ impl EditorTab for GameViewTab {
         });
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
+    fn title(&self) -> bevy_egui_next::egui::WidgetText {
         "Game view".into()
     }
 }
@@ -129,7 +134,7 @@ pub fn set_camera_viewport(
     mut local: Local<LastGameTabRect>,
     ui_state: Res<GameViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
+    egui_settings: Res<bevy_egui_next::EguiSettings>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
 ) {
     let Ok(mut cam) = cameras.get_single_mut() else {

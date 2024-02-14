@@ -12,6 +12,7 @@ description = "Space XPBD plugin for space_editor crate"
 bevy.workspace = true 
 space_editor_ui.workspace = true
 bevy_xpbd_3d = {version="0.3.2", default-features = false, features = ["3d", "f32", "collider-from-mesh", "debug-plugin"]}
+bevy-inspector-egui.workspace = true 
 
 [lints]
 workspace = true
