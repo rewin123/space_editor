@@ -37,7 +37,7 @@ pub enum ShowEditorUi {
 impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
-            .add(SelectedPlugin)
+            .add(SelectionPlugin)
             .add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
@@ -246,17 +246,6 @@ impl Default for EditorUi {
             tree: egui_dock::DockState::new(vec![]),
         }
     }
-}
-
-/// This enum determine how tab was registered.
-/// ResourceBased - tab will be registered as resource
-/// Schedule - tab will be registered as system
-pub enum EditorUiReg {
-    ResourceBased {
-        show_command: EditorTabShowFn,
-        title_command: EditorTabGetTitleFn,
-    },
-    Schedule,
 }
 
 impl EditorUi {

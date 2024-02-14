@@ -46,9 +46,6 @@ pub mod ui_registration;
 pub mod camera_view;
 
 
-/// Contains ui plugin and common for ui functions
-pub mod ui_plugin;
-
 /// UI plugin and common systems
 pub mod ui_plugin;
 
@@ -72,6 +69,7 @@ use bevy_mod_picking::{
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
+use selection::{delete_selected, SelectEvent};
 use space_editor_core::prelude::*;
 
 use bevy::{
@@ -392,7 +390,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(SelectedPlugin::default())
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
-            .add(bottom_menu::BottomMenuPlugin)
+            .add(menu_toolbars::BottomMenuPlugin)
             .add(MouseCheck)
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
@@ -466,8 +464,7 @@ impl Plugin for EditorUiCore {
             (
                 show_editor_ui
                     .before(update_pan_orbit)
-                    .before(ui_camera_block)
-                    .after(bottom_menu::menu),
+                    .before(ui_camera_block),
                 set_camera_viewport,
             )
                 .in_set(UiSystemSet),
