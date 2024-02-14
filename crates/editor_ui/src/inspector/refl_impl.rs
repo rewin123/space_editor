@@ -4,7 +4,7 @@ use bevy::{
     prelude::{AppTypeRegistry, ResMut},
     reflect::Reflect,
 };
-use bevy_egui::egui;
+use bevy_egui_next::egui;
 use space_shared::ext::bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };

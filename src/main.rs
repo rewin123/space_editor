@@ -8,7 +8,7 @@ fn main() {
             focused: true,
             fit_canvas_to_parent: true,
             title: "Space Editor".into(),
-            resolution: WindowResolution::new(1920., 1080.),
+            resolution: WindowResolution::new(1600., 900.),
             visible: true,
             ..default()
         }),

@@ -14,12 +14,8 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 
-
-bevy-inspector-egui = { version = "0.22", features = [
-    "bevy_pbr",
-    "highlight_changes",
-] }
-egui_file = { git = "https://github.com/Barugon/egui_file.git", rev = "de5f8f41df160d67be328ab50974966ceb74e70f" }
+bevy-inspector-egui.workspace = true
+egui_file.workspace = true
 
 [lints]
 workspace = true

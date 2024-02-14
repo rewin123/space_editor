@@ -14,7 +14,7 @@ use bevy::{
     utils::HashMap,
 };
 
-use bevy_egui::*;
+use bevy_egui_next::*;
 
 use space_editor_core::prelude::*;
 use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
