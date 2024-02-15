@@ -40,7 +40,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(SelectionPlugin)
             .add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
-            .add(GameViewPlugin)
+            .add_after::<EditorUiCore, _>(GameViewPlugin)
             .add(menu_toolbars::BottomMenuPlugin)
             .add(MouseCheck)
             .add(CameraViewTabPlugin)
@@ -57,6 +57,8 @@ impl FlatPluginList for EditorUiPlugin {
         res
     }
 }
+
+
 
 impl PluginGroup for EditorUiPlugin {
     fn build(self) -> PluginGroupBuilder {
@@ -101,6 +103,11 @@ impl Default for EditorUiCore {
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         app.add_state::<ShowEditorUi>();
+        app.init_resource::<EditorLoader>();
+        app.insert_resource(EditorCameraEnabled(true));
+        app.init_resource::<EditorUi>();
+        app.init_resource::<ScheduleEditorTabStorage>();
+        app.init_resource::<BundleReg>();
 
         app.configure_sets(
             Update,
@@ -108,8 +115,6 @@ impl Plugin for EditorUiCore {
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
-        app.init_resource::<EditorUi>();
-        app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
             Update,
             (
@@ -141,9 +146,6 @@ impl Plugin for EditorUiCore {
             self::debug_panels::DebugWorldInspector {},
         );
 
-        app.init_resource::<EditorLoader>();
-
-        app.insert_resource(EditorCameraEnabled(true));
 
         app.add_systems(
             Startup,
@@ -186,9 +188,9 @@ impl Plugin for EditorUiCore {
         }
 
         app.add_event::<selection::SelectEvent>();
-
-        app.init_resource::<BundleReg>();
     }
+
+
 }
 
 /// This system use to show all egui editor ui on primary window

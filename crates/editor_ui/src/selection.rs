@@ -5,7 +5,10 @@ pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
+        app.add_plugins(
+            bevy_mod_picking::DefaultPickingPlugins
+                .build()
+                .disable::<bevy_mod_picking::selection::SelectionPlugin>(),);
 
         app.world
             .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
