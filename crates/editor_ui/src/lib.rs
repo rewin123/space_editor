@@ -455,7 +455,7 @@ impl Plugin for EditorUiCore {
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(ShowEditorUi::Show)),
         );
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -542,6 +542,8 @@ pub fn show_editor_ui(world: &mut World) {
         return;
     };
     let mut egui_context = egui_context.clone();
+
+    info!("Show editor ui");
 
     world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
         editor_ui.ui(world, egui_context.get_mut());
@@ -726,7 +728,10 @@ impl EditorUiAppExt for App {
 pub struct EditorUiRef(pub egui::Ui);
 
 /// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
-pub fn simple_editor_setup(mut commands: Commands) {
+pub fn simple_editor_setup(mut commands: Commands, mut show_ui: ResMut<NextState<ShowEditorUi>>, mut editor_state: ResMut<NextState<EditorState>>) {
+    show_ui.set(ShowEditorUi::Hide);
+    editor_state.set(EditorState::Editor);
+
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
     // light
     commands.spawn((
