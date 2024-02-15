@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
-use bevy_egui::egui::{self, Key};
+use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::EditorCameraMarker;
@@ -276,6 +276,7 @@ impl EditorTool for GizmoTool {
                                         .mode(self.gizmo_mode)
                                         .interact(ui)
                                 {
+                                    disable_pan_orbit = true;
                                     let new_transform = Transform {
                                         translation: Vec3::from(<[f32; 3]>::from(
                                             result.translation,
@@ -303,7 +304,6 @@ impl EditorTool for GizmoTool {
                                         let new_transform = GlobalTransform::from(new_transform);
                                         *transform = new_transform.reparented_to(parent_global);
                                         transform.set_changed();
-                                        disable_pan_orbit = true;
                                     }
                                 }
                                 continue;
@@ -341,6 +341,9 @@ impl EditorTool for GizmoTool {
                     disable_pan_orbit = true;
                 }
             }
+        }
+        if ui.ctx().wants_pointer_input() {
+            disable_pan_orbit = true;
         }
 
         if disable_pan_orbit {

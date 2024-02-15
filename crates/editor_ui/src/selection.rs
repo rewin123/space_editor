@@ -62,6 +62,7 @@ pub fn select_listener(
     keyboard: Res<Input<KeyCode>>,
 ) {
     if !pan_orbit_state.0 {
+        events.clear();
         return;
     }
     for event in events.read() {
