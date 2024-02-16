@@ -1,5 +1,4 @@
-
-![/imgs/showcase.png](imgs/showcase-03.png)
+![Editor in edit mode](imgs/space_editor.png)
 
 space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 
@@ -87,16 +86,33 @@ The dock system in the Editor UI offers a high degree of flexibility:
 
 - For added convenience, tabs can also be detached from the main dock system and placed in subwindows, allowing you to arrange your workspace exactly the way you prefer.
 
-## Bottom menu
+## Menu Toolbars
+
+### Bottom menu
 
 ![bot_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/bot_menu.png)
 
 Bottom menu is panel with settings for current scene. It contains:
 
-- Path to prefab without "scn.ron" extension
+- "Clear Entities" button to remove all user added entities
+- "Add Entity" button to add a new empty entity to the scene
+- "Spawn Bundle" button to spawn a pre configured bundle in the scene:
+  - 2D and 3D Meshes
+  - 2D and 3D Cameras
+  - Light
+  - Sprites
+- "Show editor entities" checkbox to show all editor hidden entities
+- "Current Scene", label with the current scene name and path
+
+### Top Menu
+![top_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/top_menu.png)
+
+Top menu is panel with scene management options. It contains:
+
 - Folder button to open file dialog to select prefab
-- "Save" button to save prefab manually
-- "Load" button to load prefab from "Save path" parameter
+- "Save" button to save scene manually in file dialog
+- "Load" button to load scene from from file dialog
+- "Open GLTF" button to load a GLTF/GLB as prefab
 - Play button to starty play game
 
 # Customization
@@ -155,6 +171,8 @@ app.editor_bundle("Mesh", "Cube", (
 And after call method, "Cube" bundle can be acessed in UI
 
 ![/imgs/example_bundle.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle.png)
+
+![/imgs/example_bundle_2.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle_2.png)
 
 ## Add New Tab to Editor UI
 

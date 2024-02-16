@@ -47,7 +47,7 @@ The following explains how to integrate `space_editor` as a game plugin to use t
 
 Add this line to your Cargo.toml file
 ```toml
-space_editor = "0.3.0"
+space_editor = "0.3.1"
 ```
 
 ### Prefab spawn system
@@ -137,6 +137,10 @@ SpaceEditor can handle most 2D bevy elements, such as 2D Camera, 2D meshes and S
 Game mode can be changed between 3D and 2D in `settings > GameMode`. This changes the editor camera configuration.
 
 ![Game Mode Settings](docs/imgs/gamemode.png)
+
+## More Documentation on
+- [Extended Documentation](docs/README.md)
+- [Shortcuts/Hotkeys Configuration](docs/shortcuts.md)
 
 ### Contributing
 Any request for adding functionality to the editor is welcome. Open an issue on the [issue tracker](https://github.com/rewin123/space_editor/issues).

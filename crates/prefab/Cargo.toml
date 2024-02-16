@@ -15,8 +15,6 @@ no_event_registration = []
 
 [dependencies]
 bevy.workspace = true
-ron.workspace = true
-serde.workspace = true
 space_shared.workspace = true
 space_undo.workspace = true
 

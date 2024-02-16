@@ -18,7 +18,7 @@
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::GltfPrefab": (
-          path: "colone.glb",
+          path: "models/colone.glb",
           scene: "Scene0",
         ),
         "bevy_core::name::Name": (
@@ -47,7 +47,7 @@
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::GltfPrefab": (
-          path: "colone.glb",
+          path: "models/colone.glb",
           scene: "Scene0",
         ),
         "bevy_core::name::Name": (
@@ -76,7 +76,7 @@
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::GltfPrefab": (
-          path: "cube.glb",
+          path: "models/cube.glb",
           scene: "Scene0",
         ),
         "bevy_core::name::Name": (
