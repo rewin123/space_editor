@@ -37,7 +37,7 @@ fn simple_tab_system(mut ui: NonSendMut<EditorUiRef>) {
 
 fn configure_editor(mut load_event: EventWriter<MenuLoadEvent>) {
     load_event.send(MenuLoadEvent {
-        path: "level_test".to_string(),
+        path: "scenes/level_test".to_string(),
     });
 }
 
