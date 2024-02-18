@@ -4,10 +4,13 @@ use bevy::{
 };
 use bevy_egui_next::*;
 use space_editor_core::hotkeys::AllHotkeys;
+use space_shared::ext::bevy_inspector_egui::bevy_inspector;
 use space_undo::ChangeChainSettings;
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
+
+use crate::sizing::IconSize;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -206,6 +209,10 @@ impl EditorTab for SettingsWindow {
         ui.heading("New Tab Behaviour");
         let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
         new_window_settings.ui(ui);
+
+        ui.spacing();
+        ui.heading("Default Sizing");
+        bevy_inspector::ui_for_resource::<IconSize>(world, ui);
 
         ui.spacing();
         ui.heading("Hotkeys in Game view tab");

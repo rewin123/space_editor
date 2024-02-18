@@ -13,7 +13,7 @@ homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
 [workspace.package]
-version = "0.3.1"
+version = "0.4.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
@@ -26,12 +26,12 @@ homepage = "https://github.com/rewin123/space_editor"
 bevy = "0.12"
 
 # Editor Crates
-space_prefab = { version = "0.3.1", path = "crates/prefab" }
-space_shared = { version = "0.3.1", path = "crates/shared" }
-space_undo = { version = "0.3.1", path = "crates/undo" }
-space_persistence = { version = "0.3.1", path = "crates/persistence"}
-space_editor_core = { version = "0.3.1", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.3.1", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_prefab = { version = "0.4.0", path = "crates/prefab" }
+space_shared = { version = "0.4.0", path = "crates/shared" }
+space_undo = { version = "0.4.0", path = "crates/undo" }
+space_persistence = { version = "0.4.0", path = "crates/persistence"}
+space_editor_core = { version = "0.4.0", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "0.4.0", path = "crates/editor_ui", features = ["persistence_editor"] }
 
 # Crates inner libraries
 anyhow = "1.0"
@@ -61,7 +61,7 @@ resvg = "0.37"
 serde = "1"
 
 # Community Modules
-space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
+space_bevy_xpbd_plugin = { version = "0.4.0", path = "modules/bevy_xpbd_plugin"}
 
 [patch.crates-io]
 egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }

@@ -185,8 +185,7 @@ pub struct EditorSetsPlugin;
 
 impl Plugin for EditorSetsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<IconSize>()
-            .register_type::<IconSize>();
+        app.init_resource::<IconSize>().register_type::<IconSize>();
         app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
 
         app.configure_sets(
@@ -421,7 +420,7 @@ pub mod sizing {
     }
 
     impl IconSize {
-        pub fn to_size(&self) -> f32 {
+        pub const fn to_size(&self) -> f32 {
             match self {
                 Self::Small => 16.,
                 Self::Gizmos => 20.,

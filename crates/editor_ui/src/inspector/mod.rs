@@ -276,11 +276,20 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
         }
     });
 
+    let width = ui.available_width();
+    let add_component_str = "Add component";
+    let pixel_count = add_component_str.len() as f32 * 8.;
+    let x_padding = (width - pixel_count - 16. - 16.) / 2.;
+
     //Open context window by button
     ui.vertical_centered(|ui| {
         ui.spacing();
+        ui.style_mut().spacing.button_padding = egui::Vec2 {
+            x: x_padding,
+            y: 2.,
+        };
         if ui
-            .add(add_component_icon(16., 16., "Add component"))
+            .add(add_component_icon(16., 16., add_component_str))
             .clicked()
         {
             state.show_add_component_window = true;

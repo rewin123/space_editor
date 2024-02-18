@@ -46,8 +46,19 @@ pub struct MenuLoadEvent {
     pub path: String,
 }
 
+pub struct FrameSpeedMultiplier {
+    pub ratio: f32,
+}
+
+impl Default for FrameSpeedMultiplier {
+    fn default() -> Self {
+        Self { ratio: 1.0 }
+    }
+}
+
 fn in_game_menu(
     mut smoothed_dt: Local<f32>,
+    mut frame_speed_mult: Local<FrameSpeedMultiplier>,
     mut ctxs: EguiContexts,
     mut state: ResMut<NextState<EditorState>>,
     mut time: ResMut<Time<Virtual>>,
@@ -55,6 +66,7 @@ fn in_game_menu(
     egui::TopBottomPanel::top("top_gameplay_panel")
         .exact_height(28.)
         .show(ctxs.ctx_mut(), |ui| {
+            let frame_duration = time.delta();
             if !time.is_paused() {
                 *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
             }
@@ -64,6 +76,9 @@ fn in_game_menu(
                 let distance = ui.available_width() / 2. - 64.;
                 ui.add_space(distance);
                 let button = if time.is_paused() { "▶" } else { "⏸" };
+                if ui.button("⏮").clicked() {
+                    time.advance_by(frame_duration.mul_f32(-1.));
+                }
                 if ui.button(button).clicked() {
                     if time.is_paused() {
                         time.unpause();
@@ -73,6 +88,29 @@ fn in_game_menu(
                 }
                 if ui.button("⏹").clicked() {
                     state.set(EditorState::Editor);
+                }
+                if ui.button("⏭").clicked() {
+                    time.advance_by(frame_duration);
+                }
+
+                ui.add_space(60.);
+                if egui::DragValue::new(&mut frame_speed_mult.ratio)
+                    .suffix(" x")
+                    .clamp_range((0.)..=5.)
+                    .speed(1. / 60.)
+                    .fixed_decimals(2)
+                    .ui(ui)
+                    .changed()
+                {
+                    time.set_relative_speed(frame_speed_mult.ratio);
+                };
+
+                if ui
+                    .button("⟲")
+                    .on_hover_text("Reset frame speed multiplier to 1.0 ")
+                    .clicked()
+                {
+                    frame_speed_mult.ratio = 1.;
                 }
             });
         });
