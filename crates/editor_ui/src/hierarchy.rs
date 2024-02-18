@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui_next::{
-    egui::{collapsing_header::CollapsingState, Response},
+    egui::collapsing_header::CollapsingState,
     *,
 };
 use space_editor_core::prelude::*;
@@ -131,18 +131,17 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         |name| format!("{} ({:?})", name.as_str(), entity),
     );
 
-    let mut is_selected = selected.contains(entity);
-    let cached_selected = is_selected;
+    let is_selected = selected.contains(entity);
 
     if children.is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok())) {
         info!("Entity has children: {:?}", entity);
-        let responce = CollapsingState::load_with_default_open(
+        CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
             true,
         )
         .show_header(ui, |ui| {
-            let mut responce = ui.selectable_label(is_selected, entity_name);
+            let responce = ui.selectable_label(is_selected, entity_name);
             let is_clicked = responce.clicked();
             responce.context_menu(|ui| {
                 hierarchy_entity_context(
@@ -156,7 +155,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                 );
             });
 
-            if responce.clicked() {
+            if is_clicked {
                 if is_selected {
                     commands.entity(entity).remove::<Selected>();
                     info!("Removed selected: {:?}", entity);
@@ -180,7 +179,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         })
         .0;
     } else {
-        let mut selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
+        let selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
         let is_clicked = selectable.clicked();
 
         selectable.context_menu(|ui| {
@@ -195,7 +194,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             );
         });
 
-        if selectable.clicked() {
+        if is_clicked {
             if is_selected {
                 commands.entity(entity).remove::<Selected>();
                 info!("Removed selected: {:?}", entity);
