@@ -2,10 +2,7 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
-use bevy_egui_next::{
-    egui::collapsing_header::CollapsingState,
-    *,
-};
+use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
@@ -176,8 +173,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             for child in children.unwrap().iter() {
                 draw_entity(commands, ui, query, *child, selected, clone_events, changes);
             }
-        })
-        .0;
+        });
     } else {
         let selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
         let is_clicked = selectable.clicked();
