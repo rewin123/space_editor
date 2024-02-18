@@ -22,7 +22,7 @@ use space_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon};
+use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon, sizing::Sizing};
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -141,6 +141,7 @@ fn execute_inspect_command(
 
 /// System to show inspector panel
 pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashMap<String, bool>) {
+    let sizing = world.resource::<Sizing>().clone();
     let selected_entity = world
         .query_filtered::<Entity, With<Selected>>()
         .get_single(world);
@@ -279,7 +280,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
     let width = ui.available_width();
     let add_component_str = "Add component";
     let pixel_count = add_component_str.len() as f32 * 8.;
-    let x_padding = (width - pixel_count - 16. - 16.) / 2.;
+    let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
 
     //Open context window by button
     ui.vertical_centered(|ui| {
@@ -289,7 +290,11 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
             y: 2.,
         };
         if ui
-            .add(add_component_icon(16., 16., add_component_str))
+            .add(add_component_icon(
+                sizing.icon.to_size(),
+                sizing.icon.to_size(),
+                add_component_str,
+            ))
             .clicked()
         {
             state.show_add_component_window = true;

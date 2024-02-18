@@ -14,6 +14,7 @@ use crate::{
     colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
+    sizing::Sizing,
     ui_registration::{BundleReg, EditorBundleUntyped},
 };
 
@@ -134,6 +135,7 @@ pub fn bottom_menu(
     mut state: ResMut<HierarchyTabState>,
     ui_reg: Res<BundleReg>,
     menu_state: Res<MenuToolbarState>,
+    sizing: Res<Sizing>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu").show(ctx, |ui| {
@@ -142,7 +144,10 @@ pub fn bottom_menu(
             stl.spacing.button_padding = egui::Vec2::new(8., 2.);
 
             if ui
-                .add(delete_entity_icon(16., 16., "").stroke(stroke_default_color()))
+                .add(
+                    delete_entity_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
+                        .stroke(stroke_default_color()),
+                )
                 .on_hover_text("Clear all entities")
                 .clicked()
             {
@@ -155,7 +160,10 @@ pub fn bottom_menu(
                 }
             }
             if ui
-                .add(add_entity_icon(16., 16., "").stroke(stroke_default_color()))
+                .add(
+                    add_entity_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
+                        .stroke(stroke_default_color()),
+                )
                 .on_hover_text("Add new entity")
                 .clicked()
             {
@@ -164,7 +172,9 @@ pub fn bottom_menu(
                     change: Arc::new(AddedEntity { entity: id }),
                 });
             }
-            let spawnable_button = add_bundle_icon(16., 16., "").stroke(stroke_default_color());
+            let spawnable_button =
+                add_bundle_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
+                    .stroke(stroke_default_color());
 
             let spawnables = ui.add(if state.show_spawnable_bundles {
                 spawnable_button.fill(SELECTED_ITEM_COLOR)
@@ -239,6 +249,7 @@ pub fn top_menu(
     mut menu_state: ResMut<MenuToolbarState>,
     mut editor_events: EventWriter<EditorEvent>,
     background_tasks: Res<BackgroundTaskStorage>,
+    sizing: Res<Sizing>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::top("top_menu_bar")
@@ -384,7 +395,9 @@ pub fn top_menu(
                 // END Load Scene
 
                 // Open GLTF
-                let open_gltf_button = prefab_icon(16., 16., "").stroke(stroke_default_color());
+                let open_gltf_button =
+                    prefab_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
+                        .stroke(stroke_default_color());
                 if ui
                     .add(open_gltf_button)
                     .on_hover_text("Open GLTF/GLB as prefab")

@@ -10,7 +10,7 @@ use space_undo::ChangeChainSettings;
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
 
-use crate::sizing::IconSize;
+use crate::sizing::Sizing;
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -212,7 +212,7 @@ impl EditorTab for SettingsWindow {
 
         ui.spacing();
         ui.heading("Default Sizing");
-        bevy_inspector::ui_for_resource::<IconSize>(world, ui);
+        bevy_inspector::ui_for_resource::<Sizing>(world, ui);
 
         ui.spacing();
         ui.heading("Hotkeys in Game view tab");

@@ -68,7 +68,7 @@ use bevy_mod_picking::{
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
-use sizing::IconSize;
+use sizing::{IconSize, Sizing};
 use space_editor_core::prelude::*;
 
 use bevy::{
@@ -185,7 +185,9 @@ pub struct EditorSetsPlugin;
 
 impl Plugin for EditorSetsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<IconSize>().register_type::<IconSize>();
+        app.init_resource::<Sizing>()
+            .register_type::<Sizing>()
+            .register_type::<IconSize>();
         app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
 
         app.configure_sets(
@@ -409,8 +411,26 @@ pub mod colors {
 pub mod sizing {
     use bevy::prelude::*;
 
-    #[derive(Resource, Clone, Default, PartialEq, Eq, Reflect)]
+    #[derive(Resource, Clone, PartialEq, Reflect)]
     #[reflect(Resource, Default)]
+    pub struct Sizing {
+        pub icon: IconSize,
+        pub gizmos: IconSize,
+        pub text: f32,
+    }
+
+    impl Default for Sizing {
+        fn default() -> Self {
+            Self {
+                icon: IconSize::Medium,
+                gizmos: IconSize::Gizmos,
+                text: 18.,
+            }
+        }
+    }
+
+    #[derive(Clone, Default, PartialEq, Eq, Reflect)]
+    #[reflect(Default)]
     pub enum IconSize {
         Small,
         Gizmos,
