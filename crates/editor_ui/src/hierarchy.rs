@@ -2,7 +2,10 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
-use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
+use bevy_egui_next::{
+    egui::{collapsing_header::CollapsingState, Response},
+    *,
+};
 use space_editor_core::prelude::*;
 use space_prefab::editor_registry::EditorRegistry;
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
@@ -128,40 +131,20 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         |name| format!("{} ({:?})", name.as_str(), entity),
     );
 
-    let is_selected = selected.contains(entity);
+    let mut is_selected = selected.contains(entity);
+    let cached_selected = is_selected;
 
-    let label = if children
-        .is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok()))
-    {
-        CollapsingState::load_with_default_open(
+    if children.is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok())) {
+        info!("Entity has children: {:?}", entity);
+        let responce = CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
             true,
         )
         .show_header(ui, |ui| {
-            ui.selectable_label(is_selected, entity_name)
-                .context_menu(|ui| {
-                    hierarchy_entity_context(
-                        ui,
-                        commands,
-                        entity,
-                        changes,
-                        clone_events,
-                        selected,
-                        parent,
-                    );
-                })
-        })
-        .body(|ui| {
-            for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
-            }
-        })
-        .1
-        .inner
-    } else {
-        ui.selectable_label(is_selected, format!("      {}", entity_name))
-            .context_menu(|ui| {
+            let mut responce = ui.selectable_label(is_selected, entity_name);
+            let is_clicked = responce.clicked();
+            responce.context_menu(|ui| {
                 hierarchy_entity_context(
                     ui,
                     commands,
@@ -171,21 +154,64 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                     selected,
                     parent,
                 );
-            })
-    };
+            });
 
-    if label.map_or(false, |label_response| label_response.response.clicked()) {
-        if !is_selected {
-            if !ui.input(|i| i.modifiers.shift) {
-                for e in selected.iter() {
-                    commands.entity(e).remove::<Selected>();
+            if responce.clicked() {
+                if is_selected {
+                    commands.entity(entity).remove::<Selected>();
+                    info!("Removed selected: {:?}", entity);
+                } else {
+                    commands.entity(entity).insert(Selected);
+
+                    //check shift pressed
+                    if !ui.input(|i| i.modifiers.shift) {
+                        selected.for_each(|e| {
+                            commands.entity(e).remove::<Selected>();
+                        })
+                    }
+                    info!("Added selected: {:?}", entity);
                 }
             }
-            commands.entity(entity).insert(Selected);
-        } else {
-            commands.entity(entity).remove::<Selected>();
+        })
+        .body(|ui| {
+            for child in children.unwrap().iter() {
+                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+            }
+        })
+        .0;
+    } else {
+        let mut selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
+        let is_clicked = selectable.clicked();
+
+        selectable.context_menu(|ui| {
+            hierarchy_entity_context(
+                ui,
+                commands,
+                entity,
+                changes,
+                clone_events,
+                selected,
+                parent,
+            );
+        });
+
+        if selectable.clicked() {
+            if is_selected {
+                commands.entity(entity).remove::<Selected>();
+                info!("Removed selected: {:?}", entity);
+            } else {
+                commands.entity(entity).insert(Selected);
+
+                //check shift pressed
+                if !ui.input(|i| i.modifiers.shift) {
+                    selected.for_each(|e| {
+                        commands.entity(e).remove::<Selected>();
+                    })
+                }
+                info!("Added selected: {:?}", entity);
+            }
         }
-    }
+    };
 }
 
 fn hierarchy_entity_context(
