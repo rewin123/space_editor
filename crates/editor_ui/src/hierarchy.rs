@@ -131,7 +131,6 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     let is_selected = selected.contains(entity);
 
     if children.is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok())) {
-        info!("Entity has children: {:?}", entity);
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
