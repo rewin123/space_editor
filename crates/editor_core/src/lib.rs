@@ -82,14 +82,17 @@ fn editor_event_listener(
                         handle.clone().untyped(),
                     ));
                     load_server.scene = Some(handle);
+                    info!("Loading prefab by editor event from file {}", path);
                 }
                 EditorPrefabPath::MemoryCahce => {
                     load_server.scene = cache.scene.clone();
+                    info!("Loading prefab by editor event from memory cache");
                 }
             },
             EditorEvent::Save(path) => {
                 save_config.path = Some(path.clone());
                 save_state.set(SaveState::Save);
+                info!("Saving scene to {:?}", path);
             }
             EditorEvent::StartGame => {
                 start_game_state.set(EditorState::GamePrepare);
