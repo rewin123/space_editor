@@ -130,38 +130,17 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
     let is_selected = selected.contains(entity);
 
-    let label = if children
-        .is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok()))
-    {
+    if children.is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok())) {
+        info!("Entity has children: {:?}", entity);
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
             true,
         )
         .show_header(ui, |ui| {
-            ui.selectable_label(is_selected, entity_name)
-                .context_menu(|ui| {
-                    hierarchy_entity_context(
-                        ui,
-                        commands,
-                        entity,
-                        changes,
-                        clone_events,
-                        selected,
-                        parent,
-                    );
-                })
-        })
-        .body(|ui| {
-            for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
-            }
-        })
-        .1
-        .inner
-    } else {
-        ui.selectable_label(is_selected, format!("      {}", entity_name))
-            .context_menu(|ui| {
+            let responce = ui.selectable_label(is_selected, entity_name);
+            let is_clicked = responce.clicked();
+            responce.context_menu(|ui| {
                 hierarchy_entity_context(
                     ui,
                     commands,
@@ -171,21 +150,63 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                     selected,
                     parent,
                 );
-            })
-    };
+            });
 
-    if label.map_or(false, |label_response| label_response.response.clicked()) {
-        if !is_selected {
-            if !ui.input(|i| i.modifiers.shift) {
-                for e in selected.iter() {
-                    commands.entity(e).remove::<Selected>();
+            if is_clicked {
+                if is_selected {
+                    commands.entity(entity).remove::<Selected>();
+                    info!("Removed selected: {:?}", entity);
+                } else {
+                    commands.entity(entity).insert(Selected);
+
+                    //check shift pressed
+                    if !ui.input(|i| i.modifiers.shift) {
+                        selected.for_each(|e| {
+                            commands.entity(e).remove::<Selected>();
+                        })
+                    }
+                    info!("Added selected: {:?}", entity);
                 }
             }
-            commands.entity(entity).insert(Selected);
-        } else {
-            commands.entity(entity).remove::<Selected>();
+        })
+        .body(|ui| {
+            for child in children.unwrap().iter() {
+                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+            }
+        });
+    } else {
+        let selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
+        let is_clicked = selectable.clicked();
+
+        selectable.context_menu(|ui| {
+            hierarchy_entity_context(
+                ui,
+                commands,
+                entity,
+                changes,
+                clone_events,
+                selected,
+                parent,
+            );
+        });
+
+        if is_clicked {
+            if is_selected {
+                commands.entity(entity).remove::<Selected>();
+                info!("Removed selected: {:?}", entity);
+            } else {
+                commands.entity(entity).insert(Selected);
+
+                //check shift pressed
+                if !ui.input(|i| i.modifiers.shift) {
+                    selected.for_each(|e| {
+                        commands.entity(e).remove::<Selected>();
+                    })
+                }
+                info!("Added selected: {:?}", entity);
+            }
         }
-    }
+    };
 }
 
 fn hierarchy_entity_context(
