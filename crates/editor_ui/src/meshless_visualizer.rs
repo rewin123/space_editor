@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use bevy::{prelude::*, render::view::RenderLayers, utils::HashMap};
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
@@ -13,7 +14,7 @@ use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
 use space_prefab::editor_registry::EditorRegistryExt;
-use space_shared::*;
+use space_shared::{asset_fs::create_assets_filesystem, *};
 
 use crate::LAST_RENDER_LAYER;
 use space_editor_core::selected::Selected;
@@ -23,6 +24,14 @@ pub struct MeshlessVisualizerPlugin;
 
 impl Plugin for MeshlessVisualizerPlugin {
     fn build(&self, app: &mut App) {
+        asset_fs::create_assets_filesystem().unwrap();
+        if std::fs::metadata("assets/icons/").is_err()
+            || std::fs::metadata("assets/icons/editor.icons.ron").is_err()
+        {
+            if let Err(err) = create_assets_filesystem() {
+                error!("Failed to create asset file system: {err}");
+            }
+        }
         app.add_loading_state(
             LoadingState::new(EditorState::Loading)
                 .continue_to_state(EditorState::Editor)
@@ -139,7 +148,7 @@ impl DynamicAsset for EditorIconAssetType {
         let cell = world.cell();
         let asset_server = cell
             .get_resource::<AssetServer>()
-            .expect("Failed to get the AssetServer");
+            .ok_or_else(|| anyhow!("Failed to get the AssetServer"))?;
         match self {
             Self::Image { path } => {
                 let handle = asset_server.load::<Image>(path);
@@ -148,7 +157,7 @@ impl DynamicAsset for EditorIconAssetType {
             Self::Quad { size } => {
                 let mut meshes = cell
                     .get_resource_mut::<Assets<Mesh>>()
-                    .expect("Failed to get Mesh Assets");
+                    .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
                     .add(Mesh::from(shape::Quad {
                         size: *size,
@@ -160,7 +169,7 @@ impl DynamicAsset for EditorIconAssetType {
             Self::Sphere { radius } => {
                 let mut meshes = cell
                     .get_resource_mut::<Assets<Mesh>>()
-                    .expect("Failed to get Mesh Assets");
+                    .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
                     .add(
                         Mesh::try_from(shape::Icosphere {
@@ -280,7 +289,7 @@ pub fn visualize_meshless(
 /// Additionally, the user can either choose their own mesh and material to use or default to the white sphere
 pub fn visualize_custom_meshless(
     mut commands: Commands,
-    ass: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
     objects: Query<(Entity, &CustomMeshless, Option<&Children>)>,
     editor_icons: Res<EditorIconAssets>,
     visualized: Query<&BillboardMeshHandle>,
@@ -295,38 +304,39 @@ pub fn visualize_custom_meshless(
                 MeshlessModel::Billboard {
                     ref mesh,
                     ref texture,
-                } => commands
-                    .spawn((
-                        BillboardTextureBundle {
-                            mesh: BillboardMeshHandle(mesh.clone().unwrap_or_else(|| {
-                                ass.add(shape::Quad::new(Vec2::splat(2.)).into())
-                            })),
-                            texture: BillboardTextureHandle(
-                                texture
-                                    .clone()
-                                    .unwrap_or_else(|| ass.load("icons/unknown.png")),
-                            ),
-                            ..default()
-                        },
-                        RenderLayers::layer(LAST_RENDER_LAYER),
-                    ))
-                    .with_children(|adult| {
-                        adult.spawn((
-                            MaterialMeshBundle::<StandardMaterial> {
-                                mesh: editor_icons.sphere.clone(),
-                                visibility: Visibility::Hidden,
+                } => {
+                    let Some(texture) = texture.clone() else {
+                        return;
+                    };
+                    commands
+                        .spawn((
+                            BillboardTextureBundle {
+                                mesh: BillboardMeshHandle(mesh.clone().unwrap_or_else(|| {
+                                    asset_server.add(shape::Quad::new(Vec2::splat(2.)).into())
+                                })),
+                                texture: BillboardTextureHandle(texture),
                                 ..default()
                             },
-                            SelectParent { parent: entity },
-                        ));
-                    })
-                    .id(),
+                            RenderLayers::layer(LAST_RENDER_LAYER),
+                        ))
+                        .with_children(|adult| {
+                            adult.spawn((
+                                MaterialMeshBundle::<StandardMaterial> {
+                                    mesh: editor_icons.sphere.clone(),
+                                    visibility: Visibility::Hidden,
+                                    ..default()
+                                },
+                                SelectParent { parent: entity },
+                            ));
+                        })
+                        .id()
+                }
                 MeshlessModel::Object { mesh, material } => commands
                     .spawn((
                         MaterialMeshBundle {
                             mesh: mesh.clone().unwrap_or_else(|| editor_icons.sphere.clone()),
                             material: material.clone().unwrap_or_else(|| {
-                                ass.add(StandardMaterial {
+                                asset_server.add(StandardMaterial {
                                     unlit: true,
                                     ..default()
                                 })

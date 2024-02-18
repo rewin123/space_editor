@@ -57,7 +57,6 @@ egui_file = "0.15"
 egui-gizmo = "0.16"
 pretty-type-name = "1"
 ron = "0.8"
-resvg = "0.37"
 serde = "1"
 
 # Community Modules

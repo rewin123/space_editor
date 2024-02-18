@@ -21,7 +21,8 @@ impl SpriteTexture {
 }
 
 fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
-    if path.is_empty() {
+    let file_exists = std::fs::metadata(format!("assets/{}", path)).is_ok();
+    if path.is_empty() || !file_exists {
         None
     } else {
         Some(asset_server.load(path))

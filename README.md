@@ -47,7 +47,12 @@ The following explains how to integrate `space_editor` as a game plugin to use t
 
 Add this line to your Cargo.toml file
 ```toml
-space_editor = "0.3.1"
+space_editor = "0.4.0"
+
+# For now it is recomendended to use the following patches of the libraries we are using
+[patch.crates-io]
+egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
+bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 ```
 
 ### Prefab spawn system
@@ -141,6 +146,10 @@ Game mode can be changed between 3D and 2D in `settings > GameMode`. This change
 ## More Documentation on
 - [Extended Documentation](docs/README.md)
 - [Shortcuts/Hotkeys Configuration](docs/shortcuts.md)
+
+|bevy|space_editor crates|
+|---|---|
+|0.12| 0.3 - 0.4|
 
 ### Contributing
 Any request for adding functionality to the editor is welcome. Open an issue on the [issue tracker](https://github.com/rewin123/space_editor/issues).
