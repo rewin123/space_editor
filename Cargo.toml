@@ -12,6 +12,9 @@ readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
+[workspace]
+members = ["modules/bevy_mesh_terrain_plugin"]
+
 [workspace.package]
 version = "0.3.1"
 edition = "2021"
@@ -62,6 +65,7 @@ serde = "1"
 
 # Community Modules
 space_bevy_xpbd_plugin = { version = "0.3.1", path = "modules/bevy_xpbd_plugin"}
+bevy_mesh_terrain_plugin = { version = "0.3.1", path = "modules/bevy_mesh_terrain_plugin" }
 
 [patch.crates-io]
 egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
@@ -74,6 +78,7 @@ space_prefab.workspace = true
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
+bevy_mesh_terrain_plugin = { workspace = true, optional = true }
 
 # For versions 1.74+
 [workspace.lints.rust]
@@ -98,10 +103,11 @@ opt-level = 3
 
 [features]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
+bevy_mesh_terrain = ["dep:bevy_mesh_terrain_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
 editor = []
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
+default = ["bevy_xpbd_3d", "bevy_mesh_terrain", "persistence_editor", "editor"]
 
 [[example]]
 name = "platformer"

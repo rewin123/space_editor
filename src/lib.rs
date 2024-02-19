@@ -24,5 +24,8 @@ impl bevy::app::Plugin for SpaceEditorPlugin {
 
         #[cfg(feature = "bevy_xpbd_3d")]
         app.add_plugins(space_bevy_xpbd_plugin::XpbdPlugin);
+
+        #[cfg(feature = "bevy_mesh_terrain")]
+        app.add_plugins(bevy_mesh_terrain_plugin::BevyMeshTerrainPlugin);
     }
 }

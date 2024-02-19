@@ -1,0 +1,22 @@
+[package]
+name = "bevy_mesh_terrain_plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true 
+space_editor_ui.workspace = true
+bevy-inspector-egui.workspace = true 
+bevy_mesh_terrain = {git = "https://github.com/ethereumdegen/bevy_mesh_terrain.git"}
+
+[lints]
+workspace = true
+
