@@ -14,7 +14,7 @@ use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
 use space_prefab::editor_registry::EditorRegistryExt;
-use space_shared::{asset_fs::create_assets_filesystem, *};
+use space_shared::*;
 
 use crate::LAST_RENDER_LAYER;
 use space_editor_core::selected::Selected;
@@ -24,29 +24,28 @@ pub struct MeshlessVisualizerPlugin;
 
 impl Plugin for MeshlessVisualizerPlugin {
     fn build(&self, app: &mut App) {
-        asset_fs::create_assets_filesystem().unwrap();
-        if std::fs::metadata("assets/icons/").is_err()
-            || std::fs::metadata("assets/icons/editor.icons.ron").is_err()
-        {
-            if let Err(err) = create_assets_filesystem() {
-                error!("Failed to create asset file system: {err}");
-            }
+        if std::fs::metadata("assets/icons/").is_ok() {
+            app.add_loading_state(
+                LoadingState::new(EditorState::Loading)
+                    .continue_to_state(EditorState::Editor)
+                    .load_collection::<EditorIconAssets>()
+                    .register_dynamic_asset_collection::<EditorIconAssetCollection>()
+                    .with_dynamic_assets_file::<EditorIconAssetCollection>(
+                        "icons/editor.icons.ron",
+                    ),
+            )
+            .add_plugins(RonAssetPlugin::<EditorIconAssetCollection>::new(&[
+                "icons.ron",
+            ]))
+        } else {
+            error!("Failed to dynamic load assets. Loading defaults from memory");
+            app.add_systems(OnEnter(EditorState::Editor), register_assets)
         }
-        app.add_loading_state(
-            LoadingState::new(EditorState::Loading)
-                .continue_to_state(EditorState::Editor)
-                .load_collection::<EditorIconAssets>()
-                .register_dynamic_asset_collection::<EditorIconAssetCollection>()
-                .with_dynamic_assets_file::<EditorIconAssetCollection>("icons/editor.icons.ron"),
-        )
         .insert_resource(RaycastBackendSettings {
             raycast_visibility: RaycastVisibility::Ignore,
             ..Default::default()
         })
         .add_plugins(BillboardPlugin)
-        .add_plugins(RonAssetPlugin::<EditorIconAssetCollection>::new(&[
-            "icons.ron",
-        ]))
         .add_systems(
             Update,
             (visualize_meshless, visualize_custom_meshless).in_set(EditorSet::Editor),
@@ -113,6 +112,46 @@ pub struct EditorIconAssets {
     pub sphere: Handle<Mesh>,
 }
 
+fn register_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
+    use space_shared::asset_fs::*;
+    let assets = EditorIconAssets {
+        unknown: asset_server.add(
+            create_unknown_image()
+                .inspect_err(|err| error!("failed to load image `Unknown`: {err}"))
+                .unwrap(),
+        ),
+        directional: asset_server.add(
+            create_dir_light_image()
+                .inspect_err(|err| error!("failed to load image `DirectionalLight`: {err}"))
+                .unwrap(),
+        ),
+        point: asset_server.add(
+            create_point_light_image()
+                .inspect_err(|err| error!("failed to load image `PointLight`: {err}"))
+                .unwrap(),
+        ),
+        spot: asset_server.add(
+            create_spot_light_image()
+                .inspect_err(|err| error!("failed to load image `SpotLight`: {err}"))
+                .unwrap(),
+        ),
+        camera: asset_server.add(
+            create_camera_image()
+                .inspect_err(|err| error!("failed to load image `Camera`: {err}"))
+                .unwrap(),
+        ),
+        square: asset_server.add(shape::Quad::new(Vec2::splat(2.)).into()),
+        sphere: asset_server.add(
+            Mesh::try_from(shape::Icosphere {
+                radius: 0.75,
+                ..default()
+            })
+            .unwrap(),
+        ),
+    };
+    commands.insert_resource(assets);
+}
+
 #[derive(serde::Deserialize, Asset, TypePath)]
 pub struct EditorIconAssetCollection(HashMap<String, EditorIconAssetType>);
 
@@ -123,6 +162,7 @@ impl DynamicAssetCollection for EditorIconAssetCollection {
         }
     }
 }
+
 /// Supported types of icons within the editor to be loaded in
 #[derive(serde::Deserialize, Debug, Clone)]
 enum EditorIconAssetType {

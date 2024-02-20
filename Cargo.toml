@@ -55,6 +55,7 @@ egui_dock = "0.11"
 egui_extras = { version = "0.26", features = ["all_loaders"] }
 egui_file = "0.15"
 egui-gizmo = "0.16"
+image = {version = "0.24.8", feature = ["png"] }
 pretty-type-name = "1"
 ron = "0.8"
 serde = "1"
