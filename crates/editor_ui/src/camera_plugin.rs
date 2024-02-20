@@ -18,6 +18,7 @@ impl Plugin for EditorDefaultCameraPlugin {
                 .before(PanOrbitCameraSystemSet)
                 .in_set(EditorSet::Editor),
         );
+   
         app.add_systems(
             Update,
             ui_camera_block
