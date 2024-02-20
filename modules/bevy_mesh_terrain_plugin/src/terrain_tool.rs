@@ -1,4 +1,4 @@
-use std::fmt::{self, Formatter};
+use std::{fmt::{self, Formatter}, any::Any};
 
 use bevy::prelude::*;
 use bevy_inspector_egui::egui;
@@ -26,6 +26,10 @@ pub struct TerrainTools {
 }
 
 impl EditorTool for TerrainTools {
+      fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
     fn ui(&mut self, ui: &mut bevy_inspector_egui::bevy_egui_next::egui::Ui, commands: &mut Commands, world: &mut World) {
         ui.vertical(|ui| {
             ui.heading("Tool Mode");

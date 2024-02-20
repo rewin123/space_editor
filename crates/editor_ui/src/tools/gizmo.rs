@@ -1,3 +1,5 @@
+use std::any::Any;
+
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
@@ -66,6 +68,10 @@ impl Default for GizmoTool {
 impl EditorTool for GizmoTool {
     fn name(&self) -> &str {
         "Gizmo"
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {

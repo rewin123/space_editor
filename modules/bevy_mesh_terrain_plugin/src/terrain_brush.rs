@@ -73,7 +73,9 @@ pub fn update_brush_paint(
 
     mut edit_event_writer: EventWriter<EditTerrainEvent>, 
     
-    editor_tools_state: Res<TerrainTools>,
+   // editor_tools_state: Res<TerrainTools>,
+ game_view_tab: Res<GameViewTab>,
+    //world: Res<World>,
     
     brushable_terrain_query: Query<Entity, With<BrushableTerrain>>,
 
@@ -88,49 +90,66 @@ pub fn update_brush_paint(
     if egui_ctx.is_pointer_over_area() {
         return;
     }
-
- 
-
-    let tool_data: EditingToolData = (*editor_tools_state).clone().into();
-
-     println!("brushing terrain w tool {:?}",tool_data  );
+    
+    let active_tool_index = game_view_tab.active_tool .unwrap_or_default();
+     
+    
+    if let Some(active_tool) = game_view_tab.tools.get(active_tool_index){
+        
+        
+        if let Some(tools_state) = active_tool.as_any().downcast_ref::<TerrainTools>() {
+    // `tool` is now a reference to `TerrainTool`
+        println!("Active tool is a TerrainTool!");
+        // You can now use `tool` as a `TerrainTool` 
+      
+                    
+                let tool_data: EditingToolData = ( tools_state).clone().into();
             
-            
-    let radius = tool_data.brush_radius;
-    let brush_hardness = tool_data.brush_hardness;
-    let brush_type = tool_data.brush_type;
-
-    // let tool = EditingTool::SetSplatMap(5,1,0,25.0,false);
-
-    if let Some(cursor_ray) = **cursor_ray {
-        if let Some((intersection_entity, intersection_data)) =
-            raycast.cast_ray(cursor_ray, &default()).first()
-        {
-            
-            //if we raycast to a brushable terrain, send terrain edit events 
-            if brushable_terrain_query.get(*intersection_entity).ok().is_some(){
+                println!("brushing terrain w tool {:?}",tool_data  );
+                        
                 
-         
+                let radius = tool_data.brush_radius;
+                let brush_hardness = tool_data.brush_hardness;
+                let brush_type = tool_data.brush_type;
             
-            let hit_point = intersection_data.position();
-
-            //offset this by the world psn offset of the entity !? would need to query its transform ?  for now assume 0 offset.
-            let hit_coordinates = Vec2::new(hit_point.x, hit_point.z);
-
-            //use an event to pass the entity and hit coords to the terrain plugin so it can edit stuff there
-
-                println!("brushing terrain at {:?}" , hit_coordinates );
+                // let tool = EditingTool::SetSplatMap(5,1,0,25.0,false);
             
-            edit_event_writer.send(EditTerrainEvent {
-                entity: intersection_entity.clone(),
-                tool: tool_data.editing_tool,
-                brush_type,
-                brush_hardness,
-                coordinates: hit_coordinates,
-                radius,
-            });
+                if let Some(cursor_ray) = **cursor_ray {
+                    if let Some((intersection_entity, intersection_data)) =
+                        raycast.cast_ray(cursor_ray, &default()).first()
+                    {
+                        
+                        //if we raycast to a brushable terrain, send terrain edit events 
+                        if brushable_terrain_query.get(*intersection_entity).ok().is_some(){
+                            
+                    
+                        
+                        let hit_point = intersection_data.position();
             
-            }
+                        //offset this by the world psn offset of the entity !? would need to query its transform ?  for now assume 0 offset.
+                        let hit_coordinates = Vec2::new(hit_point.x, hit_point.z);
+            
+                        //use an event to pass the entity and hit coords to the terrain plugin so it can edit stuff there
+            
+                            println!("brushing terrain at {:?}" , hit_coordinates );
+                        
+                        edit_event_writer.send(EditTerrainEvent {
+                            entity: intersection_entity.clone(),
+                            tool: tool_data.editing_tool,
+                            brush_type,
+                            brush_hardness,
+                            coordinates: hit_coordinates,
+                            radius,
+                        });
+                        
+                        }
+                    }
+                }
+                
+    
+    
+    
+    
         }
     }
 }
