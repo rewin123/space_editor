@@ -16,7 +16,7 @@ pub enum UiSystemSet {
     Init,
     /// Systems that run before show editor ui, but after init
     BeforeShow,
-    /// Editor UI show systems 
+    /// Editor UI show systems
     Show,
     /// Systems that run after show editor ui
     AfterShow,
@@ -115,13 +115,14 @@ impl Plugin for EditorUiCore {
 
         app.configure_sets(
             Update,
-                (
-                    UiSystemSet::Init,
-                    UiSystemSet::BeforeShow,
-                    UiSystemSet::Show,
-                    UiSystemSet::AfterShow,
-                    UiSystemSet::Last
-                ).chain()
+            (
+                UiSystemSet::Init,
+                UiSystemSet::BeforeShow,
+                UiSystemSet::Show,
+                UiSystemSet::AfterShow,
+                UiSystemSet::Last,
+            )
+                .chain()
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
@@ -149,8 +150,7 @@ impl Plugin for EditorUiCore {
         );
         app.add_systems(
             Update,
-            reset_camera_viewport
-                        .run_if(in_state(EditorState::Game)),
+            reset_camera_viewport.run_if(in_state(EditorState::Game)),
         );
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
