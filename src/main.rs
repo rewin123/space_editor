@@ -26,5 +26,6 @@ fn main() {
                 game_mode_changed.run_if(resource_changed::<GameModeSettings>()),
             );
     }
+
     app.run();
 }

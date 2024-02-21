@@ -23,7 +23,7 @@ pub struct TerrainBrushPlugin;
 
 impl Plugin for TerrainBrushPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_brush_paint.in_set(UiSystemSet::AfterShow));
+        app.add_systems(Update, update_brush_paint.after(ui_camera_block).in_set(UiSystemSet::AfterShow));
     }
 }
 
@@ -64,6 +64,7 @@ impl From<TerrainTools> for EditingTool {
 }
 
 pub fn update_brush_paint(
+    mut local_camera_block_latency: Local<usize>,
     mouse_input: Res<Input<MouseButton>>, //detect mouse click
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
@@ -77,9 +78,13 @@ pub fn update_brush_paint(
         return;
     }
 
-    let egui_ctx = contexts.ctx_mut();
-    if egui_ctx.is_pointer_over_area() {
+    if !camera_move_enabled.0 {
         return;
+    }
+
+    if *local_camera_block_latency > 0 {
+        *local_camera_block_latency -= 1;
+        camera_move_enabled.0 = false;
     }
 
     let active_tool_index = game_view_tab.active_tool.unwrap_or_default();
@@ -120,6 +125,7 @@ pub fn update_brush_paint(
                         println!("brushing terrain at {:?}", hit_coordinates);
 
                         camera_move_enabled.0 = false;
+                        *local_camera_block_latency = 4;
 
                         edit_event_writer.send(EditTerrainEvent {
                             entity: intersection_entity.clone(),

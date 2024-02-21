@@ -12,10 +12,17 @@ impl Plugin for EditorDefaultCameraPlugin {
         );
         app.add_systems(
             Update,
-            (ui_camera_block, update_pan_orbit).chain()
-                .in_set(UiSystemSet::Last)
-                .before(PanOrbitCameraSystemSet),
+            update_pan_orbit
+                .in_set(UiSystemSet::Last),
         );
+
+        app.add_systems(
+            Update,
+            ui_camera_block
+                .in_set(UiSystemSet::AfterShow)
+        );
+
+        app.configure_sets(Update, UiSystemSet::Last.before(PanOrbitCameraSystemSet));
     }
 }
 

@@ -57,7 +57,7 @@ impl EditorTab for GameViewTab {
 
         self.viewport_rect = Some(ui.clip_rect());
 
-        ui.horizontal(|ui| {
+        ui.vertical(|ui| {
             ui.style_mut().visuals.override_text_color = Some(TEXT_COLOR);
 
             //Tool processing

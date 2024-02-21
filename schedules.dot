@@ -1,0 +1,438 @@
+digraph "" {
+	"compound"="true";
+	"splines"="spline";
+	"rankdir"="LR";
+	"bgcolor"="#0d1117";
+	"fontname"="Helvetica";
+	"nodesep"="0.15";
+	edge ["penwidth"="2"];
+	node ["shape"="box", "style"="filled"];
+	subgraph "clusternode_Set(1)" {
+		"style"="rounded,filled";
+		"label"="PrefabLoad";
+		"tooltip"="PrefabLoad";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(1)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(46)" ["label"="spawn_scene", "tooltip"="space_prefab::spawn_system::spawn_scene", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(2)" {
+		"style"="rounded,filled";
+		"label"="Relation";
+		"tooltip"="Relation";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(2)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(3)" ["label"="relation_system<SpriteTexture, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::sprite::SpriteTexture, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(4)" ["label"="relation_system<SpriteTexture, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::sprite::SpriteTexture, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(5)" ["label"="relation_system<SpritesheetTexture, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::sprite::SpritesheetTexture, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(6)" ["label"="relation_system<SpritesheetTexture, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::sprite::SpritesheetTexture, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(7)" ["label"="relation_system<MeshPrimitivePrefab, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitivePrefab, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(8)" ["label"="relation_system<MeshPrimitivePrefab, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitivePrefab, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(9)" ["label"="relation_system<MeshPrimitivePrefab, MaterialPrefab>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitivePrefab, space_prefab::component::material::MaterialPrefab>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(10)" ["label"="relation_system<MeshPrimitive2dPrefab, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitive2dPrefab, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(11)" ["label"="relation_system<MeshPrimitive2dPrefab, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitive2dPrefab, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(12)" ["label"="relation_system<MeshPrimitive2dPrefab, ColorMaterialPrefab>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::shape::MeshPrimitive2dPrefab, space_prefab::component::material::ColorMaterialPrefab>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(15)" ["label"="relation_system<Camera2d, Camera>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_core_pipeline::core_2d::camera_2d::Camera2d, bevy_render::camera::camera::Camera>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(16)" ["label"="relation_system<Camera2d, OrthographicProjection>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_core_pipeline::core_2d::camera_2d::Camera2d, bevy_render::camera::projection::OrthographicProjection>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(17)" ["label"="relation_system<Camera3d, Camera>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_core_pipeline::core_3d::camera_3d::Camera3d, bevy_render::camera::camera::Camera>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(18)" ["label"="relation_system<Camera3d, Projection>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_core_pipeline::core_3d::camera_3d::Camera3d, bevy_render::camera::projection::Projection>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(19)" ["label"="relation_system<Camera3d, ColorGrading>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_core_pipeline::core_3d::camera_3d::Camera3d, bevy_render::view::ColorGrading>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(20)" ["label"="relation_system<Camera, VisibleEntities>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_render::camera::camera::Camera, bevy_render::view::visibility::VisibleEntities>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(21)" ["label"="relation_system<Camera, Frustum>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_render::camera::camera::Camera, bevy_render::primitives::Frustum>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(22)" ["label"="relation_system<Camera, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_render::camera::camera::Camera, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(23)" ["label"="relation_system<Camera, Tonemapping>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_render::camera::camera::Camera, bevy_core_pipeline::tonemapping::Tonemapping>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(24)" ["label"="relation_system<Camera, DebandDither>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_render::camera::camera::Camera, bevy_core_pipeline::tonemapping::DebandDither>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(26)" ["label"="relation_system<PlayerStart, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::player_start::PlayerStart, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(27)" ["label"="relation_system<PlayerStart, GlobalTransform>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::player_start::PlayerStart, bevy_transform::components::global_transform::GlobalTransform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(28)" ["label"="relation_system<PlayerStart, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::player_start::PlayerStart, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(29)" ["label"="relation_system<PlayerStart, ViewVisibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::player_start::PlayerStart, bevy_render::view::visibility::ViewVisibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(30)" ["label"="relation_system<PlayerStart, InheritedVisibility>", "tooltip"="space_prefab::editor_registry::relation_system<space_prefab::component::player_start::PlayerStart, bevy_render::view::visibility::InheritedVisibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(31)" ["label"="relation_system<Transform, GlobalTransform>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_transform::components::transform::Transform, bevy_transform::components::global_transform::GlobalTransform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(32)" ["label"="relation_system<PointLight, CubemapVisibleEntities>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::PointLight, bevy_pbr::bundle::CubemapVisibleEntities>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(33)" ["label"="relation_system<PointLight, CubemapFrusta>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::PointLight, bevy_render::primitives::CubemapFrusta>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(34)" ["label"="relation_system<PointLight, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::PointLight, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(35)" ["label"="relation_system<PointLight, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::PointLight, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(36)" ["label"="relation_system<DirectionalLight, CascadesFrusta>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_render::primitives::CascadesFrusta>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(37)" ["label"="relation_system<DirectionalLight, Cascades>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_pbr::light::Cascades>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(38)" ["label"="relation_system<DirectionalLight, CascadeShadowConfig>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_pbr::light::CascadeShadowConfig>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(39)" ["label"="relation_system<DirectionalLight, CascadesVisibleEntities>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_pbr::bundle::CascadesVisibleEntities>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(40)" ["label"="relation_system<DirectionalLight, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(41)" ["label"="relation_system<DirectionalLight, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::DirectionalLight, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(42)" ["label"="relation_system<SpotLight, VisibleEntities>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::SpotLight, bevy_render::view::visibility::VisibleEntities>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(43)" ["label"="relation_system<SpotLight, Frustum>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::SpotLight, bevy_render::primitives::Frustum>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(44)" ["label"="relation_system<SpotLight, Transform>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::SpotLight, bevy_transform::components::transform::Transform>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(45)" ["label"="relation_system<SpotLight, Visibility>", "tooltip"="space_prefab::editor_registry::relation_system<bevy_pbr::light::SpotLight, bevy_render::view::visibility::Visibility>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(47)" ["label"="add_global_transform", "tooltip"="space_prefab::plugins::add_global_transform", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(48)" ["label"="remove_global_transform", "tooltip"="space_prefab::plugins::remove_global_transform", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(49)" ["label"="add_computed_visibility", "tooltip"="space_prefab::plugins::add_computed_visibility", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(50)" ["label"="remove_computed_visibility", "tooltip"="space_prefab::plugins::remove_computed_visibility", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(3)" {
+		"style"="rounded,filled";
+		"label"="RelationApply";
+		"tooltip"="RelationApply";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(3)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(4)" {
+		"style"="rounded,filled";
+		"label"="DetectPrefabChange";
+		"tooltip"="DetectPrefabChange";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(4)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(13)" ["label"="sync_asset_mesh", "tooltip"="space_prefab::plugins::sync_asset_mesh", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(14)" ["label"="sync_asset_material", "tooltip"="space_prefab::plugins::sync_asset_material", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(51)" ["label"="sync_mesh", "tooltip"="space_prefab::spawn_system::sync_mesh", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(52)" ["label"="sync_material", "tooltip"="space_prefab::spawn_system::sync_material", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(53)" ["label"="sync_2d_mesh", "tooltip"="space_prefab::spawn_system::sync_2d_mesh", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(54)" ["label"="sync_2d_material", "tooltip"="space_prefab::spawn_system::sync_2d_material", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(55)" ["label"="sync_sprite_texture", "tooltip"="space_prefab::spawn_system::sync_sprite_texture", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(56)" ["label"="sync_spritesheet", "tooltip"="space_prefab::spawn_system::sync_spritesheet", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(5)" {
+		"style"="rounded,filled";
+		"label"="PrefabChangeApply";
+		"tooltip"="PrefabChangeApply";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(5)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(61)" {
+		"style"="rounded,filled";
+		"label"="AnonymousSet(0)";
+		"tooltip"="AnonymousSet(0)";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(61)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(57)" ["label"="editor_remove_mesh", "tooltip"="space_prefab::spawn_system::editor_remove_mesh", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(58)" ["label"="editor_remove_mesh_2d", "tooltip"="space_prefab::spawn_system::editor_remove_mesh_2d", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(66)" {
+		"style"="rounded,filled";
+		"label"="SceneHookRunner";
+		"tooltip"="SceneHookRunner";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(66)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(69)" {
+		"style"="rounded,filled";
+		"label"="EventReader";
+		"tooltip"="EventReader";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(69)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(70)" {
+		"style"="rounded,filled";
+		"label"="ResourceProcess";
+		"tooltip"="ResourceProcess";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(70)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(71)" {
+		"style"="rounded,filled";
+		"label"="Collect";
+		"tooltip"="Collect";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(71)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(76)" {
+		"style"="rounded,filled";
+		"label"="Editor";
+		"tooltip"="Editor";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(76)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		subgraph "clusternode_Set(75)" {
+			"style"="rounded,filled";
+			"label"="EditorLoadSet";
+			"tooltip"="EditorLoadSet";
+			"fillcolor"="#ffffff44";
+			"fontcolor"="#ffffff";
+			"color"="#ffffff50";
+			"penwidth"="2";
+			"set_marker_node_Set(75)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(66)" ["label"="apply_deferred", "tooltip"="bevy_ecs::schedule::executor::apply_deferred", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+			"node_System(67)" ["label"="load_listener", "tooltip"="space_editor_core::load::load_listener", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		}
+		
+		"node_System(76)" ["label"="selected_entity_wireframe_update", "tooltip"="space_editor_core::selected::selected_entity_wireframe_update", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(78)" ["label"="visualize_meshless", "tooltip"="space_editor_ui::meshless_visualizer::visualize_meshless", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(79)" ["label"="visualize_custom_meshless", "tooltip"="space_editor_ui::meshless_visualizer::visualize_custom_meshless", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(88)" ["label"="bottom_menu", "tooltip"="space_editor_ui::menu_toolbars::bottom_menu", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(89)" ["label"="top_menu", "tooltip"="space_editor_ui::menu_toolbars::top_menu", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(91)" ["label"="set_camera_viewport", "tooltip"="space_editor_ui::camera_view::set_camera_viewport", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(92)" ["label"="clone_enitites", "tooltip"="space_editor_ui::hierarchy::clone_enitites", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(79)" {
+		"style"="rounded,filled";
+		"label"="Game";
+		"tooltip"="Game";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(79)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(90)" ["label"="in_game_menu", "tooltip"="space_editor_ui::menu_toolbars::in_game_menu", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(84)" {
+		"style"="rounded,filled";
+		"label"="PanOrbitCameraSystemSet";
+		"tooltip"="PanOrbitCameraSystemSet";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(84)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(91)" {
+		"style"="rounded,filled";
+		"label"="LoadingStateSet(Loading)";
+		"tooltip"="LoadingStateSet(Loading)";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(91)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(95)" {
+		"style"="rounded,filled";
+		"label"="AnonymousSet(1)";
+		"tooltip"="AnonymousSet(1)";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(95)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	subgraph "clusternode_Set(104)" {
+		"style"="rounded,filled";
+		"label"="AnonymousSet(2)";
+		"tooltip"="AnonymousSet(2)";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(104)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(84)" ["label"="draw_camera_gizmo", "tooltip"="space_editor_ui::camera_plugin::draw_camera_gizmo", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(85)" ["label"="draw_light_gizmo", "tooltip"="space_editor_ui::meshless_visualizer::draw_light_gizmo", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(86)" ["label"="delete_selected", "tooltip"="space_editor_ui::selection::delete_selected", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	subgraph "clusternode_Set(81)" {
+		"style"="rounded,filled";
+		"label"="Init";
+		"tooltip"="Init";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(81)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+	}
+	
+	"set_marker_node_Set(76)" -> "set_marker_node_Set(81)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(76)", "lhead"="clusternode_Set(81)"]
+	"set_marker_node_Set(95)" -> "set_marker_node_Set(81)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(95)", "lhead"="clusternode_Set(81)"]
+	subgraph "clusternode_Set(83)" {
+		"style"="rounded,filled";
+		"label"="Last";
+		"tooltip"="Last";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(83)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(70)" ["label"="ui_camera_block", "tooltip"="space_editor_ui::ui_plugin::ui_camera_block", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(71)" ["label"="update_pan_orbit", "tooltip"="space_editor_ui::camera_plugin::update_pan_orbit", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	"set_marker_node_Set(76)" -> "set_marker_node_Set(83)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(76)", "lhead"="clusternode_Set(83)"]
+	"set_marker_node_Set(95)" -> "set_marker_node_Set(83)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(95)", "lhead"="clusternode_Set(83)"]
+	subgraph "clusternode_Set(97)" {
+		"style"="rounded,filled";
+		"label"="Show";
+		"tooltip"="Show";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(97)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(80)" ["label"="show_editor_ui", "tooltip"="space_editor_ui::ui_plugin::show_editor_ui", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(81)" ["label"="set_camera_viewport", "tooltip"="space_editor_ui::game_view::set_camera_viewport", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	"set_marker_node_Set(76)" -> "set_marker_node_Set(97)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(76)", "lhead"="clusternode_Set(97)"]
+	"set_marker_node_Set(95)" -> "set_marker_node_Set(97)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(95)", "lhead"="clusternode_Set(97)"]
+	subgraph "clusternode_Set(98)" {
+		"style"="rounded,filled";
+		"label"="AfterShow";
+		"tooltip"="AfterShow";
+		"fillcolor"="#ffffff44";
+		"fontcolor"="#ffffff";
+		"color"="#ffffff50";
+		"penwidth"="2";
+		"set_marker_node_Set(98)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(82)" ["label"="set_camera_viewport", "tooltip"="space_editor_ui::game_view::set_camera_viewport", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+	}
+	
+	"set_marker_node_Set(76)" -> "set_marker_node_Set(98)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(76)", "lhead"="clusternode_Set(98)"]
+	"set_marker_node_Set(95)" -> "set_marker_node_Set(98)" ["dir"="none", "color"="blue", "ltail"="clusternode_Set(95)", "lhead"="clusternode_Set(98)"]
+	"node_System(25)" ["label"="camera_render_graph_creation", "tooltip"="space_prefab::plugins::camera_render_graph_creation"]
+	"node_System(59)" ["label"="animate_sprite", "tooltip"="space_prefab::component::sprite::animate_sprite"]
+	"node_System(60)" ["label"="load_prefab", "tooltip"="space_prefab::load::load_prefab"]
+	"node_System(61)" ["label"="conflict_resolve", "tooltip"="space_prefab::load::conflict_resolve"]
+	"node_System(62)" ["label"="auto_children", "tooltip"="space_prefab::load::auto_children"]
+	"node_System(68)" ["label"="editor_event_listener", "tooltip"="space_editor_core::editor_event_listener"]
+	"node_System(69)" ["label"="reset_editor_camera_state", "tooltip"="space_editor_ui::camera_plugin::reset_editor_camera_state"]
+	"node_System(83)" ["label"="reset_camera_viewport", "tooltip"="space_editor_ui::game_view::reset_camera_viewport"]
+	"node_System(87)" ["label"="disable_no_editor_cams", "tooltip"="space_editor_ui::camera_plugin::disable_no_editor_cams"]
+	"node_System(93)" ["label"="execute_inspect_command", "tooltip"="space_editor_ui::inspector::execute_inspect_command"]
+	"node_System(100)" ["label"="auto_add_picking", "tooltip"="space_editor_ui::selection::auto_add_picking"]
+	"node_System(101)" ["label"="select_listener", "tooltip"="space_editor_ui::selection::select_listener"]
+	"node_System(114)" ["label"="editor_gizmos", "tooltip"="space_editor_ui::editor_gizmos"]
+	"node_System(115)" ["label"="game_gizmos", "tooltip"="space_editor_ui::game_gizmos"]
+	"node_System(118)" ["label"="into_sync_system<RayCasterPrefab, RayCaster>", "tooltip"="space_prefab::editor_registry::into_sync_system<space_bevy_xpbd_plugin::spatial_query::RayCasterPrefab, bevy_xpbd_3d::plugins::spatial_query::ray_caster::RayCaster>"]
+	"node_System(119)" ["label"="into_sync_system<ShapeCasterPrefab, ShapeCaster>", "tooltip"="space_prefab::editor_registry::into_sync_system<space_bevy_xpbd_plugin::spatial_query::ShapeCasterPrefab, bevy_xpbd_3d::plugins::spatial_query::shape_caster::ShapeCaster>"]
+	"set_marker_node_Set(1)" -> "set_marker_node_Set(2)" ["lhead"="clusternode_Set(2)", "ltail"="clusternode_Set(1)", "tooltip"="PrefabLoad → Relation", "color"="#eede00"]
+	"set_marker_node_Set(2)" -> "set_marker_node_Set(3)" ["lhead"="clusternode_Set(3)", "ltail"="clusternode_Set(2)", "tooltip"="Relation → RelationApply", "color"="#881877"]
+	"set_marker_node_Set(3)" -> "set_marker_node_Set(4)" ["lhead"="clusternode_Set(4)", "ltail"="clusternode_Set(3)", "tooltip"="RelationApply → DetectPrefabChange", "color"="#00b0cc"]
+	"set_marker_node_Set(4)" -> "set_marker_node_Set(5)" ["lhead"="clusternode_Set(5)", "ltail"="clusternode_Set(4)", "tooltip"="DetectPrefabChange → PrefabChangeApply", "color"="#aa3a55"]
+	"set_marker_node_Set(66)" -> "node_System(60)" ["lhead"="", "ltail"="clusternode_Set(66)", "tooltip"="SceneHookRunner → load_prefab", "color"="#44d488"]
+	"set_marker_node_Set(66)" -> "node_System(61)" ["lhead"="", "ltail"="clusternode_Set(66)", "tooltip"="SceneHookRunner → conflict_resolve", "color"="#0090cc"]
+	"node_System(61)" -> "node_System(60)" ["lhead"="", "ltail"="", "tooltip"="conflict_resolve → SystemTypeSet(load_prefab())", "color"="#ee9e44"]
+	"set_marker_node_Set(69)" -> "set_marker_node_Set(70)" ["lhead"="clusternode_Set(70)", "ltail"="clusternode_Set(69)", "tooltip"="EventReader → ResourceProcess", "color"="#663699"]
+	"set_marker_node_Set(70)" -> "set_marker_node_Set(71)" ["lhead"="clusternode_Set(71)", "ltail"="clusternode_Set(70)", "tooltip"="ResourceProcess → Collect", "color"="#3363bb"]
+	"node_System(66)" -> "node_System(67)" ["lhead"="", "ltail"="", "tooltip"="apply_deferred → load_listener", "color"="#22c2bb"]
+	"node_System(69)" -> "set_marker_node_Set(81)" ["lhead"="clusternode_Set(81)", "ltail"="", "tooltip"="reset_editor_camera_state → Init", "color"="#99d955"]
+	"node_System(70)" -> "set_marker_node_Set(84)" ["lhead"="clusternode_Set(84)", "ltail"="", "tooltip"="ui_camera_block → PanOrbitCameraSystemSet", "color"="#eede00"]
+	"node_System(71)" -> "set_marker_node_Set(84)" ["lhead"="clusternode_Set(84)", "ltail"="", "tooltip"="update_pan_orbit → PanOrbitCameraSystemSet", "color"="#881877"]
+	"node_System(70)" -> "node_System(71)" ["lhead"="", "ltail"="", "tooltip"="ui_camera_block → update_pan_orbit", "color"="#00b0cc"]
+	"set_marker_node_Set(97)" -> "set_marker_node_Set(98)" ["lhead"="clusternode_Set(98)", "ltail"="clusternode_Set(97)", "tooltip"="Show → AfterShow", "color"="#aa3a55"]
+	"set_marker_node_Set(98)" -> "set_marker_node_Set(83)" ["lhead"="clusternode_Set(83)", "ltail"="clusternode_Set(98)", "tooltip"="AfterShow → Last", "color"="#44d488"]
+	"node_System(89)" -> "node_System(80)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(top_menu()) → show_editor_ui", "color"="#0090cc"]
+	"node_System(88)" -> "node_System(80)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(bottom_menu()) → show_editor_ui", "color"="#ee9e44"]
+	"node_System(88)" -> "set_marker_node_Set(75)" ["lhead"="clusternode_Set(75)", "ltail"="", "tooltip"="bottom_menu → EditorLoadSet", "color"="#663699"]
+	"node_System(89)" -> "set_marker_node_Set(75)" ["lhead"="clusternode_Set(75)", "ltail"="", "tooltip"="top_menu → EditorLoadSet", "color"="#3363bb"]
+	"set_marker_node_Set(83)" -> "node_System(91)" ["lhead"="", "ltail"="clusternode_Set(83)", "tooltip"="Last → set_camera_viewport", "color"="#22c2bb"]
+	"set_marker_node_Set(83)" -> "node_System(100)" ["lhead"="", "ltail"="clusternode_Set(83)", "tooltip"="Last → auto_add_picking", "color"="#99d955"]
+	"set_marker_node_Set(83)" -> "node_System(101)" ["lhead"="", "ltail"="clusternode_Set(83)", "tooltip"="Last → select_listener", "color"="#eede00"]
+	"node_System(20)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="relation_system<Camera, VisibleEntities> — set_camera_viewport"]
+	"node_System(21)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="relation_system<Camera, Frustum> — set_camera_viewport"]
+	"node_System(22)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="relation_system<Camera, Transform> — set_camera_viewport"]
+	"node_System(23)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="relation_system<Camera, Tonemapping> — set_camera_viewport"]
+	"node_System(24)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="relation_system<Camera, DebandDither> — set_camera_viewport"]
+	"node_System(31)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="relation_system<Transform, GlobalTransform> — set_camera_viewport"]
+	"node_System(46)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="spawn_scene — set_camera_viewport"]
+	"node_System(47)" -> "node_System(31)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="add_global_transform — relation_system<Transform, GlobalTransform>"]
+	"node_System(47)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="add_global_transform — set_camera_viewport"]
+	"node_System(59)" -> "node_System(92)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AnimationTimerSpriteSheet</td></tr><tr><td bgcolor="#c6e6ff">TextureAtlasSprite</td></tr></table>>, "labeltooltip"="animate_sprite — clone_enitites"]
+	"node_System(60)" -> "node_System(13)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_asset_mesh"]
+	"node_System(60)" -> "node_System(14)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_asset_material"]
+	"node_System(60)" -> "node_System(46)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — spawn_scene"]
+	"node_System(60)" -> "node_System(47)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="load_prefab — add_global_transform"]
+	"node_System(60)" -> "node_System(52)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_material"]
+	"node_System(60)" -> "node_System(54)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_2d_material"]
+	"node_System(60)" -> "node_System(55)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_sprite_texture"]
+	"node_System(60)" -> "node_System(56)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — sync_spritesheet"]
+	"node_System(60)" -> "node_System(68)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — editor_event_listener"]
+	"node_System(60)" -> "node_System(79)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — visualize_custom_meshless"]
+	"node_System(60)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="load_prefab — set_camera_viewport"]
+	"node_System(60)" -> "node_System(92)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">AssetServer</td></tr></table>>, "labeltooltip"="load_prefab — clone_enitites"]
+	"node_System(81)" -> "node_System(20)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, VisibleEntities>"]
+	"node_System(81)" -> "node_System(21)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Frustum>"]
+	"node_System(81)" -> "node_System(22)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Transform>"]
+	"node_System(81)" -> "node_System(23)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Tonemapping>"]
+	"node_System(81)" -> "node_System(24)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, DebandDither>"]
+	"node_System(82)" -> "node_System(20)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, VisibleEntities>"]
+	"node_System(82)" -> "node_System(21)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Frustum>"]
+	"node_System(82)" -> "node_System(22)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Transform>"]
+	"node_System(82)" -> "node_System(23)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, Tonemapping>"]
+	"node_System(82)" -> "node_System(24)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="set_camera_viewport — relation_system<Camera, DebandDither>"]
+	"node_System(83)" -> "node_System(20)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — relation_system<Camera, VisibleEntities>"]
+	"node_System(83)" -> "node_System(21)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — relation_system<Camera, Frustum>"]
+	"node_System(83)" -> "node_System(22)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — relation_system<Camera, Transform>"]
+	"node_System(83)" -> "node_System(23)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — relation_system<Camera, Tonemapping>"]
+	"node_System(83)" -> "node_System(24)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — relation_system<Camera, DebandDither>"]
+	"node_System(83)" -> "node_System(70)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">GameViewTab</td></tr></table>>, "labeltooltip"="reset_camera_viewport — ui_camera_block"]
+	"node_System(83)" -> "node_System(81)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr><tr><td bgcolor="#c6e6ff">GameViewTab</td></tr></table>>, "labeltooltip"="reset_camera_viewport — set_camera_viewport"]
+	"node_System(83)" -> "node_System(82)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr><tr><td bgcolor="#c6e6ff">GameViewTab</td></tr></table>>, "labeltooltip"="reset_camera_viewport — set_camera_viewport"]
+	"node_System(83)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="reset_camera_viewport — set_camera_viewport"]
+	"node_System(87)" -> "node_System(20)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — relation_system<Camera, VisibleEntities>"]
+	"node_System(87)" -> "node_System(21)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — relation_system<Camera, Frustum>"]
+	"node_System(87)" -> "node_System(22)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — relation_system<Camera, Transform>"]
+	"node_System(87)" -> "node_System(23)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — relation_system<Camera, Tonemapping>"]
+	"node_System(87)" -> "node_System(24)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — relation_system<Camera, DebandDither>"]
+	"node_System(87)" -> "node_System(81)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — set_camera_viewport"]
+	"node_System(87)" -> "node_System(82)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — set_camera_viewport"]
+	"node_System(87)" -> "node_System(83)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — reset_camera_viewport"]
+	"node_System(87)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="disable_no_editor_cams — set_camera_viewport"]
+	"node_System(88)" -> "node_System(68)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr></table>>, "labeltooltip"="bottom_menu — editor_event_listener"]
+	"node_System(88)" -> "node_System(90)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="bottom_menu — in_game_menu"]
+	"node_System(89)" -> "node_System(68)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">BackgroundTaskStorage</td></tr><tr><td bgcolor="#c6e6ff">Events&lt;EditorEvent&gt;</td></tr></table>>, "labeltooltip"="top_menu — editor_event_listener"]
+	"node_System(89)" -> "node_System(88)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">MenuToolbarState</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="top_menu — bottom_menu"]
+	"node_System(89)" -> "node_System(90)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="top_menu — in_game_menu"]
+	"node_System(89)" -> "node_System(92)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">Events&lt;EditorEvent&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">MenuToolbarState</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="top_menu — clone_enitites"]
+	"node_System(90)" -> "node_System(68)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr></table>>, "labeltooltip"="in_game_menu — editor_event_listener"]
+	"node_System(90)" -> "node_System(70)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="in_game_menu — ui_camera_block"]
+	"node_System(90)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="in_game_menu — set_camera_viewport"]
+	"node_System(92)" -> "node_System(47)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Transform</td></tr></table>>, "labeltooltip"="clone_enitites — add_global_transform"]
+	"node_System(92)" -> "node_System(56)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">TextureAtlasPrefab</td></tr></table>>, "labeltooltip"="clone_enitites — sync_spritesheet"]
+	"node_System(92)" -> "node_System(68)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">SaveConfig</td></tr><tr><td bgcolor="#c6e6ff">NextState&lt;SaveState&gt;</td></tr><tr><td bgcolor="#c6e6ff">Events&lt;EditorUnpackGltf&gt;</td></tr><tr><td bgcolor="#c6e6ff">BackgroundTaskStorage</td></tr><tr><td bgcolor="#c6e6ff">PrefabMemoryCache</td></tr><tr><td bgcolor="#c6e6ff">EditorLoader</td></tr></table>>, "labeltooltip"="clone_enitites — editor_event_listener"]
+	"node_System(92)" -> "node_System(69)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">EditorCameraEnabled</td></tr></table>>, "labeltooltip"="clone_enitites — reset_editor_camera_state"]
+	"node_System(92)" -> "node_System(70)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">EditorCameraEnabled</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="clone_enitites — ui_camera_block"]
+	"node_System(92)" -> "node_System(71)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">PanOrbitCamera</td></tr></table>>, "labeltooltip"="clone_enitites — update_pan_orbit"]
+	"node_System(92)" -> "node_System(81)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="clone_enitites — set_camera_viewport"]
+	"node_System(92)" -> "node_System(82)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="clone_enitites — set_camera_viewport"]
+	"node_System(92)" -> "node_System(83)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr><tr><td bgcolor="#c6e6ff">GameViewTab</td></tr></table>>, "labeltooltip"="clone_enitites — reset_camera_viewport"]
+	"node_System(92)" -> "node_System(87)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Camera</td></tr></table>>, "labeltooltip"="clone_enitites — disable_no_editor_cams"]
+	"node_System(92)" -> "node_System(88)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Events&lt;NewChange&gt;</td></tr><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">HierarchyTabState</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="clone_enitites — bottom_menu"]
+	"node_System(92)" -> "node_System(90)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Time&lt;Virtual&gt;</td></tr><tr><td bgcolor="#c6e6ff">NextState&lt;EditorState&gt;</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="clone_enitites — in_game_menu"]
+	"node_System(92)" -> "node_System(91)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">Window</td></tr><tr><td bgcolor="#c6e6ff">Transform</td></tr><tr><td bgcolor="#c6e6ff">Camera</td></tr><tr><td bgcolor="#c6e6ff">EguiUserTextures</td></tr><tr><td bgcolor="#c6e6ff">CameraViewTab</td></tr><tr><td bgcolor="#c6e6ff">EguiContext</td></tr></table>>, "labeltooltip"="clone_enitites — set_camera_viewport"]
+	"node_System(92)" -> "node_System(93)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">InspectState</td></tr></table>>, "labeltooltip"="clone_enitites — execute_inspect_command"]
+	"node_System(92)" -> "node_System(101)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">EditorCameraEnabled</td></tr></table>>, "labeltooltip"="clone_enitites — select_listener"]
+	"node_System(92)" -> "node_System(114)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">GizmoConfig</td></tr></table>>, "labeltooltip"="clone_enitites — editor_gizmos"]
+	"node_System(92)" -> "node_System(115)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">GizmoConfig</td></tr></table>>, "labeltooltip"="clone_enitites — game_gizmos"]
+	"node_System(115)" -> "node_System(114)" ["dir"="none", "constraint"="false", "color"="#c93526", "fontcolor"="#c93526", "label"=<<table border="0" cellborder="0"><tr><td bgcolor="#c6e6ff">GizmoConfig</td></tr></table>>, "labeltooltip"="game_gizmos — editor_gizmos"]
+}
