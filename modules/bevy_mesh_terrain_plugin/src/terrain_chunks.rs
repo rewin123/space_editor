@@ -1,11 +1,5 @@
 use bevy::prelude::*;
-use bevy_mesh_terrain::{
-    chunk::{Chunk, ChunkData, TerrainChunkMesh},
-    edit::TerrainCommandEvent,
-    terrain::TerrainData,
-    terrain_config::TerrainConfig,
-};
-use space_editor_ui::prelude::*;
+use bevy_mesh_terrain::chunk::TerrainChunkMesh;
 
 pub struct TerrainChunksPlugin;
 

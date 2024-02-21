@@ -33,8 +33,8 @@ impl EditorTool for TerrainTools {
     fn ui(
         &mut self,
         ui: &mut bevy_inspector_egui::bevy_egui_next::egui::Ui,
-        commands: &mut Commands,
-        world: &mut World,
+        _commands: &mut Commands,
+        _world: &mut World,
     ) {
         ui.vertical(|ui| {
             ui.heading("Tool Mode");

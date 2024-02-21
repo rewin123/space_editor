@@ -5,13 +5,9 @@ pub mod terrain_tool;
 
 use bevy::prelude::*;
 use bevy_mesh_terrain::terrain::TerrainViewer;
-use terrain_tool::TerrainTools;
 
 use space_editor_ui::{
-    ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::{
-        prelude::Raycast, CursorRay, DefaultRaycastingPlugin,
-    },
-    prelude::*,
+    ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::DefaultRaycastingPlugin, prelude::*,
 };
 
 pub struct BevyMeshTerrainPlugin;
@@ -35,7 +31,7 @@ impl Plugin for BevyMeshTerrainPlugin {
 
 fn add_viewer_to_editor_cams(
     mut commands: Commands,
-    mut query: Query<Entity, With<EditorCameraMarker>>,
+    query: Query<Entity, With<EditorCameraMarker>>,
 ) {
     for e in query.iter() {
         commands.entity(e).insert(TerrainViewer::default());

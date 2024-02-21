@@ -1,15 +1,6 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::bevy_egui_next::EguiContexts;
-use bevy_mesh_terrain::{
-    chunk::{Chunk, ChunkData},
-    edit::TerrainCommandEvent,
-    terrain::TerrainData,
-    terrain_config::TerrainConfig,
-};
 use space_editor_ui::{
-    ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::{
-        prelude::Raycast, CursorRay, DefaultRaycastingPlugin,
-    },
+    ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::{prelude::Raycast, CursorRay},
     prelude::*,
 };
 
@@ -76,7 +67,6 @@ pub fn update_brush_paint(
     mut edit_event_writer: EventWriter<EditTerrainEvent>,
     game_view_tab: Res<GameViewTab>,
     brushable_terrain_query: Query<Entity, With<BrushableTerrain>>,
-    mut contexts: EguiContexts,
     mut camera_move_enabled: ResMut<EditorCameraEnabled>,
 ) {
     if !mouse_input.pressed(MouseButton::Left) {
