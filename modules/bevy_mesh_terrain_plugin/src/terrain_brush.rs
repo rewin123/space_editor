@@ -23,7 +23,7 @@ pub struct TerrainBrushPlugin;
 
 impl Plugin for TerrainBrushPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_brush_paint.in_set(EditorUiSet));
+        app.add_systems(Update, update_brush_paint.in_set(UiSystemSet::AfterShow));
     }
 }
 

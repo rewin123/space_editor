@@ -16,7 +16,7 @@ use space_shared::*;
 use crate::{
     colors::ERROR_COLOR,
     prelude::{EditorTabName, GameModeSettings},
-    DisableCameraSkip, EditorUiAppExt, RenderLayers,
+    DisableCameraSkip, EditorUiAppExt, RenderLayers, UiSystemSet,
 };
 
 use super::editor_tab::EditorTab;
@@ -29,8 +29,8 @@ impl Plugin for CameraViewTabPlugin {
         app.add_systems(
             Update,
             set_camera_viewport
-                .in_set(EditorSet::Editor)
-                .after(super::game_view::set_camera_viewport),
+                .after(UiSystemSet::Last)
+                .in_set(EditorSet::Editor),
         );
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }

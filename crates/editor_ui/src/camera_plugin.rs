@@ -8,23 +8,13 @@ impl Plugin for EditorDefaultCameraPlugin {
         app.add_systems(
             Update,
             reset_editor_camera_state
-                .in_set(EditorSet::Editor)
-                .before(UiSystemSet),
+                .before(UiSystemSet::Init),
         );
         app.add_systems(
             Update,
-            update_pan_orbit
-                .after(reset_editor_camera_state)
-                .before(PanOrbitCameraSystemSet)
-                .in_set(EditorSet::Editor),
-        );
-
-        app.add_systems(
-            Update,
-            ui_camera_block
-                .after(reset_editor_camera_state)
-                .before(update_pan_orbit)
-                .in_set(EditorSet::Editor),
+            (ui_camera_block, update_pan_orbit).chain()
+                .in_set(UiSystemSet::Last)
+                .before(PanOrbitCameraSystemSet),
         );
     }
 }
