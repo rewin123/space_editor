@@ -27,18 +27,7 @@ Most editor features are implemented as tabs within the dock system, providing a
 
 - **GameView Tab**: This tab displays the rendered output from the editor camera and gizmos for manipulate objects.
   - On the top left side of the Gameview you will find some relevant information like frames per second cound (FPS), available editor tools and the selected tool options.
-  - Currently the only available tool is Gizmo, which contains (from left to right):
-    - Translation option, that allows you to change the position of an object in the scene.
-
-    ![Translation Gizmo Image](imgs/translate_gizmo.png)
-
-    - Rotation option, that allows you to change the orientation of an object in the scene.
-
-    ![Rotation Gizmo Image](imgs/rotation_gizmo.png)
-
-    - Scale option, that allows you to change the size of an object in the scene.
-
-    ![Scale Gizmo Image](imgs/scale_gizmo.png)
+  - Currently the only available tool is Gizmo.
 
 - **Hierarchy Tab**: The Hierarchy tab provides comprehensive information about all entities within your prefab. It not only displays entity details but also allows you to perform various actions:
   - Create new entities
@@ -51,8 +40,26 @@ Most editor features are implemented as tabs within the dock system, providing a
   - View detailed information about each component
   - Manipulate component values
   - Add or remove components as needed.
+ 
+### Gizmos
+- The gizmos tool contains (from left to right):
+  - Translation option, that allows you to change the position of an object in the scene.
+
+  ![Translation Gizmo Image](imgs/translate_gizmo.png)
+
+  - Rotation option, that allows you to change the orientation of an object in the scene.
+
+  ![Rotation Gizmo Image](imgs/rotation_gizmo.png)
+
+  - Scale option, that allows you to change the size of an object in the scene.
+
+  ![Scale Gizmo Image](imgs/scale_gizmo.png)
+
+> OBS: To apply a gizmos to multiple selected entities **holding SHIFT** is required
 
 ### Additional Tabs
+
+> Additional tabs can be found by pressing `+` next to the existing tabs. Docking system is available to move tabs to your prefered position.
 
 - **Settings Tab**: Your place to configure and customize the editor as you wish.
   - Undo chain size condiguration.
