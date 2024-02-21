@@ -68,9 +68,11 @@ Most editor features are implemented as tabs within the dock system, providing a
     - **Same Node**: Adds the new tab as part of the current node.
 
     ![Same Node](imgs/samenode.png)
+
     - **New Window**: Creates a new floating window containing the tab.
 
     ![New Window](imgs/newwindow.png)
+
     - **Split Node**: Splits node in half.
 
     ![Split Node](imgs/splitnode.png) 
@@ -80,6 +82,10 @@ Most editor features are implemented as tabs within the dock system, providing a
   - Manages Entities, including editor entities, and their components.
   - Resources tab.
   - Assets tab, currently the only way to access assets.
+- **Event Dispatcher**: And inspector that shows a list of custom events to trigger in editor mode.
+
+![Event Dispatcher](imgs/event_dispatcher.png)
+`cargo run --release --example custom_event`
 
 > Tabs organization is persisted
 
