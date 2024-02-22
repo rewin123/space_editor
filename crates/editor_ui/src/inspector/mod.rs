@@ -22,7 +22,11 @@ use space_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon, sizing::Sizing};
+use crate::{
+    colors::DEFAULT_BG_COLOR,
+    icons::add_component_icon,
+    sizing::{to_label, Sizing},
+};
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -278,8 +282,8 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
     });
 
     let width = ui.available_width();
-    let add_component_str = "Add component";
-    let pixel_count = add_component_str.len() as f32 * 8.;
+    let add_component_str = to_label("Add component", sizing.text);
+    let pixel_count = add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
     let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
 
     //Open context window by button
