@@ -1,34 +1,29 @@
+pub mod terrain_brush;
+pub mod terrain_chunks;
 pub mod terrain_tab;
 pub mod terrain_tool;
-pub mod terrain_chunks;
-pub mod terrain_brush;
 
-use bevy::prelude::*; 
+use bevy::prelude::*;
 use bevy_mesh_terrain::terrain::TerrainViewer;
-use terrain_tool::TerrainTools;
 
-use space_editor_ui::{prelude::*, ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::{CursorRay, prelude::Raycast, DefaultRaycastingPlugin}};
-
-
-
+use space_editor_ui::{
+    ext::bevy_mod_picking::backends::raycast::bevy_mod_raycast::DefaultRaycastingPlugin, prelude::*,
+};
 
 pub struct BevyMeshTerrainPlugin;
 
 impl Plugin for BevyMeshTerrainPlugin {
     fn build(&self, app: &mut App) {
         app
-        
-        
-       // .init_resource::<TerrainTools>()
-          .add_plugins(DefaultRaycastingPlugin)
-          
-        .add_plugins((
-            bevy_mesh_terrain::TerrainMeshPlugin::default(),
-            terrain_tab::TerrainTabPlugin,
-            terrain_tool::TerrainToolPlugin,
-            terrain_chunks::TerrainChunksPlugin,
-            terrain_brush::TerrainBrushPlugin
-        ));
+            // .init_resource::<TerrainTools>()
+            .add_plugins(DefaultRaycastingPlugin)
+            .add_plugins((
+                bevy_mesh_terrain::TerrainMeshPlugin::default(),
+                terrain_tab::TerrainTabPlugin,
+                terrain_tool::TerrainToolPlugin,
+                terrain_chunks::TerrainChunksPlugin,
+                terrain_brush::TerrainBrushPlugin,
+            ));
 
         app.add_systems(Update, add_viewer_to_editor_cams);
     }
@@ -36,7 +31,7 @@ impl Plugin for BevyMeshTerrainPlugin {
 
 fn add_viewer_to_editor_cams(
     mut commands: Commands,
-    mut query: Query<Entity, With<EditorCameraMarker>>,
+    query: Query<Entity, With<EditorCameraMarker>>,
 ) {
     for e in query.iter() {
         commands.entity(e).insert(TerrainViewer::default());

@@ -12,9 +12,8 @@ impl Plugin for EditorPickingPlugin {
             .require_markers = true;
 
         app.add_systems(
-            PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet))
-                .run_if(in_state(EditorState::Editor)),
+            Update,
+            (auto_add_picking, select_listener).after(UiSystemSet::Last),
         );
         app.add_systems(PostUpdate, auto_add_picking_dummy);
     }

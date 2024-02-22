@@ -9,9 +9,20 @@ use meshless_visualizer::draw_light_gizmo;
 
 use self::colors::*;
 
-/// All systems for editor ui wil be placed in UiSystemSet
+/// All systems for editor ui wil be placed in UiSystemSet (only for EditorState::Editor)
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
-pub struct UiSystemSet;
+pub enum UiSystemSet {
+    /// Initialize state of editor ui. For example reset camera enable state
+    Init,
+    /// Systems that run before show editor ui, but after init
+    BeforeShow,
+    /// Editor UI show systems
+    Show,
+    /// Systems that run after show editor ui
+    AfterShow,
+    /// Systems that must run after all (for example change camera state after all blocking check)
+    Last,
+}
 
 /// Plugin for editor ui
 pub struct EditorUiPlugin {
@@ -104,30 +115,38 @@ impl Plugin for EditorUiCore {
 
         app.configure_sets(
             Update,
-            UiSystemSet
+            (
+                UiSystemSet::Init,
+                UiSystemSet::BeforeShow,
+                UiSystemSet::Show,
+                UiSystemSet::AfterShow,
+                UiSystemSet::Last,
+            )
+                .chain()
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
+
         app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
             Update,
             (
                 show_editor_ui
-                    .before(update_pan_orbit)
-                    .before(ui_camera_block)
+                    // .before(update_pan_orbit)
+                    // .before(ui_camera_block)
                     .after(menu_toolbars::top_menu)
                     .after(menu_toolbars::bottom_menu),
                 set_camera_viewport,
             )
-                .in_set(UiSystemSet),
+                .in_set(UiSystemSet::Show),
         );
 
         app.add_systems(
-            PostUpdate,
+            Update,
             set_camera_viewport
                 .run_if(has_window_changed)
-                .in_set(UiSystemSet),
+                .in_set(UiSystemSet::AfterShow),
         );
         app.add_systems(
             Update,

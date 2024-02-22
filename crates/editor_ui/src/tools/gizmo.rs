@@ -69,7 +69,7 @@ impl EditorTool for GizmoTool {
     fn name(&self) -> &str {
         "Gizmo"
     }
-    
+
     fn as_any(&self) -> &dyn Any {
         self
     }

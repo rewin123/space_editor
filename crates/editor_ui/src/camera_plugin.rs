@@ -5,27 +5,12 @@ pub struct EditorDefaultCameraPlugin;
 
 impl Plugin for EditorDefaultCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Update,
-            reset_editor_camera_state
-                .in_set(EditorSet::Editor)
-                .before(UiSystemSet),
-        );
-        app.add_systems(
-            Update,
-            update_pan_orbit
-                .after(reset_editor_camera_state)
-                .before(PanOrbitCameraSystemSet)
-                .in_set(EditorSet::Editor),
-        );
-   
-        app.add_systems(
-            Update,
-            ui_camera_block
-                .after(reset_editor_camera_state)
-                .before(update_pan_orbit)
-                .in_set(EditorSet::Editor),
-        );
+        app.add_systems(Update, reset_editor_camera_state.before(UiSystemSet::Init));
+        app.add_systems(Update, update_pan_orbit.in_set(UiSystemSet::Last));
+
+        app.add_systems(Update, ui_camera_block.in_set(UiSystemSet::AfterShow));
+
+        app.configure_sets(Update, UiSystemSet::Last.before(PanOrbitCameraSystemSet));
     }
 }
 
