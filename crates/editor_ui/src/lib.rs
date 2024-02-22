@@ -68,7 +68,6 @@ use bevy_mod_picking::{
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
-use sizing::{IconSize, Sizing};
 use space_editor_core::prelude::*;
 
 use bevy::{
@@ -185,9 +184,6 @@ pub struct EditorSetsPlugin;
 
 impl Plugin for EditorSetsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Sizing>()
-            .register_type::<Sizing>()
-            .register_type::<IconSize>();
         app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
 
         app.configure_sets(
@@ -410,12 +406,15 @@ pub mod colors {
 
 pub mod sizing {
     use bevy::prelude::*;
+    use bevy_inspector_egui::prelude::*;
+    use egui_dock::egui::RichText;
 
-    #[derive(Resource, Clone, PartialEq, Reflect)]
-    #[reflect(Resource, Default)]
+    #[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions)]
+    #[reflect(Resource, Default, InspectorOptions)]
     pub struct Sizing {
         pub icon: IconSize,
         pub gizmos: IconSize,
+        #[inspector(min = 16.0, max = 24.0)]
         pub text: f32,
     }
 
@@ -432,21 +431,37 @@ pub mod sizing {
     #[derive(Clone, Default, PartialEq, Eq, Reflect)]
     #[reflect(Default)]
     pub enum IconSize {
+        XSmall,
         Small,
+        SmallPlus,
         Gizmos,
         #[default]
+        Regular,
         Medium,
         Large,
+        XLarge,
     }
 
     impl IconSize {
         pub const fn to_size(&self) -> f32 {
             match self {
+                Self::XSmall => 12.,
                 Self::Small => 16.,
+                Self::SmallPlus => 18.,
                 Self::Gizmos => 20.,
+                Self::Regular => 20.,
                 Self::Medium => 24.,
-                Self::Large => 32.,
+                Self::Large => 28.,
+                Self::XLarge => 32.,
             }
         }
+    }
+
+    pub fn to_richtext(text: &str, size: &IconSize) -> RichText {
+        RichText::new(text).size(size.to_size())
+    }
+
+    pub fn to_label(text: &str, size: f32) -> RichText {
+        RichText::new(text).size(size)
     }
 }

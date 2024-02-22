@@ -14,6 +14,10 @@ impl Plugin for XpbdPlugin {
         {
             info!("Add bevy_xpbd_3d plugin to editor");
             app.add_plugins(registry::BevyXpbdPlugin);
+            app.register_type::<Option<Vec3>>();
+            app.register_type::<Option<Color>>();
+            app.register_type::<Option<[f32; 4]>>();
+            app.register_type::<[f32; 4]>();
         }
     }
 }

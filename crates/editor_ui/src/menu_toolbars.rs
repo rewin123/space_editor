@@ -14,7 +14,7 @@ use crate::{
     colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
-    sizing::Sizing,
+    sizing::{to_label, to_richtext, Sizing},
     ui_registration::{BundleReg, EditorBundleUntyped},
 };
 
@@ -63,9 +63,10 @@ fn in_game_menu(
     mut ctxs: EguiContexts,
     mut state: ResMut<NextState<EditorState>>,
     mut time: ResMut<Time<Virtual>>,
+    sizing: Res<Sizing>,
 ) {
     egui::TopBottomPanel::top("top_gameplay_panel")
-        .exact_height(28.)
+        .exact_height(&sizing.icon.to_size() + 4.)
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
@@ -76,8 +77,12 @@ fn in_game_menu(
                 ui.label(format!("FPS: {:04.0}", 1.0 / *smoothed_dt));
                 let distance = ui.available_width() / 2. - 64.;
                 ui.add_space(distance);
-                let button = if time.is_paused() { "▶" } else { "⏸" };
-                if ui.button("⏮").clicked() {
+                let button = if time.is_paused() {
+                    to_richtext("▶", &sizing.icon)
+                } else {
+                    to_richtext("⏸", &sizing.icon)
+                };
+                if ui.button(to_richtext("⏮", &sizing.icon)).clicked() {
                     time.advance_by(frame_duration.mul_f32(-1.));
                 }
                 if ui.button(button).clicked() {
@@ -87,10 +92,10 @@ fn in_game_menu(
                         time.pause();
                     }
                 }
-                if ui.button("⏹").clicked() {
+                if ui.button(to_richtext("⏹", &sizing.icon)).clicked() {
                     state.set(EditorState::Editor);
                 }
-                if ui.button("⏭").clicked() {
+                if ui.button(to_richtext("⏭", &sizing.icon)).clicked() {
                     time.advance_by(frame_duration);
                 }
 
@@ -107,7 +112,7 @@ fn in_game_menu(
                 };
 
                 if ui
-                    .button("⟲")
+                    .button(to_richtext("⟲", &sizing.icon))
                     .on_hover_text("Reset frame speed multiplier to 1.0 ")
                     .clicked()
                 {
@@ -138,108 +143,116 @@ pub fn bottom_menu(
     sizing: Res<Sizing>,
 ) {
     let ctx = ctxs.ctx_mut();
-    egui::TopBottomPanel::bottom("bottom_menu").show(ctx, |ui| {
-        egui::menu::bar(ui, |ui| {
-            let stl = ui.style_mut();
-            stl.spacing.button_padding = egui::Vec2::new(8., 2.);
+    egui::TopBottomPanel::bottom("bottom_menu")
+        .exact_height(&sizing.icon.to_size().max(sizing.text) + 4.)
+        .show(ctx, |ui| {
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
+            egui::menu::bar(ui, |ui| {
+                let stl = ui.style_mut();
+                stl.spacing.button_padding = egui::Vec2::new(8., 2.);
 
-            if ui
-                .add(
-                    delete_entity_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
-                        .stroke(stroke_default_color()),
-                )
-                .on_hover_text("Clear all entities")
-                .clicked()
-            {
-                for (entity, _, _, _parent) in query.iter() {
-                    commands.entity(entity).despawn_recursive();
+                if ui
+                    .add(
+                        delete_entity_icon(sizing.icon.to_size(), "")
+                            .stroke(stroke_default_color()),
+                    )
+                    .on_hover_text("Clear all entities")
+                    .clicked()
+                {
+                    for (entity, _, _, _parent) in query.iter() {
+                        commands.entity(entity).despawn_recursive();
 
+                        changes.send(NewChange {
+                            change: Arc::new(RemovedEntity { entity }),
+                        });
+                    }
+                }
+                if ui
+                    .add(add_entity_icon(sizing.icon.to_size(), "").stroke(stroke_default_color()))
+                    .on_hover_text("Add new entity")
+                    .clicked()
+                {
+                    let id = commands.spawn_empty().insert(PrefabMarker).id();
                     changes.send(NewChange {
-                        change: Arc::new(RemovedEntity { entity }),
+                        change: Arc::new(AddedEntity { entity: id }),
                     });
                 }
-            }
-            if ui
-                .add(
-                    add_entity_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
-                        .stroke(stroke_default_color()),
-                )
-                .on_hover_text("Add new entity")
-                .clicked()
-            {
-                let id = commands.spawn_empty().insert(PrefabMarker).id();
-                changes.send(NewChange {
-                    change: Arc::new(AddedEntity { entity: id }),
+                let spawnable_button =
+                    add_bundle_icon(sizing.icon.to_size(), "").stroke(stroke_default_color());
+
+                let spawnables = ui.add(if state.show_spawnable_bundles {
+                    spawnable_button.fill(SELECTED_ITEM_COLOR)
+                } else {
+                    spawnable_button
                 });
-            }
-            let spawnable_button =
-                add_bundle_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
-                    .stroke(stroke_default_color());
+                let spawnable_pos = Pos2 {
+                    x: 16.,
+                    y: spawnables.rect.right_top().y - 4.,
+                };
+                if spawnables
+                    .on_hover_text("Spawnable preset bundles")
+                    .clicked()
+                {
+                    state.show_spawnable_bundles = !state.show_spawnable_bundles;
+                }
 
-            let spawnables = ui.add(if state.show_spawnable_bundles {
-                spawnable_button.fill(SELECTED_ITEM_COLOR)
-            } else {
-                spawnable_button
-            });
-            let spawnable_pos = Pos2 {
-                x: 16.,
-                y: spawnables.rect.right_top().y - 4.,
-            };
-            if spawnables
-                .on_hover_text("Spawnable preset bundles")
-                .clicked()
-            {
-                state.show_spawnable_bundles = !state.show_spawnable_bundles;
-            }
+                if state.show_spawnable_bundles {
+                    egui::Window::new("Bundles")
+                        .frame(
+                            egui::Frame::none()
+                                .inner_margin(Margin::symmetric(8., 4.))
+                                .rounding(3.)
+                                .stroke(stroke_default_color())
+                                .fill(SPECIAL_BG_COLOR),
+                        )
+                        .collapsible(false)
+                        .pivot(Align2::LEFT_BOTTOM)
+                        .default_pos(spawnable_pos)
+                        .default_size(egui::Vec2::new(80., 80.))
+                        .title_bar(false)
+                        .show(ctx, |ui| {
+                            egui::menu::bar(ui, |ui| {
+                                ui.spacing();
+                                for (category_name, category_bundle) in ui_reg.bundles.iter() {
+                                    ui.menu_button(category_name, |ui| {
+                                        let mut categories_vec: Vec<(
+                                            &String,
+                                            &EditorBundleUntyped,
+                                        )> = category_bundle.iter().collect();
+                                        categories_vec.sort_by(|a, b| a.0.cmp(b.0));
 
-            if state.show_spawnable_bundles {
-                egui::Window::new("Bundles")
-                    .frame(
-                        egui::Frame::none()
-                            .inner_margin(Margin::symmetric(8., 4.))
-                            .rounding(3.)
-                            .stroke(stroke_default_color())
-                            .fill(SPECIAL_BG_COLOR),
-                    )
-                    .collapsible(false)
-                    .pivot(Align2::LEFT_BOTTOM)
-                    .default_pos(spawnable_pos)
-                    .default_size(egui::Vec2::new(80., 80.))
-                    .title_bar(false)
-                    .show(ctx, |ui| {
-                        egui::menu::bar(ui, |ui| {
-                            ui.spacing();
-                            for (category_name, category_bundle) in ui_reg.bundles.iter() {
-                                ui.menu_button(category_name, |ui| {
-                                    let mut categories_vec: Vec<(&String, &EditorBundleUntyped)> =
-                                        category_bundle.iter().collect();
-                                    categories_vec.sort_by(|a, b| a.0.cmp(b.0));
-
-                                    for (name, dyn_bundle) in categories_vec {
-                                        let button = egui::Button::new(name).ui(ui);
-                                        if button.clicked() {
-                                            let entity = dyn_bundle.spawn(&mut commands);
-                                            changes.send(NewChange {
-                                                change: Arc::new(AddedEntity { entity }),
-                                            });
+                                        for (name, dyn_bundle) in categories_vec {
+                                            let button = egui::Button::new(name).ui(ui);
+                                            if button.clicked() {
+                                                let entity = dyn_bundle.spawn(&mut commands);
+                                                changes.send(NewChange {
+                                                    change: Arc::new(AddedEntity { entity }),
+                                                });
+                                            }
                                         }
-                                    }
-                                });
-                                ui.add_space(32.);
-                            }
-                            if ui.button("🗙").clicked() {
-                                state.show_spawnable_bundles = !state.show_spawnable_bundles;
-                            }
+                                    });
+                                    ui.add_space(32.);
+                                }
+                                if ui.button("🗙").clicked() {
+                                    state.show_spawnable_bundles = !state.show_spawnable_bundles;
+                                }
+                            });
                         });
-                    });
-            }
-            ui.spacing();
-            ui.checkbox(&mut state.show_editor_entities, "Show editor entities");
-            let distance = ui.available_width() * 0.66;
-            ui.add_space(distance);
-            ui.label(format!("Current Scene: {}", menu_state.path));
+                }
+                ui.spacing();
+                ui.style_mut().spacing.icon_width = sizing.text - 4.;
+                ui.checkbox(
+                    &mut state.show_editor_entities,
+                    to_label("Show editor entities", sizing.text),
+                );
+                let distance = ui.available_width() * 0.66 * 12. / sizing.text;
+                ui.add_space(distance);
+                ui.label(to_label(
+                    &format!("Current Scene: {}", menu_state.path),
+                    sizing.text,
+                ));
+            });
         });
-    });
 }
 
 pub fn top_menu(
@@ -253,7 +266,7 @@ pub fn top_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::top("top_menu_bar")
-        .exact_height(28.)
+        .exact_height(&sizing.icon.to_size() + 4.)
         .show(ctx, |ui| {
             ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
             egui::menu::bar(ui, |ui| {
@@ -261,7 +274,8 @@ pub fn top_menu(
                 stl.spacing.button_padding = egui::Vec2::new(8., 4.);
 
                 // Open Assets Folder
-                let open_button = egui::Button::new("📂").stroke(stroke_default_color());
+                let open_button = egui::Button::new(to_richtext("📂", &sizing.icon))
+                    .stroke(stroke_default_color());
                 if ui.add(open_button).clicked() {
                     let mut dialog = egui_file::FileDialog::open_file(Some("assets/".into()))
                         .show_files_filter(Box::new(|path| {
@@ -304,7 +318,8 @@ pub fn top_menu(
                 // END Open Assets Folder
 
                 // Save file
-                let file_button = egui::Button::new("💾").stroke(stroke_default_color());
+                let file_button = egui::Button::new(to_richtext("💾", &sizing.icon))
+                    .stroke(stroke_default_color());
                 if ui
                     .add(file_button)
                     .on_hover_text("Save current scene")
@@ -348,7 +363,8 @@ pub fn top_menu(
                 // End Save File
 
                 // Load Scene
-                let load_button = egui::Button::new("📤").stroke(stroke_default_color());
+                let load_button = egui::Button::new(to_richtext("📤", &sizing.icon))
+                    .stroke(stroke_default_color());
                 if ui
                     .add(load_button)
                     .on_hover_text("Load scene file")
@@ -396,8 +412,7 @@ pub fn top_menu(
 
                 // Open GLTF
                 let open_gltf_button =
-                    prefab_icon(sizing.icon.to_size(), sizing.icon.to_size(), "")
-                        .stroke(stroke_default_color());
+                    prefab_icon(sizing.icon.to_size(), "").stroke(stroke_default_color());
                 if ui
                     .add(open_gltf_button)
                     .on_hover_text("Open GLTF/GLB as prefab")
@@ -442,7 +457,7 @@ pub fn top_menu(
 
                 let distance = ui.available_width() / 2. - 40.;
                 ui.add_space(distance);
-                let play_button = egui::Button::new("▶")
+                let play_button = egui::Button::new(to_richtext("▶", &sizing.icon))
                     .fill(SPECIAL_BG_COLOR)
                     .stroke(Stroke {
                         width: 1.,

@@ -10,7 +10,7 @@ use space_undo::ChangeChainSettings;
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
 
-use crate::sizing::Sizing;
+use crate::sizing::{IconSize, Sizing};
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -31,27 +31,19 @@ impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
         app.register_type::<GameMode>()
-            .init_resource::<GameModeSettings>();
+            .init_resource::<GameModeSettings>()
+            .init_resource::<Sizing>()
+            .register_type::<Sizing>()
+            .register_type::<IconSize>()
+            .register_type::<NewTabBehaviour>()
+            .init_resource::<NewWindowSettings>();
         #[cfg(feature = "persistence_editor")]
         {
             app.persistence_resource::<NewWindowSettings>()
-                .register_type::<NewTabBehaviour>()
-                .init_resource::<NewWindowSettings>();
-            app.persistence_resource::<ChangeChainSettings>();
-            app.persistence_resource::<GameModeSettings>();
+                .persistence_resource::<Sizing>()
+                .persistence_resource::<ChangeChainSettings>()
+                .persistence_resource::<GameModeSettings>();
         }
-
-        // #[cfg(feature = "bevy_xpbd_3d")]
-        // {
-        //     #[cfg(feature = "persistence_editor")]
-        //     {
-        //         app.persistence_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
-        //         app.register_type::<Option<Vec3>>();
-        //         app.register_type::<Option<Color>>();
-        //         app.register_type::<Option<[f32; 4]>>();
-        //         app.register_type::<[f32; 4]>();
-        //     }
-        // }
     }
 }
 

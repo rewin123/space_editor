@@ -290,11 +290,7 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
             y: 2.,
         };
         if ui
-            .add(add_component_icon(
-                sizing.icon.to_size(),
-                sizing.icon.to_size(),
-                add_component_str,
-            ))
+            .add(add_component_icon(sizing.icon.to_size(), add_component_str))
             .clicked()
         {
             state.show_add_component_window = true;
