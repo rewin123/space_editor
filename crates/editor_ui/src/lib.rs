@@ -414,7 +414,7 @@ pub mod sizing {
     pub struct Sizing {
         pub icon: IconSize,
         pub gizmos: IconSize,
-        #[inspector(min = 16.0, max = 24.0)]
+        #[inspector(min = 12.0, max = 24.0)]
         pub text: f32,
     }
 
@@ -423,7 +423,7 @@ pub mod sizing {
             Self {
                 icon: IconSize::Medium,
                 gizmos: IconSize::Gizmos,
-                text: 18.,
+                text: 14.,
             }
         }
     }
@@ -462,6 +462,8 @@ pub mod sizing {
     }
 
     pub fn to_label(text: &str, size: f32) -> RichText {
-        RichText::new(text).size(size)
+        RichText::new(text)
+            .size(size)
+            .family(egui_dock::egui::FontFamily::Proportional)
     }
 }

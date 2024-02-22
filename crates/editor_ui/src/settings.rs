@@ -187,7 +187,6 @@ impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         let game_mode_setting = &mut world.resource_mut::<GameModeSettings>();
         game_mode_setting.ui(ui);
-        ui.spacing();
 
         ui.heading("Undo");
         world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
@@ -197,16 +196,16 @@ impl EditorTab for SettingsWindow {
             );
         });
 
-        ui.spacing();
+        ui.add_space(12.);
         ui.heading("New Tab Behaviour");
         let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
         new_window_settings.ui(ui);
 
-        ui.spacing();
+        ui.add_space(12.);
         ui.heading("Default Sizing");
         bevy_inspector::ui_for_resource::<Sizing>(world, ui);
 
-        ui.spacing();
+        ui.add_space(12.);
         ui.heading("Hotkeys in Game view tab");
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")
