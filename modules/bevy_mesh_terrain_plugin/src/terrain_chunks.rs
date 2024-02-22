@@ -29,7 +29,7 @@ fn add_brushable_terrain_components(
     
     for (entity,_) in chunks_query.iter(){
         
-        commands.entity(entity).insert(
+        commands.entity(entity).try_insert(
             BrushableTerrain{}
         );
         
