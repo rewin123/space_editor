@@ -12,6 +12,17 @@ readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
 
+[workspace]
+members = [
+    "crates/prefab", 
+    "crates/shared", 
+    "crates/undo", 
+    "crates/persistence",
+    "crates/editor_core", 
+    "crates/editor_ui", 
+    "modules/bevy_xpbd_plugin"
+]
+
 [workspace.package]
 version = "0.4.0"
 edition = "2021"
