@@ -4,10 +4,13 @@ use bevy::{
 };
 use bevy_egui_next::*;
 use space_editor_core::hotkeys::AllHotkeys;
+use space_shared::ext::bevy_inspector_egui::bevy_inspector;
 use space_undo::ChangeChainSettings;
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
+
+use crate::sizing::{IconSize, Sizing};
 
 use super::{
     editor_tab::{EditorTab, EditorTabName},
@@ -28,27 +31,19 @@ impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
         app.register_type::<GameMode>()
-            .init_resource::<GameModeSettings>();
+            .init_resource::<GameModeSettings>()
+            .init_resource::<Sizing>()
+            .register_type::<Sizing>()
+            .register_type::<IconSize>()
+            .register_type::<NewTabBehaviour>()
+            .init_resource::<NewWindowSettings>();
         #[cfg(feature = "persistence_editor")]
         {
             app.persistence_resource::<NewWindowSettings>()
-                .register_type::<NewTabBehaviour>()
-                .init_resource::<NewWindowSettings>();
-            app.persistence_resource::<ChangeChainSettings>();
-            app.persistence_resource::<GameModeSettings>();
+                .persistence_resource::<Sizing>()
+                .persistence_resource::<ChangeChainSettings>()
+                .persistence_resource::<GameModeSettings>();
         }
-
-        // #[cfg(feature = "bevy_xpbd_3d")]
-        // {
-        //     #[cfg(feature = "persistence_editor")]
-        //     {
-        //         app.persistence_resource::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>();
-        //         app.register_type::<Option<Vec3>>();
-        //         app.register_type::<Option<Color>>();
-        //         app.register_type::<Option<[f32; 4]>>();
-        //         app.register_type::<[f32; 4]>();
-        //     }
-        // }
     }
 }
 
@@ -192,7 +187,6 @@ impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         let game_mode_setting = &mut world.resource_mut::<GameModeSettings>();
         game_mode_setting.ui(ui);
-        ui.spacing();
 
         ui.heading("Undo");
         world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
@@ -202,12 +196,16 @@ impl EditorTab for SettingsWindow {
             );
         });
 
-        ui.spacing();
+        ui.add_space(12.);
         ui.heading("New Tab Behaviour");
         let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
         new_window_settings.ui(ui);
 
-        ui.spacing();
+        ui.add_space(12.);
+        ui.heading("Default Sizing");
+        bevy_inspector::ui_for_resource::<Sizing>(world, ui);
+
+        ui.add_space(12.);
         ui.heading("Hotkeys in Game view tab");
         if world.contains_resource::<AllHotkeys>() {
             egui::Grid::new("hotkeys_grid")
