@@ -110,7 +110,7 @@ impl EditorTool for GizmoTool {
         let mut clone_pressed = false;
         let mut multiple_pressed = false;
 
-        if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
+        if !ui.ctx().wants_keyboard_input() {
             //hot keys. Blender keys preffer
             let mode2key = vec![
                 (GizmoMode::Translate, GizmoHotkey::Translate),
