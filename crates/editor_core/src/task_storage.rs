@@ -43,3 +43,29 @@ fn update_storage(mut storage: ResMut<BackgroundTaskStorage>, assets: Res<AssetS
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn single_none_bg_task() {
+        let storage = BackgroundTaskStorage {
+            tasks: vec![BackgroundTask::None],
+        };
+
+        let mut app = App::new();
+        app.insert_resource(storage)
+            .add_plugins((
+                MinimalPlugins,
+                AssetPlugin::default(),
+                ImagePlugin::default(),
+            ))
+            .add_systems(Update, update_storage);
+
+        assert_eq!(app.world.resource::<BackgroundTaskStorage>().tasks.len(), 1);
+        app.update();
+
+        assert_eq!(app.world.resource::<BackgroundTaskStorage>().tasks.len(), 0);
+    }
+}
