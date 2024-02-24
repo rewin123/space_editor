@@ -9,6 +9,7 @@ use crate::{
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
+    sizing::Sizing,
     tool::ToolExt,
 };
 pub struct GizmoToolPlugin;
@@ -81,6 +82,7 @@ impl EditorTool for GizmoTool {
             (GizmoMode::Rotate, "Rotate"),
             (GizmoMode::Scale, "Scale"),
         ];
+        let sizing = world.resource::<Sizing>();
 
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
@@ -89,12 +91,12 @@ impl EditorTool for GizmoTool {
             stl.spacing.item_spacing = egui::Vec2::new(1., 0.);
             for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.add(mode.to_button().fill(SELECTED_ITEM_COLOR))
+                    ui.add(mode.to_button(sizing).fill(SELECTED_ITEM_COLOR))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();
                 } else if ui
-                    .add(mode.to_button())
+                    .add(mode.to_button(sizing))
                     .on_disabled_hover_text(hint)
                     .on_hover_text(hint)
                     .clicked()
@@ -355,15 +357,15 @@ impl EditorTool for GizmoTool {
 }
 
 trait ToButton {
-    fn to_button(&self) -> egui::Button;
+    fn to_button(&self, size: &Sizing) -> egui::Button;
 }
 
 impl ToButton for GizmoMode {
-    fn to_button(&self) -> egui::Button {
+    fn to_button(&self, size: &Sizing) -> egui::Button {
         match self {
-            Self::Rotate => rotation_icon(18., 18., ""),
-            Self::Translate => translate_icon(18., 18., ""),
-            Self::Scale => scale_icon(18., 18., ""),
+            Self::Rotate => rotation_icon(size.gizmos.to_size(), ""),
+            Self::Translate => translate_icon(size.gizmos.to_size(), ""),
+            Self::Scale => scale_icon(size.gizmos.to_size(), ""),
         }
     }
 }

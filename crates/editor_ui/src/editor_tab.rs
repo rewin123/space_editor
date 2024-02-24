@@ -4,7 +4,10 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_egui_next::egui::{self, WidgetText};
 use convert_case::{Case, Casing};
 
-use crate::colors::ERROR_COLOR;
+use crate::{
+    colors::ERROR_COLOR,
+    sizing::{to_label, Sizing},
+};
 
 use super::{EditorUiRef, EditorUiReg};
 
@@ -76,7 +79,8 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     }
 
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
-        if let Some(reg) = self.registry.get_mut(tab) {
+        let sizing = self.world.resource::<Sizing>().clone();
+        if let Some(reg) = self.registry.get(tab) {
             match reg {
                 EditorUiReg::ResourceBased {
                     show_command: _,
@@ -87,10 +91,13 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                     .resource_mut::<ScheduleEditorTabStorage>()
                     .0
                     .get(tab)
-                    .map_or_else(|| format!("{tab:?}").into(), |tab| tab.title.clone()),
+                    .map_or_else(
+                        || to_label(&format!("{tab:?}"), sizing.text).into(),
+                        |tab| to_label(tab.title.text(), sizing.text).into(),
+                    ),
             }
         } else {
-            format!("{tab:?}").into()
+            to_label(&format!("{tab:?}"), sizing.text).into()
         }
     }
 
