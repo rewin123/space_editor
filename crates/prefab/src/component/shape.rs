@@ -366,3 +366,56 @@ impl TorusPrefab {
         Mesh::from(data)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bevy::render::mesh::shape;
+
+    #[test]
+    fn test_box_to_mesh() {
+        let box_prefab = MeshPrimitivePrefab::Box(BoxPrefab {
+            w: 1.0,
+            h: 2.0,
+            d: 3.0,
+        });
+        let mesh = box_prefab.to_mesh();
+
+        // Hack to test if they are actually equal
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::Box::new(1.0, 2.0, 3.0)))
+        );
+    }
+
+    #[test]
+    fn test_cube_to_mesh() {
+        let cube_prefab = MeshPrimitivePrefab::Cube(2.0);
+        let mesh = cube_prefab.to_mesh();
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::Cube::new(2.0)))
+        );
+    }
+
+    #[test]
+    fn test_sphere_to_mesh() {
+        let sphere_prefab = MeshPrimitivePrefab::Sphere(SpherePrefab { r: 1.0 });
+        let mesh = sphere_prefab.to_mesh();
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::UVSphere::default()))
+        );
+    }
+
+    #[test]
+    fn test_default_to_mesh() {
+        let default_prefab = MeshPrimitivePrefab::default();
+        let mesh = default_prefab.to_mesh();
+        // You might want to adjust the expected default behavior
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::Cube::new(1.0)))
+        );
+    }
+}
