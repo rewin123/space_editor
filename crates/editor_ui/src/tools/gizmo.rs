@@ -104,39 +104,38 @@ impl EditorTool for GizmoTool {
             }
         });
 
+        let input = world.resource::<Input<GizmoHotkey>>();
+
         let mut del = false;
         let mut clone_pressed = false;
         let mut multiple_pressed = false;
+        
+        //hot keys. Blender keys preffer
+        let mode2key = vec![
+            (GizmoMode::Translate, GizmoHotkey::Translate),
+            (GizmoMode::Rotate, GizmoHotkey::Rotate),
+            (GizmoMode::Scale, GizmoHotkey::Scale),
+        ];
 
-        if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
-            //hot keys. Blender keys preffer
-            let mode2key = vec![
-                (GizmoMode::Translate, GizmoHotkey::Translate),
-                (GizmoMode::Rotate, GizmoHotkey::Rotate),
-                (GizmoMode::Scale, GizmoHotkey::Scale),
-            ];
 
-            let input = world.resource::<Input<GizmoHotkey>>();
-
-            for (mode, key) in mode2key {
-                if input.just_pressed(key) {
-                    self.gizmo_mode = mode;
-                }
+        for (mode, key) in mode2key {
+            if input.just_pressed(key) {
+                self.gizmo_mode = mode;
             }
+        }
 
-            if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
-                del = true;
-            }
+        if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
+            del = true;
+        }
 
-            if !input.pressed(GizmoHotkey::Clone) {
-                self.is_move_cloned_entities = false;
-            } else {
-                clone_pressed = true;
-            }
+        if !input.pressed(GizmoHotkey::Clone) {
+            self.is_move_cloned_entities = false;
+        } else {
+            clone_pressed = true;
+        }
 
-            if input.pressed(GizmoHotkey::Multiple) {
-                multiple_pressed = true;
-            }
+        if input.pressed(GizmoHotkey::Multiple) {
+            multiple_pressed = true;
         }
 
         if del {
