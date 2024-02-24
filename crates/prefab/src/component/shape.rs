@@ -409,6 +409,19 @@ mod tests {
     }
 
     #[test]
+    fn test_icosphere_to_mesh() {
+        let sphere_prefab = MeshPrimitivePrefab::Icosphere(IcospherePrefab {
+            r: 1.0,
+            subdivisions: 5,
+        });
+        let mesh = sphere_prefab.to_mesh();
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::try_from(shape::Icosphere::default()).unwrap())
+        );
+    }
+
+    #[test]
     fn test_default_to_mesh() {
         let default_prefab = MeshPrimitivePrefab::default();
         let mesh = default_prefab.to_mesh();
