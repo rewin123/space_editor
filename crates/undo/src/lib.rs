@@ -375,8 +375,7 @@ impl<T: Component + Clone> EditorChange for ComponentChange<T> {
 
         world
             .entity_mut(e)
-            .insert(self.old_value.clone())
-            .insert(OneFrameUndoIgnore::default());
+            .insert((self.old_value.clone(), OneFrameUndoIgnore::default()));
         info!("Reverted ComponentChange for entity: {}", e.index());
         Ok(ChangeResult::Success)
     }
@@ -408,10 +407,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
 
-        world
-            .entity_mut(e)
-            .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
-            .insert(OneFrameUndoIgnore::default());
+        world.entity_mut(e).insert((
+            <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            OneFrameUndoIgnore::default(),
+        ));
         world.send_event(UndoRedoApplied::<T> {
             entity: e,
             _phantom: std::marker::PhantomData,
@@ -555,8 +554,7 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
 
         world
             .entity_mut(dst)
-            .insert(self.old_value.clone())
-            .insert(OneFrameUndoIgnore::default());
+            .insert((self.old_value.clone(), OneFrameUndoIgnore::default()));
 
         info!("Reverted RemovedComponent for entity: {}", dst.index());
 
@@ -600,10 +598,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
             |remaped| *remaped,
         );
 
-        world
-            .entity_mut(dst)
-            .insert(<T as FromReflect>::from_reflect(&self.old_value).unwrap())
-            .insert(OneFrameUndoIgnore::default());
+        world.entity_mut(dst).insert((
+            <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            OneFrameUndoIgnore::default(),
+        ));
         world.send_event(UndoRedoApplied::<T> {
             entity: dst,
             _phantom: std::marker::PhantomData,

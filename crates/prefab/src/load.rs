@@ -84,8 +84,9 @@ fn load_prefab(
 ) {
     for (e, l, children, tr, vis) in query.iter() {
         if tr.is_none() {
-            commands.entity(e).insert(Transform::default());
-            commands.entity(e).insert(GlobalTransform::default());
+            commands
+                .entity(e)
+                .insert((Transform::default(), GlobalTransform::default()));
         }
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());

@@ -55,9 +55,10 @@ bevy-inspector-egui = { version = "0.22", features = [
     "highlight_changes",
 ] }
 bevy_mod_billboard = "0.5.1"
-bevy_mod_picking = { git = "https://github.com/dgriffith0/bevy_mod_picking.git", branch = "pick_hidden", default-features = false, features = [
+bevy_mod_picking = { git = "https://github.com/aevyrie/bevy_mod_picking.git", commit = "893336bf64265ee7d4bec2e1fefc16fb3e96e57a", default-features = false, features = [
     "backend_raycast",
     "selection",
+    "highlight",
 ] }
 bevy_panorbit_camera = "0.9"
 bevy-scene-hook = "9"
@@ -65,7 +66,7 @@ convert_case = "0.6"
 egui_dock = "0.11"
 egui_extras = { version = "0.26", features = ["all_loaders"] }
 egui_file = "0.15"
-egui-gizmo = "0.16"
+egui-gizmo = "0.16.1"
 pretty-type-name = "1"
 ron = "0.8"
 resvg = "0.37"
@@ -75,7 +76,6 @@ serde = "1"
 space_bevy_xpbd_plugin = { version = "0.4.0", path = "modules/bevy_xpbd_plugin"}
 
 [patch.crates-io]
-egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
 bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 
 [dependencies]
