@@ -26,33 +26,34 @@ fn test_undo() {
         .insert(Name::default())
         .insert(UndoMarker);
     app.world.get_mut::<Name>(test_id).unwrap().set_changed();
-
     app.update();
     app.update();
     app.update();
     app.update();
     app.update();
     app.update();
-
     assert!(app.world.get_entity(test_id).is_some());
 
     app.world.send_event(UndoRedo::Undo);
-
-    app.update();
-    app.update();
-
     app.update();
     app.update();
     app.update();
-
+    app.update();
+    app.update();
     assert!(app.world.get::<Name>(test_id).is_none());
     assert!(app.world.get_entity(test_id).is_some());
 
     app.world.send_event(UndoRedo::Undo);
     app.update();
     app.update();
-
     assert!(app.world.get_entity(test_id).is_none());
+
+    app.world.send_event(UndoRedo::Redo);
+    app.update();
+    app.update();
+
+    let mut query = app.world.query_filtered::<(), With<UndoMarker>>();
+    assert!(query.iter(&app.world).next().is_some());
 }
 
 #[test]
@@ -78,33 +79,71 @@ fn test_reflected_undo() {
         .get_mut::<Transform>(test_id)
         .unwrap()
         .set_changed();
-
     app.update();
     app.update();
     app.update();
     app.update();
     app.update();
     app.update();
-
-    assert!(app.world.get_entity(test_id).is_some());
-
-    app.world.send_event(UndoRedo::Undo);
-
-    app.update();
-    app.update();
-
-    app.update();
-    app.update();
-    app.update();
-
-    assert!(app.world.get::<Name>(test_id).is_none());
     assert!(app.world.get_entity(test_id).is_some());
 
     app.world.send_event(UndoRedo::Undo);
     app.update();
     app.update();
+    app.update();
+    app.update();
+    app.update();
+    assert!(app.world.get::<Transform>(test_id).is_none());
+    assert!(app.world.get_entity(test_id).is_some());
 
+    app.world.send_event(UndoRedo::Undo);
+    app.update();
+    app.update();
     assert!(app.world.get_entity(test_id).is_none());
+}
+
+#[test]
+fn test_reflected_redo() {
+    let mut app = configure_app();
+    app.auto_reflected_undo::<Transform>();
+
+    app.update();
+
+    let test_id = app.world.spawn_empty().id();
+    app.world.send_event(NewChange {
+        change: Arc::new(AddedEntity { entity: test_id }),
+    });
+
+    app.update();
+    app.update();
+
+    app.world
+        .entity_mut(test_id)
+        .insert(Transform::default())
+        .insert(UndoMarker);
+    app.world
+        .get_mut::<Transform>(test_id)
+        .unwrap()
+        .set_changed();
+    app.update();
+    app.update();
+    app.update();
+    app.update();
+    app.update();
+    app.update();
+    assert!(app.world.get_entity(test_id).is_some());
+
+    app.world.send_event(UndoRedo::Undo);
+    app.update();
+    app.update();
+    assert!(app.world.get_entity(test_id).is_some());
+    assert!(app.world.get::<Transform>(test_id).is_none());
+
+    app.world.send_event(UndoRedo::Redo);
+    app.update();
+    app.update();
+    assert!(app.world.get_entity(test_id).is_some());
+    assert!(app.world.get::<Transform>(test_id).is_some());
 }
 
 #[test]
