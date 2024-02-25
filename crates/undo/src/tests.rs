@@ -1,5 +1,6 @@
 use super::*;
 
+#[cfg(test)]
 fn configure_app() -> App {
     let mut app = App::new();
     app.add_plugins(MinimalPlugins).add_plugins(UndoPlugin);
