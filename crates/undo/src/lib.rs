@@ -222,36 +222,6 @@ impl Default for ChangeChainSettings {
     }
 }
 
-impl ChangeChain {
-    pub fn undo(&mut self, world: &mut World) {
-        if let Some(change) = self.changes.pop() {
-            let res = change.revert(world, &self.entity_remap).unwrap();
-            self.changes_for_redo.push(change);
-            self.update_remap(res);
-        }
-    }
-
-    pub fn redo(&mut self, world: &mut World) {
-        if let Some(change) = self.changes_for_redo.pop() {
-            let inverse_change = change.get_inverse();
-            let res = inverse_change.revert(world, &self.entity_remap).unwrap();
-            self.changes.push(change);
-            self.update_remap(res);
-        }
-    }
-
-    fn update_remap(&mut self, result: ChangeResult) {
-        match result {
-            ChangeResult::Success => {}
-            ChangeResult::SuccessWithRemap(new_remap) => {
-                for (prev, new) in new_remap {
-                    self.entity_remap.insert(prev, new);
-                }
-            }
-        }
-    }
-}
-
 pub fn get_entity_with_remap(entity: Entity, entity_remap: &HashMap<Entity, Entity>) -> Entity {
     *entity_remap.get(&entity).unwrap_or(&entity)
 }

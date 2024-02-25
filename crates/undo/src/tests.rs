@@ -153,16 +153,14 @@ pub struct TestSync;
 #[test]
 fn test_marker_sync() {
     let mut app = App::default();
-    
+
     app.add_plugins(MinimalPlugins)
         .add_plugins(SyncUndoMarkersPlugin::<TestSync>::default());
 
     app.update();
 
     //Test create UndoMarker after TestSync
-    let id1 = app.world.spawn((
-        TestSync,
-    )).id();
+    let id1 = app.world.spawn((TestSync,)).id();
 
     app.update();
     app.update();
