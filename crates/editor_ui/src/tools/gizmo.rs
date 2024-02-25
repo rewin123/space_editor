@@ -2,7 +2,7 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
-use space_shared::EditorCameraMarker;
+use space_shared::*;
 
 use crate::{
     colors::SELECTED_ITEM_COLOR,
@@ -16,13 +16,18 @@ pub struct GizmoToolPlugin;
 impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
+
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+        app.init_resource::<MultipleCenter>();
+
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
         app.editor_hotkey(GizmoHotkey::Delete, vec![KeyCode::X]);
         app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
+
+        app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
     }
 }
 
@@ -182,6 +187,13 @@ impl EditorTool for GizmoTool {
 
             let mut global_mean = GlobalTransform::from(mean_transform);
 
+            //Set resource for draw lines from mean center to each entity
+            unsafe {
+                cell.world_mut().insert_resource(MultipleCenter {
+                    center: Some(global_mean.translation()),
+                });
+            }
+
             let mut loc_transform = vec![];
             for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
@@ -248,6 +260,11 @@ impl EditorTool for GizmoTool {
                 }
             }
         } else {
+            unsafe {
+                cell.world_mut()
+                    .insert_resource(MultipleCenter { center: None });
+            }
+
             for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
@@ -354,6 +371,11 @@ impl EditorTool for GizmoTool {
     }
 }
 
+#[derive(Resource, Default)]
+pub struct MultipleCenter {
+    pub center: Option<Vec3>,
+}
+
 trait ToButton {
     fn to_button(&self) -> egui::Button;
 }
@@ -364,6 +386,18 @@ impl ToButton for GizmoMode {
             Self::Rotate => rotation_icon(18., 18., ""),
             Self::Translate => translate_icon(18., 18., ""),
             Self::Scale => scale_icon(18., 18., ""),
+        }
+    }
+}
+
+fn draw_lines_system(
+    mut gizmos: Gizmos,
+    mean_center: Res<MultipleCenter>,
+    selected: Query<&GlobalTransform, With<Selected>>,
+) {
+    if let Some(center) = mean_center.center {
+        for selected in &selected {
+            gizmos.line(selected.translation(), center, Color::WHITE);
         }
     }
 }
