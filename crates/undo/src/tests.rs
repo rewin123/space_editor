@@ -158,9 +158,19 @@ fn test_reflected_redo() {
     assert!(app.world.get::<Transform>(test_id).is_none());
 
     app.world.send_event(UndoRedo::Redo);
-    repeat_update(&mut app, 2);
+    repeat_update(&mut app, 10);
     assert!(app.world.get_entity(test_id).is_some());
     assert!(app.world.get::<Transform>(test_id).is_some());
+
+    app.world.entity_mut(test_id).remove::<Transform>();
+    repeat_update(&mut app, 10);
+    app.world.send_event(UndoRedo::Undo);
+    repeat_update(&mut app, 2);
+    assert!(app.world.entity(test_id).get::<Transform>().is_some());
+
+    app.world.send_event(UndoRedo::Redo);
+    repeat_update(&mut app, 2);
+    assert!(app.world.entity(test_id).get::<Transform>().is_none());
 }
 
 #[test]
