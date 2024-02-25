@@ -58,7 +58,6 @@ bevy_mod_billboard = "0.5.1"
 bevy_mod_picking = { git = "https://github.com/aevyrie/bevy_mod_picking.git", commit = "893336bf64265ee7d4bec2e1fefc16fb3e96e57a", default-features = false, features = [
     "backend_raycast",
     "selection",
-    "highlight",
 ] }
 bevy_panorbit_camera = "0.9"
 bevy-scene-hook = "9"
