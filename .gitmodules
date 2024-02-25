@@ -1,0 +1,3 @@
+[submodule "modules/voxel"]
+	path = modules/voxel
+	url = https://github.com/rewin123/vx_bevy.git
