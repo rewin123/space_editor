@@ -74,7 +74,10 @@ fn test_reflected_undo() {
         .entity_mut(test_id)
         .insert(Transform::default())
         .insert(UndoMarker);
-    app.world.get_mut::<Transform>(test_id).unwrap().set_changed();
+    app.world
+        .get_mut::<Transform>(test_id)
+        .unwrap()
+        .set_changed();
 
     app.update();
     app.update();
