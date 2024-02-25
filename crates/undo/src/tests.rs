@@ -146,3 +146,34 @@ fn undo_ignore_ticks() {
 
     assert_eq!(ignore_storage.storage.len(), 1)
 }
+
+#[derive(Component, Default)]
+pub struct TestSync;
+
+#[test]
+fn test_marker_sync() {
+    let mut app = App::default();
+    
+    app.add_plugins(MinimalPlugins)
+        .add_plugins(SyncUndoMarkersPlugin::<TestSync>::default());
+
+    app.update();
+
+    //Test create UndoMarker after TestSync
+    let id1 = app.world.spawn((
+        TestSync,
+    )).id();
+
+    app.update();
+    app.update();
+
+    assert!(app.world.get::<UndoMarker>(id1).is_some());
+
+    //Test remove UndoMarker after TestSync
+    app.world.entity_mut(id1).remove::<TestSync>();
+
+    app.update();
+    app.update();
+
+    assert!(app.world.get::<UndoMarker>(id1).is_none());
+}
