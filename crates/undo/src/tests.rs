@@ -174,6 +174,37 @@ fn test_reflected_redo() {
 }
 
 #[test]
+fn test_redo() {
+    let mut app = configure_app();
+    app.auto_undo::<Name>();
+    app.update();
+
+    let test_id = app.world.spawn(Name::default()).id();
+    app.world.send_event(NewChange {
+        change: Arc::new(AddedEntity { entity: test_id }),
+    });
+    repeat_update(&mut app, 10);
+
+    app.world
+        .entity_mut(test_id)
+        .insert(Name::default())
+        .insert(UndoMarker);
+    app.world.get_mut::<Name>(test_id).unwrap().set_changed();
+    repeat_update(&mut app, 10);
+    assert!(app.world.get_entity(test_id).is_some());
+
+    app.world.entity_mut(test_id).remove::<Name>();
+    repeat_update(&mut app, 10);
+    app.world.send_event(UndoRedo::Undo);
+    repeat_update(&mut app, 2);
+    assert!(app.world.get::<Name>(test_id).is_some());
+
+    app.world.send_event(UndoRedo::Redo);
+    repeat_update(&mut app, 2);
+    assert!(app.world.get::<Name>(test_id).is_none());
+}
+
+#[test]
 fn test_undo_with_remap() {
     let mut app = configure_app();
     app.add_plugins(HierarchyPlugin);
