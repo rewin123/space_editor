@@ -126,7 +126,7 @@ impl ColorMaterialPrefab {
     }
 }
 
-fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
+pub fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
     if path.is_empty() || fs::metadata(format!("assets/{path}")).is_err() {
         None
     } else {

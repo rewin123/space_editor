@@ -2,6 +2,8 @@ use crate::ext::*;
 use bevy::utils::HashMap;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
+use super::material::try_image;
+
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions, Default)]
 #[reflect(Default, Component, InspectorOptions)]
@@ -19,16 +21,6 @@ impl SpriteTexture {
         })
     }
 }
-
-fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
-    if path.is_empty() {
-        None
-    } else {
-        Some(asset_server.load(path))
-    }
-}
-
-// Spritesheet
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions, Default)]
