@@ -1,0 +1,8 @@
+{
+    "space_editor_ui::settings::NewWindowSettings": "{\"space_editor_ui::settings::NewWindowSettings\":(new_tab:SameNode)}",
+    "space_persistence::PersistenceSettings": "{\"space_persistence::PersistenceSettings\":(load_on_startup:true,save_on_close:true)}",
+    "space_editor_ui::sizing::Sizing": "{\"space_editor_ui::sizing::Sizing\":(icon:Medium,gizmos:Medium,text:13.0)}",
+    "space_undo::ChangeChainSettings": "{\"space_undo::ChangeChainSettings\":(max_change_chain_size:200)}",
+    "space_editor_ui::settings::GameModeSettings": "{\"space_editor_ui::settings::GameModeSettings\":(mode:Game3D)}",
+    "space_editor_core::hotkeys::HotkeySet<space_editor_ui::tools::gizmo::GizmoHotkey>": "{\"space_editor_core::hotkeys::HotkeySet<space_editor_ui::tools::gizmo::GizmoHotkey>\":(bindings:{Delete:[X],Clone:[AltLeft],Scale:[S],Multiple:[ShiftLeft],Translate:[G],Rotate:[R]},name:\"GizmoHotkey\")}",
+}

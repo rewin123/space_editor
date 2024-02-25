@@ -7,7 +7,10 @@ use bevy_egui_next::egui::{
 use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
 
-use self::colors::*;
+use self::{
+    colors::*,
+    sizing::{to_label, Sizing},
+};
 
 /// All systems for editor ui wil be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -371,7 +374,10 @@ impl EditorUiAppExt for App {
         );
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
-            title_command: Box::new(|world| world.resource_mut::<T>().title()),
+            title_command: Box::new(|world| {
+                let sizing = world.resource::<Sizing>().clone();
+                to_label(world.resource_mut::<T>().title().text(), sizing.text).into()
+            }),
         };
 
         self.world

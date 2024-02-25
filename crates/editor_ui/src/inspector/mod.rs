@@ -22,7 +22,11 @@ use space_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::{colors::DEFAULT_BG_COLOR, icons::add_component_icon};
+use crate::{
+    colors::DEFAULT_BG_COLOR,
+    icons::add_component_icon,
+    sizing::{to_label, Sizing},
+};
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -141,6 +145,7 @@ fn execute_inspect_command(
 
 /// System to show inspector panel
 pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashMap<String, bool>) {
+    let sizing = world.resource::<Sizing>().clone();
     let selected_entity = world
         .query_filtered::<Entity, With<Selected>>()
         .get_single(world);
@@ -208,64 +213,73 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
                 name = format!("{:?}", e.id());
             }
             ui.heading(&name);
-            ui.label("Components:");
+            let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
+            ui.text_edit_singleline(&mut state.component_add_filter);
+            let lower_filter = state.component_add_filter.to_lowercase();
             let e_id = e.id().index();
+            ui.label("Components:");
             egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
                 for (c_id, t_id, name, _) in &components_id {
-                    if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
-                        let registration = registry.get(*t_id).unwrap();
-                        if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
-                            let (ptr, mut set_changed) = mut_untyped_split(data);
+                    if name.to_lowercase().contains(&lower_filter) {
+                        if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
+                            let registration = registry.get(*t_id).unwrap();
+                            if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
+                                let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                            let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                                let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
 
-                            if !editor_registry.silent.contains(&registration.type_id()) {
-                                ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                    let header = egui::CollapsingHeader::new(name)
-                                        .default_open(*open_components.get(name).unwrap_or(&false))
-                                        .show(ui, |ui| {
-                                            ui.push_id(
-                                                format!("content-{:?}-{}", &e.id(), &name),
+                                if !editor_registry.silent.contains(&registration.type_id()) {
+                                    ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+                                        let header = egui::CollapsingHeader::new(name)
+                                            .default_open(
+                                                *open_components.get(name).unwrap_or(&false),
+                                            )
+                                            .show(ui, |ui| {
+                                                ui.push_id(
+                                                    format!("content-{:?}-{}", &e.id(), &name),
+                                                    |ui| {
+                                                        if env.ui_for_reflect_with_options(
+                                                            value,
+                                                            ui,
+                                                            ui.id(),
+                                                            &(),
+                                                        ) {
+                                                            set_changed();
+                                                        }
+                                                    },
+                                                );
+                                            });
+                                        if header.header_response.clicked() {
+                                            let open_name =
+                                                open_components.entry(name.clone()).or_default();
+                                            //At click header not opened simultaneously so its need to check percent of opened
+                                            *open_name = header.openness < 0.5;
+                                        }
+                                    });
+
+                                    ui.push_id(
+                                        format!("del component {:?}-{}", &e.id(), &name),
+                                        |ui| {
+                                            //must be on top
+                                            ui.with_layout(
+                                                egui::Layout::top_down(egui::Align::Min),
                                                 |ui| {
-                                                    if env.ui_for_reflect_with_options(
-                                                        value,
-                                                        ui,
-                                                        ui.id(),
-                                                        &(),
-                                                    ) {
-                                                        set_changed();
+                                                    let button = egui::Button::new("🗙")
+                                                        .fill(DEFAULT_BG_COLOR);
+                                                    if ui.add(button).clicked() {
+                                                        commands.push(
+                                                            InspectCommand::RemoveComponent(
+                                                                e.id(),
+                                                                *t_id,
+                                                            ),
+                                                        );
                                                     }
                                                 },
                                             );
-                                        });
-                                    if header.header_response.clicked() {
-                                        let open_name =
-                                            open_components.entry(name.clone()).or_default();
-                                        //At click header not opened simultaneously so its need to check percent of opened
-                                        *open_name = header.openness < 0.5;
-                                    }
-                                });
-
-                                ui.push_id(
-                                    format!("del component {:?}-{}", &e.id(), &name),
-                                    |ui| {
-                                        //must be on top
-                                        ui.with_layout(
-                                            egui::Layout::top_down(egui::Align::Min),
-                                            |ui| {
-                                                let button =
-                                                    egui::Button::new("🗙").fill(DEFAULT_BG_COLOR);
-                                                if ui.add(button).clicked() {
-                                                    commands.push(InspectCommand::RemoveComponent(
-                                                        e.id(),
-                                                        *t_id,
-                                                    ));
-                                                }
-                                            },
-                                        );
-                                    },
-                                );
-                                ui.end_row();
+                                        },
+                                    );
+                                    ui.end_row();
+                                }
                             }
                         }
                     }
@@ -276,11 +290,20 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
         }
     });
 
+    let width = ui.available_width();
+    let add_component_str = to_label("Add component", sizing.text);
+    let pixel_count = add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
+    let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
+
     //Open context window by button
     ui.vertical_centered(|ui| {
         ui.spacing();
+        ui.style_mut().spacing.button_padding = egui::Vec2 {
+            x: x_padding,
+            y: 2.,
+        };
         if ui
-            .add(add_component_icon(16., 16., "Add component"))
+            .add(add_component_icon(sizing.icon.to_size(), add_component_str))
             .clicked()
         {
             state.show_add_component_window = true;

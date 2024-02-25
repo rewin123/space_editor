@@ -35,7 +35,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Run cargo test
-        run: cargo test --no-default-features
+        run: cargo test --workspace --no-default-features
     
   test_all:
     name: Test all features
@@ -59,7 +59,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Run cargo test
-        run: cargo test --features bevy_xpbd_3d
+        run: cargo test --workspace --features bevy_xpbd_3d
 
   # Run cargo clippy -- -D warnings
   clippy_check:
