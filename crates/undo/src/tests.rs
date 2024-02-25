@@ -43,6 +43,12 @@ fn test_undo() {
     repeat_update(&mut app, 2);
     assert_eq!(app.world.get::<Name>(test_id).unwrap().to_string(), "");
 
+    app.world.send_event(UndoRedo::Redo);
+    repeat_update(&mut app, 4);
+    assert_eq!(app.world.get::<Name>(test_id).unwrap().to_string(), "foo");
+    app.world.send_event(UndoRedo::Undo);
+    repeat_update(&mut app, 2);
+
     app.world.send_event(UndoRedo::Undo);
     repeat_update(&mut app, 2);
     assert!(app.world.get::<Name>(test_id).is_none());
@@ -101,6 +107,15 @@ fn test_reflected_undo() {
         app.world.get::<Transform>(test_id).unwrap().translation,
         Vec3::ZERO
     );
+
+    app.world.send_event(UndoRedo::Redo);
+    repeat_update(&mut app, 4);
+    assert_eq!(
+        app.world.get::<Transform>(test_id).unwrap().translation,
+        Vec3::X
+    );
+    app.world.send_event(UndoRedo::Undo);
+    repeat_update(&mut app, 2);
 
     app.world.send_event(UndoRedo::Undo);
     repeat_update(&mut app, 2);
