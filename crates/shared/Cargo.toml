@@ -14,8 +14,10 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 
+anyhow.workspace = true
 bevy-inspector-egui.workspace = true
 egui_file.workspace = true
+image.workspace = true
 
 [lints]
 workspace = true
