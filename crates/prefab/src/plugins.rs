@@ -274,8 +274,7 @@ fn add_computed_visibility(
     for e in query.iter() {
         commands
             .entity(e)
-            .insert(ViewVisibility::default())
-            .insert(InheritedVisibility::VISIBLE);
+            .insert((InheritedVisibility::VISIBLE, ViewVisibility::default()));
     }
 }
 

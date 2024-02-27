@@ -102,8 +102,9 @@ fn sync_position_spawn(
     >,
 ) {
     for (e, tr) in query.iter() {
-        commands.entity(e).insert(Position(tr.translation));
-        commands.entity(e).insert(Rotation(tr.rotation));
+        commands
+            .entity(e)
+            .insert((Position(tr.translation), Rotation(tr.rotation)));
     }
 }
 
@@ -138,8 +139,9 @@ fn force_rigidbody_type_change_in_editor(
     for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
         if let Some(tr) = transform {
-            commands.entity(e).insert(Position(tr.translation));
-            commands.entity(e).insert(Rotation(tr.rotation));
+            commands
+                .entity(e)
+                .insert((Position(tr.translation), Rotation(tr.rotation)));
         }
     }
 }
@@ -155,8 +157,9 @@ fn rigidbody_type_change_in_editor(
             .remove::<RigidBody>()
             .insert(tp.to_rigidbody_editor());
         if let Some(tr) = transform {
-            commands.entity(e).insert(Position(tr.translation));
-            commands.entity(e).insert(Rotation(tr.rotation));
+            commands
+                .entity(e)
+                .insert((Position(tr.translation), Rotation(tr.rotation)));
         }
     }
 }

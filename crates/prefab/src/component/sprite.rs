@@ -2,6 +2,8 @@ use crate::ext::*;
 use bevy::utils::HashMap;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
+use super::material::try_image;
+
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions, Default)]
 #[reflect(Default, Component, InspectorOptions)]
@@ -19,16 +21,6 @@ impl SpriteTexture {
         })
     }
 }
-
-fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
-    if path.is_empty() {
-        None
-    } else {
-        Some(asset_server.load(path))
-    }
-}
-
-// Spritesheet
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions, Default)]
@@ -60,7 +52,7 @@ impl Default for AnimationIndicesSpriteSheet {
     }
 }
 
-#[derive(Reflect, Clone, InspectorOptions, Default)]
+#[derive(Reflect, Clone, InspectorOptions, Default, PartialEq, Eq, Debug)]
 #[reflect(Default, InspectorOptions)]
 pub struct AnimationClip {
     /// Animation clip first index in [`TextureAtlas`]
@@ -69,7 +61,7 @@ pub struct AnimationClip {
     pub last: usize,
 }
 
-#[derive(Component, Reflect, Clone, InspectorOptions)]
+#[derive(Component, Reflect, Clone, InspectorOptions, PartialEq, Eq, Debug)]
 #[reflect(Default, Component, InspectorOptions)]
 pub struct AnimationClipName {
     /// Animation clip name to play in [`TextureAtlas`]
@@ -84,7 +76,7 @@ impl Default for AnimationClipName {
     }
 }
 
-#[derive(Component, Reflect, Clone, InspectorOptions)]
+#[derive(Component, Reflect, Clone, InspectorOptions, PartialEq, Eq, Debug)]
 #[reflect(Default, Component, InspectorOptions)]
 pub struct AvailableAnimationClips {
     /// List of all available animation clips by name to play in [`TextureAtlas`]
@@ -99,7 +91,7 @@ impl Default for AvailableAnimationClips {
     }
 }
 
-#[derive(Component, Reflect, Clone, InspectorOptions, Deref, DerefMut)]
+#[derive(Component, Reflect, Clone, InspectorOptions, Deref, DerefMut, PartialEq, Eq, Debug)]
 #[reflect(Default, Component, InspectorOptions)]
 pub struct AnimationTimerSpriteSheet(Timer);
 
@@ -109,7 +101,7 @@ impl Default for AnimationTimerSpriteSheet {
     }
 }
 
-#[derive(Component, Reflect, Clone, InspectorOptions)]
+#[derive(Component, Reflect, Clone, InspectorOptions, PartialEq, Debug)]
 #[reflect(Default, Component, InspectorOptions)]
 pub struct TextureAtlasPrefab {
     /// Source texture
@@ -143,7 +135,7 @@ impl TextureAtlasPrefab {
     pub fn to_texture_atlas(
         &mut self,
         sprite_texture: &SpritesheetTexture,
-        texture_atlases: &mut ResMut<Assets<TextureAtlas>>,
+        texture_atlases: &mut Assets<TextureAtlas>,
         asset_server: &AssetServer,
     ) -> Option<Handle<TextureAtlas>> {
         let texture_handle = sprite_texture.to_texture(asset_server)?;
@@ -182,5 +174,167 @@ pub fn animate_sprite(
                 };
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use super::*;
+
+    #[test]
+    fn sprite_texture_to_sprite_with_path() {
+        let mut prefab = SpriteTexture::default();
+        prefab.texture = String::from("test_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let sprite = prefab.to_sprite(server);
+
+        assert!(sprite.is_some());
+        let id = sprite.unwrap().texture.id();
+        assert!(server.get_id_handle(id).is_some());
+    }
+
+    #[test]
+    fn sprite_texture_to_sprite_with_fake_path() {
+        let mut prefab = SpriteTexture::default();
+        prefab.texture = String::from("fake_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let sprite = prefab.to_sprite(server);
+
+        assert!(sprite.is_none());
+    }
+
+    #[test]
+    fn spritesheet_texture_to_sprite_with_path() {
+        let mut prefab = SpritesheetTexture::default();
+        prefab.texture = String::from("test_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let sprite = prefab.to_texture(server);
+
+        assert!(sprite.is_some());
+        let id = sprite.unwrap().id();
+        assert!(server.get_id_handle(id).is_some());
+    }
+
+    #[test]
+    fn spritesheet_texture_to_sprite_with_fake_path() {
+        let mut prefab = SpritesheetTexture::default();
+        prefab.texture = String::from("fake_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let sprite = prefab.to_texture(server);
+
+        assert!(sprite.is_none());
+    }
+
+    #[test]
+    fn correct_default_animation_clips() {
+        let animation_clips = AnimationIndicesSpriteSheet::default();
+
+        assert_eq!(animation_clips.clips.len(), 2);
+        assert_eq!(
+            animation_clips.clips.get("run"),
+            Some(&super::AnimationClip { first: 1, last: 6 })
+        );
+        assert_eq!(
+            animation_clips.clips.get("idle"),
+            Some(&super::AnimationClip { first: 0, last: 0 })
+        );
+    }
+
+    #[test]
+    fn default_available_animation_clips() {
+        assert_eq!(
+            AvailableAnimationClips::default().names,
+            vec!["run".to_string(), "idle".to_string()],
+        );
+    }
+
+    #[test]
+    fn default_texture_atlas_to_texture_exists() {
+        let mut sprite_prefab = SpritesheetTexture::default();
+        sprite_prefab.texture = String::from("test_asset.png");
+        let mut prefab = TextureAtlasPrefab::default();
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ))
+        .init_asset::<TextureAtlas>();
+
+        let asset_server = app.world.resource::<AssetServer>().clone();
+        let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlas>>();
+
+        let sprite = prefab.to_texture_atlas(&sprite_prefab, &mut texture_atlas, &asset_server);
+
+        assert!(sprite.is_some());
+        let id = sprite.unwrap().id();
+        assert!(texture_atlas.get(id).is_some());
+    }
+
+    #[test]
+    fn default_animation_timer() {
+        let anim_timer = AnimationTimerSpriteSheet::default();
+
+        assert_eq!(anim_timer.0.mode(), TimerMode::Repeating);
+        assert_eq!(anim_timer.0.duration(), Duration::from_secs_f32(0.1));
+    }
+
+    #[test]
+    fn animate_sprite_over_time() {
+        let setup = |mut commands: Commands| {
+            commands.spawn((
+                AnimationIndicesSpriteSheet::default(),
+                AnimationClipName::default(),
+                AnimationTimerSpriteSheet::default(),
+                TextureAtlasSprite::default(),
+            ));
+        };
+        let mut app = App::new();
+
+        app.add_plugins(MinimalPlugins)
+            .add_systems(Startup, setup)
+            .add_systems(Update, animate_sprite);
+
+        app.update();
+        let mut query = app.world.query::<&TextureAtlasSprite>();
+
+        let atlas = query.single(&app.world);
+
+        assert_eq!(atlas.index, 0);
     }
 }
