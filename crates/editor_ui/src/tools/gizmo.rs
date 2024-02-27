@@ -2,13 +2,14 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
-use space_shared::EditorCameraMarker;
+use space_shared::*;
 
 use crate::{
     colors::SELECTED_ITEM_COLOR,
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
+    sizing::Sizing,
     tool::ToolExt,
 };
 pub struct GizmoToolPlugin;
@@ -16,13 +17,18 @@ pub struct GizmoToolPlugin;
 impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
+
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+        app.init_resource::<MultipleCenter>();
+
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
         app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
         app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
         app.editor_hotkey(GizmoHotkey::Delete, vec![KeyCode::X]);
         app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
+
+        app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
     }
 }
 
@@ -81,6 +87,7 @@ impl EditorTool for GizmoTool {
             (GizmoMode::Rotate, "Rotate"),
             (GizmoMode::Scale, "Scale"),
         ];
+        let sizing = world.resource::<Sizing>();
 
         ui.spacing();
         ui.with_layout(egui::Layout::left_to_right(egui::Align::TOP), |ui| {
@@ -89,12 +96,12 @@ impl EditorTool for GizmoTool {
             stl.spacing.item_spacing = egui::Vec2::new(1., 0.);
             for (mode, hint) in mode2name {
                 if self.gizmo_mode == mode {
-                    ui.add(mode.to_button().fill(SELECTED_ITEM_COLOR))
+                    ui.add(mode.to_button(sizing).fill(SELECTED_ITEM_COLOR))
                         .on_disabled_hover_text(hint)
                         .on_hover_text(hint)
                         .clicked();
                 } else if ui
-                    .add(mode.to_button())
+                    .add(mode.to_button(sizing))
                     .on_disabled_hover_text(hint)
                     .on_hover_text(hint)
                     .clicked()
@@ -104,39 +111,37 @@ impl EditorTool for GizmoTool {
             }
         });
 
+        let input = world.resource::<Input<GizmoHotkey>>();
+
         let mut del = false;
         let mut clone_pressed = false;
         let mut multiple_pressed = false;
 
-        if ui.ui_contains_pointer() && !ui.ctx().wants_keyboard_input() {
-            //hot keys. Blender keys preffer
-            let mode2key = vec![
-                (GizmoMode::Translate, GizmoHotkey::Translate),
-                (GizmoMode::Rotate, GizmoHotkey::Rotate),
-                (GizmoMode::Scale, GizmoHotkey::Scale),
-            ];
+        //hot keys. Blender keys prefer
+        let mode2key = vec![
+            (GizmoMode::Translate, GizmoHotkey::Translate),
+            (GizmoMode::Rotate, GizmoHotkey::Rotate),
+            (GizmoMode::Scale, GizmoHotkey::Scale),
+        ];
 
-            let input = world.resource::<Input<GizmoHotkey>>();
-
-            for (mode, key) in mode2key {
-                if input.just_pressed(key) {
-                    self.gizmo_mode = mode;
-                }
+        for (mode, key) in mode2key {
+            if input.just_pressed(key) {
+                self.gizmo_mode = mode;
             }
+        }
 
-            if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
-                del = true;
-            }
+        if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
+            del = true;
+        }
 
-            if !input.pressed(GizmoHotkey::Clone) {
-                self.is_move_cloned_entities = false;
-            } else {
-                clone_pressed = true;
-            }
+        if !input.pressed(GizmoHotkey::Clone) {
+            self.is_move_cloned_entities = false;
+        } else {
+            clone_pressed = true;
+        }
 
-            if input.pressed(GizmoHotkey::Multiple) {
-                multiple_pressed = true;
-            }
+        if input.pressed(GizmoHotkey::Multiple) {
+            multiple_pressed = true;
         }
 
         if del {
@@ -183,6 +188,13 @@ impl EditorTool for GizmoTool {
             mean_transform.scale /= selected.len() as f32;
 
             let mut global_mean = GlobalTransform::from(mean_transform);
+
+            //Set resource for draw lines from mean center to each entity
+            unsafe {
+                cell.world_mut().insert_resource(MultipleCenter {
+                    center: Some(global_mean.translation()),
+                });
+            }
 
             let mut loc_transform = vec![];
             for e in &selected {
@@ -250,6 +262,11 @@ impl EditorTool for GizmoTool {
                 }
             }
         } else {
+            unsafe {
+                cell.world_mut()
+                    .insert_resource(MultipleCenter { center: None });
+            }
+
             for e in &selected {
                 let Some(ecell) = cell.get_entity(*e) else {
                     continue;
@@ -356,16 +373,33 @@ impl EditorTool for GizmoTool {
     }
 }
 
+#[derive(Resource, Default)]
+pub struct MultipleCenter {
+    pub center: Option<Vec3>,
+}
+
 trait ToButton {
-    fn to_button(&self) -> egui::Button;
+    fn to_button(&self, size: &Sizing) -> egui::Button;
 }
 
 impl ToButton for GizmoMode {
-    fn to_button(&self) -> egui::Button {
+    fn to_button(&self, size: &Sizing) -> egui::Button {
         match self {
-            Self::Rotate => rotation_icon(18., 18., ""),
-            Self::Translate => translate_icon(18., 18., ""),
-            Self::Scale => scale_icon(18., 18., ""),
+            Self::Rotate => rotation_icon(size.gizmos.to_size(), ""),
+            Self::Translate => translate_icon(size.gizmos.to_size(), ""),
+            Self::Scale => scale_icon(size.gizmos.to_size(), ""),
+        }
+    }
+}
+
+fn draw_lines_system(
+    mut gizmos: Gizmos,
+    mean_center: Res<MultipleCenter>,
+    selected: Query<&GlobalTransform, With<Selected>>,
+) {
+    if let Some(center) = mean_center.center {
+        for selected in &selected {
+            gizmos.line(selected.translation(), center, Color::WHITE);
         }
     }
 }

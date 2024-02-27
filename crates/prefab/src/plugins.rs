@@ -33,7 +33,7 @@ impl Plugin for PrefabPlugin {
     }
 }
 
-/// This plugin contains all components and logic of prefabs without optional dependecies
+/// This plugin contains all components and logic of prefabs without optional dependencies
 pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {
@@ -274,8 +274,7 @@ fn add_computed_visibility(
     for e in query.iter() {
         commands
             .entity(e)
-            .insert(ViewVisibility::default())
-            .insert(InheritedVisibility::VISIBLE);
+            .insert((InheritedVisibility::VISIBLE, ViewVisibility::default()));
     }
 }
 

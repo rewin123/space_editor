@@ -46,6 +46,7 @@ impl Plugin for SpaceHierarchyPlugin {
 pub struct HierarchyTabState {
     pub show_editor_entities: bool,
     pub show_spawnable_bundles: bool,
+    pub entity_filter: String,
 }
 
 pub type HierarchyQueryIter<'a> = (
@@ -59,29 +60,36 @@ pub type HierarchyQueryIter<'a> = (
 pub fn show_hierarchy(
     mut commands: Commands,
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
-    all_entites: Query<HierarchyQueryIter>,
+    all_entities: Query<HierarchyQueryIter>,
     mut selected: Query<Entity, With<Selected>>,
     mut clone_events: EventWriter<CloneEvent>,
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
-    state: Res<HierarchyTabState>,
+    mut state: ResMut<HierarchyTabState>,
 ) {
     let mut all: Vec<_> = if state.show_editor_entities {
-        all_entites.iter().collect()
+        all_entities.iter().collect()
     } else {
         query.iter().collect()
     };
     all.sort_by_key(|a| a.0);
-
     let ui = &mut ui.0;
+    ui.text_edit_singleline(&mut state.entity_filter);
+    ui.spacing();
+    let lower_filter = state.entity_filter.to_lowercase();
+
     egui::ScrollArea::vertical().show(ui, |ui| {
-        for (entity, _name, _children, parent) in all.iter() {
+        for (entity, _name, _children, parent) in all.iter().filter(|(_, name, _, _)| {
+            name.map(|n| n.to_lowercase())
+                .unwrap_or_else(|| "entity".to_string())
+                .contains(&lower_filter)
+        }) {
             if parent.is_none() {
                 if state.show_editor_entities {
                     draw_entity::<()>(
                         &mut commands,
                         ui,
-                        &all_entites,
+                        &all_entities,
                         *entity,
                         &mut selected,
                         &mut clone_events,
@@ -137,9 +145,9 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             true,
         )
         .show_header(ui, |ui| {
-            let responce = ui.selectable_label(is_selected, entity_name);
-            let is_clicked = responce.clicked();
-            responce.context_menu(|ui| {
+            let response = ui.selectable_label(is_selected, entity_name);
+            let is_clicked = response.clicked();
+            response.context_menu(|ui| {
                 hierarchy_entity_context(
                     ui,
                     commands,

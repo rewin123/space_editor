@@ -1,5 +1,7 @@
 #![allow(clippy::type_complexity)]
 
+#[cfg(test)]
+mod tests;
 // This part of code is used for saving and loading settings and window state
 use bevy::{
     prelude::*,
@@ -13,7 +15,7 @@ use bevy::{
 use ron::ser::PrettyConfig;
 use serde::de::DeserializeSeed;
 
-/// Plugin that enables persistance for marked entities
+/// Plugin that enables persistence for marked entities
 pub struct PersistencePlugin;
 
 #[derive(SystemSet, Hash, PartialEq, Clone, Debug, Eq)]
@@ -54,6 +56,7 @@ impl Plugin for PersistencePlugin {
     }
 }
 
+// Tested
 fn persistence_save_on_close(
     mut events: EventWriter<PersistenceEvent>,
     settings: Res<PersistenceSettings>,
@@ -64,6 +67,7 @@ fn persistence_save_on_close(
     }
 }
 
+// Tested
 fn persistence_startup_load(
     mut events: EventWriter<PersistenceEvent>,
     settings: Res<PersistenceSettings>,
@@ -73,6 +77,7 @@ fn persistence_startup_load(
     }
 }
 
+// Tested
 fn persistence_start(
     mut events: EventReader<PersistenceEvent>,
     mut broadcast: EventWriter<PersistenceResourceBroadcastEvent>,
@@ -165,7 +170,7 @@ impl Default for PersistenceSettings {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 enum PersistenceMode {
     Saving,
     Loading,

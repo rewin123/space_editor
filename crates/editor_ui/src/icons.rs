@@ -1,4 +1,5 @@
 use bevy_egui_next::egui;
+use egui_dock::egui::WidgetText;
 
 pub const TRANSLATE: &str = "<svg fill=\"#ffffff\" viewBox=\"0 0 1024 1024\" xmlns=\"http://www.w3.org/2000/svg\" stroke=\"#ffffff\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"><path d=\"M1016.4 496.64l-8.48-8.08c-.16-.16-.335-.224-.528-.367L877.648 369.76c-9.344-8.945-24.448-8.945-33.824 0l-5.488 8.064c-9.344 8.945-6.304 23.408 3.04 32.336l76.464 69.344H546.496V106.16l69.343 76.464c8.945 9.344 23.409 12.384 32.336 3.023l8.065-5.471c8.944-9.376 8.944-24.481 0-33.841L543.072 22.368a31.874 31.874 0 0 0-12.32-13.296l-1.423-1.488C524.897 2.912 518.993.576 513.105.608c-5.904-.032-11.776 2.304-16.288 6.976l-8.096 8.463c-.16.16-.176.369-.336.544L372.881 144.335c-8.927 9.329-8.927 24.449 0 33.825l8.065 5.471c8.928 9.344 23.424 6.32 32.368-3.024l69.152-77.105v375.984H106.162l76.464-69.343c9.344-8.945 12.384-23.409 3.04-32.336l-5.471-8.065c-9.36-8.944-24.497-8.944-33.84 0L22.37 482.926a31.957 31.957 0 0 0-13.28 12.29l-1.489 1.423C2.914 501.087.593 506.992.626 512.88c-.016 5.905 2.288 11.777 6.976 16.288l8.464 8.096c.16.16.368.176.528.336l127.744 115.504c9.344 8.928 24.464 8.928 33.84 0l5.472-8.064c9.344-8.945 6.304-23.44-3.04-32.369l-77.12-69.152h379.008v376.96l-69.153-77.103c-8.944-9.344-23.44-12.369-32.368-3.025l-8.064 5.472c-8.928 9.376-8.928 24.496 0 33.824l115.504 127.744c.16.176.192.368.336.528l8.095 8.48c4.512 4.673 10.384 7.009 16.288 6.976 5.873.033 11.777-2.303 16.225-6.975l8.096-8.48c.16-.16.224-.337.368-.529l118.432-129.744c8.944-9.344 8.944-24.464 0-33.824l-8.065-5.488c-8.944-9.344-23.408-6.304-32.335 3.04l-69.344 76.464V543.502H920.48l-77.105 69.152c-9.343 8.944-12.368 23.44-3.024 32.368l5.472 8.064c9.376 8.928 24.496 8.928 33.824 0l127.744-115.504c.176-.175.368-.19.528-.334l8.48-8.096c4.672-4.496 7.008-10.368 6.976-16.288.032-5.857-2.304-11.777-6.975-16.225z\"></path></g></svg>";
 pub const ROTATION: &str = "<svg viewBox=\"0 0 24 24\" id=\"Layer_1\" data-name=\"Layer 1\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"#000000\" stroke=\"#000000\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"><defs><style>.cls-1{fill:none;stroke:#ffffff;stroke-miterlimit:10;stroke-width:1.95px;}</style></defs><path class=\"cls-1\" d=\"M14.37,20.55c-.66,1.38-1.48,2.2-2.37,2.2-1.69,0-3.13-2.95-3.66-7.09A25,25,0,0,1,8.09,12a25,25,0,0,1,.25-3.66c.53-4.14,2-7.09,3.66-7.09s3.13,3,3.66,7.09A22.48,22.48,0,0,1,15.89,11\"></path><path class=\"cls-1\" d=\"M13.9,15.85l-.92,0-1,0-1,0a22.48,22.48,0,0,1-2.68-.23c-4.14-.53-7.09-2-7.09-3.66s3-3.13,7.09-3.66A25,25,0,0,1,12,8.09a26.79,26.79,0,0,1,3.17.18l.49.07c4.14.53,7.09,2,7.09,3.66,0,.89-.82,1.71-2.2,2.37\"></path><polyline class=\"cls-1\" points=\"12 12.98 14.93 15.91 12 18.84\"></polyline></g></svg>";
@@ -17,9 +18,9 @@ pub const MESH: &str = "<svg fill=\"#F0f0f0\" height=\"200px\" width=\"200px\" v
 pub const SCENE: &str = "<svg fill=\"#ffffff\" version=\"1.1\" id=\"Capa_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 54.57 54.57\" xml:space=\"preserve\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"> <g> <path d=\"M52.186,4.632c-0.346,0.345-0.82,0.558-1.348,0.558c-0.525,0-1.003-0.213-1.348-0.558c-0.584-0.585-0.83-1.347-1.168-1.347 c-0.336,0-0.607,1.266-0.607,2.828s-1.343,2.829-3,2.829H9.857c-1.657,0-3-1.266-3-2.829c0-1.562-0.447-2.828-0.999-2.828 c-0.553,0-0.974,0.763-1.558,1.347C3.955,4.977,3.479,5.19,2.952,5.19c-0.526,0-1.002-0.213-1.347-0.558 c-0.582-0.584-0.79-1.347-1.081-1.347c-0.29,0-0.524,1.343-0.524,3v42c0,1.657,0.356,3,0.797,3c0.44,0,0.548-0.234,0.393-0.611 c-0.092-0.223-0.142-0.466-0.142-0.721c0-1.052,0.853-1.904,1.904-1.904c1.053,0,1.905,0.853,1.905,1.904 c0,0.255-0.05,0.498-0.142,0.721c-0.154,0.377,0.165,0.611,0.868,0.611c0.703,0,1.272-1.215,1.272-2.714s1.343-2.714,3-2.714 h34.858c1.657,0,3,1.215,3,2.714s0.395,2.714,0.882,2.714s0.632-0.234,0.478-0.611c-0.092-0.223-0.142-0.466-0.142-0.721 c0-1.052,0.853-1.904,1.905-1.904c1.052,0,1.904,0.853,1.904,1.904c0,0.255-0.051,0.498-0.143,0.721 c-0.154,0.377,0.129,0.611,0.784,0.611c0.656,0,1.188-1.343,1.188-3v-42c0-1.657-0.41-3-0.916-3 C53.15,3.285,52.77,4.048,52.186,4.632z M2.953,45.191c-1.052,0-1.904-0.854-1.904-1.905s0.853-1.905,1.904-1.905 c1.053,0,1.905,0.854,1.905,1.905C4.858,44.34,4.006,45.191,2.953,45.191z M2.953,38.524c-1.052,0-1.904-0.854-1.904-1.905 c0-1.053,0.853-1.904,1.904-1.904c1.053,0,1.905,0.853,1.905,1.904C4.858,37.672,4.006,38.524,2.953,38.524z M2.953,31.858 c-1.052,0-1.904-0.854-1.904-1.905c0-1.053,0.853-1.904,1.904-1.904c1.053,0,1.905,0.853,1.905,1.904S4.006,31.858,2.953,31.858z M2.953,25.191c-1.052,0-1.904-0.854-1.904-1.905s0.853-1.905,1.904-1.905c1.053,0,1.905,0.853,1.905,1.905 S4.006,25.191,2.953,25.191z M2.953,18.524c-1.052,0-1.904-0.854-1.904-1.905s0.853-1.905,1.904-1.905 c1.053,0,1.905,0.853,1.905,1.905S4.006,18.524,2.953,18.524z M2.953,11.857c-1.052,0-1.904-0.854-1.904-1.905 c0-1.053,0.853-1.905,1.904-1.905c1.053,0,1.905,0.853,1.905,1.905S4.006,11.857,2.953,11.857z M45.645,37.952 c0,1.894-1.535,3.429-3.43,3.429H12.357c-1.893,0-3.429-1.535-3.429-3.429V16.951c0-1.893,1.535-3.428,3.429-3.428h29.858 c1.893,0,3.43,1.535,3.43,3.428V37.952z M50.838,45.191c-1.053,0-1.904-0.854-1.904-1.905s0.852-1.905,1.904-1.905 c1.052,0,1.904,0.854,1.904,1.905C52.742,44.34,51.89,45.191,50.838,45.191z M50.838,38.524c-1.053,0-1.904-0.854-1.904-1.905 c0-1.053,0.852-1.904,1.904-1.904c1.052,0,1.904,0.853,1.904,1.904C52.742,37.672,51.89,38.524,50.838,38.524z M50.838,31.858 c-1.053,0-1.904-0.854-1.904-1.905c0-1.053,0.852-1.904,1.904-1.904c1.052,0,1.904,0.853,1.904,1.904S51.89,31.858,50.838,31.858z M50.838,25.191c-1.053,0-1.904-0.854-1.904-1.905s0.852-1.905,1.904-1.905c1.052,0,1.904,0.853,1.904,1.905 S51.89,25.191,50.838,25.191z M50.838,18.524c-1.053,0-1.904-0.854-1.904-1.905s0.852-1.905,1.904-1.905 c1.052,0,1.904,0.853,1.904,1.905S51.89,18.524,50.838,18.524z M50.838,11.857c-1.053,0-1.904-0.854-1.904-1.905 c0-1.053,0.852-1.905,1.904-1.905c1.052,0,1.904,0.853,1.904,1.905S51.89,11.857,50.838,11.857z\"></path> </g> </g></svg>";
 pub const PREFAB: &str = "<svg fill=\"#ffffff\" viewBox=\"0 0 32 32\" id=\"icon\" xmlns=\"http://www.w3.org/2000/svg\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g><g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g><g id=\"SVGRepo_iconCarrier\"> <defs> <style> .cls-1 { fill: none; } </style> </defs> <path d=\"M28.4473,16.1055,23,13.3818V7a1,1,0,0,0-.5527-.8945l-6-3a1.0008,1.0008,0,0,0-.8946,0l-6,3A1,1,0,0,0,9,7v6.3818L3.5527,16.1055A1,1,0,0,0,3,17v7a1,1,0,0,0,.5527.8945l6,3a1.001,1.001,0,0,0,.8946,0L16,25.1182l5.5527,2.7763a1.001,1.001,0,0,0,.8946,0l6-3A1,1,0,0,0,29,24V17A1,1,0,0,0,28.4473,16.1055ZM21,13.3818l-4,2V10.6182l4-2ZM16,5.1182,19.7637,7,16,8.8818,12.2363,7Zm-5,3.5,4,2v4.7636l-4-2ZM9,25.3818l-4-2V18.6182l4,2Zm1-6.5L6.2363,17,10,15.1182,13.7637,17Zm1,1.7364,4-2v4.7636l-4,2Zm10,4.7636-4-2V18.6182l4,2Zm1-6.5L18.2363,17,22,15.1182,25.7637,17Zm5,4.5-4,2V20.6182l4-2Z\"></path> <rect id=\"_Transparent_Rectangle_\" data-name=\"Transparent Rectangle\" class=\"cls-1\" width=\"32\" height=\"32\"></rect> </g></svg>";
 
-pub fn prefab_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn prefab_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("prefab.svg", crate::icons::PREFAB.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -27,9 +28,9 @@ pub fn prefab_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a>
     }
 }
 
-pub fn scene_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn scene_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("scene.svg", crate::icons::SCENE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -37,9 +38,9 @@ pub fn scene_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> 
     }
 }
 
-pub fn rotation_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
-    let image = egui::Image::from_bytes("rotatio.svg", crate::icons::ROTATION.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+pub fn rotation_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
+    let image = egui::Image::from_bytes("rotation.svg", crate::icons::ROTATION.as_bytes())
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -47,9 +48,9 @@ pub fn rotation_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'
     }
 }
 
-pub fn scale_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn scale_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("scale.svg", crate::icons::SCALE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -57,9 +58,9 @@ pub fn scale_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> 
     }
 }
 
-pub fn entity_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn entity_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("entity.svg", crate::icons::ENTITY.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -67,9 +68,9 @@ pub fn entity_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a>
     }
 }
 
-pub fn component_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn component_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("component.svg", crate::icons::COMPONENT.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -77,9 +78,9 @@ pub fn component_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<
     }
 }
 
-pub fn delete_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn delete_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("delete.svg", crate::icons::DELETE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -87,9 +88,9 @@ pub fn delete_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a>
     }
 }
 
-pub fn light_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn light_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("light.svg", crate::icons::LIGHT.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -97,9 +98,9 @@ pub fn light_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> 
     }
 }
 
-pub fn camera_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn camera_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("camera.svg", crate::icons::CAMERA.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -107,9 +108,9 @@ pub fn camera_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a>
     }
 }
 
-pub fn mesh_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn mesh_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("mesh.svg", crate::icons::MESH.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -117,9 +118,9 @@ pub fn mesh_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
     }
 }
 
-pub fn bundle_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn bundle_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("bundle.svg", crate::icons::BUNDLE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -127,9 +128,9 @@ pub fn bundle_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a>
     }
 }
 
-pub fn translate_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn translate_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("translate.svg", crate::icons::TRANSLATE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -137,9 +138,9 @@ pub fn translate_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<
     }
 }
 
-pub fn add_bundle_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn add_bundle_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("add_bundle.svg", crate::icons::ADD_BUNDLE.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -147,9 +148,9 @@ pub fn add_bundle_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button
     }
 }
 
-pub fn add_entity_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn add_entity_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("add_entity.svg", crate::icons::ADD_ENTITY.as_bytes())
-        .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+        .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -157,10 +158,11 @@ pub fn add_entity_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button
     }
 }
 
-pub fn add_component_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn add_component_icon<'a>(size: f32, text: impl Into<WidgetText>) -> egui::Button<'a> {
+    let text = text.into();
     let image =
         egui::Image::from_bytes("add_component.svg", crate::icons::ADD_COMPONENT.as_bytes())
-            .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+            .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -168,10 +170,10 @@ pub fn add_component_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::But
     }
 }
 
-pub fn delete_entity_icon<'a>(x_size: f32, y_size: f32, text: &str) -> egui::Button<'a> {
+pub fn delete_entity_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image =
         egui::Image::from_bytes("delete_entity.svg", crate::icons::DELETE_ENTITY.as_bytes())
-            .max_size(bevy_egui_next::egui::vec2(x_size, y_size));
+            .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)
     } else {

@@ -25,15 +25,15 @@ pub fn auto_add_picking(
     query: Query<Entity, (With<PrefabMarker>, Without<Pickable>)>,
 ) {
     for e in query.iter() {
-        commands
-            .entity(e)
-            .insert(PickableBundle::default())
-            .insert(On::<Pointer<Down>>::send_event::<SelectEvent>())
-            .insert(RaycastPickable);
+        commands.entity(e).insert((
+            PickableBundle::default(),
+            On::<Pointer<Down>>::send_event::<SelectEvent>(),
+            RaycastPickable,
+        ));
     }
 }
 
-//Auto add picking for each child to propagate picking event up to prefab entitiy
+//Auto add picking for each child to propagate picking event up to prefab entity
 pub fn auto_add_picking_dummy(
     mut commands: Commands,
     query: Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
@@ -45,8 +45,7 @@ pub fn auto_add_picking_dummy(
             if mesh.primitive_topology() == PrimitiveTopology::TriangleList {
                 commands
                     .entity(e)
-                    .insert(PickableBundle::default())
-                    .insert(RaycastPickable);
+                    .insert((PickableBundle::default(), RaycastPickable));
             }
         }
     }

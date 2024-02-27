@@ -7,9 +7,12 @@ use bevy_egui_next::egui::{
 use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
 
-use self::colors::*;
+use self::{
+    colors::*,
+    sizing::{to_label, Sizing},
+};
 
-/// All systems for editor ui wil be placed in UiSystemSet
+/// All systems for editor ui will be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
 pub struct UiSystemSet;
 
@@ -26,7 +29,7 @@ impl Default for EditorUiPlugin {
     }
 }
 
-/// State to determine if editor ui should be shown (ot hidden for any reason)
+/// State to determine if editor ui should be shown (or hidden for any reason)
 #[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
 pub enum ShowEditorUi {
     #[default]
@@ -192,7 +195,7 @@ impl Plugin for EditorUiCore {
 }
 
 /// This system use to show all egui editor ui on primary window
-/// Will be usefull in some specific cases to ad new system before/after this system
+/// Will be useful in some specific cases to ad new system before/after this system
 pub fn show_editor_ui(world: &mut World) {
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
@@ -352,7 +355,7 @@ pub trait EditorUiAppExt {
         &mut self,
         tab_id: EditorTabName,
         title: egui::WidgetText,
-        tab_systesm: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoSystemConfigs<T>,
     ) -> &mut Self;
 }
 
@@ -371,7 +374,10 @@ impl EditorUiAppExt for App {
         );
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
-            title_command: Box::new(|world| world.resource_mut::<T>().title()),
+            title_command: Box::new(|world| {
+                let sizing = world.resource::<Sizing>().clone();
+                to_label(world.resource_mut::<T>().title().text(), sizing.text).into()
+            }),
         };
 
         self.world
@@ -385,14 +391,14 @@ impl EditorUiAppExt for App {
         &mut self,
         tab_id: EditorTabName,
         title: egui::WidgetText,
-        tab_systesm: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoSystemConfigs<T>,
     ) -> &mut Self {
         let mut tab = ScheduleEditorTab {
             schedule: Schedule::default(),
             title,
         };
 
-        tab.schedule.add_systems(tab_systesm);
+        tab.schedule.add_systems(tab_systems);
 
         self.world
             .resource_mut::<ScheduleEditorTabStorage>()
@@ -409,7 +415,7 @@ impl EditorUiAppExt for App {
 /// Temporary resource for pretty system, based tab registration
 pub struct EditorUiRef(pub egui::Ui);
 
-/// Sytem to block camera control if egui is using mouse
+/// System to block camera control if egui is using mouse
 pub fn ui_camera_block(
     mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
     mut state: ResMut<EditorCameraEnabled>,

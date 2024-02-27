@@ -1,3 +1,5 @@
+use std::fs;
+
 use crate::ext::*;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
@@ -124,10 +126,97 @@ impl ColorMaterialPrefab {
     }
 }
 
-fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
-    if path.is_empty() {
+pub fn try_image(path: &String, asset_server: &AssetServer) -> Option<Handle<Image>> {
+    if path.is_empty() || fs::metadata(format!("assets/{path}")).is_err() {
         None
     } else {
         Some(asset_server.load(path))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn try_image_on_empty_path() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+
+        let server = app.world.resource::<AssetServer>();
+
+        assert!(try_image(&String::new(), server).is_none());
+    }
+
+    #[test]
+    fn try_image_on_existing_path() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+
+        let path = "test_asset.png";
+        let server = app.world.resource::<AssetServer>();
+
+        assert!(try_image(&String::from(path), server).is_some());
+    }
+
+    #[test]
+    fn try_image_on_non_existing_path() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+
+        let path = "fake_asset.png";
+        let server = app.world.resource::<AssetServer>();
+
+        assert!(try_image(&String::from(path), server).is_none());
+    }
+
+    #[test]
+    fn color_material_prefab_with_texture() {
+        let mut prefab = ColorMaterialPrefab::default();
+        prefab.texture = String::from("test_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let color = prefab.to_material(server);
+
+        assert!(color.texture.is_some());
+        assert_eq!(color.color, Color::rgb(1.0, 1.0, 1.0));
+    }
+
+    #[test]
+    fn color_material_prefab_with_wrong_texture() {
+        let mut prefab = ColorMaterialPrefab::default();
+        prefab.texture = String::from("fake_asset.png");
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        let server = app.world.resource::<AssetServer>();
+
+        let color = prefab.to_material(server);
+
+        assert!(color.texture.is_none());
+        assert_eq!(color.color, Color::rgb(1.0, 1.0, 1.0));
     }
 }

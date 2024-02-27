@@ -2,7 +2,7 @@
 pub mod shape;
 pub use shape::*;
 
-/// Module contatins structures for determining standart material
+/// Module contatins structures for determining standard material
 pub mod material;
 pub use material::*;
 
