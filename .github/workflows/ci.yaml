@@ -12,6 +12,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  # Spell and typos check
   typos:
     name: Spell Check with Typos
     runs-on: ubuntu-latest
@@ -20,8 +21,6 @@ jobs:
       uses: actions/checkout@v4
     - name: Check spelling
       uses: crate-ci/typos@master
-    - name: Run Typos
-      run: typos
 
   # Run cargo test
   test_minimal:
