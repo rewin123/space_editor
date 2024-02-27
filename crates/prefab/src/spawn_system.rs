@@ -16,13 +16,13 @@ pub fn spawn_scene(
         ),
         Changed<GltfPrefab>,
     >,
-    auto_childs: Query<&SceneAutoChild>,
+    auto_children: Query<&SceneAutoChild>,
     asset_server: Res<AssetServer>,
 ) {
     for (e, prefab, children, vis, tr) in prefabs.iter() {
         if let Some(children) = children {
             for e in children {
-                if auto_childs.contains(*e) {
+                if auto_children.contains(*e) {
                     commands.entity(*e).despawn_recursive();
                 }
             }

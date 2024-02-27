@@ -26,7 +26,7 @@ The Editor UI is built upon the [edui_dock](https://github.com/Adanos020/egui_do
 Most editor features are implemented as tabs within the dock system, providing a structured and organized workspace. You can easily manage these tabs to suit your workflow:
 
 - **GameView Tab**: This tab displays the rendered output from the editor camera and gizmos for manipulate objects.
-  - On the top left side of the Gameview you will find some relevant information like frames per second cound (FPS), available editor tools and the selected tool options.
+  - On the top left side of the Gameview you will find some relevant information like frames per second count (FPS), available editor tools and the selected tool options.
   - Currently the only available tool is Gizmo.
 
 - **Hierarchy Tab**: The Hierarchy tab provides comprehensive information about all entities within your prefab. It not only displays entity details but also allows you to perform various actions:
@@ -59,7 +59,7 @@ Most editor features are implemented as tabs within the dock system, providing a
 
 ### Additional Tabs
 
-> Additional tabs can be found by pressing `+` next to the existing tabs. Docking system is available to move tabs to your prefered position.
+> Additional tabs can be found by pressing `+` next to the existing tabs. Docking system is available to move tabs to your preferred position.
 
 - **Settings Tab**: Your place to configure and customize the editor as you wish.
   - Undo chain size condiguration.
@@ -166,7 +166,7 @@ One limitation is that events must implement `Event, Default, Resource, Reflect,
 
 ## Bundles
 
-Bundles in the Space Editor are predefined sets of components that simplify the creation of entities. When a bundle is spawned by button clicking in ui, the editor automatically generates a new entity with the components specified in the bundle. To make bundles accessible in the editor UI, you can register them using the `app.editor_bundle(category, name, bundle_components_set)` method. All bundles are showen in down of Heirarchy tab.
+Bundles in the Space Editor are predefined sets of components that simplify the creation of entities. When a bundle is spawned by button clicking in ui, the editor automatically generates a new entity with the components specified in the bundle. To make bundles accessible in the editor UI, you can register them using the `app.editor_bundle(category, name, bundle_components_set)` method. All bundles are showen in down of Hierarchy tab.
 
 ### Example: Adding a Cube Mesh Bundle
 
@@ -181,7 +181,7 @@ app.editor_bundle("Mesh", "Cube", (
 ));
 ```
 
-And after call method, "Cube" bundle can be acessed in UI
+And after call method, "Cube" bundle can be accessed in UI
 
 ![/imgs/example_bundle.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle.png)
 
@@ -237,7 +237,7 @@ Space editor code contains three main parts:
 - Modules: This are community created modules, and they serve as wrappers to crates or as space_editor own game oriented crates
   - bevy_xpbd_plugin: A plugin that wraps bevy_xpbd_3d crate.
   - MORE TO COME!
-- Crates: This are space_editor spacific workspace crates and the main ones are:
+- Crates: This are space_editor specific workspace crates and the main ones are:
   - Editor (crates/editor/): contains main editor UI
   - EditorCore (crates/editor_core/): contains editor core functionality like loading/saving/game start
   - Prefab (crates/prefab/): contains prefab logic and components and can be used separately from EditorUI or EditorCore, this is the plugin that your game need to use to load prefabs

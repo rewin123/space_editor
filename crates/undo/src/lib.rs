@@ -20,7 +20,7 @@ pub struct UndoMarker;
 impl Plugin for UndoPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ChangeChain>();
-        app.init_resource::<UndoIngnoreStorage>();
+        app.init_resource::<UndoIgnoreStorage>();
         app.init_resource::<ChangeChainSettings>();
 
         app.add_event::<NewChange>();
@@ -28,7 +28,7 @@ impl Plugin for UndoPlugin {
 
         app.configure_sets(
             PostUpdate,
-            (UndoSet::PerType, UndoSet::UpdateAll, UndoSet::Remaping)
+            (UndoSet::PerType, UndoSet::UpdateAll, UndoSet::Remapping)
                 .chain()
                 .in_set(UndoSet::Global),
         );
@@ -82,7 +82,7 @@ pub enum UndoSet {
     /// System which working with change chain and global logic
     UpdateAll,
     /// Remap entities
-    Remaping,
+    Remapping,
     ///Contains all undo sets
     Global,
 }
@@ -298,7 +298,7 @@ impl EditorChange for AddedEntity {
         let e = get_entity_with_remap(self.entity, entity_remap);
         world.entity_mut(e).despawn_recursive();
         world
-            .resource_mut::<UndoIngnoreStorage>()
+            .resource_mut::<UndoIgnoreStorage>()
             .storage
             .insert(e, OneFrameUndoIgnore::default());
         info!("Removed Entity: {}", e.index());
@@ -460,7 +460,7 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
         }
         if add_to_ignore {
             world
-                .resource_mut::<UndoIngnoreStorage>()
+                .resource_mut::<UndoIgnoreStorage>()
                 .storage
                 .insert(e, OneFrameUndoIgnore::default());
         }
@@ -495,12 +495,12 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
     ) -> Result<ChangeResult, String> {
         let dst = entity_remap
             .get(&self.entity)
-            .map_or(self.entity, |remaped| *remaped);
+            .map_or(self.entity, |remapped| *remapped);
         if let Some(mut e) = world.get_entity_mut(dst) {
             e.remove::<T>().insert(OneFrameUndoIgnore::default());
         }
         world
-            .resource_mut::<UndoIngnoreStorage>()
+            .resource_mut::<UndoIgnoreStorage>()
             .storage
             .insert(dst, OneFrameUndoIgnore::default());
         world.send_event(UndoRedoApplied::<T> {
@@ -550,7 +550,7 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
                     id
                 }
             },
-            |remaped| *remaped,
+            |remapped| *remapped,
         );
 
         world
@@ -597,7 +597,7 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
                     id
                 }
             },
-            |remaped| *remaped,
+            |remapped| *remapped,
         );
 
         world
@@ -689,7 +689,7 @@ impl<T> Default for ChangedMarker<T> {
 }
 
 #[derive(Resource, Default)]
-pub struct UndoIngnoreStorage {
+pub struct UndoIgnoreStorage {
     pub storage: HashMap<Entity, OneFrameUndoIgnore>,
 }
 
@@ -709,7 +709,7 @@ impl<T: Component> Default for AutoUndoStorage<T> {
 pub trait AppAutoUndo {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self;
 
-    //Allow more complex undo and auto entity remaping
+    //Allow more complex undo and auto entity remapping
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self;
 }
 
@@ -763,7 +763,7 @@ impl AppAutoUndo for App {
 
         self.add_systems(
             PostUpdate,
-            auto_remap_undo_redo::<T>.in_set(UndoSet::Remaping),
+            auto_remap_undo_redo::<T>.in_set(UndoSet::Remapping),
         );
 
         self
@@ -944,7 +944,7 @@ fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
     }
 }
 
-fn undo_ignore_tick(mut ignore_storage: ResMut<UndoIngnoreStorage>) {
+fn undo_ignore_tick(mut ignore_storage: ResMut<UndoIgnoreStorage>) {
     for (_, frame) in ignore_storage.storage.iter_mut() {
         frame.counter -= 1;
     }
@@ -956,7 +956,7 @@ fn auto_undo_remove_detect<T: Component + Clone>(
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query: RemovedComponents<T>,
     mut new_changes: EventWriter<NewChange>,
-    ignore_storage: ResMut<UndoIngnoreStorage>,
+    ignore_storage: ResMut<UndoIgnoreStorage>,
 ) {
     for e in removed_query.read() {
         if !ignore_storage.storage.contains_key(&e) {
@@ -977,7 +977,7 @@ fn auto_undo_reflected_remove_detect<T: Component + Reflect + FromReflect>(
     mut storage: ResMut<AutoUndoStorage<T>>,
     mut removed_query: RemovedComponents<T>,
     mut new_changes: EventWriter<NewChange>,
-    ignore_storage: ResMut<UndoIngnoreStorage>,
+    ignore_storage: ResMut<UndoIgnoreStorage>,
 ) {
     for e in removed_query.read() {
         if !ignore_storage.storage.contains_key(&e) {

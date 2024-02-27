@@ -244,7 +244,7 @@ type AutoAddQueryFilter = (
 
 fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
     editor_events.send(space_shared::EditorEvent::Save(
-        space_shared::EditorPrefabPath::MemoryCahce,
+        space_shared::EditorPrefabPath::MemoryCache,
     ));
 }
 
@@ -272,7 +272,7 @@ fn clear_and_load_on_start(
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        space_shared::EditorPrefabPath::MemoryCahce => {
+        space_shared::EditorPrefabPath::MemoryCache => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }

@@ -39,7 +39,7 @@ pub fn scene_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
 }
 
 pub fn rotation_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
-    let image = egui::Image::from_bytes("rotatio.svg", crate::icons::ROTATION.as_bytes())
+    let image = egui::Image::from_bytes("rotation.svg", crate::icons::ROTATION.as_bytes())
         .fit_to_exact_size(bevy_egui_next::egui::vec2(size, size));
     if text.is_empty() {
         egui::Button::image(image)

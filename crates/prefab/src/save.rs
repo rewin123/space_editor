@@ -120,7 +120,7 @@ pub fn serialize_scene(world: &mut World) {
                         })
                         .detach();
                 }
-                EditorPrefabPath::MemoryCahce => {
+                EditorPrefabPath::MemoryCache => {
                     let handle = world.resource_mut::<Assets<DynamicScene>>().add(scene);
                     world.resource_mut::<PrefabMemoryCache>().scene = Some(handle);
                 }

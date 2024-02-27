@@ -111,7 +111,7 @@ impl EditorTool for GizmoTool {
         let mut multiple_pressed = false;
 
         if !ui.ctx().wants_keyboard_input() {
-            //hot keys. Blender keys preffer
+            //hot keys. Blender keys prefer
             let mode2key = vec![
                 (GizmoMode::Translate, GizmoHotkey::Translate),
                 (GizmoMode::Rotate, GizmoHotkey::Rotate),

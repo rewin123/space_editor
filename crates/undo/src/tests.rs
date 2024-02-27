@@ -125,7 +125,7 @@ fn clear_one_frame_ignores() {
 
 #[test]
 fn undo_ignore_ticks() {
-    let mut storage = UndoIngnoreStorage::default();
+    let mut storage = UndoIgnoreStorage::default();
     storage
         .storage
         .insert(Entity::PLACEHOLDER, OneFrameUndoIgnore { counter: 0 });
@@ -142,7 +142,7 @@ fn undo_ignore_ticks() {
 
     app.update();
 
-    let ignore_storage = app.world.resource::<UndoIngnoreStorage>();
+    let ignore_storage = app.world.resource::<UndoIgnoreStorage>();
 
     assert_eq!(ignore_storage.storage.len(), 1)
 }
