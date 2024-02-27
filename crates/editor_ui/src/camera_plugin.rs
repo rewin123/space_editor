@@ -64,7 +64,7 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut caemras: Query<&mut Camera, With<EditorCameraMarker>>,
+    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
     mut play_cameras: Query<&mut Camera, Without<EditorCameraMarker>>,
 ) {
     for mut ecam in cameras.iter_mut() {
