@@ -33,7 +33,7 @@ impl Plugin for PrefabPlugin {
     }
 }
 
-/// This plugin contains all components and logic of prefabs without optional dependecies
+/// This plugin contains all components and logic of prefabs without optional dependencies
 pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {

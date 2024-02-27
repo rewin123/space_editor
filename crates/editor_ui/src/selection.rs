@@ -33,7 +33,7 @@ pub fn auto_add_picking(
     }
 }
 
-//Auto add picking for each child to propagate picking event up to prefab entitiy
+//Auto add picking for each child to propagate picking event up to prefab entity
 pub fn auto_add_picking_dummy(
     mut commands: Commands,
     query: Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,

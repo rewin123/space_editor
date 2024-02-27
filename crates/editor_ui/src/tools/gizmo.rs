@@ -117,7 +117,7 @@ impl EditorTool for GizmoTool {
         let mut clone_pressed = false;
         let mut multiple_pressed = false;
 
-        //hot keys. Blender keys preffer
+        //hot keys. Blender keys prefer
         let mode2key = vec![
             (GizmoMode::Translate, GizmoHotkey::Translate),
             (GizmoMode::Rotate, GizmoHotkey::Rotate),

@@ -10,7 +10,7 @@ cd prefab
 cargo publish
 timeout /t 600
 cd ..
-cd persistance
+cd persistence
 cargo publish
 timeout /t 600
 cd ..

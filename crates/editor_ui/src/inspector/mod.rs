@@ -41,7 +41,7 @@ use super::{
     EditorUiAppExt,
 };
 
-/// Entities with this marker will be skiped in inspector
+/// Entities with this marker will be skipped in inspector
 #[derive(Component)]
 pub struct SkipInspector;
 

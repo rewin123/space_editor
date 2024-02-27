@@ -95,15 +95,15 @@ fn move_player(
     )>,
     time: Res<Time>,
 ) {
-    for (_e, mut vel, mut rot, mut controller, hits, tranform) in query.iter_mut() {
+    for (_e, mut vel, mut rot, mut controller, hits, transform) in query.iter_mut() {
         //take 1th hit, because 0th hit is self hit
         if let Some(hit) = hits.iter_sorted().next() {
             if hit.time_of_impact > 0.7 {
                 continue;
             }
             info!("time of impact: {:?} {:?}", hit.entity, hit.time_of_impact);
-            let frw = tranform.forward();
-            let up = tranform.up();
+            let frw = transform.forward();
+            let up = transform.up();
 
             let mut target_vel = Vector::new(0.0, 0.0, 0.0);
             if keyboard_input.pressed(KeyCode::W) {

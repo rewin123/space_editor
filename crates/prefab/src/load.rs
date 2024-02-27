@@ -17,8 +17,8 @@ pub struct PrefabBundle {
     transform: Transform,
     global_transform: GlobalTransform,
 
-    visiblity: Visibility,
-    computed_visiblity: ViewVisibility,
+    visibility: Visibility,
+    computed_visibility: ViewVisibility,
     inherited_visibility: InheritedVisibility,
 }
 
@@ -79,7 +79,7 @@ fn load_prefab(
         ),
         Changed<PrefabLoader>,
     >,
-    auto_childs: Query<Entity, With<PrefabAutoChild>>,
+    auto_children: Query<Entity, With<PrefabAutoChild>>,
     assets: ResMut<AssetServer>,
 ) {
     for (e, l, children, tr, vis) in query.iter() {
@@ -95,7 +95,7 @@ fn load_prefab(
         //remove old scene
         if let Some(children) = children {
             for child in children {
-                if auto_childs.contains(*child) {
+                if auto_children.contains(*child) {
                     commands.entity(*child).despawn_recursive();
                 }
             }

@@ -28,7 +28,7 @@ pub struct EditorCameraMarker;
 pub enum EditorState {
     /// Editor Loading assets
     Loading,
-    /// Diplays Editor / Editor mode
+    /// Displays Editor / Editor mode
     Editor,
     /// Editor is loading the game
     GamePrepare,
@@ -55,7 +55,7 @@ pub struct PrefabMemoryCache {
 /// How/Where porefab data is stored
 pub enum EditorPrefabPath {
     File(String),
-    MemoryCahce,
+    MemoryCache,
 }
 
 #[derive(Event)]
