@@ -45,7 +45,7 @@ mod tests {
 
         assert!(image.is_ok());
         let image = image.unwrap();
-        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+        assert_eq!(image.size(), UVec2::new(128, 128));
     }
 
     #[test]
@@ -54,7 +54,7 @@ mod tests {
 
         assert!(image.is_ok());
         let image = image.unwrap();
-        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+        assert_eq!(image.size(), UVec2::new(128, 128));
     }
 
     #[test]
@@ -63,7 +63,7 @@ mod tests {
 
         assert!(image.is_ok());
         let image = image.unwrap();
-        assert_eq!(image.size_f32(), Vec2::new(120., 120.));
+        assert_eq!(image.size(), UVec2::new(120, 120));
     }
 
     #[test]
@@ -72,7 +72,7 @@ mod tests {
 
         assert!(image.is_ok());
         let image = image.unwrap();
-        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+        assert_eq!(image.size(), UVec2::new(128, 128));
     }
 
     #[test]
@@ -81,6 +81,6 @@ mod tests {
 
         assert!(image.is_ok());
         let image = image.unwrap();
-        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+        assert_eq!(image.size(), UVec2::new(128, 128));
     }
 }
