@@ -40,9 +40,12 @@ impl Plugin for MeshlessVisualizerPlugin {
         } else {
             error!("Failed to dynamic load assets. Loading defaults from memory");
             app.add_systems(OnEnter(EditorState::Editor), register_assets)
-                .add_systems(Startup, |mut next_editor_state: ResMut<NextState<EditorState>>| {
-                    next_editor_state.set(EditorState::Editor);
-                })
+                .add_systems(
+                    Startup,
+                    |mut next_editor_state: ResMut<NextState<EditorState>>| {
+                        next_editor_state.set(EditorState::Editor);
+                    },
+                )
         }
         .insert_resource(RaycastBackendSettings {
             raycast_visibility: RaycastVisibility::Ignore,

@@ -34,3 +34,53 @@ pub fn create_point_light_image() -> Result<Image> {
     let image = Image::from_dynamic(image, false);
     Ok(image)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn point_light_image() {
+        let image = create_point_light_image();
+
+        assert!(image.is_ok());
+        let image = image.unwrap();
+        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+    }
+
+    #[test]
+    fn spot_light_image() {
+        let image = create_spot_light_image();
+
+        assert!(image.is_ok());
+        let image = image.unwrap();
+        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+    }
+
+    #[test]
+    fn dir_light_image() {
+        let image = create_dir_light_image();
+
+        assert!(image.is_ok());
+        let image = image.unwrap();
+        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+    }
+
+    #[test]
+    fn camera_image() {
+        let image = create_camera_image();
+
+        assert!(image.is_ok());
+        let image = image.unwrap();
+        assert_eq!(image.size_f32(), Vec2::new(128., 128.));
+    }
+
+    #[test]
+    fn unknown_image() {
+        let image = create_unknown_image();
+
+        assert!(image.is_ok());
+        let image = image.unwrap();
+        assert_eq!(image.size_f32(), Vec2::new(120., 120.));
+    }
+}
