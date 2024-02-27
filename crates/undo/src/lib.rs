@@ -300,8 +300,7 @@ impl EditorChange for RemovedEntity {
             if world.get_entity(*e).is_none() {
                 let id = world
                     .spawn_empty()
-                    .insert(OneFrameUndoIgnore::default())
-                    .insert(UndoMarker)
+                    .insert((UndoMarker, OneFrameUndoIgnore::default()))
                     .id();
                 info!("Reverted Removed Entity: {}", e.index());
                 Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
@@ -312,8 +311,7 @@ impl EditorChange for RemovedEntity {
         } else {
             let id = world
                 .spawn_empty()
-                .insert(OneFrameUndoIgnore::default())
-                .insert(UndoMarker)
+                .insert((UndoMarker, OneFrameUndoIgnore::default()))
                 .id();
             info!("Reverted Removed Entity: {}", self.entity.index());
             Ok(ChangeResult::SuccessWithRemap(vec![(self.entity, id)]))
