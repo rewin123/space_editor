@@ -16,3 +16,4 @@ Cargo.lock
 docs/.obsidian/*
 .vscode/launch.json
 editor.ron
+.idea/*
