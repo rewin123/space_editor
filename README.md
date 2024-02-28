@@ -1,5 +1,5 @@
 # space_editor: The Bevy Prefab Editor
-License: MIT 
+License: MIT [![codecov](https://codecov.io/gh/rewin123/space_editor/branch/main/graph/badge.svg?token=4VMVTZTN8A)](https://codecov.io/gh//rewin123/space_editor)
 
 ### Editor in Edit Mode
 ![Editor in edit mode](docs/imgs/space_editor.png)
