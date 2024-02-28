@@ -85,7 +85,8 @@ impl GameModeSettings {
         mode: GameMode::Game3D,
     };
 
-    fn ui(&mut self, ui: &mut egui::Ui) {
+    fn ui(&self, ui: &mut egui::Ui) -> Option<GameMode> {
+        let mut change: Option<GameMode> = None;
         ui.heading("Game Mode");
         ui.horizontal(|ui| {
             ui.label("Mode:");
@@ -98,13 +99,14 @@ impl GameModeSettings {
                             .selectable_label(self.mode == mode, mode.to_string())
                             .clicked()
                         {
-                            self.mode = mode;
+                            change = Some(mode);
                         }
                     }
                 });
         });
         ui.spacing();
         ui.separator();
+        change
     }
 }
 
@@ -185,8 +187,12 @@ impl RegisterSettingsBlockExt for App {
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-        let game_mode_setting = &mut world.resource_mut::<GameModeSettings>();
-        game_mode_setting.ui(ui);
+
+        let game_mode_setting = & world.resource::<GameModeSettings>();
+        if let Some(new_mode)  = game_mode_setting.ui(ui) {
+            let game_mode_setting: &mut GameModeSettings = &mut world.resource_mut::<GameModeSettings>();
+            game_mode_setting.mode = new_mode;
+        }
 
         ui.heading("Undo");
         world.resource_scope::<ChangeChainSettings, _>(|_world, mut settings| {
