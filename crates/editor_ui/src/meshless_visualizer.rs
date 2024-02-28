@@ -517,3 +517,41 @@ pub fn draw_light_gizmo(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn register_assets_as_resource() {
+        let mut app = App::new();
+
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+        app.init_asset::<bevy::render::mesh::Mesh>();
+        app.add_systems(PreUpdate, register_assets);
+        app.update();
+
+        let icons = app.world.get_resource::<EditorIconAssets>();
+
+        assert!(icons.is_some());
+    }
+
+    #[test]
+    fn clears_objects_with_billboard_handles() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn_empty();
+            commands.spawn(BillboardTextureBundle::default());
+        });
+        app.add_systems(Update, clean_meshless);
+        app.update();
+
+        let mut query = app.world.query::<Entity>();
+
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+}
