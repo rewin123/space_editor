@@ -63,7 +63,7 @@ impl ToString for GameMode {
     }
 }
 
-#[derive(Default, Resource, Reflect)]
+#[derive(Default, Resource, Reflect, Clone)]
 #[reflect(Resource)]
 pub struct GameModeSettings {
     pub mode: GameMode,
@@ -85,8 +85,8 @@ impl GameModeSettings {
         mode: GameMode::Game3D,
     };
 
-    fn ui(&self, ui: &mut egui::Ui) -> Option<GameMode> {
-        let mut change: Option<GameMode> = None;
+    fn ui(&self, ui: &mut egui::Ui) -> Option<Self> {
+        let mut new_settings: Option<Self> = None;
         ui.heading("Game Mode");
         ui.horizontal(|ui| {
             ui.label("Mode:");
@@ -99,14 +99,16 @@ impl GameModeSettings {
                             .selectable_label(self.mode == mode, mode.to_string())
                             .clicked()
                         {
-                            change = Some(mode);
+                            let mut settings_changed = self.clone();
+                            settings_changed.mode = mode;
+                            new_settings = Some(settings_changed);
                         }
                     }
                 });
         });
         ui.spacing();
         ui.separator();
-        change
+        new_settings
     }
 }
 
@@ -189,9 +191,9 @@ impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
 
         let game_mode_setting = & world.resource::<GameModeSettings>();
-        if let Some(new_mode)  = game_mode_setting.ui(ui) {
+        if let Some(new_game_mode)  = game_mode_setting.ui(ui) {
             let game_mode_setting: &mut GameModeSettings = &mut world.resource_mut::<GameModeSettings>();
-            game_mode_setting.mode = new_mode;
+            *game_mode_setting = new_game_mode.clone();
         }
 
         ui.heading("Undo");
