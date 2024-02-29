@@ -189,11 +189,11 @@ impl RegisterSettingsBlockExt for App {
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-
-        let game_mode_setting = & world.resource::<GameModeSettings>();
-        if let Some(new_game_mode)  = game_mode_setting.ui(ui) {
-            let game_mode_setting: &mut GameModeSettings = &mut world.resource_mut::<GameModeSettings>();
-            *game_mode_setting = new_game_mode.clone();
+        let game_mode_setting = &world.resource::<GameModeSettings>();
+        if let Some(new_game_mode) = game_mode_setting.ui(ui) {
+            let game_mode_setting: &mut GameModeSettings =
+                &mut world.resource_mut::<GameModeSettings>();
+            *game_mode_setting = new_game_mode;
         }
 
         ui.heading("Undo");
