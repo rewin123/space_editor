@@ -5,6 +5,7 @@ pub mod hotkeys;
 mod load;
 pub mod selected;
 pub mod task_storage;
+pub mod toast;
 
 pub mod prelude {
     pub use super::*;
