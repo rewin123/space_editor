@@ -1,10 +1,5 @@
 name: coverage
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
-
 on:
   pull_request:
     branches: [ "*" ]
@@ -13,6 +8,10 @@ on:
 
 jobs:
   coverage:
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
     runs-on: ubuntu-latest
     env:
       CARGO_TERM_COLOR: always
