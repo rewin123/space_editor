@@ -2,7 +2,9 @@ name: coverage
 
 permissions:
   contents: write
-  
+  pull-requests: write
+  actions: write
+
 on:
   pull_request:
     branches: [ "*" ]
