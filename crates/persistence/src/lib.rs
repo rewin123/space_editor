@@ -94,7 +94,6 @@ fn persistence_start(
                 match &persistence.source {
                     PersistenceDataSource::File(path) => {
                         let Ok(file) = std::fs::File::open(path) else {
-                            #[cfg(not(tarpaulin_include))]
                             warn!("Persistence file not found at path {}", path);
                             continue;
                         };
@@ -120,7 +119,6 @@ fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
         PersistenceMode::Saving => {
             persistence.mode = PersistenceMode::None;
             if persistence.save_counter != persistence.target_count {
-                #[cfg(not(tarpaulin_include))]
                 error!(
                     "Persistence saving error: {} of {} resources were saved",
                     persistence.save_counter, persistence.target_count
@@ -146,7 +144,6 @@ fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
         PersistenceMode::Loading => {
             persistence.mode = PersistenceMode::None;
             if persistence.load_counter != persistence.target_count {
-                #[cfg(not(tarpaulin_include))]
                 error!(
                     "Persistence loading error: {} of {} resources were loaded",
                     persistence.load_counter, persistence.target_count
@@ -333,7 +330,6 @@ fn persistence_resource_system<
                     .data
                     .get(T::get_type_registration().type_info().type_path())
                 else {
-                    #[cfg(not(tarpaulin_include))]
                     warn!(
                         "Persistence resource {} not found",
                         T::get_type_registration().type_info().type_path()
@@ -347,7 +343,6 @@ fn persistence_resource_system<
                     .unwrap();
 
                 let Some(converted) = <T as FromReflect>::from_reflect(&*reflected_value) else {
-                    #[cfg(not(tarpaulin_include))]
                     warn!(
                         "Persistence resource {} could not be converted",
                         T::get_type_registration().type_info().type_path()
