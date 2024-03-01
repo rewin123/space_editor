@@ -462,7 +462,8 @@ pub fn top_menu(
                 }
                 // End Open GLTF
 
-                let distance = ui.available_width() / 2. - 40.;
+                let width = ui.available_width();
+                let distance = width / 2. - 40.;
                 ui.add_space(distance);
                 let play_button = egui::Button::new(to_richtext("▶", &sizing.icon))
                     .fill(SPECIAL_BG_COLOR)
@@ -477,7 +478,8 @@ pub fn top_menu(
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
                     if toasts.has_toasts() {
                         egui::Window::new("Errors")
-                            .anchor(Align2::RIGHT_TOP, egui::Vec2::new(-16., 32.))
+                            .default_size(egui::Vec2::new(80., 32.))
+                            .default_pos(egui::pos2(width, 32.))
                             .movable(true)
                             .resizable(true)
                             .open(&mut menu_state.show_toasts)

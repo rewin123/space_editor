@@ -303,6 +303,7 @@ mod tests {
         app.update();
 
         app.world.send_event(ClearToastMessage::all());
+        app.update();
 
         let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
         assert!(!storage.has_toasts());
