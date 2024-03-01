@@ -1,5 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui_next::EguiContexts;
+use space_editor_core::toast::{ToastKind, ToastMessage};
 
 #[derive(Default)]
 pub struct MouseCheck;
@@ -28,12 +29,17 @@ impl Default for PointerContextCheck {
 }
 
 pub fn initialize_mouse_context(
+    mut toast: EventWriter<ToastMessage>,
     mut pointer_ctx: ResMut<PointerContextCheck>,
     window_q: Query<Entity, With<PrimaryWindow>>,
 ) {
     if let Ok(window_id) = window_q.get_single() {
         pointer_ctx.primary_window = Some(window_id);
     } else {
+        toast.send(ToastMessage::new(
+            "Could not get Primary Window",
+            ToastKind::Error,
+        ));
         error!("could not get Primary Window");
     }
 }

@@ -5,7 +5,11 @@ use bevy_egui_next::{
     egui::{Align, Align2, Margin, Pos2, Stroke, Widget},
     *,
 };
-use space_editor_core::prelude::*;
+use egui_dock::egui::RichText;
+use space_editor_core::{
+    prelude::*,
+    toast::{ClearToastMessage, ToastStorage},
+};
 use space_prefab::plugins::PrefabPlugin;
 use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
@@ -128,6 +132,7 @@ pub struct MenuToolbarState {
     pub gltf_dialog: Option<egui_file::FileDialog>,
     pub save_dialog: Option<egui_file::FileDialog>,
     pub load_dialog: Option<egui_file::FileDialog>,
+    show_toasts: bool,
     pub path: String,
 }
 
@@ -261,7 +266,9 @@ pub fn top_menu(
     mut events: EventReader<MenuLoadEvent>,
     mut menu_state: ResMut<MenuToolbarState>,
     mut editor_events: EventWriter<EditorEvent>,
+    mut clear_toast: EventWriter<ClearToastMessage>,
     background_tasks: Res<BackgroundTaskStorage>,
+    toasts: Res<ToastStorage>,
     sizing: Res<Sizing>,
 ) {
     let ctx = ctxs.ctx_mut();
@@ -455,7 +462,8 @@ pub fn top_menu(
                 }
                 // End Open GLTF
 
-                let distance = ui.available_width() / 2. - 40.;
+                let width = ui.available_width();
+                let distance = width / 2. - 40.;
                 ui.add_space(distance);
                 let play_button = egui::Button::new(to_richtext("▶", &sizing.icon))
                     .fill(SPECIAL_BG_COLOR)
@@ -468,6 +476,62 @@ pub fn top_menu(
                 }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
+                    if toasts.has_toasts() {
+                        egui::Window::new("Errors")
+                            .default_size(egui::Vec2::new(80., 32.))
+                            .default_pos(egui::pos2(width, 32.))
+                            .movable(true)
+                            .resizable(true)
+                            .open(&mut menu_state.show_toasts)
+                            .show(ctx, |ui| {
+                                ui.vertical_centered_justified(|ui| {
+                                    if ui.add(egui::Button::new("Clear all 🗑")).clicked() {
+                                        clear_toast.send(ClearToastMessage::all())
+                                    };
+                                });
+                                egui::Grid::new("error_console_log").show(ui, |ui| {
+                                    for (index, error) in
+                                        toasts.toasts_per_kind.error.iter().enumerate()
+                                    {
+                                        ui.label(RichText::new("ERROR").color(ERROR_COLOR));
+                                        ui.label(error);
+                                        if ui.button("🗙").clicked() {
+                                            clear_toast.send(ClearToastMessage::error(index))
+                                        }
+                                        ui.end_row();
+                                    }
+                                    for (index, warning) in
+                                        toasts.toasts_per_kind.warning.iter().enumerate()
+                                    {
+                                        ui.label(RichText::new("WARN ").color(WARM_COLOR));
+                                        ui.label(warning);
+                                        if ui.button("🗙").clicked() {
+                                            clear_toast.send(ClearToastMessage::warn(index))
+                                        }
+                                        ui.end_row();
+                                    }
+                                })
+                            });
+                    }
+                    if ui
+                        .button(
+                            RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
+                                .color(WARM_COLOR),
+                        )
+                        .clicked()
+                    {
+                        menu_state.show_toasts = !menu_state.show_toasts;
+                    }
+                    if ui
+                        .button(
+                            RichText::new(format!("🚫 {}", toasts.toasts_per_kind.error.len()))
+                                .color(ERROR_COLOR),
+                        )
+                        .clicked()
+                    {
+                        menu_state.show_toasts = !menu_state.show_toasts;
+                    }
+
                     if !background_tasks.tasks.is_empty() {
                         //Spinning circle
                         ui.spinner();
