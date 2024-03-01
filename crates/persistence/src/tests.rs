@@ -258,7 +258,7 @@ fn persistence_end_from_saving_file() {
     app.insert_resource(PersistenceRegistry {
         mode: PersistenceMode::Saving,
         source: PersistenceDataSource::File("../../target/fake_editor.ron".to_string()),
-        data: HashMap::from([("test".to_string(), "hellow world".to_string())]),
+        data: HashMap::from([("test".to_string(), "hello world".to_string())]),
         ..Default::default()
     })
     .add_systems(PreUpdate, persistence_end);
