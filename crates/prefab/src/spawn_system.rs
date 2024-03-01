@@ -202,6 +202,37 @@ pub fn spawn_player_start(
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use bevy::scene::ScenePlugin;
+
+    use super::*;
+
+    #[test]
+    fn spawns_player_with_prefab() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            ScenePlugin::default(),
+        ));
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(PlayerStart {
+                prefab: String::from("cube.glb#Scene0"),
+            });
+        })
+        .add_systems(Update, spawn_player_start);
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(Entity, &PlayerStart, Option<&Children>)>();
+        let mut iter = query.iter(&app.world);
+        assert!(iter.next().unwrap().2.is_some());
+    }
+}
+
 // pub fn despawn_player_start(
 //     mut commands : Commands,
 //     query : Query<Entity, (With<PlayerStart>, With<Handle<Scene>>)>

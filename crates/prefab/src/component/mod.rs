@@ -117,6 +117,7 @@ impl Default for EntityLink {
 }
 
 /// Component to define path to mesh asset that will be loaded after prefab spawn
+#[cfg(not(tarpaulin_include))]
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component, Default)]
 pub struct AssetMesh {
@@ -124,6 +125,7 @@ pub struct AssetMesh {
 }
 
 /// Component to define path to material asset that will be loaded after prefab spawn
+#[cfg(not(tarpaulin_include))]
 #[derive(Component, Reflect, Clone, Default)]
 #[reflect(Component, Default)]
 pub struct AssetMaterial {

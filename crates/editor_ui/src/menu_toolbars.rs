@@ -516,7 +516,11 @@ pub fn top_menu(
                     if ui
                         .button(
                             RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
-                                .color(WARM_COLOR),
+                                .color(if toasts.has_toasts() {
+                                    WARM_COLOR
+                                } else {
+                                    STROKE_COLOR
+                                }),
                         )
                         .clicked()
                     {
@@ -525,7 +529,11 @@ pub fn top_menu(
                     if ui
                         .button(
                             RichText::new(format!("🚫 {}", toasts.toasts_per_kind.error.len()))
-                                .color(ERROR_COLOR),
+                                .color(if toasts.has_toasts() {
+                                    ERROR_COLOR
+                                } else {
+                                    STROKE_COLOR
+                                }),
                         )
                         .clicked()
                     {

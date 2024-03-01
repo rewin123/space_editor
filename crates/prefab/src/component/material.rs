@@ -99,6 +99,7 @@ impl MaterialPrefab {
 }
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
+#[cfg(not(tarpaulin_include))]
 #[derive(Component, Reflect, Clone, InspectorOptions)]
 #[reflect(Default, Component, InspectorOptions)]
 pub struct ColorMaterialPrefab {
@@ -218,5 +219,32 @@ mod tests {
 
         assert!(color.texture.is_none());
         assert_eq!(color.color, Color::rgb(1.0, 1.0, 1.0));
+    }
+
+    #[test]
+    fn default_material_to_std_material() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ));
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(MaterialPrefab::default());
+        })
+        .add_systems(
+            Update,
+            |server: Res<AssetServer>, query: Query<&MaterialPrefab>| {
+                let material = query.single();
+                let material = material.to_material(&server);
+                assert_eq!(material.base_color, Color::rgb(1.0, 1.0, 1.0));
+                assert_eq!(material.emissive, Color::BLACK);
+                assert_eq!(material.emissive_texture, None);
+                assert_eq!(material.alpha_mode, AlphaMode::Opaque);
+                assert_eq!(material.perceptual_roughness, 0.5);
+                assert_eq!(material.base_color_texture, None);
+            },
+        );
     }
 }
