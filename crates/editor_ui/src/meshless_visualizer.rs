@@ -17,7 +17,10 @@ use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
 use crate::LAST_RENDER_LAYER;
-use space_editor_core::selected::Selected;
+use space_editor_core::{
+    selected::Selected,
+    toast::{ToastKind, ToastMessage},
+};
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
@@ -38,6 +41,10 @@ impl Plugin for MeshlessVisualizerPlugin {
                 "icons.ron",
             ]))
         } else {
+            app.world.send_event(ToastMessage::new(
+                "Failed to dynamic load assets. Loading defaults from memory",
+                ToastKind::Error,
+            ));
             error!("Failed to dynamic load assets. Loading defaults from memory");
             app.add_systems(OnEnter(EditorState::Editor), register_assets)
                 .add_systems(
