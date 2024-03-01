@@ -93,6 +93,7 @@ fn persistence_start(
             PersistenceEvent::Load => {
                 match &persistence.source {
                     PersistenceDataSource::File(path) => {
+                        #[cfg(not(tarpaulin_include))]
                         let Ok(file) = std::fs::File::open(path) else {
                             warn!("Persistence file not found at path {}", path);
                             continue;
@@ -118,6 +119,7 @@ fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
     match mode {
         PersistenceMode::Saving => {
             persistence.mode = PersistenceMode::None;
+            #[cfg(not(tarpaulin_include))]
             if persistence.save_counter != persistence.target_count {
                 error!(
                     "Persistence saving error: {} of {} resources were saved",
@@ -143,6 +145,7 @@ fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
         }
         PersistenceMode::Loading => {
             persistence.mode = PersistenceMode::None;
+            #[cfg(not(tarpaulin_include))]
             if persistence.load_counter != persistence.target_count {
                 error!(
                     "Persistence loading error: {} of {} resources were loaded",
@@ -330,6 +333,7 @@ fn persistence_resource_system<
                     .data
                     .get(T::get_type_registration().type_info().type_path())
                 else {
+                    #[cfg(not(tarpaulin_include))]
                     warn!(
                         "Persistence resource {} not found",
                         T::get_type_registration().type_info().type_path()
@@ -342,6 +346,7 @@ fn persistence_resource_system<
                     .deserialize(&mut ron::Deserializer::from_str(data).unwrap())
                     .unwrap();
 
+                #[cfg(not(tarpaulin_include))]
                 let Some(converted) = <T as FromReflect>::from_reflect(&*reflected_value) else {
                     warn!(
                         "Persistence resource {} could not be converted",
