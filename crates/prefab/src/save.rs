@@ -299,7 +299,7 @@ mod tests {
     }
 
     #[test]
-    fn attemps_to_serialize_empty_scene() {
+    fn attempts_to_serialize_empty_scene() {
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::MemoryCache),
         };
