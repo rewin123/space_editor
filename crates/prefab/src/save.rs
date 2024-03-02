@@ -21,6 +21,7 @@ impl ChildrenPrefab {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 impl MapEntities for ChildrenPrefab {
     fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
         self.0 = self
@@ -33,6 +34,7 @@ impl MapEntities for ChildrenPrefab {
 
 struct SaveResourcesPrefabPlugin;
 
+#[cfg(not(tarpaulin_include))]
 impl Plugin for SaveResourcesPrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
