@@ -17,4 +17,4 @@ docs/.obsidian/*
 .vscode/launch.json
 editor.ron
 .idea/*
-crates/prefab/test.ron
+crates/prefab/test*.ron
