@@ -6,12 +6,13 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
 jobs:
   coverage:
-    permissions:
-      contents: write
-      pull-requests: write
-      actions: write
     runs-on: ubuntu-latest
     env:
       CARGO_TERM_COLOR: always

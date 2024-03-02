@@ -21,5 +21,8 @@ space_undo.workspace = true
 bevy-scene-hook.workspace = true
 bevy-inspector-egui.workspace = true
 
+[dev-dependencies]
+rand = "*"
+
 [lints]
 workspace = true

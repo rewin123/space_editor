@@ -156,8 +156,12 @@ mod tests {
 
     #[test]
     fn save_to_file() {
+        use rand::prelude::*;
+        let mut rng = rand::thread_rng();
+        let x = rng.gen_range(100000..999999);
+        let file = format!("test_{}.ron", x);
         let save_config = SaveConfig {
-            path: Some(EditorPrefabPath::File(String::from("test.ron"))),
+            path: Some(EditorPrefabPath::File(String::from(&file))),
         };
         let mut app = App::new();
         app.add_plugins((
@@ -182,9 +186,9 @@ mod tests {
         app.update();
 
         serialize_scene(&mut app.world);
-        assert!(std::fs::metadata("./test.ron").is_ok());
+        assert!(std::fs::metadata(&file).is_ok());
 
-        let contents = std::fs::read_to_string("./test.ron").unwrap();
+        let contents = std::fs::read_to_string(&file).unwrap();
 
         assert!(contents.contains("my_name"));
         assert!(contents.contains("space_shared::PrefabMarker"));
