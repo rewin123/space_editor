@@ -1,6 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui_next::EguiContext;
 use egui_dock::egui::{self, Align2};
+use space_shared::toast::ToastMessage;
 
 pub use egui_toast::*;
 pub struct ToastUiPlugin;
@@ -62,12 +63,6 @@ impl Default for ToastStorage {
 }
 
 #[derive(Event)]
-pub struct ToastMessage {
-    text: String,
-    kind: ToastKind,
-}
-
-#[derive(Event)]
 pub struct ClearToastMessage {
     index: usize,
     kind: ToastKind,
@@ -97,37 +92,6 @@ impl ClearToastMessage {
             kind: ToastKind::Error,
             all: true,
         }
-    }
-}
-
-impl ToastMessage {
-    pub fn new(text: &str, kind: ToastKind) -> Self {
-        Self {
-            text: text.to_string(),
-            kind,
-        }
-    }
-}
-
-impl From<&ToastMessage> for Toast {
-    fn from(value: &ToastMessage) -> Self {
-        let duration = toast_kind_to_duration(value);
-        Self {
-            text: value.text.clone().into(),
-            kind: value.kind,
-            options: ToastOptions::default()
-                .show_icon(true)
-                .duration_in_seconds(duration)
-                .show_progress(false),
-        }
-    }
-}
-
-const fn toast_kind_to_duration(value: &ToastMessage) -> f64 {
-    match &value.kind {
-        ToastKind::Warning => 6.,
-        ToastKind::Error => 10.,
-        _ => 4.,
     }
 }
 
@@ -174,40 +138,6 @@ fn show_toast(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn new_toast_message() {
-        let message = ToastMessage::new("Test message", ToastKind::Info);
-        assert_eq!(message.text, "Test message");
-        assert_eq!(message.kind, ToastKind::Info);
-    }
-
-    #[test]
-    fn from_toast_message() {
-        let message = ToastMessage::new("Test message", ToastKind::Info);
-        let toast = Toast::from(&message);
-        assert_eq!(toast.text.text(), message.text);
-        assert_eq!(toast.kind, message.kind);
-        assert_eq!(toast.options.show_icon, true);
-        assert_eq!(toast.options.show_progress, false);
-        assert_eq!(toast.options.progress(), 1.);
-    }
-
-    #[test]
-    fn toast_kinds_to_durations() {
-        assert_eq!(
-            toast_kind_to_duration(&ToastMessage::new("Test message", ToastKind::Info)),
-            4.
-        );
-        assert_eq!(
-            toast_kind_to_duration(&ToastMessage::new("Test message", ToastKind::Warning)),
-            6.
-        );
-        assert_eq!(
-            toast_kind_to_duration(&ToastMessage::new("Test message", ToastKind::Error)),
-            10.
-        );
-    }
 
     #[test]
     fn toast_plugin_received_event() {

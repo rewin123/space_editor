@@ -4,7 +4,7 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use space_shared::{toast::ToastMessage, EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt};
@@ -99,6 +99,15 @@ pub fn serialize_scene(world: &mut World) {
     let mut prefab_query = world.query_filtered::<Entity, With<PrefabMarker>>();
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
+    if entities.is_empty() {
+        #[cfg(feature = "editor")]
+        world.send_event(ToastMessage::new(
+            "Saving empty scene",
+            space_shared::toast::ToastKind::Warning,
+        ));
+        warn!("Saving empty scene");
+    }
+
     let registry = world.resource::<EditorRegistry>().clone();
     let allow_types: Vec<TypeId> = registry
         .registry
@@ -131,6 +140,7 @@ pub fn serialize_scene(world: &mut World) {
                                 .write(true)
                                 .open(&path)
                                 .and_then(|mut file| file.write(str.as_bytes()))
+                                .inspect_err(|e| error!("Error while writing scene to file: {e}"))
                                 .expect("Error while writing scene to file");
                             info!("Saved prefab to file {}", path);
                         })
@@ -143,7 +153,13 @@ pub fn serialize_scene(world: &mut World) {
             }
         }
     } else if let Err(e) = res {
-        error!("failed to serialize prefab: {:?}", e);
+        let err = format!("failed to serialize prefab: {:?}", e);
+        #[cfg(feature = "editor")]
+        world.send_event(ToastMessage::new(
+            &err,
+            space_shared::toast::ToastKind::Error,
+        ));
+        error!("{err}");
     }
 
     world
@@ -280,5 +296,33 @@ mod tests {
         let prefab = ChildrenPrefab::from_children(&children);
 
         assert_eq!(prefab.0.len(), 1);
+    }
+
+    #[test]
+    fn attemps_to_serialize_empty_scene() {
+        let save_config = SaveConfig {
+            path: Some(EditorPrefabPath::MemoryCache),
+        };
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            bevy::scene::ScenePlugin::default(),
+            EditorRegistryPlugin {},
+            SaveResourcesPrefabPlugin {},
+        ))
+        .add_event::<ToastMessage>()
+        .insert_resource(save_config)
+        .init_resource::<PrefabMemoryCache>();
+
+        app.update();
+
+        serialize_scene(&mut app.world);
+        let events = app.world.resource::<Events<ToastMessage>>();
+
+        let mut iter = events.get_reader();
+        let iter = iter.read(&events);
+        iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }
 }

@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
-use space_shared::*;
+use space_shared::{toast::ToastMessage, *};
 
-use crate::{toast::ToastMessage, EditorLoader};
+use crate::EditorLoader;
 
 pub fn load_listener(world: &mut World) {
     let app_registry = world.resource::<AppTypeRegistry>().clone();

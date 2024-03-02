@@ -17,6 +17,7 @@ bevy.workspace = true
 anyhow.workspace = true
 bevy-inspector-egui.workspace = true
 egui_file.workspace = true
+egui-toast.workspace = true
 image.workspace = true
 
 [lints]

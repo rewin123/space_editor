@@ -17,10 +17,8 @@ use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
 use crate::LAST_RENDER_LAYER;
-use space_editor_core::{
-    selected::Selected,
-    toast::{ToastKind, ToastMessage},
-};
+use space_editor_core::selected::Selected;
+use space_shared::toast::*;
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
