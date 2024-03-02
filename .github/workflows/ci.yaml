@@ -1,5 +1,5 @@
 name: CI
-
+  
 on:
   push:
     branches:
@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -69,7 +72,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
       - name: Run cargo test
-        run: cargo test --workspace --features bevy_xpbd_3d
+        run: cargo test --workspace --all-features
 
   # Run cargo clippy -- -D warnings
   clippy_check:

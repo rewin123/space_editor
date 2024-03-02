@@ -6,6 +6,9 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   coverage:
     runs-on: ubuntu-latest

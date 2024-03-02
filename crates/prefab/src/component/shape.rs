@@ -431,4 +431,29 @@ mod tests {
             format!("{:?}", Mesh::from(shape::Cube::new(1.0)))
         );
     }
+
+    #[test]
+    fn test_quad_to_mesh() {
+        let default_prefab = MeshPrimitivePrefab::Quad(QuadPrefab {
+            size: Vec2::new(1., 1.),
+            flip: false,
+        });
+        let mesh = default_prefab.to_mesh();
+
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::Quad::new(Vec2::new(1., 1.))))
+        );
+    }
+
+    #[test]
+    fn test_capsule_to_mesh() {
+        let default_prefab = MeshPrimitivePrefab::Capsule(CapsulePrefab::default());
+        let mesh = default_prefab.to_mesh();
+
+        assert_eq!(
+            format!("{mesh:?}"),
+            format!("{:?}", Mesh::from(shape::Capsule::default()))
+        );
+    }
 }

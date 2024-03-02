@@ -5,7 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
-use std::{any::TypeId, fs::File, io::Write};
+use std::{any::TypeId, fs, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt};
 
@@ -21,6 +21,7 @@ impl ChildrenPrefab {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 impl MapEntities for ChildrenPrefab {
     fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
         self.0 = self
@@ -31,13 +32,22 @@ impl MapEntities for ChildrenPrefab {
     }
 }
 
-pub struct SavePrefabPlugin;
+struct SaveResourcesPrefabPlugin;
 
-impl Plugin for SavePrefabPlugin {
+#[cfg(not(tarpaulin_include))]
+impl Plugin for SaveResourcesPrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
 
         app.init_resource::<SaveConfig>().add_state::<SaveState>();
+    }
+}
+
+pub struct SavePrefabPlugin;
+
+impl Plugin for SavePrefabPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(SaveResourcesPrefabPlugin {});
 
         app.add_systems(
             OnEnter(SaveState::Save),
@@ -53,12 +63,14 @@ impl Plugin for SavePrefabPlugin {
 }
 
 /// This struct determine path to save prefab
+#[cfg(not(tarpaulin_include))]
 #[derive(Resource, Clone, Default)]
 pub struct SaveConfig {
     pub path: Option<EditorPrefabPath>,
 }
 
 /// State system using to enable slow logic of saving
+#[cfg(not(tarpaulin_include))]
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum SaveState {
     Save,
@@ -113,7 +125,11 @@ pub fn serialize_scene(world: &mut World) {
                 EditorPrefabPath::File(path) => {
                     IoTaskPool::get()
                         .spawn(async move {
-                            File::create(&path)
+                            fs::OpenOptions::new()
+                                .create(true)
+                                .append(false)
+                                .write(true)
+                                .open(&path)
                                 .and_then(|mut file| file.write(str.as_bytes()))
                                 .expect("Error while writing scene to file");
                             info!("Saved prefab to file {}", path);
@@ -133,4 +149,136 @@ pub fn serialize_scene(world: &mut World) {
     world
         .resource_mut::<NextState<SaveState>>()
         .set(SaveState::Idle);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::prelude::*;
+
+    #[test]
+    fn save_to_file() {
+        let file = "test.ron";
+        let save_config = SaveConfig {
+            path: Some(EditorPrefabPath::File(String::from(file))),
+        };
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            bevy::scene::ScenePlugin::default(),
+            EditorRegistryPlugin {},
+            SaveResourcesPrefabPlugin {},
+        ))
+        .insert_resource(save_config)
+        .init_resource::<PrefabMemoryCache>()
+        .editor_registry::<Name>()
+        .editor_registry::<PrefabMarker>()
+        .add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands.spawn(PrefabMarker).add_child(child_id);
+
+            commands.spawn(PrefabMarker).insert(Name::new("my_name"));
+        });
+
+        app.update();
+
+        serialize_scene(&mut app.world);
+        std::fs::read_dir("./")
+            .unwrap()
+            .inspect(|d| println!("{:?}", d))
+            .for_each(|_| {});
+        assert!(std::fs::metadata(&format!("./{}", file)).is_ok());
+
+        let contents = std::fs::read_to_string(&file).unwrap();
+
+        assert!(contents.contains("my_name"));
+        assert!(contents.contains("space_shared::PrefabMarker"));
+    }
+
+    #[test]
+    fn save_to_memory() {
+        let save_config = SaveConfig {
+            path: Some(EditorPrefabPath::MemoryCache),
+        };
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            bevy::scene::ScenePlugin::default(),
+            EditorRegistryPlugin {},
+            SaveResourcesPrefabPlugin {},
+        ))
+        .insert_resource(save_config)
+        .init_resource::<PrefabMemoryCache>()
+        .editor_registry::<Name>()
+        .editor_registry::<PrefabMarker>()
+        .add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands.spawn(PrefabMarker).add_child(child_id);
+
+            commands.spawn(PrefabMarker).insert(Name::new("name"));
+        });
+
+        app.update();
+
+        serialize_scene(&mut app.world);
+        assert!(app
+            .world
+            .resource_mut::<PrefabMemoryCache>()
+            .scene
+            .is_some());
+    }
+
+    #[test]
+    fn inserts_prepared_children_component() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands.spawn(PrefabMarker).add_child(child_id);
+
+            commands.spawn(PrefabMarker);
+        })
+        .add_systems(Update, prepare_children);
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn deletes_prepared_children_component() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands
+                .spawn(PrefabMarker)
+                .insert(ChildrenPrefab(vec![child_id]));
+            let child_id = commands.spawn_empty().id();
+            commands
+                .spawn(PrefabMarker)
+                .insert(ChildrenPrefab(vec![child_id]));
+            commands.spawn(PrefabMarker);
+        })
+        .add_systems(Update, delete_prepared_children);
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn child_prefab_from_children() {
+        let mut world = World::new();
+        let child = world.spawn_empty().id();
+        world.spawn(PrefabMarker).add_child(child);
+
+        let mut query = world.query::<&Children>();
+        let children = query.single(&world);
+        let prefab = ChildrenPrefab::from_children(&children);
+
+        assert_eq!(prefab.0.len(), 1);
+    }
 }
