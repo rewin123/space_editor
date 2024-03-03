@@ -116,7 +116,7 @@ unsafe fn recursive_path<'w>(
     entity: Entity,
     path: Vec<usize>,
 ) -> DynamicSceneBuilder<'w> {
-    if let Some(_) = cell.get_entity(entity) {
+    if cell.get_entity(entity).is_some() {
         cell.world_mut()
             .entity_mut(entity)
             .insert(ChildPath(path.clone()));
@@ -131,7 +131,7 @@ unsafe fn recursive_path<'w>(
                 scene = recursive_path(cell, scene, *child_entity, child_path);
             }
         }
-        return scene;
+        scene
     } else {
         scene
     }
@@ -181,7 +181,7 @@ fn apply_compressed_scenes(
             scene.world.entity_mut(entity).remove::<ChildrenPrefab>();
 
             if let Some(child_path) = child_path {
-                if child_path.0.len() == 0 {
+                if child_path.0.is_empty() {
                     continue;
                 }
 

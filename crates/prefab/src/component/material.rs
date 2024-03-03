@@ -185,8 +185,10 @@ mod tests {
 
     #[test]
     fn color_material_prefab_with_texture() {
-        let mut prefab = ColorMaterialPrefab::default();
-        prefab.texture = String::from("test_asset.png");
+        let prefab = ColorMaterialPrefab {
+            texture: String::from("test_asset.png"),
+            ..default()
+        };
 
         let mut app = App::new();
         app.add_plugins((
@@ -204,8 +206,10 @@ mod tests {
 
     #[test]
     fn color_material_prefab_with_wrong_texture() {
-        let mut prefab = ColorMaterialPrefab::default();
-        prefab.texture = String::from("fake_asset.png");
+        let prefab = ColorMaterialPrefab {
+            texture: String::from("fake_asset.png"),
+            ..default()
+        };
 
         let mut app = App::new();
         app.add_plugins((

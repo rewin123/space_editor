@@ -55,8 +55,8 @@ mod tests {
         let toast = Toast::from(&message);
         assert_eq!(toast.text.text(), message.text);
         assert_eq!(toast.kind, message.kind);
-        assert_eq!(toast.options.show_icon, true);
-        assert_eq!(toast.options.show_progress, false);
+        assert!(toast.options.show_icon);
+        assert!(!toast.options.show_progress);
         assert_eq!(toast.options.progress(), 1.);
     }
 

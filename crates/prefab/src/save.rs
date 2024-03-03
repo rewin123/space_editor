@@ -189,7 +189,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
@@ -208,15 +208,14 @@ mod tests {
 
         serialize_scene(&mut app.world);
         // Debug on CI
-        std::fs::read_dir("./")
+        let _ = std::fs::read_dir("./")
             .unwrap()
             .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
             .flatten()
-            .inspect(|d| println!("{:?}", d))
-            .for_each(|_| {});
-        assert!(std::fs::metadata(&format!("./{}", file)).is_ok());
+            .inspect(|d| println!("{:?}", d));
+        assert!(std::fs::metadata(format!("./{}", file)).is_ok());
 
-        let contents = std::fs::read_to_string(&file).unwrap();
+        let contents = std::fs::read_to_string(file).unwrap();
 
         assert!(contents.contains("my_name"));
         assert!(contents.contains("space_shared::PrefabMarker"));
@@ -232,7 +231,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
@@ -302,7 +301,7 @@ mod tests {
 
         let mut query = world.query::<&Children>();
         let children = query.single(&world);
-        let prefab = ChildrenPrefab::from_children(&children);
+        let prefab = ChildrenPrefab::from_children(children);
 
         assert_eq!(prefab.0.len(), 1);
     }
@@ -317,7 +316,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
@@ -331,7 +330,7 @@ mod tests {
         let events = app.world.resource::<Events<ToastMessage>>();
 
         let mut iter = events.get_reader();
-        let iter = iter.read(&events);
+        let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }
 }

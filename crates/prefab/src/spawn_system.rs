@@ -218,7 +218,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            ScenePlugin::default(),
+            ScenePlugin,
         ))
         .add_event::<ToastMessage>();
         app.add_systems(Startup, |mut commands: Commands| {
