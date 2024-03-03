@@ -14,7 +14,7 @@ pub fn spawn_scene(
             Option<&Children>,
             Option<&Visibility>,
             Option<&Transform>,
-            Option<&SceneAutoChild>
+            Option<&SceneAutoChild>,
         ),
         Changed<GltfPrefab>,
     >,
@@ -32,20 +32,19 @@ pub fn spawn_scene(
 
         let is_auto_child = auto_child.is_some();
 
-        commands.entity(e)
+        commands
+            .entity(e)
             .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
-            .insert(SceneHook::new(move|_e, cmd| {
-                    if _e.contains::<SceneAutoRoot>() {
-
+            .insert(SceneHook::new(move |_e, cmd| {
+                if _e.contains::<SceneAutoRoot>() {
+                } else {
+                    if is_auto_child {
+                        cmd.insert(SceneAutoChild);
                     } else {
-                        if is_auto_child {
-                            cmd.insert(SceneAutoChild);
-                        } else {
-                            cmd.insert(SceneAutoChild).insert(PrefabMarker);
-                        }
+                        cmd.insert(SceneAutoChild).insert(PrefabMarker);
                     }
-                })
-            );
+                }
+            }));
 
         commands.entity(e).insert(SceneAutoRoot);
 
