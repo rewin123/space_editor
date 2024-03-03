@@ -4,7 +4,7 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use space_shared::{toast::ToastMessage, EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt};
@@ -21,8 +21,8 @@ impl ChildrenPrefab {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 impl MapEntities for ChildrenPrefab {
+    #[cfg_attr(tarpaulin, ignore)]
     fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
         self.0 = self
             .0
@@ -34,7 +34,6 @@ impl MapEntities for ChildrenPrefab {
 
 struct SaveResourcesPrefabPlugin;
 
-#[cfg(not(tarpaulin_include))]
 impl Plugin for SaveResourcesPrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
@@ -46,6 +45,7 @@ impl Plugin for SaveResourcesPrefabPlugin {
 pub struct SavePrefabPlugin;
 
 impl Plugin for SavePrefabPlugin {
+    #[cfg_attr(tarpaulin, ignore)]
     fn build(&self, app: &mut App) {
         app.add_plugins(SaveResourcesPrefabPlugin {});
 
@@ -99,6 +99,15 @@ pub fn serialize_scene(world: &mut World) {
     let mut prefab_query = world.query_filtered::<Entity, With<PrefabMarker>>();
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
+    if entities.is_empty() {
+        #[cfg(feature = "editor")]
+        world.send_event(ToastMessage::new(
+            "Saving empty scene",
+            space_shared::toast::ToastKind::Warning,
+        ));
+        warn!("Saving empty scene");
+    }
+
     let registry = world.resource::<EditorRegistry>().clone();
     let allow_types: Vec<TypeId> = registry
         .registry
@@ -131,6 +140,7 @@ pub fn serialize_scene(world: &mut World) {
                                 .write(true)
                                 .open(&path)
                                 .and_then(|mut file| file.write(str.as_bytes()))
+                                .inspect_err(|e| error!("Error while writing scene to file: {e}"))
                                 .expect("Error while writing scene to file");
                             info!("Saved prefab to file {}", path);
                         })
@@ -143,7 +153,15 @@ pub fn serialize_scene(world: &mut World) {
             }
         }
     } else if let Err(e) = res {
-        error!("failed to serialize prefab: {:?}", e);
+        // Any ideas on how to test this error case?
+        #[cfg_attr(tarpaulin, ignore)]
+        let err = format!("failed to serialize prefab: {:?}", e);
+        #[cfg(feature = "editor")]
+        world.send_event(ToastMessage::new(
+            &err,
+            space_shared::toast::ToastKind::Error,
+        ));
+        error!(err);
     }
 
     world
@@ -185,8 +203,11 @@ mod tests {
         app.update();
 
         serialize_scene(&mut app.world);
+        // Debug on CI
         std::fs::read_dir("./")
             .unwrap()
+            .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
+            .flatten()
             .inspect(|d| println!("{:?}", d))
             .for_each(|_| {});
         assert!(std::fs::metadata(&format!("./{}", file)).is_ok());
@@ -280,5 +301,33 @@ mod tests {
         let prefab = ChildrenPrefab::from_children(&children);
 
         assert_eq!(prefab.0.len(), 1);
+    }
+
+    #[test]
+    fn attempts_to_serialize_empty_scene() {
+        let save_config = SaveConfig {
+            path: Some(EditorPrefabPath::MemoryCache),
+        };
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            bevy::scene::ScenePlugin::default(),
+            EditorRegistryPlugin {},
+            SaveResourcesPrefabPlugin {},
+        ))
+        .add_event::<ToastMessage>()
+        .insert_resource(save_config)
+        .init_resource::<PrefabMemoryCache>();
+
+        app.update();
+
+        serialize_scene(&mut app.world);
+        let events = app.world.resource::<Events<ToastMessage>>();
+
+        let mut iter = events.get_reader();
+        let iter = iter.read(&events);
+        iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }
 }

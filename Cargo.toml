@@ -112,7 +112,7 @@ opt-level = 3
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-editor = []
+editor = ["space_prefab/editor"]
 default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
 
 [[example]]

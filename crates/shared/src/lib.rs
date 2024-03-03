@@ -14,6 +14,7 @@ pub mod prelude {
 
 pub mod asset_fs;
 pub(crate) mod gizmos;
+pub mod toast;
 
 /// Component Marker to display entity in Editor
 #[derive(Component, Default, Clone, Reflect)]

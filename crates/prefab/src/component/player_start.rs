@@ -10,7 +10,7 @@ pub struct PlayerStart {
     pub prefab: String,
 }
 
-#[cfg(not(tarpaulin_include))]
+#[cfg_attr(tarpaulin, ignore)]
 impl Default for PlayerStart {
     fn default() -> Self {
         Self {
