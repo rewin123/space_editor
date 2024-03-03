@@ -22,7 +22,7 @@ impl ChildrenPrefab {
 }
 
 impl MapEntities for ChildrenPrefab {
-    #[cfg_attr(tarpaulin, skip)]
+    #[cfg_attr(tarpaulin, ignore)]
     fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
         self.0 = self
             .0
@@ -45,7 +45,7 @@ impl Plugin for SaveResourcesPrefabPlugin {
 pub struct SavePrefabPlugin;
 
 impl Plugin for SavePrefabPlugin {
-    #[cfg_attr(tarpaulin, skip)]
+    #[cfg_attr(tarpaulin, ignore)]
     fn build(&self, app: &mut App) {
         app.add_plugins(SaveResourcesPrefabPlugin {});
 
@@ -154,7 +154,7 @@ pub fn serialize_scene(world: &mut World) {
         }
     } else if let Err(e) = res {
         // Any ideas on how to test this error case?
-        #[cfg_attr(tarpaulin, skip)]
+        #[cfg_attr(tarpaulin, ignore)]
         let err = format!("failed to serialize prefab: {:?}", e);
         #[cfg(feature = "editor")]
         world.send_event(ToastMessage::new(
