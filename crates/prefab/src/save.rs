@@ -7,7 +7,7 @@ use bevy::{
 use space_shared::{toast::ToastMessage, EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
-use crate::prelude::{EditorRegistry, EditorRegistryExt};
+use crate::prelude::{EditorRegistry, EditorRegistryExt, SceneAutoChild};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
@@ -78,7 +78,7 @@ pub enum SaveState {
     Idle,
 }
 
-fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), With<PrefabMarker>>) {
+fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), (With<PrefabMarker>, Without<SceneAutoChild>)>) {
     for (entity, children) in query.iter() {
         commands
             .entity(entity)
@@ -96,7 +96,7 @@ fn delete_prepared_children(mut commands: Commands, query: Query<Entity, With<Ch
 pub fn serialize_scene(world: &mut World) {
     let config = world.resource::<SaveConfig>().clone();
 
-    let mut prefab_query = world.query_filtered::<Entity, With<PrefabMarker>>();
+    let mut prefab_query = world.query_filtered::<Entity, (With<PrefabMarker>, Without<SceneAutoChild>)>();
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
     if entities.is_empty() {

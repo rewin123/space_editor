@@ -43,7 +43,7 @@ impl RemoveComponent {
 /// Container struct for function to clone component in untyped style
 #[derive(Clone)]
 pub struct CloneComponent {
-    func: Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>,
+    pub func: Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>,
 }
 
 impl CloneComponent {
