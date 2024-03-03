@@ -170,9 +170,9 @@ fn apply_compressed_scenes(
     for (root_entity, mut scene, children) in roots.iter_mut() {
         let mut scene_query = scene.world.query::<Entity>();
 
-        let scene_entites = scene_query.iter(&scene.world).collect::<Vec<_>>();
+        let scene_entities = scene_query.iter(&scene.world).collect::<Vec<_>>();
 
-        for entity in scene_entites {
+        for entity in scene_entities {
             let mut child_path = None;
             if let Some(get_path) = scene.world.entity(entity).get::<ChildPath>() {
                 child_path = Some(get_path.clone());

@@ -66,7 +66,7 @@ pub fn show_hierarchy(
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
-    auto_childs: Query<(), With<SceneAutoChild>>,
+    auto_children: Query<(), With<SceneAutoChild>>,
 ) {
     let mut all: Vec<_> = if state.show_editor_entities {
         all_entities.iter().collect()
@@ -95,7 +95,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &auto_childs,
+                        &auto_children,
                     );
                 } else {
                     draw_entity::<With<PrefabMarker>>(
@@ -106,7 +106,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
-                        &auto_childs,
+                        &auto_children,
                     );
                 }
             }
@@ -129,7 +129,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
     changes: &mut EventWriter<NewChange>,
-    auto_childs: &Query<(), With<SceneAutoChild>>,
+    auto_children: &Query<(), With<SceneAutoChild>>,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -150,7 +150,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         )
         .show_header(ui, |ui| {
             let mut entity_name = egui::RichText::new(entity_name.clone());
-            if auto_childs.get(entity).is_ok() {
+            if auto_children.get(entity).is_ok() {
                 entity_name = entity_name.italics();
             }
 
@@ -195,7 +195,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
                     selected,
                     clone_events,
                     changes,
-                    auto_childs,
+                    auto_children,
                 );
             }
         });

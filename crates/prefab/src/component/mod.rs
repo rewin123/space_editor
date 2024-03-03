@@ -56,7 +56,7 @@ pub struct SceneAutoChild;
 
 /// Saved sub world for restore states of auto scene entities
 #[derive(Component)]
-pub struct AutoScenePersistance(String);
+pub struct AutoScenePersistence(String);
 
 /// Not used right now. Planned to be easy method for creating prefab structs from usual structs with assets
 #[derive(Component, Reflect, Clone, Default)]
