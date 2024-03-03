@@ -1,9 +1,7 @@
 use std::any::TypeId;
 
 use bevy::{
-    ecs:: world::unsafe_world_cell::UnsafeWorldCell,
-    prelude::*,
-    scene::serde::SceneDeserializer,
+    ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, scene::serde::SceneDeserializer,
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
@@ -152,8 +150,7 @@ fn decompress_scene(
             type_registry: &type_registry.read(),
         };
         let mut deserializer = ron::de::Deserializer::from_str(root.0.as_str()).unwrap();
-        let dyn_scene: DynamicScene =
-            scene_deserializer.deserialize(&mut deserializer).unwrap();
+        let dyn_scene: DynamicScene = scene_deserializer.deserialize(&mut deserializer).unwrap();
 
         let scene = Scene::from_dynamic_scene(&dyn_scene, &type_registry).unwrap();
 
