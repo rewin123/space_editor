@@ -203,8 +203,11 @@ mod tests {
         app.update();
 
         serialize_scene(&mut app.world);
+        // Debug on CI
         std::fs::read_dir("./")
             .unwrap()
+            .filter_map(|d|  std::fs::read_dir(d.ok()?.path()).ok())
+            .flatten()
             .inspect(|d| println!("{:?}", d))
             .for_each(|_| {});
         assert!(std::fs::metadata(&format!("./{}", file)).is_ok());
