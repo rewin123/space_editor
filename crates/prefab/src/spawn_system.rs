@@ -193,7 +193,7 @@ pub fn spawn_player_start(
     mut toast: EventWriter<ToastMessage>,
 ) {
     for (e, prefab) in query.iter() {
-        let msg = format!("Spawning player start {:?} {}", e, &prefab.prefab);
+        let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
         toast.send(ToastMessage::new(
             &msg,
             space_shared::toast::ToastKind::Info,
@@ -211,11 +211,11 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use bevy::scene::ScenePlugin;
 
-    use super::*;
-
     #[test]
+    #[cfg(feature = "editor")]
     fn spawns_player_with_prefab() {
         let mut app = App::new();
         app.add_plugins((
@@ -223,7 +223,8 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
             ScenePlugin::default(),
-        ));
+        ))
+        .add_event::<ToastMessage>();
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn(PlayerStart {
                 prefab: String::from("cube.glb#Scene0"),
@@ -231,6 +232,17 @@ mod tests {
         })
         .add_systems(Update, spawn_player_start);
         app.update();
+
+        let events = app.world.resource::<Events<ToastMessage>>();
+        let mut man_events = events.get_reader();
+        let mut events = man_events.read(events);
+        let event = events.next().unwrap();
+
+        assert_eq!(event.kind, space_shared::toast::ToastKind::Info);
+        assert_eq!(
+            event.text,
+            "Spawning player start: 0v0 with \"cube.glb#Scene0\""
+        );
 
         let mut query = app
             .world
