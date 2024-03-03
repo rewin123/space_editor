@@ -37,12 +37,10 @@ pub fn spawn_scene(
             .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
             .insert(SceneHook::new(move |_e, cmd| {
                 if _e.contains::<SceneAutoRoot>() {
+                } else if is_auto_child {
+                    cmd.insert(SceneAutoChild);
                 } else {
-                    if is_auto_child {
-                        cmd.insert(SceneAutoChild);
-                    } else {
-                        cmd.insert(SceneAutoChild).insert(PrefabMarker);
-                    }
+                    cmd.insert(SceneAutoChild).insert(PrefabMarker);
                 }
             }));
 
