@@ -3,7 +3,7 @@ use bevy::prelude::{
     Query, Res, Resource, Startup, Transform, Update, Vec3, With,
 };
 
-use super::player::PlayerController;
+use super::{player::PlayerController, terrain::TerrainViewer};
 
 #[derive(Resource, Deref)]
 struct SkyLightEntity(Entity);
@@ -39,7 +39,7 @@ fn update_light_position(
     sky_light_entity: Res<SkyLightEntity>,
     mut queries: ParamSet<(
         Query<&mut Transform>,
-        Query<&Transform, With<PlayerController>>,
+        Query<&Transform, With<TerrainViewer>>,
     )>,
 ) {
     let sky_light_entity = **sky_light_entity;

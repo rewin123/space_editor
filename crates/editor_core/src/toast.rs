@@ -131,7 +131,9 @@ fn show_toast(
     mut storage: ResMut<ToastStorage>,
     mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
 ) {
-    let mut ctx = ctxs.single_mut();
+    let Ok(mut ctx) = ctxs.get_single_mut() else {
+        return;
+    };
     storage.toasts.show(ctx.get_mut());
 }
 

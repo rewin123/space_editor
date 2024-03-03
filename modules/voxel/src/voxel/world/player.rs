@@ -1,5 +1,5 @@
 use bevy::{input::mouse::MouseMotion, prelude::*, window::CursorGrabMode};
-use bevy_egui::EguiContexts;
+use bevy_egui_next::EguiContexts;
 use std::f32::consts::FRAC_PI_2;
 
 use crate::debug::DebugUISet;
@@ -20,7 +20,10 @@ pub fn handle_player_mouse_move(
     mut mouse_motion_event_reader: EventReader<MouseMotion>,
     mut window: Query<&mut Window>,
 ) {
-    let (mut controller, mut transform) = query.single_mut();
+    let Ok((mut controller, mut transform)) = query.get_single_mut() else {
+        return;
+    };
+    
     let mut delta = Vec2::ZERO;
 
     if controller.cursor_locked {
@@ -59,7 +62,9 @@ pub fn handle_player_input(
     keys: Res<Input<KeyCode>>,
     btns: Res<Input<MouseButton>>,
 ) {
-    let (mut controller, mut transform) = query.single_mut();
+    let Ok((mut controller, mut transform)) = query.get_single_mut() else {
+        return;
+    };
 
     // cursor grabbing
     // @todo: this should prevent cursor grabbing when the user is interacting with a debug UI. Why doesn't this work?

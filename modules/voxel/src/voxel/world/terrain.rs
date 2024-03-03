@@ -8,13 +8,14 @@ use crate::voxel::{
     Voxel,
 };
 use bevy::{
-    prelude::{
-        Added, Commands, Component, Entity, IntoSystemConfigs, IntoSystemSetConfigs, Plugin, Query,
-        ResMut, SystemSet, Update,
-    },
+    prelude::*,
     tasks::{AsyncComputeTaskPool, Task},
 };
 use futures_lite::future;
+
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct TerrainViewer;
 
 /// Queues the terrain gen async tasks for the newly created chunks.
 fn queue_terrain_gen(mut commands: Commands, new_chunks: Query<(Entity, &Chunk), Added<Chunk>>) {
