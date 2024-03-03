@@ -161,7 +161,7 @@ pub fn serialize_scene(world: &mut World) {
             &err,
             space_shared::toast::ToastKind::Error,
         ));
-        error!("{err}");
+        error!(err);
     }
 
     world

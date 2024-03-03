@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::{HookedSceneBundle, SceneHook};
+use space_shared::toast::ToastMessage;
 
 use super::component::*;
 
@@ -189,9 +190,15 @@ pub fn spawn_player_start(
     mut commands: Commands,
     query: Query<(Entity, &PlayerStart)>,
     asset_server: Res<AssetServer>,
+    mut toast: EventWriter<ToastMessage>,
 ) {
     for (e, prefab) in query.iter() {
-        info!("Spawning player start {:?} {}", e, &prefab.prefab);
+        let msg = format!("Spawning player start {:?} {}", e, &prefab.prefab);
+        toast.send(ToastMessage::new(
+            &msg,
+            space_shared::toast::ToastKind::Info,
+        ));
+        info!(msg);
         let child = commands
             .spawn(DynamicSceneBundle {
                 scene: asset_server.load(prefab.prefab.to_string()),
