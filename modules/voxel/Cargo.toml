@@ -1,0 +1,34 @@
+
+[package]
+name = "voxel"
+version = "0.4.0"
+authors = ["Lucas A. <game4allyt@gmail.com>"]
+edition = "2021"
+resolver = "2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.12"
+ndshape = "0.3.0"
+block-mesh = "0.2.0"
+ndcopy = "0.3.0"
+thread_local = "1.1.7"
+bevy_egui = "0.23"
+float-ord = "0.3.2"
+futures-lite = "1.12.0"
+once_cell = "1.17.1"
+bevy_atmosphere = "0.8"
+bitflags = "2.0.2"
+ilattice = { version = "0.3.0", features = ["glam", "morton-encoding"] }
+noise = "0.8.2"
+itertools = "0.11.0"
+
+space_editor_ui.workspace = true
+
+
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+lto = "thin"

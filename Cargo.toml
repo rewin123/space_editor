@@ -75,6 +75,7 @@ serde = "1"
 
 # Community Modules
 space_bevy_xpbd_plugin = { version = "0.4.0", path = "modules/bevy_xpbd_plugin"}
+voxel = { version = "0.4.0", path = "modules/voxel"}
 
 [patch.crates-io]
 bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
@@ -86,6 +87,7 @@ space_prefab.workspace = true
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
+voxel = { workspace = true, optional = true }
 
 # For versions 1.74+
 [workspace.lints.rust]
@@ -113,7 +115,8 @@ bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
 editor = ["space_prefab/editor"]
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
+default = ["bevy_xpbd_3d", "persistence_editor", "editor", "voxel"]
+voxel = ["dep:voxel"]
 
 [[example]]
 name = "platformer"
