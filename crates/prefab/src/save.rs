@@ -206,7 +206,7 @@ mod tests {
         // Debug on CI
         std::fs::read_dir("./")
             .unwrap()
-            .filter_map(|d|  std::fs::read_dir(d.ok()?.path()).ok())
+            .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
             .flatten()
             .inspect(|d| println!("{:?}", d))
             .for_each(|_| {});
