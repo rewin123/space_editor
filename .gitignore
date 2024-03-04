@@ -14,3 +14,4 @@ docs/.obsidian/*
 editor.ron
 .idea/*
 crates/prefab/test*.ron
+**/.DS_Store

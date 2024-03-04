@@ -212,3 +212,30 @@ fn apply_compressed_scenes(
         commands.entity(root_entity).remove::<DecompressedScene>();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clears_subscene_aftersave() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((
+                space_shared::PrefabMarker,
+                CollapsedSubScene(String::from("tes1")),
+            ));
+            commands.spawn((
+                space_shared::PrefabMarker,
+                CollapsedSubScene(String::from("test2")),
+            ));
+        });
+        app.add_systems(Update, clear_after_save);
+        app.update();
+        app.update();
+
+        let mut query = app.world.query::<&CollapsedSubScene>();
+
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+}

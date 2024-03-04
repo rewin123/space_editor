@@ -333,4 +333,25 @@ mod tests {
         let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }
+
+    #[test]
+    fn prepared_children_ignores_scene_auto_child_component() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands
+                .spawn((PrefabMarker, SceneAutoChild))
+                .add_child(child_id);
+
+            let child_id = commands.spawn_empty().id();
+            commands.spawn(PrefabMarker).add_child(child_id);
+
+            commands.spawn(PrefabMarker);
+        })
+        .add_systems(Update, prepare_children);
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
 }
