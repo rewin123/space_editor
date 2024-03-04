@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bevy::prelude::*;
-use bevy_egui_next::{
+use bevy_egui::{
     egui::{Align, Align2, Margin, Pos2, Stroke, Widget},
     *,
 };

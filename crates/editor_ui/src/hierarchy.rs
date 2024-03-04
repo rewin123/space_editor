@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
-use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
+use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};

@@ -1,5 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui_next::EguiContexts;
+use bevy_egui::EguiContexts;
 use space_shared::toast::*;
 
 #[derive(Default)]

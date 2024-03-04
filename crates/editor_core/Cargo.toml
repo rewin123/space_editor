@@ -18,7 +18,7 @@ space_undo.workspace = true
 space_persistence.workspace = true
 space_shared.workspace = true
 
-bevy_egui_next.workspace = true
+bevy_egui.workspace = true
 egui_dock.workspace = true
 egui-toast.workspace = true
 

@@ -23,7 +23,7 @@ impl ChildrenPrefab {
 
 impl MapEntities for ChildrenPrefab {
     #[cfg_attr(tarpaulin, ignore)]
-    fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
+    fn map_entities<M: EntityMapper>(&mut self, entity_mapper: &mut M) {
         self.0 = self
             .0
             .iter()

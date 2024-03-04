@@ -106,7 +106,6 @@ impl Plugin for BasePrefabPlugin {
         app.register_type::<CapsulePrefab>();
         app.register_type::<CirclePrefab>();
         app.register_type::<CylinderPrefab>();
-        app.register_type::<IcospherePrefab>();
         app.register_type::<PlanePrefab>();
         app.register_type::<RegularPolygonPrefab>();
         app.register_type::<TorusPrefab>();
@@ -231,7 +230,7 @@ fn camera_render_graph_creation(
 ) {
     for e in query.iter() {
         commands.entity(e).insert(CameraRenderGraph::new(
-            bevy::core_pipeline::core_3d::graph::NAME,
+            bevy::core_pipeline::core_3d::graph::Core3d,
         ));
     }
 }

@@ -1,5 +1,5 @@
+use bevy::math::primitives as math_shapes;
 use bevy::prelude::*;
-
 use space_shared::ext::bevy_inspector_egui::prelude::*;
 
 /// Component to setup mesh of prefab
@@ -13,7 +13,6 @@ pub enum MeshPrimitivePrefab {
     Capsule(CapsulePrefab),
     Circle(CirclePrefab),
     Cylinder(CylinderPrefab),
-    Icosphere(IcospherePrefab),
     Plane(PlanePrefab),
     RegularPolygon(RegularPolygonPrefab),
     Torus(TorusPrefab),
@@ -40,10 +39,7 @@ pub enum MeshPrimitive2dPrefab {
 
 impl Default for MeshPrimitive2dPrefab {
     fn default() -> Self {
-        Self::Quad(QuadPrefab {
-            size: Vec2::ONE,
-            flip: false,
-        })
+        Self::Quad(QuadPrefab { size: Vec2::ONE })
     }
 }
 
@@ -51,14 +47,13 @@ impl MeshPrimitivePrefab {
     /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
-            Self::Cube(s) => Mesh::from(shape::Cube::new(*s)),
+            Self::Cube(s) => Mesh::from(math_shapes::Cuboid::new(*s, *s, *s)),
             Self::Box(b) => b.to_mesh(),
             Self::Sphere(s) => s.to_mesh(),
             Self::Quad(q) => q.to_mesh(),
             Self::Capsule(c) => c.to_mesh(),
             Self::Circle(c) => c.to_mesh(),
             Self::Cylinder(c) => c.to_mesh(),
-            Self::Icosphere(c) => c.to_mesh(),
             Self::Plane(c) => c.to_mesh(),
             Self::RegularPolygon(c) => c.to_mesh(),
             Self::Torus(c) => c.to_mesh(),
@@ -99,7 +94,7 @@ impl Default for BoxPrefab {
 
 impl BoxPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        Mesh::from(shape::Box::new(self.w, self.h, self.d))
+        Mesh::from(math_shapes::Cuboid::new(self.w, self.h, self.d))
     }
 }
 
@@ -118,10 +113,7 @@ impl Default for SpherePrefab {
 
 impl SpherePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::UVSphere {
-            radius: self.r,
-            ..Default::default()
-        };
+        let data = math_shapes::Sphere { radius: self.r };
         Mesh::from(data)
     }
 }
@@ -132,25 +124,17 @@ impl SpherePrefab {
 pub struct QuadPrefab {
     /// Full width and height of the rectangle.
     pub size: Vec2,
-    /// Horizontally-flip the texture coordinates of the resulting mesh.
-    pub flip: bool,
 }
 
 impl Default for QuadPrefab {
     fn default() -> Self {
-        Self {
-            size: Vec2::ONE,
-            flip: false,
-        }
+        Self { size: Vec2::ONE }
     }
 }
 
 impl QuadPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Quad {
-            size: self.size,
-            flip: self.flip,
-        };
+        let data = math_shapes::Rectangle::from_size(self.size);
         Mesh::from(data)
     }
 }
@@ -160,25 +144,24 @@ impl QuadPrefab {
 #[reflect(Default)]
 pub struct CapsulePrefab {
     pub r: f32,
-    pub rings: usize,
+    pub half_length: f32,
 }
 
 impl Default for CapsulePrefab {
     fn default() -> Self {
-        let def = shape::Capsule::default();
+        let def = math_shapes::Capsule3d::default();
         Self {
             r: def.radius,
-            rings: def.rings,
+            half_length: def.half_length,
         }
     }
 }
 
 impl CapsulePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Capsule {
+        let data = math_shapes::Capsule3d {
             radius: self.r,
-            rings: self.rings,
-            ..Default::default()
+            half_length: self.half_length,
         };
         Mesh::from(data)
     }
@@ -189,26 +172,18 @@ impl CapsulePrefab {
 #[reflect(Default, InspectorOptions)]
 pub struct CirclePrefab {
     pub r: f32,
-    #[inspector(min = 3)]
-    pub vertices: usize,
 }
 
 impl Default for CirclePrefab {
     fn default() -> Self {
-        let def = shape::Circle::default();
-        Self {
-            r: def.radius,
-            vertices: def.vertices,
-        }
+        let def = math_shapes::Circle::default();
+        Self { r: def.radius }
     }
 }
 
 impl CirclePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Circle {
-            radius: self.r,
-            vertices: self.vertices,
-        };
+        let data = math_shapes::Circle { radius: self.r };
         Mesh::from(data)
     }
 }
@@ -218,61 +193,26 @@ impl CirclePrefab {
 #[reflect(Default)]
 pub struct CylinderPrefab {
     pub r: f32,
-    pub resolution: u32,
-    pub segments: u32,
+    pub half_height: f32,
 }
 
 impl Default for CylinderPrefab {
     fn default() -> Self {
-        let def = shape::Cylinder::default();
+        let def = math_shapes::Cylinder::default();
         Self {
             r: def.radius,
-            resolution: def.resolution,
-            segments: def.segments,
+            half_height: def.half_height,
         }
     }
 }
 
 impl CylinderPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Cylinder {
+        let data = math_shapes::Cylinder {
             radius: self.r,
-            resolution: self.resolution,
-            segments: self.segments,
-            ..Default::default()
+            half_height: self.half_height,
         };
         Mesh::from(data)
-    }
-}
-
-/// Values to setup icosphere mesh
-#[derive(Reflect, Clone)]
-#[reflect(Default)]
-pub struct IcospherePrefab {
-    pub r: f32,
-    pub subdivisions: usize,
-}
-
-impl Default for IcospherePrefab {
-    fn default() -> Self {
-        let def = shape::Icosphere::default();
-        Self {
-            r: def.radius,
-            subdivisions: def.subdivisions,
-        }
-    }
-}
-
-impl IcospherePrefab {
-    pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Icosphere {
-            radius: self.r,
-            subdivisions: self.subdivisions,
-        };
-        Mesh::try_from(data).map_or_else(
-            |_| Mesh::try_from(shape::Icosphere::default()).unwrap(),
-            |mesh| mesh,
-        )
     }
 }
 
@@ -281,25 +221,18 @@ impl IcospherePrefab {
 #[reflect(Default)]
 pub struct PlanePrefab {
     pub size: f32,
-    pub subdivisions: u32,
 }
 
 impl Default for PlanePrefab {
     fn default() -> Self {
-        let def = shape::Plane::default();
-        Self {
-            size: def.size,
-            subdivisions: def.subdivisions,
-        }
+        let def = math_shapes::Rectangle::default();
+        Self { size: def.size }
     }
 }
 
 impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Plane {
-            size: self.size,
-            subdivisions: self.subdivisions,
-        };
+        let data = math_shapes::Rectangle::from_size(self.size);
         Mesh::from(data)
     }
 }
@@ -308,16 +241,16 @@ impl PlanePrefab {
 #[derive(Reflect, Clone, InspectorOptions)]
 #[reflect(Default, InspectorOptions)]
 pub struct RegularPolygonPrefab {
-    pub radius: f32,
+    pub circumcircle_radius: f32,
     #[inspector(min = 3)]
     pub sides: usize,
 }
 
 impl Default for RegularPolygonPrefab {
     fn default() -> Self {
-        let def = shape::RegularPolygon::default();
+        let def = math_shapes::RegularPolygon::default();
         Self {
-            radius: def.radius,
+            circumcircle_radius: def.circumcircle_radius,
             sides: def.sides,
         }
     }
@@ -325,8 +258,10 @@ impl Default for RegularPolygonPrefab {
 
 impl RegularPolygonPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::RegularPolygon {
-            radius: self.radius,
+        let data = math_shapes::RegularPolygon {
+            circumcircle: Circle {
+                radius: self.circumcircle_radius,
+            },
             sides: self.sides,
         };
         Mesh::from(data)
@@ -337,31 +272,25 @@ impl RegularPolygonPrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct TorusPrefab {
-    pub radius: f32,
-    pub ring_radius: f32,
-    pub subdivisions_sides: usize,
-    pub subdivisions_segments: usize,
+    pub minor_radius: f32,
+    pub major_radius: f32,
 }
 
 impl Default for TorusPrefab {
     fn default() -> Self {
-        let def = shape::Torus::default();
+        let def = math_shapes::Torus::default();
         Self {
-            radius: def.radius,
-            ring_radius: def.ring_radius,
-            subdivisions_sides: def.subdivisions_sides,
-            subdivisions_segments: def.subdivisions_segments,
+            minor_radius: def.minor_radius,
+            major_radius: def.major_radius,
         }
     }
 }
 
 impl TorusPrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = shape::Torus {
-            radius: self.radius,
-            ring_radius: self.ring_radius,
-            subdivisions_sides: self.subdivisions_sides,
-            subdivisions_segments: self.subdivisions_segments,
+        let data = math_shapes::Torus {
+            minor_radius: self.minor_radius,
+            major_radius: self.major_radius,
         };
         Mesh::from(data)
     }
@@ -370,7 +299,6 @@ impl TorusPrefab {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bevy::render::mesh::shape;
 
     #[test]
     fn test_box_to_mesh() {
@@ -384,7 +312,7 @@ mod tests {
         // Hack to test if they are actually equal
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::Box::new(1.0, 2.0, 3.0)))
+            format!("{:?}", Mesh::from(math_shapes::Cuboid::new(1.0, 2.0, 3.0)))
         );
     }
 
@@ -394,7 +322,7 @@ mod tests {
         let mesh = cube_prefab.to_mesh();
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::Cube::new(2.0)))
+            format!("{:?}", Mesh::from(math_shapes::Cuboid::new(2.0, 2.0, 2.0)))
         );
     }
 
@@ -404,20 +332,7 @@ mod tests {
         let mesh = sphere_prefab.to_mesh();
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::UVSphere::default()))
-        );
-    }
-
-    #[test]
-    fn test_icosphere_to_mesh() {
-        let sphere_prefab = MeshPrimitivePrefab::Icosphere(IcospherePrefab {
-            r: 1.0,
-            subdivisions: 5,
-        });
-        let mesh = sphere_prefab.to_mesh();
-        assert_eq!(
-            format!("{mesh:?}"),
-            format!("{:?}", Mesh::try_from(shape::Icosphere::default()).unwrap())
+            format!("{:?}", Mesh::from(math_shapes::Sphere::default()))
         );
     }
 
@@ -428,7 +343,7 @@ mod tests {
         // You might want to adjust the expected default behavior
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::Cube::new(1.0)))
+            format!("{:?}", Mesh::from(math_shapes::Cuboid::new(1.0, 1.0, 1.0)))
         );
     }
 
@@ -436,13 +351,15 @@ mod tests {
     fn test_quad_to_mesh() {
         let default_prefab = MeshPrimitivePrefab::Quad(QuadPrefab {
             size: Vec2::new(1., 1.),
-            flip: false,
         });
         let mesh = default_prefab.to_mesh();
 
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::Quad::new(Vec2::new(1., 1.))))
+            format!(
+                "{:?}",
+                Mesh::from(math_shapes::Rectangle::from_size(Vec2::new(1., 1.)))
+            )
         );
     }
 
@@ -453,7 +370,7 @@ mod tests {
 
         assert_eq!(
             format!("{mesh:?}"),
-            format!("{:?}", Mesh::from(shape::Capsule::default()))
+            format!("{:?}", Mesh::from(math_shapes::Capsule3d::default()))
         );
     }
 }
