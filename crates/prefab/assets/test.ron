@@ -1,0 +1,20 @@
+(
+  resources: {},
+  entities: {
+    1: (
+      components: {
+        "space_shared::PrefabMarker": (),
+      },
+    ),
+    2: (
+      components: {
+        "bevy_core::name::Name": (
+          hash: 4112895840090108,
+          name: "my_name",
+        ),
+        "space_shared::PrefabMarker": (),
+      },
+    ),
+  },
+)
+))

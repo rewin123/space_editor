@@ -179,7 +179,7 @@ mod tests {
     use crate::prelude::*;
 
     #[test]
-    fn save_to_file() {
+    fn flaky_save_to_file() {
         let file = "test.ron";
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::File(String::from(file))),
@@ -213,7 +213,10 @@ mod tests {
             .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
             .flatten()
             .inspect(|d| println!("{:?}", d));
-        assert!(std::fs::metadata(format!("./{}", file)).is_ok());
+        assert!(
+            std::fs::metadata(format!("./{}", file)).is_ok(),
+            "Flaky Test: File not found"
+        );
 
         let contents = std::fs::read_to_string(file).unwrap();
 

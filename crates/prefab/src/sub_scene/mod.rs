@@ -5,6 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
+use space_shared::toast::ToastMessage;
 
 use crate::{
     component::*,
@@ -144,15 +145,34 @@ fn decompress_scene(
     mut commands: Commands,
     roots: Query<(Entity, &CollapsedSubScene)>,
     type_registry: Res<AppTypeRegistry>,
+    mut toast: EventWriter<ToastMessage>,
 ) {
     for (root_entity, root) in roots.iter() {
         let scene_deserializer = SceneDeserializer {
             type_registry: &type_registry.read(),
         };
-        let mut deserializer = ron::de::Deserializer::from_str(root.0.as_str()).unwrap();
-        let dyn_scene: DynamicScene = scene_deserializer.deserialize(&mut deserializer).unwrap();
+        let Ok(mut deserializer) = ron::de::Deserializer::from_str(root.0.as_str()) else {
+            toast.send(ToastMessage::new(
+                "Failed create Deserializer for sub scene",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
+        let Ok(dyn_scene) = scene_deserializer.deserialize(&mut deserializer) else {
+            toast.send(ToastMessage::new(
+                "Failed to deserialize sub scene",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
 
-        let scene = Scene::from_dynamic_scene(&dyn_scene, &type_registry).unwrap();
+        let Ok(scene) = Scene::from_dynamic_scene(&dyn_scene, &type_registry) else {
+            toast.send(ToastMessage::new(
+                "Decompress scene does not exist",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
 
         commands
             .entity(root_entity)
@@ -237,5 +257,35 @@ mod tests {
         let mut query = app.world.query::<&CollapsedSubScene>();
 
         assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn decompress_scene_trows_event_when_missing_subscene() {
+        let file = "test.ron";
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+            bevy::scene::ScenePlugin,
+            crate::prelude::EditorRegistryPlugin {},
+        ))
+        .add_event::<ToastMessage>()
+        .init_resource::<space_shared::PrefabMemoryCache>()
+        .editor_registry::<Name>()
+        .editor_registry::<space_shared::PrefabMarker>();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(CollapsedSubScene(file.to_string()));
+        });
+        app.add_systems(Update, decompress_scene);
+        app.update();
+
+        let events = app.world.resource::<Events<ToastMessage>>();
+
+        let mut iter = events.get_reader();
+        let iter = iter.read(events);
+        iter.for_each(|e| assert_eq!(e.text, "Failed to deserialize sub scene"));
     }
 }
