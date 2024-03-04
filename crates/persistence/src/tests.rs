@@ -304,8 +304,8 @@ fn persistence_system_unpack() {
     assert_eq!(count.target_count, 1);
     assert_eq!(count.load_counter, 1);
     assert_eq!(count.save_counter, 0);
-    assert_eq!(settings.save_on_close, false);
-    assert_eq!(settings.load_on_startup, true);
+    assert!(!settings.save_on_close);
+    assert!(settings.load_on_startup);
 }
 
 #[test]

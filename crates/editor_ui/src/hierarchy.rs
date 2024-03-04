@@ -4,7 +4,7 @@ use std::sync::Arc;
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
-use space_prefab::editor_registry::EditorRegistry;
+use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use space_shared::*;
@@ -66,6 +66,7 @@ pub fn show_hierarchy(
     mut ui: NonSendMut<EditorUiRef>,
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
+    auto_children: Query<(), With<SceneAutoChild>>,
 ) {
     let mut all: Vec<_> = if state.show_editor_entities {
         all_entities.iter().collect()
@@ -94,6 +95,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
+                        &auto_children,
                     );
                 } else {
                     draw_entity::<With<PrefabMarker>>(
@@ -104,6 +106,7 @@ pub fn show_hierarchy(
                         &mut selected,
                         &mut clone_events,
                         &mut changes,
+                        &auto_children,
                     );
                 }
             }
@@ -126,6 +129,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
     selected: &mut Query<Entity, With<Selected>>,
     clone_events: &mut EventWriter<CloneEvent>,
     changes: &mut EventWriter<NewChange>,
+    auto_children: &Query<(), With<SceneAutoChild>>,
 ) {
     let Ok((_, name, children, parent)) = query.get(entity) else {
         return;
@@ -145,6 +149,11 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             true,
         )
         .show_header(ui, |ui| {
+            let mut entity_name = egui::RichText::new(entity_name.clone());
+            if auto_children.get(entity).is_ok() {
+                entity_name = entity_name.italics();
+            }
+
             let response = ui.selectable_label(is_selected, entity_name);
             let is_clicked = response.clicked();
             response.context_menu(|ui| {
@@ -178,7 +187,16 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         })
         .body(|ui| {
             for child in children.unwrap().iter() {
-                draw_entity(commands, ui, query, *child, selected, clone_events, changes);
+                draw_entity(
+                    commands,
+                    ui,
+                    query,
+                    *child,
+                    selected,
+                    clone_events,
+                    changes,
+                    auto_children,
+                );
             }
         });
     } else {

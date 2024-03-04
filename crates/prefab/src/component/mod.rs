@@ -45,10 +45,18 @@ impl Default for GltfPrefab {
     }
 }
 
+/// Marker for loaded scene roots (for example gltf root)
+#[derive(Component)]
+pub struct SceneAutoRoot;
+
 /// Marker for entities spawned from gltf scene
 #[cfg(not(tarpaulin_include))]
 #[derive(Component, Reflect, Default)]
 pub struct SceneAutoChild;
+
+/// Saved sub world for restore states of auto scene entities
+#[derive(Component)]
+pub struct AutoScenePersistence(String);
 
 /// Not used right now. Planned to be easy method for creating prefab structs from usual structs with assets
 #[derive(Component, Reflect, Clone, Default)]

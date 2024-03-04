@@ -4,10 +4,10 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use space_shared::{toast::ToastMessage, EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
-use crate::prelude::{EditorRegistry, EditorRegistryExt};
+use crate::prelude::{EditorRegistry, EditorRegistryExt, SceneAutoChild};
 
 #[derive(Reflect, Default, Component, Clone)]
 #[reflect(Component, MapEntities)]
@@ -78,7 +78,10 @@ pub enum SaveState {
     Idle,
 }
 
-fn prepare_children(mut commands: Commands, query: Query<(Entity, &Children), With<PrefabMarker>>) {
+fn prepare_children(
+    mut commands: Commands,
+    query: Query<(Entity, &Children), (With<PrefabMarker>, Without<SceneAutoChild>)>,
+) {
     for (entity, children) in query.iter() {
         commands
             .entity(entity)
@@ -96,12 +99,13 @@ fn delete_prepared_children(mut commands: Commands, query: Query<Entity, With<Ch
 pub fn serialize_scene(world: &mut World) {
     let config = world.resource::<SaveConfig>().clone();
 
-    let mut prefab_query = world.query_filtered::<Entity, With<PrefabMarker>>();
+    let mut prefab_query =
+        world.query_filtered::<Entity, (With<PrefabMarker>, Without<SceneAutoChild>)>();
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
     if entities.is_empty() {
         #[cfg(feature = "editor")]
-        world.send_event(ToastMessage::new(
+        world.send_event(space_shared::toast::ToastMessage::new(
             "Saving empty scene",
             space_shared::toast::ToastKind::Warning,
         ));
@@ -157,7 +161,7 @@ pub fn serialize_scene(world: &mut World) {
         #[cfg_attr(tarpaulin, ignore)]
         let err = format!("failed to serialize prefab: {:?}", e);
         #[cfg(feature = "editor")]
-        world.send_event(ToastMessage::new(
+        world.send_event(space_shared::toast::ToastMessage::new(
             &err,
             space_shared::toast::ToastKind::Error,
         ));
@@ -175,7 +179,7 @@ mod tests {
     use crate::prelude::*;
 
     #[test]
-    fn save_to_file() {
+    fn flaky_save_to_file() {
         let file = "test.ron";
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::File(String::from(file))),
@@ -185,7 +189,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
@@ -204,15 +208,17 @@ mod tests {
 
         serialize_scene(&mut app.world);
         // Debug on CI
-        std::fs::read_dir("./")
+        let _ = std::fs::read_dir("./")
             .unwrap()
             .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
             .flatten()
-            .inspect(|d| println!("{:?}", d))
-            .for_each(|_| {});
-        assert!(std::fs::metadata(&format!("./{}", file)).is_ok());
+            .inspect(|d| println!("{:?}", d));
+        assert!(
+            std::fs::metadata(format!("./{}", file)).is_ok(),
+            "Flaky Test: File not found"
+        );
 
-        let contents = std::fs::read_to_string(&file).unwrap();
+        let contents = std::fs::read_to_string(file).unwrap();
 
         assert!(contents.contains("my_name"));
         assert!(contents.contains("space_shared::PrefabMarker"));
@@ -228,7 +234,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
@@ -298,12 +304,13 @@ mod tests {
 
         let mut query = world.query::<&Children>();
         let children = query.single(&world);
-        let prefab = ChildrenPrefab::from_children(&children);
+        let prefab = ChildrenPrefab::from_children(children);
 
         assert_eq!(prefab.0.len(), 1);
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn attempts_to_serialize_empty_scene() {
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::MemoryCache),
@@ -313,21 +320,44 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            bevy::scene::ScenePlugin::default(),
+            bevy::scene::ScenePlugin,
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
-        .add_event::<ToastMessage>()
+        .add_event::<space_shared::toast::ToastMessage>()
         .insert_resource(save_config)
         .init_resource::<PrefabMemoryCache>();
 
         app.update();
 
         serialize_scene(&mut app.world);
-        let events = app.world.resource::<Events<ToastMessage>>();
+        let events = app
+            .world
+            .resource::<Events<space_shared::toast::ToastMessage>>();
 
         let mut iter = events.get_reader();
-        let iter = iter.read(&events);
+        let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
+    }
+
+    #[test]
+    fn prepared_children_ignores_scene_auto_child_component() {
+        let mut app = App::new();
+        app.add_systems(Startup, |mut commands: Commands| {
+            let child_id = commands.spawn_empty().id();
+            commands
+                .spawn((PrefabMarker, SceneAutoChild))
+                .add_child(child_id);
+
+            let child_id = commands.spawn_empty().id();
+            commands.spawn(PrefabMarker).add_child(child_id);
+
+            commands.spawn(PrefabMarker);
+        })
+        .add_systems(Update, prepare_children);
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world).count(), 1);
     }
 }
