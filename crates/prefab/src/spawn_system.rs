@@ -207,7 +207,9 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "editor")]
     use super::*;
+    #[cfg(feature = "editor")]
     use bevy::scene::ScenePlugin;
 
     #[test]
