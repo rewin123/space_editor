@@ -207,12 +207,10 @@ mod tests {
         app.update();
 
         serialize_scene(&mut app.world);
-        // Debug on CI
-        let _ = std::fs::read_dir("./")
-            .unwrap()
-            .filter_map(|d| std::fs::read_dir(d.ok()?.path()).ok())
-            .flatten()
-            .inspect(|d| println!("{:?}", d));
+
+        // Delay for 0.2 second for IOTaskPool to finish
+        std::thread::sleep(std::time::Duration::from_secs_f32(0.2));
+
         assert!(
             std::fs::metadata(format!("./{}", file)).is_ok(),
             "Flaky Test: File not found"
