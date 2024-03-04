@@ -4,7 +4,7 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use space_shared::{toast::ToastMessage, EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt, SceneAutoChild};
@@ -105,7 +105,7 @@ pub fn serialize_scene(world: &mut World) {
 
     if entities.is_empty() {
         #[cfg(feature = "editor")]
-        world.send_event(ToastMessage::new(
+        world.send_event(space_shared::toast::ToastMessage::new(
             "Saving empty scene",
             space_shared::toast::ToastKind::Warning,
         ));
@@ -161,7 +161,7 @@ pub fn serialize_scene(world: &mut World) {
         #[cfg_attr(tarpaulin, ignore)]
         let err = format!("failed to serialize prefab: {:?}", e);
         #[cfg(feature = "editor")]
-        world.send_event(ToastMessage::new(
+        world.send_event(space_shared::toast::ToastMessage::new(
             &err,
             space_shared::toast::ToastKind::Error,
         ));
@@ -310,6 +310,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn attempts_to_serialize_empty_scene() {
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::MemoryCache),
@@ -323,14 +324,16 @@ mod tests {
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
-        .add_event::<ToastMessage>()
+        .add_event::<space_shared::toast::ToastMessage>()
         .insert_resource(save_config)
         .init_resource::<PrefabMemoryCache>();
 
         app.update();
 
         serialize_scene(&mut app.world);
-        let events = app.world.resource::<Events<ToastMessage>>();
+        let events = app
+            .world
+            .resource::<Events<space_shared::toast::ToastMessage>>();
 
         let mut iter = events.get_reader();
         let iter = iter.read(events);
