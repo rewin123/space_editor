@@ -423,7 +423,7 @@ pub mod sizing {
     impl Default for Sizing {
         fn default() -> Self {
             Self {
-                icon: IconSize::Medium,
+                icon: IconSize::Regular,
                 gizmos: IconSize::Gizmos,
                 text: 14.,
             }

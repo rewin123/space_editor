@@ -10,7 +10,7 @@ use space_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
-use space_prefab::plugins::PrefabPlugin;
+use space_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
 use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
@@ -132,6 +132,7 @@ pub struct MenuToolbarState {
     pub gltf_dialog: Option<egui_file::FileDialog>,
     pub save_dialog: Option<egui_file::FileDialog>,
     pub load_dialog: Option<egui_file::FileDialog>,
+    pub subscene_dialog: Option<egui_file::FileDialog>,
     show_toasts: bool,
     pub path: String,
 }
@@ -261,6 +262,7 @@ pub fn bottom_menu(
 }
 
 pub fn top_menu(
+    mut commands: Commands,
     mut ctxs: EguiContexts,
     _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
@@ -462,6 +464,55 @@ pub fn top_menu(
                 }
                 // End Open GLTF
 
+                //Open subscene
+                let subscene_button = egui::Button::new(to_richtext("📦", &sizing.icon))
+                    .stroke(stroke_default_color());
+                if ui.add(subscene_button).on_hover_text("Open subscene").clicked() {
+                    let mut filedialog = egui_file::FileDialog::open_file(Some("assets".into()))
+                        .show_files_filter(Box::new(|path| {
+                            path.to_str().unwrap().ends_with(".scn.ron")
+                                || path.to_str().unwrap().ends_with(".gltf")
+                                || path.to_str().unwrap().ends_with(".glb")
+                        }))
+                        .title("Open Subscene (.scn.ron, .gltf, .glb)");;
+                    filedialog.open();
+
+                    menu_state.subscene_dialog = Some(filedialog);
+                }
+
+                if let Some(subscene_dialog) = &mut menu_state.subscene_dialog {
+                    if subscene_dialog.show(ctx).selected() {
+                        if let Some(file) = subscene_dialog.path() {
+                            let mut path = file.to_str().unwrap().to_string();
+                            info!("path: {}", path);
+                            if path.starts_with("assets") {
+                                path = path.replace("assets", "");
+                                path = path.trim_start_matches("\\").to_string();
+                                path = path.trim_start_matches("/").to_string();
+
+                                if path.ends_with(".scn.ron") {
+                                    commands.spawn((PrefabBundle::new(&path), PrefabMarker));
+                                } else if path.ends_with(".gltf") || path.ends_with(".glb") {
+                                    commands.spawn((
+                                        SpatialBundle::default(),
+                                        GltfPrefab {
+                                            path,
+                                            scene: "Scene0".into(),
+                                        },
+                                        PrefabMarker
+                                    ));
+                                } else {
+                                    error!("Unknown file type: {}", path);
+                                }
+                            }
+                        } else {
+
+                        }
+                    } else {
+                        
+                    }
+                }
+
                 let width = ui.available_width();
                 let distance = width / 2. - 40.;
                 ui.add_space(distance);
@@ -469,7 +520,7 @@ pub fn top_menu(
                     .fill(SPECIAL_BG_COLOR)
                     .stroke(Stroke {
                         width: 1.,
-                        color: SELECTED_ITEM_COLOR,
+                        color: egui::Color32::DARK_GRAY,
                     });
                 if ui.add(play_button).clicked() {
                     editor_events.send(EditorEvent::StartGame);
