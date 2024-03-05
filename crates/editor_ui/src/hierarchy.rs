@@ -1,7 +1,11 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::{entity, query::ReadOnlyWorldQuery}, prelude::*, utils::HashMap};
+use bevy::{
+    ecs::{entity, query::ReadOnlyWorldQuery},
+    prelude::*,
+    utils::HashMap,
+};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
@@ -207,7 +211,6 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             }
         });
     } else {
-
         let mut entity_name = egui::RichText::new(format!("      {}", entity_name));
         let is_auto_child = auto_children.get(entity).is_ok();
         if is_auto_child {

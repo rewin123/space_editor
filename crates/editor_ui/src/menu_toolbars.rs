@@ -467,14 +467,18 @@ pub fn top_menu(
                 //Open subscene
                 let subscene_button = egui::Button::new(to_richtext("📦", &sizing.icon))
                     .stroke(stroke_default_color());
-                if ui.add(subscene_button).on_hover_text("Open subscene").clicked() {
+                if ui
+                    .add(subscene_button)
+                    .on_hover_text("Open subscene")
+                    .clicked()
+                {
                     let mut filedialog = egui_file::FileDialog::open_file(Some("assets".into()))
                         .show_files_filter(Box::new(|path| {
                             path.to_str().unwrap().ends_with(".scn.ron")
                                 || path.to_str().unwrap().ends_with(".gltf")
                                 || path.to_str().unwrap().ends_with(".glb")
                         }))
-                        .title("Open Subscene (.scn.ron, .gltf, .glb)");;
+                        .title("Open Subscene (.scn.ron, .gltf, .glb)");
                     filedialog.open();
 
                     menu_state.subscene_dialog = Some(filedialog);
@@ -499,17 +503,15 @@ pub fn top_menu(
                                             path,
                                             scene: "Scene0".into(),
                                         },
-                                        PrefabMarker
+                                        PrefabMarker,
                                     ));
                                 } else {
                                     error!("Unknown file type: {}", path);
                                 }
                             }
                         } else {
-
                         }
                     } else {
-                        
                     }
                 }
 
