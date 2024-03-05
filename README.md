@@ -51,7 +51,6 @@ space_editor = "0.4.0"
 
 # For now it is recomendended to use the following patches of the libraries we are using
 [patch.crates-io]
-egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
 bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 ```
 
