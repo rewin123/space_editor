@@ -6,13 +6,13 @@ use bevy_egui_next::{
     *,
 };
 use egui_dock::egui::RichText;
-use space_editor_core::{
+use kcg_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
-use space_prefab::plugins::PrefabPlugin;
-use space_shared::{ext::egui_file, *};
-use space_undo::{AddedEntity, NewChange, RemovedEntity};
+use kcg_prefab::plugins::PrefabPlugin;
+use kcg_shared::{ext::egui_file, *};
+use kcg_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
     colors::*,

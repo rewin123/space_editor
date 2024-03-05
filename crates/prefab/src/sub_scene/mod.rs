@@ -5,7 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
-use space_shared::toast::ToastMessage;
+use kcg_shared::toast::ToastMessage;
 
 use crate::{
     component::*,
@@ -154,14 +154,14 @@ fn decompress_scene(
         let Ok(mut deserializer) = ron::de::Deserializer::from_str(root.0.as_str()) else {
             toast.send(ToastMessage::new(
                 "Failed create Deserializer for sub scene",
-                space_shared::toast::ToastKind::Error,
+                kcg_shared::toast::ToastKind::Error,
             ));
             continue;
         };
         let Ok(dyn_scene) = scene_deserializer.deserialize(&mut deserializer) else {
             toast.send(ToastMessage::new(
                 "Failed to deserialize sub scene",
-                space_shared::toast::ToastKind::Error,
+                kcg_shared::toast::ToastKind::Error,
             ));
             continue;
         };
@@ -169,7 +169,7 @@ fn decompress_scene(
         let Ok(scene) = Scene::from_dynamic_scene(&dyn_scene, &type_registry) else {
             toast.send(ToastMessage::new(
                 "Decompress scene does not exist",
-                space_shared::toast::ToastKind::Error,
+                kcg_shared::toast::ToastKind::Error,
             ));
             continue;
         };
@@ -242,11 +242,11 @@ mod tests {
         let mut app = App::new();
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn((
-                space_shared::PrefabMarker,
+                kcg_shared::PrefabMarker,
                 CollapsedSubScene(String::from("tes1")),
             ));
             commands.spawn((
-                space_shared::PrefabMarker,
+                kcg_shared::PrefabMarker,
                 CollapsedSubScene(String::from("test2")),
             ));
         });
@@ -272,9 +272,9 @@ mod tests {
             crate::prelude::EditorRegistryPlugin {},
         ))
         .add_event::<ToastMessage>()
-        .init_resource::<space_shared::PrefabMemoryCache>()
+        .init_resource::<kcg_shared::PrefabMemoryCache>()
         .editor_registry::<Name>()
-        .editor_registry::<space_shared::PrefabMarker>();
+        .editor_registry::<kcg_shared::PrefabMarker>();
 
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn(CollapsedSubScene(file.to_string()));

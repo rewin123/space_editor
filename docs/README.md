@@ -1,6 +1,6 @@
-![Editor in edit mode](imgs/space_editor.png)
+![Editor in edit mode](imgs/kenney_city_editor.png)
 
-space_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
+kenney_city_editor is useful tool for scene/prefab/prototyping with bevy engine.  Its allow to create/modify levels/scenes/prefabs in fast gui based way.
 
 ## Main features
 
@@ -103,7 +103,7 @@ The dock system in the Editor UI offers a high degree of flexibility:
 
 ### Bottom menu
 
-![bot_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/bot_menu.png)
+![bot_menu.png](https://github.com/rewin123/kenney_city_editor/blob/main/docs/imgs/bot_menu.png)
 
 Bottom menu is panel with settings for current scene. It contains:
 
@@ -118,7 +118,7 @@ Bottom menu is panel with settings for current scene. It contains:
 - "Current Scene", label with the current scene name and path
 
 ### Top Menu
-![top_menu.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/top_menu.png)
+![top_menu.png](https://github.com/rewin123/kenney_city_editor/blob/main/docs/imgs/top_menu.png)
 
 Top menu is panel with scene management options. It contains:
 
@@ -183,13 +183,13 @@ app.editor_bundle("Mesh", "Cube", (
 
 And after call method, "Cube" bundle can be accessed in UI
 
-![/imgs/example_bundle.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle.png)
+![/imgs/example_bundle.png](https://github.com/rewin123/kenney_city_editor/blob/main/docs/imgs/example_bundle.png)
 
-![/imgs/example_bundle_2.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_bundle_2.png)
+![/imgs/example_bundle_2.png](https://github.com/rewin123/kenney_city_editor/blob/main/docs/imgs/example_bundle_2.png)
 
 ## Add New Tab to Editor UI
 
-In space_editor, you have two methods for adding new tabs to the editor user interface:
+In kenney_city_editor, you have two methods for adding new tabs to the editor user interface:
 
 ### Trait-Based Tab
 
@@ -223,9 +223,9 @@ app.editor_tab(EditorTabName::Other("simple_tab".to_string()), "Simnple tab".int
 ```
 
 Result:
-![/imgs/example_systenm_tab.png](https://github.com/rewin123/space_editor/blob/main/docs/imgs/example_systenm_tab.png)
+![/imgs/example_systenm_tab.png](https://github.com/rewin123/kenney_city_editor/blob/main/docs/imgs/example_systenm_tab.png)
 
-These approaches allow you to extend the space_editor's functionality by adding custom tabs tailored to your specific needs.
+These approaches allow you to extend the kenney_city_editor's functionality by adding custom tabs tailored to your specific needs.
 
 
 # Contribution
@@ -234,10 +234,10 @@ These approaches allow you to extend the space_editor's functionality by adding 
 
 Space editor code contains three main parts:
 - Src: This is where the editor executable and the library prelude are located, it is also a goo place to add your game specific code.
-- Modules: This are community created modules, and they serve as wrappers to crates or as space_editor own game oriented crates
+- Modules: This are community created modules, and they serve as wrappers to crates or as kenney_city_editor own game oriented crates
   - bevy_xpbd_plugin: A plugin that wraps bevy_xpbd_3d crate.
   - MORE TO COME!
-- Crates: This are space_editor specific workspace crates and the main ones are:
+- Crates: This are kenney_city_editor specific workspace crates and the main ones are:
   - Editor (crates/editor/): contains main editor UI
   - EditorCore (crates/editor_core/): contains editor core functionality like loading/saving/game start
   - Prefab (crates/prefab/): contains prefab logic and components and can be used separately from EditorUI or EditorCore, this is the plugin that your game need to use to load prefabs

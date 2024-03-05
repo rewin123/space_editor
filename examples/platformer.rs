@@ -6,8 +6,8 @@ use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
     prelude::*,
 };
-use space_editor::prelude::bevy_xpbd_3d::prelude::*;
-use space_editor::prelude::*;
+use kenney_city_editor::prelude::bevy_xpbd_3d::prelude::*;
+use kenney_city_editor::prelude::*;
 
 fn main() {
     App::default()

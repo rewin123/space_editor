@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::math::Vector;
 use bevy_xpbd_3d::{math::Quaternion, prelude::*};
-use space_editor_ui::{ext::bevy_inspector_egui::prelude::*, prelude::*};
+use kcg_editor_ui::{ext::bevy_inspector_egui::prelude::*, prelude::*};
 
 use crate::collider::ColliderPrimitive;
 

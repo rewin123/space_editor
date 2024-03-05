@@ -6,8 +6,8 @@ use bevy::{
     utils::HashMap,
 };
 
-use space_prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab};
-use space_shared::PrefabMarker;
+use kcg_prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab};
+use kcg_shared::PrefabMarker;
 
 use super::{BackgroundTask, BackgroundTaskStorage};
 

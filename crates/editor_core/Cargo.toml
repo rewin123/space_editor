@@ -1,10 +1,10 @@
 [package]
-name = "space_editor_core"
+name = "kcg_editor_core"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true 
 license.workspace = true
-description = "Subcrate for the space_editor crate. Contains the core functionality of the editor."
+description = "Subcrate for the kenney_city_editor crate. Contains the core functionality of the editor."
 repository.workspace = true
 homepage.workspace = true
 
@@ -13,10 +13,10 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 
-space_prefab.workspace = true
-space_undo.workspace = true
-space_persistence.workspace = true
-space_shared.workspace = true
+kcg_prefab.workspace = true
+kcg_undo.workspace = true
+kcg_persistence.workspace = true
+kcg_shared.workspace = true
 
 bevy_egui_next.workspace = true
 egui_dock.workspace = true
