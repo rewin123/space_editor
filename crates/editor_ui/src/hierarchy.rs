@@ -1,7 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
+use bevy::{ecs::{entity, query::ReadOnlyWorldQuery}, prelude::*, utils::HashMap};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
@@ -150,23 +150,30 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
         )
         .show_header(ui, |ui| {
             let mut entity_name = egui::RichText::new(entity_name.clone());
-            if auto_children.get(entity).is_ok() {
+            let is_auto_child = auto_children.get(entity).is_ok();
+            if is_auto_child {
                 entity_name = entity_name.italics();
             }
 
             let response = ui.selectable_label(is_selected, entity_name);
             let is_clicked = response.clicked();
-            response.context_menu(|ui| {
-                hierarchy_entity_context(
-                    ui,
-                    commands,
-                    entity,
-                    changes,
-                    clone_events,
-                    selected,
-                    parent,
-                );
-            });
+            if is_auto_child {
+                response.context_menu(|ui| {
+                    ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+                });
+            } else {
+                response.context_menu(|ui| {
+                    hierarchy_entity_context(
+                        ui,
+                        commands,
+                        entity,
+                        changes,
+                        clone_events,
+                        selected,
+                        parent,
+                    );
+                });
+            }
 
             if is_clicked {
                 if is_selected {
@@ -200,20 +207,33 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             }
         });
     } else {
-        let selectable = ui.selectable_label(is_selected, format!("      {}", entity_name));
+
+        let mut entity_name = egui::RichText::new(format!("      {}", entity_name));
+        let is_auto_child = auto_children.get(entity).is_ok();
+        if is_auto_child {
+            entity_name = entity_name.italics();
+        }
+
+        let selectable = ui.selectable_label(is_selected, entity_name);
         let is_clicked = selectable.clicked();
 
-        selectable.context_menu(|ui| {
-            hierarchy_entity_context(
-                ui,
-                commands,
-                entity,
-                changes,
-                clone_events,
-                selected,
-                parent,
-            );
-        });
+        if is_auto_child {
+            selectable.context_menu(|ui| {
+                ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+            });
+        } else {
+            selectable.context_menu(|ui| {
+                hierarchy_entity_context(
+                    ui,
+                    commands,
+                    entity,
+                    changes,
+                    clone_events,
+                    selected,
+                    parent,
+                );
+            });
+        }
 
         if is_clicked {
             if is_selected {
