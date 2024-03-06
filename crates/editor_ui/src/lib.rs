@@ -398,6 +398,7 @@ pub mod colors {
     }
     pub const STROKE_COLOR: Color32 = Color32::from_rgb(70, 70, 70);
     pub const SPECIAL_BG_COLOR: Color32 = Color32::from_rgb(20, 20, 20);
+    pub const PLAY_COLOR: Color32 = Color32::from_rgb(0, 194, 149);
     pub const DEFAULT_BG_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
     pub const ERROR_COLOR: Color32 = Color32::from_rgb(255, 59, 33);
     pub const HYPERLINK_COLOR: Color32 = Color32::from_rgb(99, 235, 231);
@@ -409,7 +410,7 @@ pub mod colors {
 pub mod sizing {
     use bevy::prelude::*;
     use bevy_inspector_egui::prelude::*;
-    use egui_dock::egui::RichText;
+    use egui_dock::egui::{Color32, RichText};
 
     #[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions)]
     #[reflect(Resource, Default, InspectorOptions)]
@@ -461,6 +462,10 @@ pub mod sizing {
 
     pub fn to_richtext(text: &str, size: &IconSize) -> RichText {
         RichText::new(text).size(size.to_size())
+    }
+
+    pub fn to_colored_richtext(text: &str, size: &IconSize, color: Color32) -> RichText {
+        RichText::new(text).size(size.to_size()).color(color)
     }
 
     pub fn to_label(text: &str, size: f32) -> RichText {
