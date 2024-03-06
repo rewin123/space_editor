@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use bevy::{
-    ecs::{entity, query::ReadOnlyWorldQuery},
+    ecs::query::ReadOnlyWorldQuery,
     prelude::*,
     utils::HashMap,
 };
@@ -14,6 +14,8 @@ use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
+
+pub const WARN_COLOR: egui::Color32 = egui::Color32::from_rgb(225, 206, 67);
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -163,7 +165,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             let is_clicked = response.clicked();
             if is_auto_child {
                 response.context_menu(|ui| {
-                    ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+                    ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
                 });
             } else {
                 response.context_menu(|ui| {
@@ -222,7 +224,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
         if is_auto_child {
             selectable.context_menu(|ui| {
-                ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+                ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
             });
         } else {
             selectable.context_menu(|ui| {
