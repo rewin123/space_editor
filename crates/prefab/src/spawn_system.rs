@@ -32,19 +32,19 @@ pub fn spawn_scene(
 
         let is_auto_child = auto_child.is_some();
 
+        commands.entity(e).insert(SceneAutoRoot);
+
         commands
             .entity(e)
             .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
-            .insert(SceneHook::new(move |_e, cmd| {
-                if _e.contains::<SceneAutoRoot>() {
+            .insert(SceneHook::new(move |e, cmd| {
+                if e.contains::<SceneAutoRoot>() {
                 } else if is_auto_child {
                     cmd.insert(SceneAutoChild);
                 } else {
                     cmd.insert(SceneAutoChild).insert(PrefabMarker);
                 }
             }));
-
-        commands.entity(e).insert(SceneAutoRoot);
 
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());

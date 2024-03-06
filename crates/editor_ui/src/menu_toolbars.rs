@@ -10,7 +10,7 @@ use kcg_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
-use kcg_prefab::plugins::PrefabPlugin;
+use kcg_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
 use kcg_shared::{ext::egui_file, *};
 use kcg_undo::{AddedEntity, NewChange, RemovedEntity};
 
@@ -70,7 +70,7 @@ fn in_game_menu(
     sizing: Res<Sizing>,
 ) {
     egui::TopBottomPanel::top("top_gameplay_panel")
-        .exact_height(&sizing.icon.to_size() + 4.)
+        .min_height(&sizing.icon.to_size() + 8.)
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
@@ -132,6 +132,7 @@ pub struct MenuToolbarState {
     pub gltf_dialog: Option<egui_file::FileDialog>,
     pub save_dialog: Option<egui_file::FileDialog>,
     pub load_dialog: Option<egui_file::FileDialog>,
+    pub subscene_dialog: Option<egui_file::FileDialog>,
     show_toasts: bool,
     pub path: String,
 }
@@ -149,9 +150,9 @@ pub fn bottom_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu")
-        .exact_height(&sizing.icon.to_size().max(sizing.text) + 4.)
+        .min_height(&sizing.icon.to_size().max(sizing.text) + 4.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
@@ -261,6 +262,7 @@ pub fn bottom_menu(
 }
 
 pub fn top_menu(
+    mut commands: Commands,
     mut ctxs: EguiContexts,
     _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
@@ -273,9 +275,9 @@ pub fn top_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::top("top_menu_bar")
-        .exact_height(&sizing.icon.to_size() + 4.)
+        .min_height(&sizing.icon.to_size() + 8.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 4.);
@@ -462,6 +464,55 @@ pub fn top_menu(
                 }
                 // End Open GLTF
 
+                //Open subscene
+                let subscene_button = egui::Button::new(to_richtext("📦", &sizing.icon))
+                    .stroke(stroke_default_color());
+                if ui
+                    .add(subscene_button)
+                    .on_hover_text("Open subscene")
+                    .clicked()
+                {
+                    let mut filedialog = egui_file::FileDialog::open_file(Some("assets".into()))
+                        .show_files_filter(Box::new(|path| {
+                            path.to_str().unwrap().ends_with(".scn.ron")
+                                || path.to_str().unwrap().ends_with(".gltf")
+                                || path.to_str().unwrap().ends_with(".glb")
+                        }))
+                        .title("Open Subscene (.scn.ron, .gltf, .glb)");
+                    filedialog.open();
+
+                    menu_state.subscene_dialog = Some(filedialog);
+                }
+
+                if let Some(subscene_dialog) = &mut menu_state.subscene_dialog {
+                    if subscene_dialog.show(ctx).selected() {
+                        if let Some(file) = subscene_dialog.path() {
+                            let mut path = file.to_str().unwrap().to_string();
+                            info!("path: {}", path);
+                            if path.starts_with("assets") {
+                                path = path.replace("assets", "");
+                                path = path.trim_start_matches('\\').to_string();
+                                path = path.trim_start_matches('/').to_string();
+
+                                if path.ends_with(".scn.ron") {
+                                    commands.spawn((PrefabBundle::new(&path), PrefabMarker));
+                                } else if path.ends_with(".gltf") || path.ends_with(".glb") {
+                                    commands.spawn((
+                                        SpatialBundle::default(),
+                                        GltfPrefab {
+                                            path,
+                                            scene: "Scene0".into(),
+                                        },
+                                        PrefabMarker,
+                                    ));
+                                } else {
+                                    error!("Unknown file type: {}", path);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 let width = ui.available_width();
                 let distance = width / 2. - 40.;
                 ui.add_space(distance);
@@ -504,7 +555,7 @@ pub fn top_menu(
                                     for (index, warning) in
                                         toasts.toasts_per_kind.warning.iter().enumerate()
                                     {
-                                        ui.label(RichText::new("WARN ").color(WARM_COLOR));
+                                        ui.label(RichText::new("WARN ").color(WARN_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
                                             clear_toast.send(ClearToastMessage::warn(index))
@@ -518,7 +569,7 @@ pub fn top_menu(
                         .button(
                             RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
                                 .color(if toasts.has_toasts() {
-                                    WARM_COLOR
+                                    WARN_COLOR
                                 } else {
                                     STROKE_COLOR
                                 }),
