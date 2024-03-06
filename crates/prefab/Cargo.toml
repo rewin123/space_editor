@@ -1,12 +1,12 @@
 [package]
-name = "space_prefab"
+name = "kcg_prefab"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 homepage.workspace = true
-description = "Subcrate for the space_editor crate. Contains the prefab systems and components."
+description = "Subcrate for the kenney_city_editor crate. Contains the prefab systems and components."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,8 +16,8 @@ editor = []
 
 [dependencies]
 bevy.workspace = true
-space_shared.workspace = true
-space_undo.workspace = true
+kcg_shared.workspace = true
+kcg_undo.workspace = true
 
 bevy-scene-hook.workspace = true
 bevy-inspector-egui.workspace = true

@@ -16,8 +16,8 @@ fn main() {
     }));
     #[cfg(feature = "editor")]
     {
-        use space_editor::SpaceEditorPlugin;
-        use space_editor_ui::{game_mode_changed, settings::GameModeSettings, simple_editor_setup};
+        use kenney_city_editor::SpaceEditorPlugin;
+        use kcg_editor_ui::{game_mode_changed, settings::GameModeSettings, simple_editor_setup};
 
         app.add_plugins(SpaceEditorPlugin)
             .add_systems(Startup, simple_editor_setup)

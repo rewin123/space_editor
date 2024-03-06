@@ -4,11 +4,10 @@ use std::sync::Arc;
 use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use egui_dock::egui::RichText;
-use space_editor_core::prelude::*;
-use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
-use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
-
-use space_shared::*;
+use kcg_editor_core::prelude::*;
+use kcg_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
+use kcg_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
+use kcg_shared::*;
 
 use crate::colors::WARN_COLOR;
 

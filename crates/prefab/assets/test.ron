@@ -3,7 +3,7 @@
   entities: {
     1: (
       components: {
-        "space_shared::PrefabMarker": (),
+        "kcg_shared::PrefabMarker": (),
       },
     ),
     2: (
@@ -12,7 +12,7 @@
           hash: 4112895840090108,
           name: "my_name",
         ),
-        "space_shared::PrefabMarker": (),
+        "kcg_shared::PrefabMarker": (),
       },
     ),
   },

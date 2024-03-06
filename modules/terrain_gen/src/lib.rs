@@ -2,17 +2,17 @@
 use bevy::prelude::*;
 use heightmap::{HeightMap, MapSettings, SmoothFunction};
 use mesh::TerrainDrawTag;
-use space_editor_ui::ui_registration::EditorUiExt;
-use space_prefab::editor_registry::EditorRegistryExt;
+use kcg_editor_ui::ui_registration::EditorUiExt;
+use kcg_prefab::editor_registry::EditorRegistryExt;
 
 pub mod heightmap;
-#[cfg(feature = "space_editor")]
+#[cfg(feature = "kenney_city_editor")]
 pub mod inspector;
 #[cfg(feature = "meshed")]
 pub mod mesh;
 
 pub use inspector::TerraingenInspectorPlugin;
-use space_shared::PrefabMarker;
+use kcg_shared::PrefabMarker;
 
 const TERRAIN_BUNDLE_CATEGORY: &str = "Terrain";
 

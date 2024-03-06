@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui_next::EguiContexts;
-use space_shared::toast::*;
+use kcg_shared::toast::*;
 
 #[derive(Default)]
 pub struct MouseCheck;

@@ -1,10 +1,10 @@
 [package]
-name = "space_undo"
+name = "kcg_undo"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true 
 license.workspace = true
-description = "Subcrate for the space_editor crate. Contains undo functionality."
+description = "Subcrate for the kenney_city_editor crate. Contains undo functionality."
 repository.workspace = true
 homepage.workspace = true
 

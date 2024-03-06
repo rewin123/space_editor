@@ -1,5 +1,5 @@
 [package]
-name = "space_editor"
+name = "kenney_city_editor"
 version.workspace = true 
 edition.workspace = true 
 license.workspace = true 
@@ -7,10 +7,10 @@ authors.workspace = true
 keywords.workspace = true 
 categories.workspace = true 
 exclude = ["/assets", "/examples"]
-description = "Prefab editor for bevy game engine. Make levels/object templates with intuitive UI"
+description = "Kenney city editor for Bevy Engine inspired by space_editor"
 readme = "README.md"
-homepage = "https://github.com/rewin123/space_editor"
-repository = "https://github.com/rewin123/space_editor"
+homepage = "https://github.com/naomijub/kenney_city_editor"
+repository = "https://github.com/naomijub/kenney_city_editor"
 
 [workspace]
 members = [
@@ -20,29 +20,30 @@ members = [
     "crates/persistence",
     "crates/editor_core", 
     "crates/editor_ui", 
-    "modules/bevy_xpbd_plugin"
+    "crates/bevy_xpbd_plugin"
 ]
 
 [workspace.package]
 version = "0.4.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
+authors = ["Julia Naomi <jnboeira@outlook.com>", "rewin <rewin1996@gmail.com>"]
 keywords = ["gamedev", "editor", "bevy"]
 categories = ["game-development"]
-repository = "https://github.com/rewin123/space_editor"
-homepage = "https://github.com/rewin123/space_editor"
+repository = "https://github.com/naomijub/kenney_city_editor"
+homepage = "https://github.com/naomijub/kenney_city_editor"
 
 [workspace.dependencies]
 bevy = "0.12"
 
 # Editor Crates
-space_prefab = { version = "0.4.0", path = "crates/prefab" }
-space_shared = { version = "0.4.0", path = "crates/shared" }
-space_undo = { version = "0.4.0", path = "crates/undo" }
-space_persistence = { version = "0.4.0", path = "crates/persistence"}
-space_editor_core = { version = "0.4.0", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.4.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+kcg_prefab = { version = "0.4.0", path = "crates/prefab" }
+kcg_shared = { version = "0.4.0", path = "crates/shared" }
+kcg_undo = { version = "0.4.0", path = "crates/undo" }
+kcg_persistence = { version = "0.4.0", path = "crates/persistence"}
+kcg_editor_core = { version = "0.4.0", path = "crates/editor_core", features = ["persistence_editor"] }
+kcg_editor_ui = { version = "0.4.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+kcg_bevy_xpbd_plugin = { version = "0.4.0", path = "crates/bevy_xpbd_plugin"}
 
 # Crates inner libraries
 anyhow = "1.0"
@@ -73,19 +74,17 @@ pretty-type-name = "1"
 ron = "0.8"
 serde = "1"
 
-# Community Modules
-space_bevy_xpbd_plugin = { version = "0.4.0", path = "modules/bevy_xpbd_plugin"}
 
 [patch.crates-io]
 bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 
 [dependencies]
 bevy.workspace = true
-space_editor_ui.workspace = true
-space_prefab.workspace = true
+kcg_editor_ui.workspace = true
+kcg_prefab.workspace = true
 
 # Modules for external crates
-space_bevy_xpbd_plugin = { workspace = true, optional = true }
+kcg_bevy_xpbd_plugin = { workspace = true, optional = true }
 
 # For versions 1.74+
 [workspace.lints.rust]
@@ -109,17 +108,8 @@ workspace = true
 opt-level = 3
 
 [features]
-bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
+bevy_xpbd_3d = ["dep:kcg_bevy_xpbd_plugin"]
 persistence_editor = []
-no_event_registration = ["space_prefab/no_event_registration"]
-editor = ["space_prefab/editor"]
+no_event_registration = ["kcg_prefab/no_event_registration"]
+editor = ["kcg_prefab/editor"]
 default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
-
-[[example]]
-name = "platformer"
-required-features = ["bevy_xpbd_3d"]
-
-
-[[example]]
-name = "spawn_prefab_with_physics"
-required-features = ["bevy_xpbd_3d"]

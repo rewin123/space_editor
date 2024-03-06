@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui_next::EguiContext;
 use egui_dock::egui::{self, Align2};
-use space_shared::toast::ToastMessage;
+use kcg_shared::toast::ToastMessage;
 
 pub use egui_toast::*;
 pub struct ToastUiPlugin;

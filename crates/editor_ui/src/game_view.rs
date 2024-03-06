@@ -1,9 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui_next::egui::{self};
 use egui_gizmo::GizmoMode;
-use space_undo::UndoRedo;
+use kcg_undo::UndoRedo;
 
-use space_shared::*;
+use kcg_shared::*;
 
 use crate::{colors::TEXT_COLOR, prelude::EditorTabName, EditorUiAppExt};
 

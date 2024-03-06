@@ -4,7 +4,7 @@ use bevy::{
     tasks::IoTaskPool,
     utils::HashSet,
 };
-use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
+use kcg_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
 
 use crate::prelude::{EditorRegistry, EditorRegistryExt, SceneAutoChild};
@@ -105,9 +105,9 @@ pub fn serialize_scene(world: &mut World) {
 
     if entities.is_empty() {
         #[cfg(feature = "editor")]
-        world.send_event(space_shared::toast::ToastMessage::new(
+        world.send_event(kcg_shared::toast::ToastMessage::new(
             "Saving empty scene",
-            space_shared::toast::ToastKind::Warning,
+            kcg_shared::toast::ToastKind::Warning,
         ));
         warn!("Saving empty scene");
     }
@@ -161,9 +161,9 @@ pub fn serialize_scene(world: &mut World) {
         #[cfg_attr(tarpaulin, ignore)]
         let err = format!("failed to serialize prefab: {:?}", e);
         #[cfg(feature = "editor")]
-        world.send_event(space_shared::toast::ToastMessage::new(
+        world.send_event(kcg_shared::toast::ToastMessage::new(
             &err,
-            space_shared::toast::ToastKind::Error,
+            kcg_shared::toast::ToastKind::Error,
         ));
         error!(err);
     }
@@ -219,7 +219,7 @@ mod tests {
         let contents = std::fs::read_to_string(file).unwrap();
 
         assert!(contents.contains("my_name"));
-        assert!(contents.contains("space_shared::PrefabMarker"));
+        assert!(contents.contains("kcg_shared::PrefabMarker"));
     }
 
     #[test]
@@ -322,7 +322,7 @@ mod tests {
             EditorRegistryPlugin {},
             SaveResourcesPrefabPlugin {},
         ))
-        .add_event::<space_shared::toast::ToastMessage>()
+        .add_event::<kcg_shared::toast::ToastMessage>()
         .insert_resource(save_config)
         .init_resource::<PrefabMemoryCache>();
 
@@ -331,7 +331,7 @@ mod tests {
         serialize_scene(&mut app.world);
         let events = app
             .world
-            .resource::<Events<space_shared::toast::ToastMessage>>();
+            .resource::<Events<kcg_shared::toast::ToastMessage>>();
 
         let mut iter = events.get_reader();
         let iter = iter.read(events);

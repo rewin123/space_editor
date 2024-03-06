@@ -25,7 +25,7 @@ use bevy::{prelude::*, reflect::*, utils::HashMap};
 
 /// External dependencies
 pub mod ext {
-    pub use space_shared::ext::*;
+    pub use kcg_shared::ext::*;
 }
 
 /// Component to define path to gltf asset that will be loaded after prefab spawn
