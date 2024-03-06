@@ -1,11 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{
-    ecs::{entity, query::ReadOnlyWorldQuery},
-    prelude::*,
-    utils::HashMap,
-};
+use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
@@ -163,7 +159,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             let is_clicked = response.clicked();
             if is_auto_child {
                 response.context_menu(|ui| {
-                    ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+                    ui.label("Concrete Bevy scene cannot be reparented or deleted. Try \"Unpack gltf as prefab\" for that.");
                 });
             } else {
                 response.context_menu(|ui| {
@@ -222,7 +218,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
         if is_auto_child {
             selectable.context_menu(|ui| {
-                ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
+                ui.label("Concrete Bevy scene cannot be reparented or deleted. Try \"Unpack gltf as prefab\" for that.");
             });
         } else {
             selectable.context_menu(|ui| {
