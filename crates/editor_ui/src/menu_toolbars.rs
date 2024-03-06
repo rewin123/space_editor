@@ -554,7 +554,7 @@ pub fn top_menu(
                                     for (index, warning) in
                                         toasts.toasts_per_kind.warning.iter().enumerate()
                                     {
-                                        ui.label(RichText::new("WARN ").color(WARM_COLOR));
+                                        ui.label(RichText::new("WARN ").color(WARN_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
                                             clear_toast.send(ClearToastMessage::warn(index))
@@ -568,7 +568,7 @@ pub fn top_menu(
                         .button(
                             RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
                                 .color(if toasts.has_toasts() {
-                                    WARM_COLOR
+                                    WARN_COLOR
                                 } else {
                                     STROKE_COLOR
                                 }),
