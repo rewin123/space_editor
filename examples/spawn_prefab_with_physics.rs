@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use kenney_city_editor::prelude::*;
 use kcg_editor_ui::ext::bevy_panorbit_camera::{self, PanOrbitCameraPlugin};
+use kenney_city_editor::prelude::*;
 
 //This example loading prefab with bevy_xpbd types
 

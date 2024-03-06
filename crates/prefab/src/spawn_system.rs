@@ -190,10 +190,7 @@ pub fn spawn_player_start(
 ) {
     for (e, prefab) in query.iter() {
         let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
-        toast.send(ToastMessage::new(
-            &msg,
-            kcg_shared::toast::ToastKind::Info,
-        ));
+        toast.send(ToastMessage::new(&msg, kcg_shared::toast::ToastKind::Info));
         info!(msg);
         let child = commands
             .spawn(DynamicSceneBundle {

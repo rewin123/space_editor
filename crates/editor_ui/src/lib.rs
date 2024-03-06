@@ -83,12 +83,6 @@ use bevy::{
 use bevy_egui_next::{egui, EguiContext};
 
 use game_view::{has_window_changed, GameViewPlugin};
-use prelude::{
-    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
-    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
-    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
-    ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
-};
 use kcg_editor_core::toast::ToastUiPlugin;
 use kcg_prefab::prelude::*;
 use kcg_shared::{
@@ -96,6 +90,12 @@ use kcg_shared::{
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
 use kcg_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
+use prelude::{
+    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
+    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
+    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
+    ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
+};
 use ui_registration::BundleReg;
 
 use camera_plugin::*;

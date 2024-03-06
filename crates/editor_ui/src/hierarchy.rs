@@ -6,8 +6,8 @@ use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
 use egui_dock::egui::RichText;
 use kcg_editor_core::prelude::*;
 use kcg_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
-use kcg_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 use kcg_shared::*;
+use kcg_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use crate::colors::WARN_COLOR;
 

@@ -4,8 +4,8 @@ use bevy::{
     ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, scene::serde::SceneDeserializer,
     utils::HashSet,
 };
-use serde::de::DeserializeSeed;
 use kcg_shared::toast::ToastMessage;
+use serde::de::DeserializeSeed;
 
 use crate::{
     component::*,
