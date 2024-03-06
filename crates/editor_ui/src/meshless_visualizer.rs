@@ -13,12 +13,12 @@ use bevy_mod_billboard::{
 use bevy_mod_picking::backends::raycast::{
     bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
 };
-use space_prefab::editor_registry::EditorRegistryExt;
-use space_shared::*;
+use kcg_prefab::editor_registry::EditorRegistryExt;
+use kcg_shared::*;
 
 use crate::LAST_RENDER_LAYER;
-use space_editor_core::selected::Selected;
-use space_shared::toast::*;
+use kcg_editor_core::selected::Selected;
+use kcg_shared::toast::*;
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
@@ -124,7 +124,7 @@ pub struct EditorIconAssets {
 }
 
 fn register_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
-    use space_shared::asset_fs::*;
+    use kcg_shared::asset_fs::*;
     let assets = EditorIconAssets {
         unknown: asset_server.add(
             create_unknown_image()

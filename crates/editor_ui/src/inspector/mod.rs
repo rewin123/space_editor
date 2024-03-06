@@ -16,9 +16,9 @@ use bevy::{
 
 use bevy_egui_next::*;
 
-use space_editor_core::prelude::*;
-use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
-use space_shared::ext::bevy_inspector_egui::{
+use kcg_editor_core::prelude::*;
+use kcg_prefab::{component::EntityLink, editor_registry::EditorRegistry};
+use kcg_shared::ext::bevy_inspector_egui::{
     self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 

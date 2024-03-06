@@ -1,10 +1,10 @@
 [package]
-name = "space_persistence"
+name = "kcg_persistence"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true 
 license.workspace = true
-description = "Subcrate for the space_editor crate. Contains the persistence code for the space_editor"
+description = "Subcrate for the kenney_city_editor crate. Contains the persistence code for the kenney_city_editor"
 repository.workspace = true
 homepage.workspace = true
 

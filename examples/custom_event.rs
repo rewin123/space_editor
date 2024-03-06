@@ -1,10 +1,10 @@
 // Simple event example
-// Open the ["Event Dispacther" tab](https://github.com/rewin123/space_editor/pull/163) to send the "ToggleSpin" event.
+// Open the ["Event Dispacther" tab](https://github.com/rewin123/kenney_city_editor/pull/163) to send the "ToggleSpin" event.
 // Run command:
 // cargo run --example custom_event
 
 use bevy::prelude::*;
-use space_editor::prelude::*;
+use kenney_city_editor::prelude::*;
 
 #[derive(Event, Default, Resource, Reflect, Clone)]
 #[reflect(Resource)]

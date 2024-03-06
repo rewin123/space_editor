@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use space_shared::{toast::ToastMessage, PrefabMarker};
+use kcg_shared::{toast::ToastMessage, PrefabMarker};
 
 use super::component::*;
 
@@ -192,7 +192,7 @@ pub fn spawn_player_start(
         let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
         toast.send(ToastMessage::new(
             &msg,
-            space_shared::toast::ToastKind::Info,
+            kcg_shared::toast::ToastKind::Info,
         ));
         info!(msg);
         let child = commands
@@ -236,7 +236,7 @@ mod tests {
         let mut events = man_events.read(events);
         let event = events.next().unwrap();
 
-        assert_eq!(event.kind, space_shared::toast::ToastKind::Info);
+        assert_eq!(event.kind, kcg_shared::toast::ToastKind::Info);
         assert_eq!(
             event.text,
             "Spawning player start: 0v0 with \"cube.glb#Scene0\""

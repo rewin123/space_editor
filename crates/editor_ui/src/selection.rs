@@ -66,10 +66,9 @@ pub fn select_listener(
         return;
     }
 
-    let mut stack = events.read().map(|e| e.clone()).collect::<Vec<_>>();
+    let mut stack = events.read().cloned().collect::<Vec<_>>();
 
-    while stack.len() > 0 {
-        let event = stack.pop().unwrap();
+    while let Some(event) = stack.pop() {
         info!("Select Event: {:?}", event.e);
 
         if let Ok(entity) = prefabs.get(event.e) {
@@ -85,13 +84,11 @@ pub fn select_listener(
                 PointerButton::Secondary => { /*Show context menu?*/ }
                 PointerButton::Middle => {}
             }
-        } else {
-            if let Ok(parent) = parents.get(event.e) {
-                stack.push(SelectEvent {
-                    e: parent.get(),
-                    event: event.event.clone(),
-                });
-            }
+        } else if let Ok(parent) = parents.get(event.e) {
+            stack.push(SelectEvent {
+                e: parent.get(),
+                event: event.event.clone(),
+            });
         }
     }
 }
