@@ -5,11 +5,11 @@ use bevy::{
     reflect::Reflect,
 };
 use bevy_egui_next::egui;
-use kcg_shared::ext::bevy_inspector_egui::{
+use space_shared::ext::bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use kcg_prefab::component::EntityLink;
+use space_prefab::component::EntityLink;
 
 /// Method from `bevy_inspector_egui` to make dummy reflection ui
 pub fn many_unimplemented<T: Any>(

@@ -10,8 +10,8 @@ use bevy::{
 };
 use bevy_egui_next::{egui, EguiContexts};
 
-use kcg_prefab::component::CameraPlay;
-use kcg_shared::*;
+use space_prefab::component::CameraPlay;
+use space_shared::*;
 
 use crate::{
     colors::ERROR_COLOR,

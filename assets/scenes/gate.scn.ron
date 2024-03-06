@@ -1,0 +1,92 @@
+(
+  resources: {},
+  entities: {
+    3: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.14629853,
+            y: 0.00000071525574,
+            z: 0.2979169,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 0.34547728,
+            y: 0.4908877,
+            z: 0.34547728,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/colone.glb",
+          scene: "Scene0",
+        ),
+        "bevy_core::name::Name": (
+          hash: 6028619752939171079,
+          name: "Bevy prefab",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          21474836484,
+        ]),
+      },
+    ),
+    12884901896: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 1.5600932,
+            y: 0.00000071525574,
+            z: 0.27958155,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 0.34547728,
+            y: 0.4908877,
+            z: 0.34547728,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/colone.glb",
+          scene: "Scene0",
+        ),
+        "bevy_core::name::Name": (
+          hash: 6028619752939171079,
+          name: "Bevy prefab",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          10,
+        ]),
+      },
+    ),
+    12884901902: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.70416725,
+            y: -0.11442661,
+            z: 0.32193947,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 1.0,
+            y: 0.12522781,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/cube.glb",
+          scene: "Scene0",
+        ),
+        "bevy_core::name::Name": (
+          hash: 15490839287097067681,
+          name: "Plane",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          8589934608,
+        ]),
+      },
+    ),
+  },
+)

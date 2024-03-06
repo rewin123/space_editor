@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use kcg_shared::{toast::ToastMessage, *};
+use space_shared::{toast::ToastMessage, *};
 
 use crate::EditorLoader;
 

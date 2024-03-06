@@ -68,7 +68,7 @@ use bevy_mod_picking::{
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use egui_dock::DockArea;
-use kcg_editor_core::prelude::*;
+use space_editor_core::prelude::*;
 
 use bevy::{
     app::PluginGroupBuilder,
@@ -89,13 +89,13 @@ use prelude::{
     GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
     ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
-use kcg_editor_core::toast::ToastUiPlugin;
-use kcg_prefab::prelude::*;
-use kcg_shared::{
+use space_editor_core::toast::ToastUiPlugin;
+use space_prefab::prelude::*;
+use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache, SelectParent,
 };
-use kcg_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
+use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
 
 use camera_plugin::*;
@@ -112,10 +112,10 @@ pub mod prelude {
         tools::*, ui_registration::*,
     };
 
-    pub use kcg_editor_core::prelude::*;
-    pub use kcg_persistence::*;
-    pub use kcg_prefab::prelude::*;
-    pub use kcg_shared::prelude::*;
+    pub use space_editor_core::prelude::*;
+    pub use space_persistence::*;
+    pub use space_prefab::prelude::*;
+    pub use space_shared::prelude::*;
 
     pub use crate::camera_plugin::*;
     pub use crate::selection::*;
@@ -129,7 +129,7 @@ pub mod ext {
     pub use bevy_egui_next;
     pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
-    pub use kcg_shared::ext::*;
+    pub use space_shared::ext::*;
 }
 
 pub struct EditorPlugin;
@@ -153,7 +153,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(UndoPlugin)
             .add(SyncUndoMarkersPlugin::<PrefabMarker>::default())
             .add(PrefabPlugin)
-            .add(kcg_editor_core::EditorCore)
+            .add(space_editor_core::EditorCore)
             .add(EditorSetsPlugin)
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
@@ -244,9 +244,9 @@ type AutoAddQueryFilter = (
     Changed<Handle<Mesh>>,
 );
 
-fn save_prefab_before_play(mut editor_events: EventWriter<kcg_shared::EditorEvent>) {
-    editor_events.send(kcg_shared::EditorEvent::Save(
-        kcg_shared::EditorPrefabPath::MemoryCache,
+fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
+    editor_events.send(space_shared::EditorEvent::Save(
+        space_shared::EditorPrefabPath::MemoryCache,
     ));
 }
 
@@ -270,11 +270,11 @@ fn clear_and_load_on_start(
         return;
     }
     match save_confg.path.as_ref().unwrap() {
-        kcg_shared::EditorPrefabPath::File(path) => {
+        space_shared::EditorPrefabPath::File(path) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        kcg_shared::EditorPrefabPath::MemoryCache => {
+        space_shared::EditorPrefabPath::MemoryCache => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }
@@ -398,11 +398,10 @@ pub mod colors {
     }
     pub const STROKE_COLOR: Color32 = Color32::from_rgb(70, 70, 70);
     pub const SPECIAL_BG_COLOR: Color32 = Color32::from_rgb(20, 20, 20);
-    pub const PLAY_COLOR: Color32 = Color32::from_rgb(0, 194, 149);
     pub const DEFAULT_BG_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
     pub const ERROR_COLOR: Color32 = Color32::from_rgb(255, 59, 33);
     pub const HYPERLINK_COLOR: Color32 = Color32::from_rgb(99, 235, 231);
-    pub const WARN_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
+    pub const WARM_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
     pub const SELECTED_ITEM_COLOR: Color32 = Color32::from_rgb(76, 93, 235);
     pub const TEXT_COLOR: Color32 = Color32::WHITE;
 }
@@ -410,7 +409,7 @@ pub mod colors {
 pub mod sizing {
     use bevy::prelude::*;
     use bevy_inspector_egui::prelude::*;
-    use egui_dock::egui::{Color32, RichText};
+    use egui_dock::egui::RichText;
 
     #[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions)]
     #[reflect(Resource, Default, InspectorOptions)]
@@ -462,10 +461,6 @@ pub mod sizing {
 
     pub fn to_richtext(text: &str, size: &IconSize) -> RichText {
         RichText::new(text).size(size.to_size())
-    }
-
-    pub fn to_colored_richtext(text: &str, size: &IconSize, color: Color32) -> RichText {
-        RichText::new(text).size(size.to_size()).color(color)
     }
 
     pub fn to_label(text: &str, size: f32) -> RichText {

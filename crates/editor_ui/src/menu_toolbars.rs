@@ -6,19 +6,19 @@ use bevy_egui_next::{
     *,
 };
 use egui_dock::egui::RichText;
-use kcg_editor_core::{
+use space_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
-use kcg_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
-use kcg_shared::{ext::egui_file, *};
-use kcg_undo::{AddedEntity, NewChange, RemovedEntity};
+use space_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
+use space_shared::{ext::egui_file, *};
+use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
     colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
-    sizing::{to_colored_richtext, to_label, to_richtext, Sizing},
+    sizing::{to_label, to_richtext, Sizing},
     ui_registration::{BundleReg, EditorBundleUntyped},
 };
 
@@ -70,7 +70,7 @@ fn in_game_menu(
     sizing: Res<Sizing>,
 ) {
     egui::TopBottomPanel::top("top_gameplay_panel")
-        .min_height(&sizing.icon.to_size() + 8.)
+        .exact_height(&sizing.icon.to_size() + 4.)
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
@@ -150,9 +150,9 @@ pub fn bottom_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu")
-        .min_height(&sizing.icon.to_size().max(sizing.text) + 4.)
+        .exact_height(&sizing.icon.to_size().max(sizing.text) + 4.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
@@ -275,9 +275,9 @@ pub fn top_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::top("top_menu_bar")
-        .min_height(&sizing.icon.to_size() + 8.)
+        .exact_height(&sizing.icon.to_size() + 4.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 4.);
@@ -491,8 +491,8 @@ pub fn top_menu(
                             info!("path: {}", path);
                             if path.starts_with("assets") {
                                 path = path.replace("assets", "");
-                                path = path.trim_start_matches('\\').to_string();
-                                path = path.trim_start_matches('/').to_string();
+                                path = path.trim_start_matches("\\").to_string();
+                                path = path.trim_start_matches("/").to_string();
 
                                 if path.ends_with(".scn.ron") {
                                     commands.spawn((PrefabBundle::new(&path), PrefabMarker));
@@ -509,20 +509,21 @@ pub fn top_menu(
                                     error!("Unknown file type: {}", path);
                                 }
                             }
+                        } else {
                         }
+                    } else {
                     }
                 }
 
                 let width = ui.available_width();
                 let distance = width / 2. - 40.;
                 ui.add_space(distance);
-                let play_button =
-                    egui::Button::new(to_colored_richtext("▶", &sizing.icon, PLAY_COLOR))
-                        .fill(SPECIAL_BG_COLOR)
-                        .stroke(Stroke {
-                            width: 1.,
-                            color: STROKE_COLOR,
-                        });
+                let play_button = egui::Button::new(to_richtext("▶", &sizing.icon))
+                    .fill(SPECIAL_BG_COLOR)
+                    .stroke(Stroke {
+                        width: 1.,
+                        color: egui::Color32::DARK_GRAY,
+                    });
                 if ui.add(play_button).clicked() {
                     editor_events.send(EditorEvent::StartGame);
                 }
@@ -555,7 +556,7 @@ pub fn top_menu(
                                     for (index, warning) in
                                         toasts.toasts_per_kind.warning.iter().enumerate()
                                     {
-                                        ui.label(RichText::new("WARN ").color(WARN_COLOR));
+                                        ui.label(RichText::new("WARN ").color(WARM_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
                                             clear_toast.send(ClearToastMessage::warn(index))
@@ -569,7 +570,7 @@ pub fn top_menu(
                         .button(
                             RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
                                 .color(if toasts.has_toasts() {
-                                    WARN_COLOR
+                                    WARM_COLOR
                                 } else {
                                     STROKE_COLOR
                                 }),

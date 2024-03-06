@@ -1,15 +1,17 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
+use bevy::{
+    ecs::{entity, query::ReadOnlyWorldQuery},
+    prelude::*,
+    utils::HashMap,
+};
 use bevy_egui_next::{egui::collapsing_header::CollapsingState, *};
-use egui_dock::egui::RichText;
-use kcg_editor_core::prelude::*;
-use kcg_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
-use kcg_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
-use kcg_shared::*;
+use space_editor_core::prelude::*;
+use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
+use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
-use crate::colors::WARN_COLOR;
+use space_shared::*;
 
 use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
 
@@ -161,7 +163,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
             let is_clicked = response.clicked();
             if is_auto_child {
                 response.context_menu(|ui| {
-                    ui.label(RichText::new("⚠ Concrete Bevy scene cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
+                    ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
                 });
             } else {
                 response.context_menu(|ui| {
@@ -220,7 +222,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
         if is_auto_child {
             selectable.context_menu(|ui| {
-                ui.label(RichText::new("⚠ Concrete Bevy scene cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
+                ui.label("Its auto child prefab entity of solid bevy scene. Can't be reparented/deleted. Try \"Unpack gltf as prefab\" for that.");
             });
         } else {
             selectable.context_menu(|ui| {

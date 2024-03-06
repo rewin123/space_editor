@@ -23,7 +23,7 @@ pub mod editor_registry;
 
 use bevy::prelude::*;
 
-use kcg_shared::EditorState;
+use space_shared::EditorState;
 
 /// Public usage of packages that used in this crate
 pub mod ext {
@@ -39,7 +39,7 @@ pub mod prelude {
     pub use crate::save::*;
     pub use crate::sub_scene::*;
     pub use crate::PrefabSet;
-    pub use kcg_shared::PrefabMarker;
+    pub use space_shared::PrefabMarker;
 }
 
 /// All prefab logics collected in this sets to allow easy extend prefab logic

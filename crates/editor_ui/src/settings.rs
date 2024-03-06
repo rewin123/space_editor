@@ -3,12 +3,12 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 use bevy_egui_next::*;
-use kcg_editor_core::hotkeys::AllHotkeys;
-use kcg_shared::ext::bevy_inspector_egui::bevy_inspector;
-use kcg_undo::ChangeChainSettings;
+use space_editor_core::hotkeys::AllHotkeys;
+use space_shared::ext::bevy_inspector_egui::bevy_inspector;
+use space_undo::ChangeChainSettings;
 
 #[cfg(feature = "persistence_editor")]
-use kcg_persistence::*;
+use space_persistence::*;
 
 use crate::sizing::{IconSize, Sizing};
 

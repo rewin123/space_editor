@@ -6,9 +6,9 @@ use bevy::{
     reflect::{GetTypeRegistration, TypePath, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
-use kcg_shared::*;
+use space_shared::*;
 
-use kcg_undo::AppAutoUndo;
+use space_undo::AppAutoUndo;
 use std::any::TypeId;
 
 use crate::{component::AutoStruct, save::SaveState, PrefabSet};

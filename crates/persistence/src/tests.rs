@@ -152,7 +152,7 @@ fn persistence_starts_on_load_file() {
     assert_eq!(reg.load_counter, 0);
     assert!(reg
         .data
-        .contains_key("kcg_persistence::PersistenceSettings"));
+        .contains_key("space_persistence::PersistenceSettings"));
 }
 
 #[test]
@@ -277,7 +277,7 @@ fn persistence_system_unpack() {
     app.insert_resource(PersistenceRegistry {
         mode: PersistenceMode::Loading,
         source: PersistenceDataSource::Memory,
-        data: HashMap::from([("kcg_persistence::PersistenceSettings".to_string(), "{\"kcg_persistence::PersistenceSettings\":(load_on_startup:true,save_on_close:false)}".to_string())]),
+        data: HashMap::from([("space_persistence::PersistenceSettings".to_string(), "{\"space_persistence::PersistenceSettings\":(load_on_startup:true,save_on_close:false)}".to_string())]),
         ..Default::default()
     })
     .init_resource::<PersistenceSettings>()
@@ -314,7 +314,7 @@ fn persistence_system_pack() {
     app.insert_resource(PersistenceRegistry {
         mode: PersistenceMode::Saving,
         source: PersistenceDataSource::File("../../target/persistence_test.ron".to_string()),
-        data: HashMap::from([("kcg_persistence::PersistenceSettings".to_string(), "{\"kcg_persistence::PersistenceSettings\":(load_on_startup:true,save_on_close:false)}".to_string())]),
+        data: HashMap::from([("space_persistence::PersistenceSettings".to_string(), "{\"space_persistence::PersistenceSettings\":(load_on_startup:true,save_on_close:false)}".to_string())]),
         ..Default::default()
     })
     .init_resource::<PersistenceSettings>()

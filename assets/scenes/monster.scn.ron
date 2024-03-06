@@ -1,0 +1,105 @@
+(
+  resources: {},
+  entities: {
+    4294967299: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.71097434,
+            y: 0.830711,
+            z: -0.4634776,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.012271973, w: 0.9999248),
+          scale: (
+            x: 0.99999815,
+            y: 0.8971998,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/colone.glb",
+          scene: "Scene0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          51539607556,
+        ]),
+      },
+    ),
+    12884901896: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -0.52562404,
+            y: -0.11334199,
+            z: -0.9124646,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.676923, w: 0.7360538),
+          scale: (
+            x: 0.99999446,
+            y: 0.897199,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/colone.glb",
+          scene: "Scene0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          10,
+        ]),
+      },
+    ),
+    12884901902: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.36727405,
+            y: 0.00000071525574,
+            z: -0.50852203,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/cube.glb",
+          scene: "Scene0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          17179869199,
+        ]),
+      },
+    ),
+    12884901907: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 1.2934196,
+            y: -0.3626896,
+            z: -0.7183674,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: -0.6126284, w: 0.7903711),
+          scale: (
+            x: 0.9999985,
+            y: 0.89719915,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::GltfPrefab": (
+          path: "models/colone.glb",
+          scene: "Scene0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          21,
+        ]),
+      },
+    ),
+  },
+)

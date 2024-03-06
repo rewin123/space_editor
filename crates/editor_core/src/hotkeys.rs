@@ -6,7 +6,7 @@ use bevy::reflect::GetTypeRegistration;
 use bevy::utils::HashMap;
 
 #[cfg(feature = "persistence_editor")]
-use kcg_persistence::AppPersistenceExt;
+use space_persistence::AppPersistenceExt;
 
 pub trait Hotkey:
     Send

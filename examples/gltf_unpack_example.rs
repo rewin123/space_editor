@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use kenney_city_editor::{prelude::*, SpaceEditorPlugin};
+use space_editor::{prelude::*, SpaceEditorPlugin};
 
 fn main() {
     App::default()

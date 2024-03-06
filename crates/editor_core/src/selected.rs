@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use kcg_shared::EditorSet;
+use space_shared::EditorSet;
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]

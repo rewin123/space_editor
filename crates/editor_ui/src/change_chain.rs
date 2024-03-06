@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::{editor_tab::EditorTab, EditorUiAppExt};
-use kcg_undo::ChangeChain;
+use space_undo::ChangeChain;
 
 pub struct ChangeChainViewPlugin;
 

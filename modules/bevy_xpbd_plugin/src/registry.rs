@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
-use kcg_editor_ui::{
+use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
     settings::RegisterSettingsBlockExt,
 };
@@ -75,7 +75,7 @@ impl Plugin for BevyXpbdPlugin {
             (sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
 
-        if app.is_plugin_added::<kcg_editor_ui::ui_plugin::EditorUiCore>() {
+        if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
                 ui.checkbox(
                     &mut world

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use kenney_city_editor::prelude::*;
-use kcg_editor_ui::ext::bevy_panorbit_camera::{self, PanOrbitCameraPlugin};
+use space_editor::prelude::*;
+use space_editor_ui::ext::bevy_panorbit_camera::{self, PanOrbitCameraPlugin};
 
 fn main() {
     App::default()

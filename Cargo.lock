@@ -2895,109 +2895,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kcg_bevy_xpbd_plugin"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy_xpbd_3d",
- "kcg_editor_ui",
-]
-
-[[package]]
-name = "kcg_editor_core"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "bevy_egui_next",
- "egui-toast",
- "egui_dock",
- "kcg_persistence",
- "kcg_prefab",
- "kcg_shared",
- "kcg_undo",
-]
-
-[[package]]
-name = "kcg_editor_ui"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "bevy",
- "bevy-inspector-egui",
- "bevy_asset_loader",
- "bevy_common_assets",
- "bevy_debug_grid",
- "bevy_egui_next",
- "bevy_mod_billboard",
- "bevy_mod_picking",
- "bevy_panorbit_camera",
- "convert_case 0.6.0",
- "egui-gizmo",
- "egui_dock",
- "egui_extras",
- "kcg_editor_core",
- "kcg_persistence",
- "kcg_prefab",
- "kcg_shared",
- "kcg_undo",
- "pretty-type-name",
- "serde",
-]
-
-[[package]]
-name = "kcg_persistence"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "ron",
- "serde",
-]
-
-[[package]]
-name = "kcg_prefab"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "bevy-inspector-egui",
- "bevy-scene-hook",
- "kcg_shared",
- "kcg_undo",
- "ron",
- "serde",
-]
-
-[[package]]
-name = "kcg_shared"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "bevy",
- "bevy-inspector-egui",
- "egui-toast",
- "egui_file",
- "image",
-]
-
-[[package]]
-name = "kcg_undo"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "pretty-type-name",
-]
-
-[[package]]
-name = "kenney_city_editor"
-version = "0.4.0"
-dependencies = [
- "bevy",
- "kcg_bevy_xpbd_plugin",
- "kcg_editor_ui",
- "kcg_prefab",
-]
-
-[[package]]
 name = "khronos-egl"
 version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4274,6 +4171,109 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6845563ada680337a52d43bb0b29f396f2d911616f6573012645b9e3d048a49"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "space_bevy_xpbd_plugin"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_xpbd_3d",
+ "space_editor_ui",
+]
+
+[[package]]
+name = "space_editor"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "space_bevy_xpbd_plugin",
+ "space_editor_ui",
+ "space_prefab",
+]
+
+[[package]]
+name = "space_editor_core"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "bevy_egui_next",
+ "egui-toast",
+ "egui_dock",
+ "space_persistence",
+ "space_prefab",
+ "space_shared",
+ "space_undo",
+]
+
+[[package]]
+name = "space_editor_ui"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_asset_loader",
+ "bevy_common_assets",
+ "bevy_debug_grid",
+ "bevy_egui_next",
+ "bevy_mod_billboard",
+ "bevy_mod_picking",
+ "bevy_panorbit_camera",
+ "convert_case 0.6.0",
+ "egui-gizmo",
+ "egui_dock",
+ "egui_extras",
+ "pretty-type-name",
+ "serde",
+ "space_editor_core",
+ "space_persistence",
+ "space_prefab",
+ "space_shared",
+ "space_undo",
+]
+
+[[package]]
+name = "space_persistence"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "ron",
+ "serde",
+]
+
+[[package]]
+name = "space_prefab"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy-scene-hook",
+ "ron",
+ "serde",
+ "space_shared",
+ "space_undo",
+]
+
+[[package]]
+name = "space_shared"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bevy-inspector-egui",
+ "egui-toast",
+ "egui_file",
+ "image",
+]
+
+[[package]]
+name = "space_undo"
+version = "0.4.0"
+dependencies = [
+ "bevy",
+ "pretty-type-name",
 ]
 
 [[package]]

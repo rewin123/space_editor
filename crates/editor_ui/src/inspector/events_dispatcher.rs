@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui_next::*;
-use kcg_shared::ext::bevy_inspector_egui;
+use space_shared::ext::bevy_inspector_egui;
 
 use crate::{colors::ERROR_COLOR, prelude::*};
 

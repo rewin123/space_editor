@@ -2,8 +2,8 @@ use std::collections::BTreeMap;
 
 use bevy::ecs::system::EntityCommands;
 
-use kcg_prefab::{component::*, ext::*};
-use kcg_shared::{LightAreaToggle, PrefabMarker};
+use space_prefab::{component::*, ext::*};
+use space_shared::{LightAreaToggle, PrefabMarker};
 
 /// Resource with bundles to spawn
 #[derive(Resource, Default)]

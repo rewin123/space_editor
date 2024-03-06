@@ -12,7 +12,7 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
-use kcg_shared::{LightAreaToggle, PrefabMarker};
+use space_shared::{LightAreaToggle, PrefabMarker};
 
 use crate::{
     component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,

@@ -1,10 +1,10 @@
 [package]
-name = "kcg_editor_ui"
+name = "space_editor_ui"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Subcrate for the kenney_city_editor crate. Contains the UI for the editor."
+description = "Subcrate for the space_editor crate. Contains the UI for the editor."
 repository.workspace = true
 homepage.workspace = true
 
@@ -16,11 +16,11 @@ persistence_editor = []
 [dependencies]
 bevy.workspace = true
 
-kcg_editor_core.workspace = true
-kcg_prefab.workspace = true
-kcg_undo.workspace = true
-kcg_persistence.workspace = true
-kcg_shared.workspace = true
+space_editor_core.workspace = true
+space_prefab.workspace = true
+space_undo.workspace = true
+space_persistence.workspace = true
+space_shared.workspace = true
 
 serde.workspace = true
 pretty-type-name.workspace = true

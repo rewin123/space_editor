@@ -1,8 +1,8 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui_next::egui::{self, Key};
 use egui_gizmo::*;
-use kcg_editor_core::prelude::*;
-use kcg_shared::*;
+use space_editor_core::prelude::*;
+use space_shared::*;
 
 use crate::{
     colors::SELECTED_ITEM_COLOR,

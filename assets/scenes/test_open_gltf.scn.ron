@@ -1,0 +1,222 @@
+(
+  resources: {},
+  entities: {
+    4294967304: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.6125513,
+            y: 0.058001567,
+            z: -0.13519481,
+          ),
+          rotation: (x: 0.5, y: 0.5, z: -0.5, w: 0.50000006),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_prefab::component::AssetMesh": (
+          path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          4294967305,
+        ]),
+      },
+    ),
+    4294967305: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0074897856,
+            y: 0.27279782,
+            z: 0.005106408,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "low_poly_fighter_2.gltf#Material0",
+        ),
+      },
+    ),
+    4294967306: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.6145791,
+            y: 0.054736555,
+            z: 0.14563978,
+          ),
+          rotation: (x: 0.5, y: 0.5, z: -0.5, w: 0.50000006),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_prefab::component::AssetMesh": (
+          path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          4294967307,
+        ]),
+      },
+    ),
+    4294967307: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -0.0015763491,
+            y: 0.27077,
+            z: 0.0018413959,
+          ),
+          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::AssetMesh": (
+          path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
+        ),
+        "space_prefab::component::AssetMaterial": (
+          path: "low_poly_fighter_2.gltf#Material0",
+        ),
+      },
+    ),
+    12884901895: (
+      components: {
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (x: 0.0, y: -0.7071068, z: 0.0, w: 0.7071068),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": Inherited,
+        "space_prefab::component::material::MaterialPrefab": (
+          base_color: Rgba(
+            red: 1.0,
+            green: 1.0,
+            blue: 1.0,
+            alpha: 1.0,
+          ),
+          base_color_texture: "",
+          emissive: Rgba(
+            red: 0.0,
+            green: 0.0,
+            blue: 0.0,
+            alpha: 1.0,
+          ),
+          emissive_texture: "",
+          perceptual_roughness: 0.5,
+          metallic: 0.0,
+          metallic_roughness_texture: "",
+          reflectance: 0.5,
+          normal_map_texture: "",
+          flip_normal_map_y: false,
+          occlusion_texture: "",
+          double_sided: false,
+          unlit: false,
+          fog_enabled: true,
+          alpha_mode: Opaque,
+          depth_bias: 0.0,
+          depth_map: "",
+          parallax_depth_scale: 0.1,
+          parallax_mapping_method: Occlusion,
+          max_parallax_layer_count: 16.0,
+        ),
+        "space_prefab::component::AssetMesh": (
+          path: "low_poly_fighter_2.gltf#Mesh2/Primitive0",
+        ),
+        "space_prefab::save::ChildrenPrefab": ([
+          4294967306,
+          4294967304,
+        ]),
+      },
+    ),
+  },
+)
