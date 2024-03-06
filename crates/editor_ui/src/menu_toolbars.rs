@@ -18,7 +18,7 @@ use crate::{
     colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
-    sizing::{to_label, to_richtext, Sizing},
+    sizing::{to_colored_richtext, to_label, to_richtext, Sizing},
     ui_registration::{BundleReg, EditorBundleUntyped},
 };
 
@@ -465,12 +465,13 @@ pub fn top_menu(
                 let width = ui.available_width();
                 let distance = width / 2. - 40.;
                 ui.add_space(distance);
-                let play_button = egui::Button::new(to_richtext("▶", &sizing.icon))
-                    .fill(SPECIAL_BG_COLOR)
-                    .stroke(Stroke {
-                        width: 1.,
-                        color: SELECTED_ITEM_COLOR,
-                    });
+                let play_button =
+                    egui::Button::new(to_colored_richtext("▶", &sizing.icon, PLAY_COLOR))
+                        .fill(SPECIAL_BG_COLOR)
+                        .stroke(Stroke {
+                            width: 1.,
+                            color: STROKE_COLOR,
+                        });
                 if ui.add(play_button).clicked() {
                     editor_events.send(EditorEvent::StartGame);
                 }
