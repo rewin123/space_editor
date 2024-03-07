@@ -19,7 +19,7 @@ jobs:
     - name: Install Rust
       run: rustup update stable
     - name: Install Dependencies
-      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
     - name: Install cargo-llvm-cov
       uses: taiki-e/install-action@cargo-llvm-cov
     - name: Generate code coverage
