@@ -70,7 +70,7 @@ fn in_game_menu(
     sizing: Res<Sizing>,
 ) {
     egui::TopBottomPanel::top("top_gameplay_panel")
-        .exact_height(&sizing.icon.to_size() + 4.)
+        .min_height(&sizing.icon.to_size() + 8.)
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
@@ -150,9 +150,9 @@ pub fn bottom_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu")
-        .exact_height(&sizing.icon.to_size().max(sizing.text) + 4.)
+        .min_height(&sizing.icon.to_size().max(sizing.text) + 4.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
@@ -275,9 +275,9 @@ pub fn top_menu(
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::top("top_menu_bar")
-        .exact_height(&sizing.icon.to_size() + 4.)
+        .min_height(&sizing.icon.to_size() + 8.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 4.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 4.);
