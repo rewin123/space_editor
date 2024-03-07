@@ -79,13 +79,9 @@ impl Plugin for BevyXpbdPlugin {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
                 ui.checkbox(
                     &mut world
-                        .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
-                        .enabled,
-                    "Show bevy xpbd debug render",
-                );
-                ui.checkbox(
-                    &mut world
-                        .resource_mut::<bevy_xpbd_3d::prelude::PhysicsDebugConfig>()
+                        .resource_mut::<GizmoConfigStore>()
+                        .config_mut::<PhysicsGizmos>()
+                        .1
                         .hide_meshes,
                     "Hide debug meshes",
                 );

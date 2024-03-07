@@ -131,55 +131,55 @@ impl Default for TextureAtlasPrefab {
     }
 }
 
-impl TextureAtlasPrefab {
-    pub fn to_texture_atlas(
-        &mut self,
-        sprite_texture: &SpritesheetTexture,
-        texture_atlases: &mut Assets<TextureAtlas>,
-        asset_server: &AssetServer,
-    ) -> Option<Handle<TextureAtlas>> {
-        let texture_handle = sprite_texture.to_texture(asset_server)?;
-        self.texture = Some(texture_handle.clone());
+// impl TextureAtlasPrefab {
+//     pub fn to_texture_atlas(
+//         &mut self,
+//         sprite_texture: &SpritesheetTexture,
+//         texture_atlases: &mut Assets<TextureAtlas>,
+//         asset_server: &AssetServer,
+//     ) -> Option<Handle<TextureAtlas>> {
+//         let texture_handle = sprite_texture.to_texture(asset_server)?;
+//         self.texture = Some(texture_handle.clone());
 
-        let texture_atlas = TextureAtlas::from_grid(
-            texture_handle,
-            self.tile_size,
-            self.columns,
-            self.rows,
-            self.padding,
-            self.offset,
-        );
-        Some(texture_atlases.add(texture_atlas))
-    }
-}
+//         let texture_atlas = TextureAtlas::from_grid(
+//             texture_handle,
+//             self.tile_size,
+//             self.columns,
+//             self.rows,
+//             self.padding,
+//             self.offset,
+//         );
+//         Some(texture_atlases.add(texture_atlas))
+//     }
+// }
 
-/// Function that manages the sprite animation execution
-pub fn animate_sprite(
-    time: Res<Time>,
-    mut query: Query<(
-        &AnimationIndicesSpriteSheet,
-        &AnimationClipName,
-        &mut AnimationTimerSpriteSheet,
-        &mut TextureAtlasSprite,
-    )>,
-) {
-    for (sheet_indices, name, mut timer, mut sprite) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            if let Some(indices) = sheet_indices.clips.get(&name.name) {
-                sprite.index = if sprite.index == indices.last {
-                    indices.first
-                } else {
-                    sprite.index + 1
-                };
-            }
-        }
-    }
-}
+// /// Function that manages the sprite animation execution
+// pub fn animate_sprite(
+//     time: Res<Time>,
+//     mut query: Query<(
+//         &AnimationIndicesSpriteSheet,
+//         &AnimationClipName,
+//         &mut AnimationTimerSpriteSheet,
+//         &mut TextureAtlasSprite,
+//     )>,
+// ) {
+//     for (sheet_indices, name, mut timer, mut sprite) in &mut query {
+//         timer.tick(time.delta());
+//         if timer.just_finished() {
+//             if let Some(indices) = sheet_indices.clips.get(&name.name) {
+//                 sprite.index = if sprite.index == indices.last {
+//                     indices.first
+//                 } else {
+//                     sprite.index + 1
+//                 };
+//             }
+//         }
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
+    // use std::time::Duration;
 
     use super::*;
 
@@ -286,60 +286,60 @@ mod tests {
         );
     }
 
-    #[test]
-    fn default_texture_atlas_to_texture_exists() {
-        let sprite_prefab = SpritesheetTexture {
-            texture: String::from("test_asset.png"),
-        };
-        let mut prefab = TextureAtlasPrefab::default();
+    // #[test]
+    // fn default_texture_atlas_to_texture_exists() {
+    //     let sprite_prefab = SpritesheetTexture {
+    //         texture: String::from("test_asset.png"),
+    //     };
+    //     let mut prefab = TextureAtlasPrefab::default();
 
-        let mut app = App::new();
-        app.add_plugins((
-            MinimalPlugins,
-            AssetPlugin::default(),
-            ImagePlugin::default(),
-        ))
-        .init_asset::<TextureAtlas>();
+    //     let mut app = App::new();
+    //     app.add_plugins((
+    //         MinimalPlugins,
+    //         AssetPlugin::default(),
+    //         ImagePlugin::default(),
+    //     ))
+    //     .init_asset::<TextureAtlas>();
 
-        let asset_server = app.world.resource::<AssetServer>().clone();
-        let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlas>>();
+    //     let asset_server = app.world.resource::<AssetServer>().clone();
+    //     let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlas>>();
 
-        let sprite = prefab.to_texture_atlas(&sprite_prefab, &mut texture_atlas, &asset_server);
+    //     let sprite = prefab.to_texture_atlas(&sprite_prefab, &mut texture_atlas, &asset_server);
 
-        assert!(sprite.is_some());
-        let id = sprite.unwrap().id();
-        assert!(texture_atlas.get(id).is_some());
-    }
+    //     assert!(sprite.is_some());
+    //     let id = sprite.unwrap().id();
+    //     assert!(texture_atlas.get(id).is_some());
+    // }
 
-    #[test]
-    fn default_animation_timer() {
-        let anim_timer = AnimationTimerSpriteSheet::default();
+    // #[test]
+    // fn default_animation_timer() {
+    //     let anim_timer = AnimationTimerSpriteSheet::default();
 
-        assert_eq!(anim_timer.0.mode(), TimerMode::Repeating);
-        assert_eq!(anim_timer.0.duration(), Duration::from_secs_f32(0.1));
-    }
+    //     assert_eq!(anim_timer.0.mode(), TimerMode::Repeating);
+    //     assert_eq!(anim_timer.0.duration(), Duration::from_secs_f32(0.1));
+    // }
 
-    #[test]
-    fn animate_sprite_over_time() {
-        let setup = |mut commands: Commands| {
-            commands.spawn((
-                AnimationIndicesSpriteSheet::default(),
-                AnimationClipName::default(),
-                AnimationTimerSpriteSheet::default(),
-                TextureAtlasSprite::default(),
-            ));
-        };
-        let mut app = App::new();
+    // #[test]
+    // fn animate_sprite_over_time() {
+    //     let setup = |mut commands: Commands| {
+    //         commands.spawn((
+    //             AnimationIndicesSpriteSheet::default(),
+    //             AnimationClipName::default(),
+    //             AnimationTimerSpriteSheet::default(),
+    //             TextureAtlasSprite::default(),
+    //         ));
+    //     };
+    //     let mut app = App::new();
 
-        app.add_plugins(MinimalPlugins)
-            .add_systems(Startup, setup)
-            .add_systems(Update, animate_sprite);
+    //     app.add_plugins(MinimalPlugins)
+    //         .add_systems(Startup, setup)
+    //         .add_systems(Update, animate_sprite);
 
-        app.update();
-        let mut query = app.world.query::<&TextureAtlasSprite>();
+    //     app.update();
+    //     let mut query = app.world.query::<&TextureAtlasSprite>();
 
-        let atlas = query.single(&app.world);
+    //     let atlas = query.single(&app.world);
 
-        assert_eq!(atlas.index, 0);
-    }
+    //     assert_eq!(atlas.index, 0);
+    // }
 }

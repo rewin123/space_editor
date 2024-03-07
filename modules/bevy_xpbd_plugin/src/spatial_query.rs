@@ -31,7 +31,10 @@ impl Default for RayCasterPrefab {
 
 impl From<RayCasterPrefab> for RayCaster {
     fn from(val: RayCasterPrefab) -> Self {
-        Self::new(val.origin, val.direction)
+        Self::new(
+            val.origin,
+            Direction3d::new_unchecked(val.direction.normalize()),
+        )
     }
 }
 
@@ -51,7 +54,7 @@ impl From<ShapeCasterPrefab> for ShapeCaster {
             val.shape.to_collider(),
             val.origin,
             val.shape_rotation,
-            val.direction,
+            Direction3d::new_unchecked(val.direction.normalize()),
         )
         .with_ignore_origin_penetration(true)
     }

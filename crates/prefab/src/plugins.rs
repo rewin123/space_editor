@@ -38,7 +38,7 @@ pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<EditorState>();
+        app.init_state::<EditorState>();
 
         if !app.is_plugin_added::<HookPlugin>() {
             app.add_plugins(HookPlugin);
@@ -207,7 +207,7 @@ impl Plugin for BasePrefabPlugin {
                 sync_2d_mesh,
                 sync_2d_material,
                 sync_sprite_texture,
-                sync_spritesheet,
+                // sync_spritesheet,
             )
                 .in_set(PrefabSet::DetectPrefabChange),
         );
@@ -216,7 +216,7 @@ impl Plugin for BasePrefabPlugin {
             Update,
             (editor_remove_mesh, editor_remove_mesh_2d).run_if(in_state(EditorState::Editor)),
         );
-        app.add_systems(Update, animate_sprite);
+        // app.add_systems(Update, animate_sprite);
 
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);

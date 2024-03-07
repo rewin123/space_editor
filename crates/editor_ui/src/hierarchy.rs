@@ -1,7 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::ReadOnlyWorldQuery, prelude::*, utils::HashMap};
+use bevy::{ecs::query::QueryFilter, prelude::*, utils::HashMap};
 use bevy_egui::{egui::collapsing_header::CollapsingState, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
@@ -123,7 +123,7 @@ type DrawIter<'a> = (
     Option<&'a Parent>,
 );
 
-fn draw_entity<F: ReadOnlyWorldQuery>(
+fn draw_entity<F: QueryFilter>(
     commands: &mut Commands,
     ui: &mut egui::Ui,
     query: &Query<DrawIter, F>,
@@ -186,7 +186,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
                     //check shift pressed
                     if !ui.input(|i| i.modifiers.shift) {
-                        selected.for_each(|e| {
+                        selected.iter_mut().for_each(|e| {
                             commands.entity(e).remove::<Selected>();
                         })
                     }
@@ -245,7 +245,7 @@ fn draw_entity<F: ReadOnlyWorldQuery>(
 
                 //check shift pressed
                 if !ui.input(|i| i.modifiers.shift) {
-                    selected.for_each(|e| {
+                    selected.iter_mut().for_each(|e| {
                         commands.entity(e).remove::<Selected>();
                     })
                 }

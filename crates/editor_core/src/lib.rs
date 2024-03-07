@@ -99,7 +99,7 @@ fn editor_event_listener(
                 start_game_state.set(EditorState::GamePrepare);
             }
             EditorEvent::LoadGltfAsPrefab(path) => {
-                gltf_events.send(gltf_unpack::EditorUnpackGltf { path: path.clone() })
+                gltf_events.send(gltf_unpack::EditorUnpackGltf { path: path.clone() });
             }
         }
     }

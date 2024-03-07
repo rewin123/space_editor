@@ -220,19 +220,21 @@ impl CylinderPrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct PlanePrefab {
-    pub size: f32,
+    pub size: Vec2,
 }
 
 impl Default for PlanePrefab {
     fn default() -> Self {
         let def = math_shapes::Rectangle::default();
-        Self { size: def.size }
+        Self {
+            size: def.half_size * 2.,
+        }
     }
 }
 
 impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
-        let data = math_shapes::Rectangle::from_size(self.size);
+        let data = math_shapes::Rectangle::from_size(self.size * 0.5);
         Mesh::from(data)
     }
 }
@@ -250,7 +252,7 @@ impl Default for RegularPolygonPrefab {
     fn default() -> Self {
         let def = math_shapes::RegularPolygon::default();
         Self {
-            circumcircle_radius: def.circumcircle_radius,
+            circumcircle_radius: def.circumcircle.radius,
             sides: def.sides,
         }
     }

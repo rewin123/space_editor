@@ -27,7 +27,7 @@ impl MapEntities for ChildrenPrefab {
         self.0 = self
             .0
             .iter()
-            .map(|e| entity_mapper.get_or_reserve(*e))
+            .map(|e| entity_mapper.map_entity(*e))
             .collect();
     }
 }
@@ -38,7 +38,7 @@ impl Plugin for SaveResourcesPrefabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_registry::<ChildrenPrefab>();
 
-        app.init_resource::<SaveConfig>().add_state::<SaveState>();
+        app.init_resource::<SaveConfig>().init_state::<SaveState>();
     }
 }
 
