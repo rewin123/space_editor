@@ -97,7 +97,7 @@ impl ColliderPrimitive {
             Self::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
             Self::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
             Self::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
-            Self::Ball(radius) => Collider::ball(*radius),
+            Self::Ball(radius) => Collider::sphere(*radius),
             Self::Segment { a, b } => Collider::segment(*a, *b),
         }
     }
@@ -212,7 +212,7 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
         MeshPrimitivePrefab::Box(val) => {
             Collider::cuboid(val.w as Scalar, val.h as Scalar, val.d as Scalar)
         }
-        MeshPrimitivePrefab::Sphere(val) => Collider::ball(val.r as Scalar),
+        MeshPrimitivePrefab::Sphere(val) => Collider::sphere(val.r as Scalar),
         MeshPrimitivePrefab::Quad(val) => {
             Collider::cuboid(val.size.x as Scalar, val.size.y as Scalar, EPS as Scalar)
         }
@@ -221,12 +221,7 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
         MeshPrimitivePrefab::Cylinder(val) => Collider::cylinder(1.0, val.r as Scalar),
-        MeshPrimitivePrefab::Icosphere(val) => {
-            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
-        }
-        MeshPrimitivePrefab::Plane(val) => {
-            Collider::cuboid(val.size as Scalar, EPS as Scalar, val.size as Scalar)
-        }
+        MeshPrimitivePrefab::Plane(val) => Collider::cuboid(val.size.x, EPS as Scalar, val.size.y),
         MeshPrimitivePrefab::RegularPolygon(val) => {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }

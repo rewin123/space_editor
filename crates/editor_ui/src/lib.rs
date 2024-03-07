@@ -229,12 +229,18 @@ impl Plugin for EditorGizmoConfigPlugin {
     }
 }
 
-fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
+fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
+    gizmos_config
+        .config_mut::<DefaultGizmoConfigGroup>()
+        .0
+        .render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
 }
 
-fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(0)
+fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
+    gizmos_config
+        .config_mut::<DefaultGizmoConfigGroup>()
+        .0
+        .render_layers = RenderLayers::layer(0)
 }
 
 type AutoAddQueryFilter = (

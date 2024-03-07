@@ -87,11 +87,7 @@ impl EditorTab for CameraViewTab {
                                 camera: Camera {
                                     is_active: false,
                                     order: 2,
-                                    ..default()
-                                },
-                                camera_3d: Camera3d {
-                                    clear_color:
-                                        bevy::core_pipeline::clear_color::ClearColorConfig::Default,
+                                    clear_color: bevy::render::camera::ClearColorConfig::Default,
                                     ..default()
                                 },
                                 ..default()
@@ -163,7 +159,7 @@ impl EditorTab for CameraViewTab {
                 }
             } else if ui.button("Add 2D Playmode Camera").clicked() {
                 commands.spawn((
-                    Camera2d::default(),
+                    Camera2d {},
                     Name::new("Camera2d".to_string()),
                     Transform::default(),
                     Visibility::default(),
@@ -321,8 +317,8 @@ fn set_camera_viewport(
         scale_factor *= ratio;
     }
 
-    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
-    let mut viewport_size = viewport_rect.size() * scale_factor as f32;
+    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
+    let mut viewport_size = viewport_rect.size() * scale_factor;
 
     // Fixes camera viewport size to be proportional to main watch camera
     if let Some(ratio) = cam_aspect_ratio {

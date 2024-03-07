@@ -1,5 +1,7 @@
 use anyhow::anyhow;
-use bevy::{prelude::*, render::view::RenderLayers, utils::HashMap};
+use bevy::{
+    math::primitives as math_shapes, prelude::*, render::view::RenderLayers, utils::HashMap,
+};
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
     dynamic_asset::{DynamicAsset, DynamicAssetCollection},
@@ -151,14 +153,8 @@ fn register_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .inspect_err(|err| error!("failed to load image `Camera`: {err}"))
                 .unwrap(),
         ),
-        square: asset_server.add(shape::Quad::new(Vec2::splat(2.)).into()),
-        sphere: asset_server.add(
-            Mesh::try_from(shape::Icosphere {
-                radius: 0.75,
-                ..default()
-            })
-            .unwrap(),
-        ),
+        square: asset_server.add(math_shapes::Rectangle::new(2., 2.).into()),
+        sphere: asset_server.add(Mesh::from(math_shapes::Sphere { radius: 0.75 })),
     };
     commands.insert_resource(assets);
 }
@@ -210,9 +206,8 @@ impl DynamicAsset for EditorIconAssetType {
                     .get_resource_mut::<Assets<Mesh>>()
                     .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
-                    .add(Mesh::from(shape::Quad {
-                        size: *size,
-                        ..default()
+                    .add(Mesh::from(math_shapes::Rectangle {
+                        half_size: *size * 0.5,
                     }))
                     .untyped();
                 Ok(DynamicAssetType::Single(handle))
@@ -222,21 +217,7 @@ impl DynamicAsset for EditorIconAssetType {
                     .get_resource_mut::<Assets<Mesh>>()
                     .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
-                    .add(
-                        Mesh::try_from(shape::Icosphere {
-                            radius: *radius,
-                            ..default()
-                        })
-                        // in case the provided value is bad, defaults to a value that has been tested as good enough
-                        .unwrap_or_else(|_| {
-                            shape::Icosphere {
-                                radius: 0.75,
-                                ..default()
-                            }
-                            .try_into()
-                            .unwrap()
-                        }),
-                    )
+                    .add(Mesh::from(math_shapes::Sphere { radius: *radius }))
                     .untyped();
                 Ok(DynamicAssetType::Single(handle))
             }
@@ -363,7 +344,7 @@ pub fn visualize_custom_meshless(
                         .spawn((
                             BillboardTextureBundle {
                                 mesh: BillboardMeshHandle(mesh.clone().unwrap_or_else(|| {
-                                    asset_server.add(shape::Quad::new(Vec2::splat(2.)).into())
+                                    asset_server.add(math_shapes::Rectangle::new(2., 2.).into())
                                 })),
                                 texture: BillboardTextureHandle(texture),
                                 ..default()
@@ -475,13 +456,13 @@ pub fn draw_light_gizmo(
                     // circle at the end of the light range at both angles
                     gizmos.circle(
                         transform.translation + range,
-                        transform.back().normalize(),
+                        Direction3d::new_unchecked(transform.back().normalize()),
                         outer_rad,
                         spot.color.with_a(1.0),
                     );
                     gizmos.circle(
                         transform.translation + range,
-                        transform.back().normalize(),
+                        Direction3d::new_unchecked(transform.back().normalize()),
                         inner_rad,
                         spot.color.with_a(1.0),
                     );

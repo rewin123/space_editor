@@ -144,40 +144,40 @@ pub fn sync_sprite_texture(
     }
 }
 
-/// System to sync [`SpriteBundle`] and [`SpriteTexture`]
-pub fn sync_spritesheet(
-    mut commands: Commands,
-    mut query: Query<
-        (
-            Entity,
-            &SpritesheetTexture,
-            &AnimationIndicesSpriteSheet,
-            &mut TextureAtlasPrefab,
-            &AnimationClipName,
-        ),
-        Or<(
-            Changed<SpritesheetTexture>,
-            Changed<AnimationIndicesSpriteSheet>,
-            Changed<TextureAtlasPrefab>,
-            Changed<AnimationClipName>,
-        )>,
-    >,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-) {
-    for (e, prefab, clips, mut atlas, clip_name) in query.iter_mut() {
-        if let Some(atlas) = atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server) {
-            if let Some(clip) = clips.clips.get(&clip_name.name) {
-                commands.entity(e).insert(SpriteSheetBundle {
-                    texture_atlas: atlas,
-                    sprite: TextureAtlasSprite::new(clip.first),
-                    transform: Transform::from_scale(Vec3::splat(6.0)),
-                    ..default()
-                });
-            };
-        }
-    }
-}
+// /// System to sync [`SpriteBundle`] and [`SpriteTexture`]
+// pub fn sync_spritesheet(
+//     mut commands: Commands,
+//     mut query: Query<
+//         (
+//             Entity,
+//             &SpritesheetTexture,
+//             &AnimationIndicesSpriteSheet,
+//             &mut TextureAtlasPrefab,
+//             &AnimationClipName,
+//         ),
+//         Or<(
+//             Changed<SpritesheetTexture>,
+//             Changed<AnimationIndicesSpriteSheet>,
+//             Changed<TextureAtlasPrefab>,
+//             Changed<AnimationClipName>,
+//         )>,
+//     >,
+//     asset_server: Res<AssetServer>,
+//     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+// ) {
+//     for (e, prefab, clips, mut atlas, clip_name) in query.iter_mut() {
+//         if let Some(atlas) = atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server) {
+//             if let Some(clip) = clips.clips.get(&clip_name.name) {
+//                 commands.entity(e).insert(SpriteSheetBundle {
+//                     texture_atlas: atlas,
+//                     sprite: TextureAtlasSprite::new(clip.first),
+//                     transform: Transform::from_scale(Vec3::splat(6.0)),
+//                     ..default()
+//                 });
+//             };
+//         }
+//     }
+// }
 
 /// Spawn system on enter to [`EditorState::Game`] state
 ///

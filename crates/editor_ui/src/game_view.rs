@@ -152,8 +152,8 @@ pub fn set_camera_viewport(
 
     let scale_factor = window.scale_factor() * egui_settings.scale_factor;
 
-    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
-    let viewport_size = viewport_rect.size() * scale_factor as f32;
+    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
+    let viewport_size = viewport_rect.size() * scale_factor;
 
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),

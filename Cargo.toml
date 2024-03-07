@@ -55,7 +55,7 @@ bevy-inspector-egui = { version = "0.23", features = [
     "highlight_changes",
 ] }
 bevy_mod_billboard = {version = "0.6", git = "https://github.com/kulkalkul/bevy_mod_billboard", branch = "main" }
-bevy_mod_picking = { version = "0.17", default-features = false, features = [
+bevy_mod_picking = { version = "0.18.1", default-features = false, features = [
     "backend_raycast",
     "selection",
 ] }

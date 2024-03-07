@@ -78,13 +78,13 @@ impl Default for FollowCamera {
 }
 
 impl MapEntities for FollowCamera {
-    fn map_entities(&mut self, entity_mapper: &mut bevy::ecs::entity::EntityMapper) {
-        self.target.entity = entity_mapper.get_or_reserve(self.target.entity);
+    fn map_entities<M: EntityMapper>(&mut self, entity_mapper: &mut M) {
+        self.target.entity = entity_mapper.map_entity(self.target.entity);
     }
 }
 
 fn move_player(
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(
         Entity,
         &mut LinearVelocity,
@@ -106,20 +106,20 @@ fn move_player(
             let up = transform.up();
 
             let mut target_vel = Vector::new(0.0, 0.0, 0.0);
-            if keyboard_input.pressed(KeyCode::W) {
-                target_vel += frw;
+            if keyboard_input.pressed(KeyCode::KeyW) {
+                target_vel += Vec3::from(frw);
             }
-            if keyboard_input.pressed(KeyCode::S) {
-                target_vel -= frw;
+            if keyboard_input.pressed(KeyCode::KeyS) {
+                target_vel -= Vec3::from(frw);
             }
             //rotate
-            if keyboard_input.pressed(KeyCode::A) {
+            if keyboard_input.pressed(KeyCode::KeyA) {
                 rot.y = 2.0;
             }
-            if keyboard_input.pressed(KeyCode::D) {
+            if keyboard_input.pressed(KeyCode::KeyD) {
                 rot.y = -2.0;
             }
-            if !keyboard_input.pressed(KeyCode::A) && !keyboard_input.pressed(KeyCode::D) {
+            if !keyboard_input.pressed(KeyCode::KeyA) && !keyboard_input.pressed(KeyCode::KeyD) {
                 rot.y -= 10.0 * rot.y * time.delta_seconds();
             }
 

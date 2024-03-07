@@ -103,7 +103,7 @@ impl Default for EditorUiCore {
 
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
-        app.add_state::<ShowEditorUi>();
+        app.init_state::<ShowEditorUi>();
 
         app.configure_sets(
             Update,

@@ -486,7 +486,7 @@ pub fn top_menu(
                             .show(ctx, |ui| {
                                 ui.vertical_centered_justified(|ui| {
                                     if ui.add(egui::Button::new("Clear all 🗑")).clicked() {
-                                        clear_toast.send(ClearToastMessage::all())
+                                        clear_toast.send(ClearToastMessage::all());
                                     };
                                 });
                                 egui::Grid::new("error_console_log").show(ui, |ui| {
@@ -496,7 +496,7 @@ pub fn top_menu(
                                         ui.label(RichText::new("ERROR").color(ERROR_COLOR));
                                         ui.label(error);
                                         if ui.button("🗙").clicked() {
-                                            clear_toast.send(ClearToastMessage::error(index))
+                                            clear_toast.send(ClearToastMessage::error(index));
                                         }
                                         ui.end_row();
                                     }
@@ -506,7 +506,7 @@ pub fn top_menu(
                                         ui.label(RichText::new("WARN ").color(WARM_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
-                                            clear_toast.send(ClearToastMessage::warn(index))
+                                            clear_toast.send(ClearToastMessage::warn(index));
                                         }
                                         ui.end_row();
                                     }

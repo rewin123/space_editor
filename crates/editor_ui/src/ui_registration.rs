@@ -184,16 +184,6 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "3D Icosphere",
-        (
-            MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
-            Name::new("Icosphere".to_string()),
-            Transform::default(),
-            Visibility::default(),
-        ),
-    );
-    app.editor_bundle(
-        "Mesh",
         "3D Plane",
         (
             MeshPrimitivePrefab::Plane(PlanePrefab::default()),
@@ -283,7 +273,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Camera",
         "2D Playmode Camera",
         (
-            Camera2d::default(),
+            Camera2d {},
             Name::new("Camera2d".to_string()),
             Transform::default(),
             Visibility::default(),
