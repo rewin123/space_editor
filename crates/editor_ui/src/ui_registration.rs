@@ -116,7 +116,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cube",
         (
-            MeshPrimitivePrefab::Cube(1.0),
+            MeshPrimitive3dPrefab::Cube(1.0),
             Name::new("Cube".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -126,7 +126,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Box",
         (
-            MeshPrimitivePrefab::Box(BoxPrefab::default()),
+            MeshPrimitive3dPrefab::Box(BoxPrefab::default()),
             Name::new("Box".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -136,7 +136,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Sphere",
         (
-            MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
+            MeshPrimitive3dPrefab::Sphere(SpherePrefab::default()),
             Name::new("UVSphere".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -146,7 +146,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Quad",
         (
-            MeshPrimitivePrefab::Quad(QuadPrefab::default()),
+            MeshPrimitive3dPrefab::Quad(QuadPrefab::default()),
             Name::new("Quad".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -156,7 +156,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Capsule",
         (
-            MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
+            MeshPrimitive3dPrefab::Capsule(CapsulePrefab::default()),
             Name::new("Capsule"),
             Transform::default(),
             Visibility::default(),
@@ -166,7 +166,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Circle",
         (
-            MeshPrimitivePrefab::Circle(CirclePrefab::default()),
+            MeshPrimitive3dPrefab::Circle(CirclePrefab::default()),
             Name::new("Circle".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -176,7 +176,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cylinder",
         (
-            MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
+            MeshPrimitive3dPrefab::Cylinder(CylinderPrefab::default()),
             Name::new("Cylinder".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -186,7 +186,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Plane",
         (
-            MeshPrimitivePrefab::Plane(PlanePrefab::default()),
+            MeshPrimitive3dPrefab::Plane(PlanePrefab::default()),
             Name::new("Plane".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -196,7 +196,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Regular Polygon",
         (
-            MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
+            MeshPrimitive3dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -206,7 +206,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Torus",
         (
-            MeshPrimitivePrefab::Torus(TorusPrefab::default()),
+            MeshPrimitive3dPrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
             Transform::default(),
             Visibility::default(),

@@ -2,10 +2,29 @@ use bevy::math::primitives as math_shapes;
 use bevy::prelude::*;
 use space_shared::ext::bevy_inspector_egui::prelude::*;
 
+// TODO
+// | 2D                            |	3D |
+// | ---                           | --- |
+// | Rectangle                 	| Cuboid |
+// | Circle	                    | Sphere |
+// | Ellipse	                    | - |
+// | Triangle2d	                | - |
+// | Plane2d	                    | Plane3d |
+// | Line2d	                    | Line3d |
+// | Segment2d	                    | Segment3d |
+// | Polyline2d, BoxedPolyline2d	| Polyline3d, BoxedPolyline3d |
+// | Polygon, BoxedPolygon	        | - |
+// | RegularPolygon                | 	- |
+// | Capsule2d	                    | Capsule3d |
+// | -                             | Cylinder|
+// | -                             | Cone|
+// | -                             | ConicalFrustum |
+// | -                             | Torus |
+
 /// Component to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
-pub enum MeshPrimitivePrefab {
+pub enum MeshPrimitive3dPrefab {
     Cube(f32),
     Box(BoxPrefab),
     Sphere(SpherePrefab),
@@ -18,16 +37,6 @@ pub enum MeshPrimitivePrefab {
     Torus(TorusPrefab),
 }
 
-impl Default for MeshPrimitivePrefab {
-    fn default() -> Self {
-        Self::Box(BoxPrefab {
-            w: 1.0,
-            h: 1.0,
-            d: 1.0,
-        })
-    }
-}
-
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
 pub enum MeshPrimitive2dPrefab {
@@ -37,13 +46,23 @@ pub enum MeshPrimitive2dPrefab {
     RegularPolygon(RegularPolygonPrefab),
 }
 
+impl Default for MeshPrimitive3dPrefab {
+    fn default() -> Self {
+        Self::Box(BoxPrefab {
+            w: 1.0,
+            h: 1.0,
+            d: 1.0,
+        })
+    }
+}
+
 impl Default for MeshPrimitive2dPrefab {
     fn default() -> Self {
         Self::Quad(QuadPrefab { size: Vec2::ONE })
     }
 }
 
-impl MeshPrimitivePrefab {
+impl MeshPrimitive3dPrefab {
     /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
@@ -304,7 +323,7 @@ mod tests {
 
     #[test]
     fn test_box_to_mesh() {
-        let box_prefab = MeshPrimitivePrefab::Box(BoxPrefab {
+        let box_prefab = MeshPrimitive3dPrefab::Box(BoxPrefab {
             w: 1.0,
             h: 2.0,
             d: 3.0,
@@ -320,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_cube_to_mesh() {
-        let cube_prefab = MeshPrimitivePrefab::Cube(2.0);
+        let cube_prefab = MeshPrimitive3dPrefab::Cube(2.0);
         let mesh = cube_prefab.to_mesh();
         assert_eq!(
             format!("{mesh:?}"),
@@ -330,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_sphere_to_mesh() {
-        let sphere_prefab = MeshPrimitivePrefab::Sphere(SpherePrefab { r: 0.5 });
+        let sphere_prefab = MeshPrimitive3dPrefab::Sphere(SpherePrefab { r: 0.5 });
         let mesh = sphere_prefab.to_mesh();
         assert_eq!(
             format!("{mesh:?}"),
@@ -340,7 +359,7 @@ mod tests {
 
     #[test]
     fn test_default_to_mesh() {
-        let default_prefab = MeshPrimitivePrefab::default();
+        let default_prefab = MeshPrimitive3dPrefab::default();
         let mesh = default_prefab.to_mesh();
         // You might want to adjust the expected default behavior
         assert_eq!(
@@ -351,7 +370,7 @@ mod tests {
 
     #[test]
     fn test_quad_to_mesh() {
-        let default_prefab = MeshPrimitivePrefab::Quad(QuadPrefab {
+        let default_prefab = MeshPrimitive3dPrefab::Quad(QuadPrefab {
             size: Vec2::new(1., 1.),
         });
         let mesh = default_prefab.to_mesh();
@@ -367,7 +386,7 @@ mod tests {
 
     #[test]
     fn test_capsule_to_mesh() {
-        let default_prefab = MeshPrimitivePrefab::Capsule(CapsulePrefab::default());
+        let default_prefab = MeshPrimitive3dPrefab::Capsule(CapsulePrefab::default());
         let mesh = default_prefab.to_mesh();
 
         assert_eq!(

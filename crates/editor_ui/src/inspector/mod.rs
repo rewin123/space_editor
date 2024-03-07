@@ -177,8 +177,6 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
         priority_a.cmp(priority_b).then(name_a.cmp(name_b))
     });
 
-    // println!("{:#?}\n", components_id);
-
     let cell = world.as_unsafe_world_cell();
     let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
 

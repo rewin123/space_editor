@@ -89,10 +89,10 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<AnimationTimerSpriteSheet>();
         app.editor_registry::<TextureAtlasPrefab>();
 
-        app.editor_registry::<MeshPrimitivePrefab>();
-        app.editor_relation::<MeshPrimitivePrefab, Transform>();
-        app.editor_relation::<MeshPrimitivePrefab, Visibility>();
-        app.editor_relation::<MeshPrimitivePrefab, MaterialPrefab>();
+        app.editor_registry::<MeshPrimitive3dPrefab>();
+        app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
+        app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
+        app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
 
         app.editor_registry::<MeshPrimitive2dPrefab>();
         app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
@@ -207,7 +207,7 @@ impl Plugin for BasePrefabPlugin {
                 sync_2d_mesh,
                 sync_2d_material,
                 sync_sprite_texture,
-                // sync_spritesheet,
+                sync_spritesheet,
             )
                 .in_set(PrefabSet::DetectPrefabChange),
         );
@@ -216,7 +216,7 @@ impl Plugin for BasePrefabPlugin {
             Update,
             (editor_remove_mesh, editor_remove_mesh_2d).run_if(in_state(EditorState::Editor)),
         );
-        // app.add_systems(Update, animate_sprite);
+        app.add_systems(Update, animate_sprite);
 
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);
