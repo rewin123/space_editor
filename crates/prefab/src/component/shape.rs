@@ -330,7 +330,7 @@ mod tests {
 
     #[test]
     fn test_sphere_to_mesh() {
-        let sphere_prefab = MeshPrimitivePrefab::Sphere(SpherePrefab { r: 1.0 });
+        let sphere_prefab = MeshPrimitivePrefab::Sphere(SpherePrefab { r: 0.5 });
         let mesh = sphere_prefab.to_mesh();
         assert_eq!(
             format!("{mesh:?}"),

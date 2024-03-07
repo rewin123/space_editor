@@ -239,7 +239,7 @@ mod tests {
         assert_eq!(event.kind, space_shared::toast::ToastKind::Info);
         assert_eq!(
             event.text,
-            "Spawning player start: 0v0 with \"cube.glb#Scene0\""
+            "Spawning player start: 0v1 with \"cube.glb#Scene0\""
         );
 
         let mut query = app
