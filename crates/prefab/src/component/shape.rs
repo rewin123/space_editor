@@ -3,23 +3,8 @@ use bevy::prelude::*;
 use space_shared::ext::bevy_inspector_egui::prelude::*;
 
 // TODO
-// | 2D                            |	3D |
-// | ---                           | --- |
-// | Rectangle                 	| Cuboid |
-// | Circle	                    | Sphere |
-// | Ellipse	                    | - |
-// | Triangle2d	                | - |
-// | Plane2d	                    | Plane3d |
-// | Line2d	                    | Line3d |
-// | Segment2d	                    | Segment3d |
-// | Polyline2d, BoxedPolyline2d	| Polyline3d, BoxedPolyline3d |
-// | Polygon, BoxedPolygon	        | - |
-// | RegularPolygon                | 	- |
-// | Capsule2d	                    | Capsule3d |
-// | -                             | Cylinder|
-// | -                             | Cone|
-// | -                             | ConicalFrustum |
-// | -                             | Torus |
+// | Line3d |
+// | Segment3d |
 
 /// Component to setup mesh of prefab
 #[derive(Component, Reflect, Clone)]
@@ -32,7 +17,8 @@ pub enum MeshPrimitive3dPrefab {
     Capsule(CapsulePrefab),
     Circle(CirclePrefab),
     Cylinder(CylinderPrefab),
-    Plane(PlanePrefab),
+    Plane(Plane3dPrefab),
+    PlaneMultipoint(PlaneMultiPointPrefab),
     RegularPolygon(RegularPolygonPrefab),
     Torus(TorusPrefab),
 }
@@ -40,8 +26,11 @@ pub enum MeshPrimitive3dPrefab {
 #[derive(Component, Reflect, Clone)]
 #[reflect(Default, Component)]
 pub enum MeshPrimitive2dPrefab {
-    Quad(QuadPrefab),
+    Rectagle(QuadPrefab),
     Circle(CirclePrefab),
+    Ellipse(EllipsePrefab),
+    Triangle(TrianglePrefab),
+    Capsule(Capsule2dPrefab),
     Plane(PlanePrefab),
     RegularPolygon(RegularPolygonPrefab),
 }
@@ -58,7 +47,7 @@ impl Default for MeshPrimitive3dPrefab {
 
 impl Default for MeshPrimitive2dPrefab {
     fn default() -> Self {
-        Self::Quad(QuadPrefab { size: Vec2::ONE })
+        Self::Rectagle(QuadPrefab { size: Vec2::ONE })
     }
 }
 
@@ -76,6 +65,7 @@ impl MeshPrimitive3dPrefab {
             Self::Plane(c) => c.to_mesh(),
             Self::RegularPolygon(c) => c.to_mesh(),
             Self::Torus(c) => c.to_mesh(),
+            Self::PlaneMultipoint(p) => p.to_mesh(),
         }
     }
 }
@@ -84,8 +74,11 @@ impl MeshPrimitive2dPrefab {
     /// Convert [`MeshPrimitive2dPrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
-            Self::Quad(q) => q.to_mesh(),
+            Self::Rectagle(q) => q.to_mesh(),
             Self::Circle(c) => c.to_mesh(),
+            Self::Ellipse(e) => e.to_mesh(),
+            Self::Triangle(t) => t.to_mesh(),
+            Self::Capsule(c) => c.to_mesh(),
             Self::Plane(c) => c.to_mesh(),
             Self::RegularPolygon(c) => c.to_mesh(),
         }
@@ -207,6 +200,84 @@ impl CirclePrefab {
     }
 }
 
+/// Values to setup ellipse mesh
+#[derive(Reflect, Clone, InspectorOptions)]
+#[reflect(Default, InspectorOptions)]
+pub struct EllipsePrefab {
+    pub radius_pair: Vec2,
+}
+
+impl Default for EllipsePrefab {
+    fn default() -> Self {
+        let def = math_shapes::Ellipse::default();
+        Self {
+            radius_pair: def.half_size,
+        }
+    }
+}
+
+impl EllipsePrefab {
+    pub fn to_mesh(&self) -> Mesh {
+        let data = math_shapes::Ellipse {
+            half_size: self.radius_pair,
+        };
+        Mesh::from(data)
+    }
+}
+
+/// Values to setup Triangle mesh
+#[derive(Reflect, Clone, InspectorOptions)]
+#[reflect(Default, InspectorOptions)]
+pub struct TrianglePrefab {
+    pub vertices: [Vec2; 3],
+}
+
+impl Default for TrianglePrefab {
+    fn default() -> Self {
+        let def = math_shapes::Triangle2d::default();
+        Self {
+            vertices: def.vertices,
+        }
+    }
+}
+
+impl TrianglePrefab {
+    pub fn to_mesh(&self) -> Mesh {
+        let data = math_shapes::Triangle2d {
+            vertices: self.vertices,
+        };
+        Mesh::from(data)
+    }
+}
+
+/// Values to setup Capsule2d mesh
+#[derive(Reflect, Clone, InspectorOptions)]
+#[reflect(Default, InspectorOptions)]
+pub struct Capsule2dPrefab {
+    pub radius: f32,
+    pub half_length: f32,
+}
+
+impl Default for Capsule2dPrefab {
+    fn default() -> Self {
+        let def = math_shapes::Capsule2d::default();
+        Self {
+            radius: def.radius,
+            half_length: def.half_length,
+        }
+    }
+}
+
+impl Capsule2dPrefab {
+    pub fn to_mesh(&self) -> Mesh {
+        let data = math_shapes::Capsule2d {
+            radius: self.radius,
+            half_length: self.half_length,
+        };
+        Mesh::from(data)
+    }
+}
+
 /// Values to setup cylinder mesh
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
@@ -255,6 +326,82 @@ impl PlanePrefab {
     pub fn to_mesh(&self) -> Mesh {
         let data = math_shapes::Rectangle::from_size(self.size * 0.5);
         Mesh::from(data)
+    }
+}
+
+/// Values to setup Plane3d mesh
+#[derive(Reflect, Clone)]
+#[reflect(Default)]
+pub struct Plane3dPrefab {
+    pub normal: Direction3d,
+    pub transform: Vec3,
+}
+
+impl Default for Plane3dPrefab {
+    fn default() -> Self {
+        let def = math_shapes::Plane3d::default();
+        Self {
+            normal: def.normal,
+            transform: Vec3::ZERO,
+        }
+    }
+}
+
+impl Plane3dPrefab {
+    pub fn to_mesh(&self) -> Mesh {
+        let data = math_shapes::Plane3d {
+            normal: self.normal,
+        };
+        Mesh::from(data)
+    }
+
+    pub const fn to_plane3d(&self) -> Plane3d {
+        math_shapes::Plane3d {
+            normal: self.normal,
+        }
+    }
+}
+
+/// Values to setup Plane3d mesh
+#[derive(Reflect, Clone)]
+#[reflect(Default)]
+pub struct PlaneMultiPointPrefab {
+    pub points: [Vec3; 3],
+}
+
+impl Default for PlaneMultiPointPrefab {
+    fn default() -> Self {
+        Self {
+            points: [
+                Vec3 {
+                    x: 0.,
+                    y: 0.,
+                    z: 0.,
+                },
+                Vec3 {
+                    x: 1.,
+                    y: 0.,
+                    z: 0.,
+                },
+                Vec3 {
+                    x: 0.,
+                    y: 0.,
+                    z: -1.,
+                },
+            ],
+        }
+    }
+}
+
+impl PlaneMultiPointPrefab {
+    pub fn to_mesh(&self) -> Mesh {
+        let data =
+            math_shapes::Plane3d::from_points(self.points[0], self.points[1], self.points[2]);
+        Mesh::from(data.0)
+    }
+
+    pub fn to_plane3d(&self) -> Plane3d {
+        math_shapes::Plane3d::from_points(self.points[0], self.points[1], self.points[2]).0
     }
 }
 
@@ -393,5 +540,19 @@ mod tests {
             format!("{mesh:?}"),
             format!("{:?}", Mesh::from(math_shapes::Capsule3d::default()))
         );
+    }
+
+    #[test]
+    fn plane_3d_prefab_to_plane3d() {
+        let prefab = Plane3dPrefab::default();
+        let plane3d = math_shapes::Plane3d::new(Vec3::Y);
+        assert_eq!(prefab.to_plane3d(), plane3d);
+    }
+
+    #[test]
+    fn plane_multipoint_prefab_to_plane3d() {
+        let prefab = PlaneMultiPointPrefab::default();
+        let plane3d = math_shapes::Plane3d::new(Vec3::Y);
+        assert_eq!(prefab.to_plane3d(), plane3d);
     }
 }

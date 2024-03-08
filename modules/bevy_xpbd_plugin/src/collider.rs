@@ -221,9 +221,8 @@ fn get_prefab_mesh_collider(mesh: &MeshPrimitive3dPrefab) -> Collider {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
         MeshPrimitive3dPrefab::Cylinder(val) => Collider::cylinder(1.0, val.r as Scalar),
-        MeshPrimitive3dPrefab::Plane(val) => {
-            Collider::cuboid(val.size.x, EPS as Scalar, val.size.y)
-        }
+        MeshPrimitive3dPrefab::Plane(val) => val.to_plane3d().into(),
+        MeshPrimitive3dPrefab::PlaneMultipoint(val) => val.to_plane3d().into(),
         MeshPrimitive3dPrefab::RegularPolygon(val) => {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }

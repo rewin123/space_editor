@@ -144,10 +144,10 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "3D Quad",
+        "3D Rectagle",
         (
             MeshPrimitive3dPrefab::Quad(QuadPrefab::default()),
-            Name::new("Quad".to_string()),
+            Name::new("Rectagle".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -186,8 +186,18 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Plane",
         (
-            MeshPrimitive3dPrefab::Plane(PlanePrefab::default()),
+            MeshPrimitive3dPrefab::Plane(Plane3dPrefab::default()),
             Name::new("Plane".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+    app.editor_bundle(
+        "Mesh",
+        "3D Plane Multipoint",
+        (
+            MeshPrimitive3dPrefab::PlaneMultipoint(PlaneMultiPointPrefab::default()),
+            Name::new("Plane Multipoint".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -215,9 +225,9 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Mesh",
-        "2D Quad",
+        "2D Rectagle",
         (
-            MeshPrimitive2dPrefab::Quad(QuadPrefab::default()),
+            MeshPrimitive2dPrefab::Rectagle(QuadPrefab::default()),
             Name::new("2D Quad".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -237,10 +247,32 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Mesh",
-        "2D Plane",
+        "2D Ellipse",
         (
-            MeshPrimitive2dPrefab::Plane(PlanePrefab::default()),
-            Name::new("2D Plane".to_string()),
+            MeshPrimitive2dPrefab::Ellipse(EllipsePrefab::default()),
+            Name::new("2D Ellipse".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Triangle",
+        (
+            MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
+            Name::new("2D Triangle".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Triangle",
+        (
+            MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
+            Name::new("2D Triangle".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
