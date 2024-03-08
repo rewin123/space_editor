@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy_scene_hook::{HookedSceneBundle, SceneHook};
-use space_shared::toast::ToastMessage;
+use bevy_scene_hook::SceneHook;
+use space_shared::{toast::ToastMessage, PrefabMarker};
 
 use super::component::*;
 
@@ -14,13 +14,14 @@ pub fn spawn_scene(
             Option<&Children>,
             Option<&Visibility>,
             Option<&Transform>,
+            Option<&SceneAutoChild>,
         ),
         Changed<GltfPrefab>,
     >,
     auto_children: Query<&SceneAutoChild>,
     asset_server: Res<AssetServer>,
 ) {
-    for (e, prefab, children, vis, tr) in prefabs.iter() {
+    for (e, prefab, children, vis, tr, auto_child) in prefabs.iter() {
         if let Some(children) = children {
             for e in children {
                 if auto_children.contains(*e) {
@@ -29,32 +30,27 @@ pub fn spawn_scene(
             }
         }
 
-        let id = commands
-            .spawn(HookedSceneBundle {
-                scene: SceneBundle {
-                    scene: asset_server.load(format!("{}#{}", &prefab.path, &prefab.scene)),
-                    ..default()
-                },
-                hook: SceneHook::new(|_e, cmd| {
+        let is_auto_child = auto_child.is_some();
+
+        commands.entity(e).insert(SceneAutoRoot);
+
+        commands
+            .entity(e)
+            .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
+            .insert(SceneHook::new(move |e, cmd| {
+                if e.contains::<SceneAutoRoot>() {
+                } else if is_auto_child {
                     cmd.insert(SceneAutoChild);
-                }),
-            })
-            .insert(SceneAutoChild)
-            .id();
-        commands.entity(e).add_child(id);
+                } else {
+                    cmd.insert(SceneAutoChild).insert(PrefabMarker);
+                }
+            }));
 
         if vis.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());
         }
         if tr.is_none() {
-            #[cfg(feature = "f32")]
             commands.entity(e).insert(TransformBundle::default());
-            #[cfg(feature = "f64")]
-            {
-                commands
-                    .entity(e)
-                    .insert(bevy_transform64::DTransformBundle::default());
-            }
         }
     }
 }
@@ -211,7 +207,9 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
+    #[cfg(feature = "editor")]
     use super::*;
+    #[cfg(feature = "editor")]
     use bevy::scene::ScenePlugin;
 
     #[test]
@@ -222,7 +220,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            ScenePlugin::default(),
+            ScenePlugin,
         ))
         .add_event::<ToastMessage>();
         app.add_systems(Startup, |mut commands: Commands| {

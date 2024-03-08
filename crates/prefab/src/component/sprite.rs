@@ -185,8 +185,9 @@ mod tests {
 
     #[test]
     fn sprite_texture_to_sprite_with_path() {
-        let mut prefab = SpriteTexture::default();
-        prefab.texture = String::from("test_asset.png");
+        let prefab = SpriteTexture {
+            texture: String::from("test_asset.png"),
+        };
 
         let mut app = App::new();
         app.add_plugins((
@@ -205,8 +206,9 @@ mod tests {
 
     #[test]
     fn sprite_texture_to_sprite_with_fake_path() {
-        let mut prefab = SpriteTexture::default();
-        prefab.texture = String::from("fake_asset.png");
+        let prefab = SpriteTexture {
+            texture: String::from("fake_asset.png"),
+        };
 
         let mut app = App::new();
         app.add_plugins((
@@ -223,8 +225,9 @@ mod tests {
 
     #[test]
     fn spritesheet_texture_to_sprite_with_path() {
-        let mut prefab = SpritesheetTexture::default();
-        prefab.texture = String::from("test_asset.png");
+        let prefab = SpritesheetTexture {
+            texture: String::from("test_asset.png"),
+        };
 
         let mut app = App::new();
         app.add_plugins((
@@ -243,8 +246,9 @@ mod tests {
 
     #[test]
     fn spritesheet_texture_to_sprite_with_fake_path() {
-        let mut prefab = SpritesheetTexture::default();
-        prefab.texture = String::from("fake_asset.png");
+        let prefab = SpritesheetTexture {
+            texture: String::from("fake_asset.png"),
+        };
 
         let mut app = App::new();
         app.add_plugins((
@@ -284,8 +288,9 @@ mod tests {
 
     #[test]
     fn default_texture_atlas_to_texture_exists() {
-        let mut sprite_prefab = SpritesheetTexture::default();
-        sprite_prefab.texture = String::from("test_asset.png");
+        let sprite_prefab = SpritesheetTexture {
+            texture: String::from("test_asset.png"),
+        };
         let mut prefab = TextureAtlasPrefab::default();
 
         let mut app = App::new();
