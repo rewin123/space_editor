@@ -13,7 +13,7 @@ use bevy::{
 };
 use futures_lite::future;
 
-#[derive(Component, Reflect, Default)]
+#[derive(Component, Reflect, Default, Clone)]
 #[reflect(Component)]
 pub struct TerrainViewer;
 
