@@ -112,7 +112,7 @@ impl HotkeyAppExt for App {
 
         if !self.world.contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
-            self.init_resource::<Input<T>>();
+            self.init_resource::<ButtonInput<T>>();
             #[cfg(feature = "persistence_editor")]
             {
                 self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
@@ -155,8 +155,8 @@ impl HotkeyAppExt for App {
 
 fn hotkey_mapper<T>(
     bindings: Res<HotkeySet<T>>,
-    mut hotkeys: ResMut<Input<T>>,
-    input: Res<Input<KeyCode>>,
+    mut hotkeys: ResMut<ButtonInput<T>>,
+    input: Res<ButtonInput<KeyCode>>,
 ) where
     T: Hotkey,
 {

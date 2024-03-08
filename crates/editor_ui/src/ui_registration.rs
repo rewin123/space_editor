@@ -116,7 +116,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cube",
         (
-            MeshPrimitivePrefab::Cube(1.0),
+            MeshPrimitive3dPrefab::Cube(1.0),
             Name::new("Cube".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -126,7 +126,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Box",
         (
-            MeshPrimitivePrefab::Box(BoxPrefab::default()),
+            MeshPrimitive3dPrefab::Box(BoxPrefab::default()),
             Name::new("Box".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -136,7 +136,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Sphere",
         (
-            MeshPrimitivePrefab::Sphere(SpherePrefab::default()),
+            MeshPrimitive3dPrefab::Sphere(SpherePrefab::default()),
             Name::new("UVSphere".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -144,10 +144,10 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
     );
     app.editor_bundle(
         "Mesh",
-        "3D Quad",
+        "3D Rectagle",
         (
-            MeshPrimitivePrefab::Quad(QuadPrefab::default()),
-            Name::new("Quad".to_string()),
+            MeshPrimitive3dPrefab::Quad(QuadPrefab::default()),
+            Name::new("Rectagle".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -156,7 +156,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Capsule",
         (
-            MeshPrimitivePrefab::Capsule(CapsulePrefab::default()),
+            MeshPrimitive3dPrefab::Capsule(CapsulePrefab::default()),
             Name::new("Capsule"),
             Transform::default(),
             Visibility::default(),
@@ -166,7 +166,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Circle",
         (
-            MeshPrimitivePrefab::Circle(CirclePrefab::default()),
+            MeshPrimitive3dPrefab::Circle(CirclePrefab::default()),
             Name::new("Circle".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -176,18 +176,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cylinder",
         (
-            MeshPrimitivePrefab::Cylinder(CylinderPrefab::default()),
+            MeshPrimitive3dPrefab::Cylinder(CylinderPrefab::default()),
             Name::new("Cylinder".to_string()),
-            Transform::default(),
-            Visibility::default(),
-        ),
-    );
-    app.editor_bundle(
-        "Mesh",
-        "3D Icosphere",
-        (
-            MeshPrimitivePrefab::Icosphere(IcospherePrefab::default()),
-            Name::new("Icosphere".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -196,8 +186,18 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Plane",
         (
-            MeshPrimitivePrefab::Plane(PlanePrefab::default()),
+            MeshPrimitive3dPrefab::Plane(Plane3dPrefab::default()),
             Name::new("Plane".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+    app.editor_bundle(
+        "Mesh",
+        "3D Plane Multipoint",
+        (
+            MeshPrimitive3dPrefab::PlaneMultipoint(PlaneMultiPointPrefab::default()),
+            Name::new("Plane Multipoint".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -206,7 +206,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Regular Polygon",
         (
-            MeshPrimitivePrefab::RegularPolygon(RegularPolygonPrefab::default()),
+            MeshPrimitive3dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -216,7 +216,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Torus",
         (
-            MeshPrimitivePrefab::Torus(TorusPrefab::default()),
+            MeshPrimitive3dPrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -225,9 +225,9 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Mesh",
-        "2D Quad",
+        "2D Rectagle",
         (
-            MeshPrimitive2dPrefab::Quad(QuadPrefab::default()),
+            MeshPrimitive2dPrefab::Rectagle(QuadPrefab::default()),
             Name::new("2D Quad".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -247,10 +247,32 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
 
     app.editor_bundle(
         "Mesh",
-        "2D Plane",
+        "2D Ellipse",
         (
-            MeshPrimitive2dPrefab::Plane(PlanePrefab::default()),
-            Name::new("2D Plane".to_string()),
+            MeshPrimitive2dPrefab::Ellipse(EllipsePrefab::default()),
+            Name::new("2D Ellipse".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Triangle",
+        (
+            MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
+            Name::new("2D Triangle".to_string()),
+            Transform::default(),
+            Visibility::default(),
+        ),
+    );
+
+    app.editor_bundle(
+        "Mesh",
+        "2D Triangle",
+        (
+            MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
+            Name::new("2D Triangle".to_string()),
             Transform::default(),
             Visibility::default(),
         ),
@@ -283,7 +305,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Camera",
         "2D Playmode Camera",
         (
-            Camera2d::default(),
+            Camera2d {},
             Name::new("Camera2d".to_string()),
             Transform::default(),
             Visibility::default(),

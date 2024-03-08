@@ -3,7 +3,7 @@ use bevy_xpbd_3d::math::*;
 use bevy_xpbd_3d::prelude::*;
 
 use space_editor_ui::ext::bevy_inspector_egui::prelude::*;
-use space_editor_ui::prelude::MeshPrimitivePrefab;
+use space_editor_ui::prelude::MeshPrimitive3dPrefab;
 
 use crate::registry::RigidBodyPrefab;
 
@@ -97,7 +97,7 @@ impl ColliderPrimitive {
             Self::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
             Self::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
             Self::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
-            Self::Ball(radius) => Collider::ball(*radius),
+            Self::Ball(radius) => Collider::sphere(*radius),
             Self::Segment { a, b } => Collider::segment(*a, *b),
         }
     }
@@ -112,14 +112,14 @@ pub fn update_collider(
             Option<&RigidBodyPrefab>,
             Option<&Transform>,
             Option<&Handle<Mesh>>,
-            Option<&MeshPrimitivePrefab>,
+            Option<&MeshPrimitive3dPrefab>,
         ),
         Changed<ColliderPrefab>,
     >,
     updated_meshes: Query<(Entity, &ColliderPrefab, &Handle<Mesh>), Changed<Handle<Mesh>>>,
     updated_prefab_meshes: Query<
-        (Entity, &ColliderPrefab, &MeshPrimitivePrefab),
-        Changed<MeshPrimitivePrefab>,
+        (Entity, &ColliderPrefab, &MeshPrimitive3dPrefab),
+        Changed<MeshPrimitive3dPrefab>,
     >,
     meshes: Res<Assets<Mesh>>,
 ) {
@@ -161,7 +161,7 @@ fn get_collider(
     collider: &ColliderPrefab,
     mesh: Option<&Handle<Mesh>>,
     meshes: &Assets<Mesh>,
-    prefab_mesh: Option<&MeshPrimitivePrefab>,
+    prefab_mesh: Option<&MeshPrimitive3dPrefab>,
 ) -> Collider {
     match collider {
         ColliderPrefab::FromMesh => mesh.map_or_else(Collider::default, |mesh| {
@@ -202,43 +202,32 @@ fn get_collider(
     }
 }
 
-fn get_prefab_mesh_collider(mesh: &MeshPrimitivePrefab) -> Collider {
+fn get_prefab_mesh_collider(mesh: &MeshPrimitive3dPrefab) -> Collider {
     const EPS: f32 = 0.00001;
 
     match mesh {
-        MeshPrimitivePrefab::Cube(val) => {
+        MeshPrimitive3dPrefab::Cube(val) => {
             Collider::cuboid(*val as Scalar, *val as Scalar, *val as Scalar)
         }
-        MeshPrimitivePrefab::Box(val) => {
+        MeshPrimitive3dPrefab::Box(val) => {
             Collider::cuboid(val.w as Scalar, val.h as Scalar, val.d as Scalar)
         }
-        MeshPrimitivePrefab::Sphere(val) => Collider::ball(val.r as Scalar),
-        MeshPrimitivePrefab::Quad(val) => {
+        MeshPrimitive3dPrefab::Sphere(val) => Collider::sphere(val.r as Scalar),
+        MeshPrimitive3dPrefab::Quad(val) => {
             Collider::cuboid(val.size.x as Scalar, val.size.y as Scalar, EPS as Scalar)
         }
-        MeshPrimitivePrefab::Capsule(val) => Collider::capsule(1.0, val.r as Scalar),
-        MeshPrimitivePrefab::Circle(val) => {
+        MeshPrimitive3dPrefab::Capsule(val) => Collider::capsule(1.0, val.r as Scalar),
+        MeshPrimitive3dPrefab::Circle(val) => {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
-        MeshPrimitivePrefab::Cylinder(val) => Collider::cylinder(1.0, val.r as Scalar),
-        MeshPrimitivePrefab::Icosphere(val) => {
+        MeshPrimitive3dPrefab::Cylinder(val) => Collider::cylinder(1.0, val.r as Scalar),
+        MeshPrimitive3dPrefab::Plane(val) => val.to_plane3d().into(),
+        MeshPrimitive3dPrefab::PlaneMultipoint(val) => val.to_plane3d().into(),
+        MeshPrimitive3dPrefab::RegularPolygon(val) => {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
-        MeshPrimitivePrefab::Plane(val) => {
-            Collider::cuboid(val.size as Scalar, EPS as Scalar, val.size as Scalar)
-        }
-        MeshPrimitivePrefab::RegularPolygon(val) => {
-            Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
-        }
-        MeshPrimitivePrefab::Torus(val) => {
+        MeshPrimitive3dPrefab::Torus(val) => {
             Collider::trimesh_from_mesh(&val.to_mesh()).unwrap_or_default()
         }
     }
 }
-
-// pub fn debug_draw_collider(
-//     mut gizmo : Gizmos,
-//     query : Query<(Entity, &Collider), Changed<ColliderPrefab>>
-// ) {
-
-// }

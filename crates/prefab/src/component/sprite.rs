@@ -135,21 +135,20 @@ impl TextureAtlasPrefab {
     pub fn to_texture_atlas(
         &mut self,
         sprite_texture: &SpritesheetTexture,
-        texture_atlases: &mut Assets<TextureAtlas>,
+        texture_layout_assets: &mut Assets<TextureAtlasLayout>,
         asset_server: &AssetServer,
-    ) -> Option<Handle<TextureAtlas>> {
+    ) -> Option<Handle<TextureAtlasLayout>> {
         let texture_handle = sprite_texture.to_texture(asset_server)?;
-        self.texture = Some(texture_handle.clone());
+        self.texture = Some(texture_handle);
 
-        let texture_atlas = TextureAtlas::from_grid(
-            texture_handle,
+        let texture_layout = TextureAtlasLayout::from_grid(
             self.tile_size,
             self.columns,
             self.rows,
             self.padding,
             self.offset,
         );
-        Some(texture_atlases.add(texture_atlas))
+        Some(texture_layout_assets.add(texture_layout))
     }
 }
 
@@ -160,17 +159,17 @@ pub fn animate_sprite(
         &AnimationIndicesSpriteSheet,
         &AnimationClipName,
         &mut AnimationTimerSpriteSheet,
-        &mut TextureAtlasSprite,
+        &mut TextureAtlas,
     )>,
 ) {
-    for (sheet_indices, name, mut timer, mut sprite) in &mut query {
+    for (sheet_indices, name, mut timer, mut atlas) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
             if let Some(indices) = sheet_indices.clips.get(&name.name) {
-                sprite.index = if sprite.index == indices.last {
+                atlas.index = if atlas.index == indices.last {
                     indices.first
                 } else {
-                    sprite.index + 1
+                    atlas.index + 1
                 };
             }
         }
@@ -299,10 +298,10 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ))
-        .init_asset::<TextureAtlas>();
+        .init_asset::<TextureAtlasLayout>();
 
         let asset_server = app.world.resource::<AssetServer>().clone();
-        let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlas>>();
+        let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlasLayout>>();
 
         let sprite = prefab.to_texture_atlas(&sprite_prefab, &mut texture_atlas, &asset_server);
 
@@ -326,7 +325,7 @@ mod tests {
                 AnimationIndicesSpriteSheet::default(),
                 AnimationClipName::default(),
                 AnimationTimerSpriteSheet::default(),
-                TextureAtlasSprite::default(),
+                TextureAtlas::default(),
             ));
         };
         let mut app = App::new();
@@ -336,7 +335,7 @@ mod tests {
             .add_systems(Update, animate_sprite);
 
         app.update();
-        let mut query = app.world.query::<&TextureAtlasSprite>();
+        let mut query = app.world.query::<&TextureAtlas>();
 
         let atlas = query.single(&app.world);
 

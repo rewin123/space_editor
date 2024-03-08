@@ -56,7 +56,6 @@ impl Plugin for PersistencePlugin {
     }
 }
 
-// Tested
 fn persistence_save_on_close(
     mut events: EventWriter<PersistenceEvent>,
     settings: Res<PersistenceSettings>,
@@ -67,7 +66,6 @@ fn persistence_save_on_close(
     }
 }
 
-// Tested
 fn persistence_startup_load(
     mut events: EventWriter<PersistenceEvent>,
     settings: Res<PersistenceSettings>,
@@ -77,7 +75,6 @@ fn persistence_startup_load(
     }
 }
 
-// Tested
 fn persistence_start(
     mut events: EventReader<PersistenceEvent>,
     mut broadcast: EventWriter<PersistenceResourceBroadcastEvent>,
@@ -218,7 +215,6 @@ pub enum PersistenceDataSource {
     Memory,
 }
 
-// Persistence file has moved, FIX PATH
 impl Default for PersistenceDataSource {
     fn default() -> Self {
         Self::File("editor.ron".to_string())

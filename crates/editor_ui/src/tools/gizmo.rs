@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
-use bevy_egui_next::egui::{self, Key};
+use bevy_egui::egui::{self, Key};
 use egui_gizmo::*;
 use space_editor_core::prelude::*;
 use space_shared::*;
@@ -21,10 +21,10 @@ impl Plugin for GizmoToolPlugin {
         app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
         app.init_resource::<MultipleCenter>();
 
-        app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::G]);
-        app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::R]);
-        app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::S]);
-        app.editor_hotkey(GizmoHotkey::Delete, vec![KeyCode::X]);
+        app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::KeyG]);
+        app.editor_hotkey(GizmoHotkey::Rotate, vec![KeyCode::KeyR]);
+        app.editor_hotkey(GizmoHotkey::Scale, vec![KeyCode::KeyS]);
+        app.editor_hotkey(GizmoHotkey::Delete, vec![KeyCode::KeyX]);
         app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
 
@@ -111,7 +111,7 @@ impl EditorTool for GizmoTool {
             }
         });
 
-        let input = world.resource::<Input<GizmoHotkey>>();
+        let input = world.resource::<ButtonInput<GizmoHotkey>>();
 
         let mut del = false;
         let mut clone_pressed = false;

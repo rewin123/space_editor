@@ -25,5 +25,8 @@ bevy-inspector-egui.workspace = true
 serde = "1"
 ron.workspace = true
 
+[dev-dependencies]
+rand = "*"
+
 [lints]
 workspace = true

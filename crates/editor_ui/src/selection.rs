@@ -59,7 +59,7 @@ pub fn select_listener(
     parents: Query<&Parent>,
     mut events: EventReader<SelectEvent>,
     pan_orbit_state: ResMut<EditorCameraEnabled>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     if !pan_orbit_state.0 {
         events.clear();
@@ -96,11 +96,12 @@ pub fn select_listener(
 pub fn delete_selected(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     let shift = keyboard.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
     let ctrl = keyboard.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
-    let delete = keyboard.just_pressed(KeyCode::Back) || keyboard.just_pressed(KeyCode::Delete);
+    let delete =
+        keyboard.just_pressed(KeyCode::Backspace) || keyboard.just_pressed(KeyCode::Delete);
 
     if ctrl && shift && delete {
         for entity in query.iter() {

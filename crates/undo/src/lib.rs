@@ -246,7 +246,6 @@ pub enum ChangeResult {
 #[derive(Event)]
 pub enum UndoRedo {
     Undo,
-    // TODO in 0.4
     Redo,
 }
 
@@ -877,7 +876,7 @@ fn auto_undo_add_init<T: Component + Clone>(
                 new_value: data.clone(),
                 entity: e,
             }),
-        })
+        });
     }
 
     for (e, data) in just_maker_added_query.iter() {
@@ -902,7 +901,7 @@ fn auto_undo_reflected_add_init<T: Component + Reflect + FromReflect>(
                 new_value: <T as FromReflect>::from_reflect(data).unwrap(),
                 entity: e,
             }),
-        })
+        });
     }
 
     for (e, data) in just_maker_added_query.iter() {

@@ -1,6 +1,6 @@
 use crate::*;
 use bevy::prelude::*;
-use bevy_egui_next::egui::{
+use bevy_egui::egui::{
     FontFamily::{Monospace, Proportional},
     FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
 };
@@ -103,7 +103,7 @@ impl Default for EditorUiCore {
 
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
-        app.add_state::<ShowEditorUi>();
+        app.init_state::<ShowEditorUi>();
 
         app.configure_sets(
             Update,

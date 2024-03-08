@@ -1,7 +1,6 @@
-// This module contains the implementation of the editor tabs
-
+/// This module contains the implementation of the editor tabs
 use bevy::{prelude::*, utils::HashMap};
-use bevy_egui_next::egui::{self, WidgetText};
+use bevy_egui::egui::{self, WidgetText};
 use convert_case::{Case, Casing};
 
 use crate::{

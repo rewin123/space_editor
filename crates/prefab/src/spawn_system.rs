@@ -58,7 +58,7 @@ pub fn spawn_scene(
 /// System to sync [`Mesh`] and [`MeshPrimitivePrefab`]
 pub fn sync_mesh(
     mut commands: Commands,
-    query: Query<(Entity, &MeshPrimitivePrefab), Changed<MeshPrimitivePrefab>>,
+    query: Query<(Entity, &MeshPrimitive3dPrefab), Changed<MeshPrimitive3dPrefab>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (e, prefab) in query.iter() {
@@ -108,7 +108,7 @@ pub fn sync_2d_material(
 /// remove mesh handle if prefab struct was removed in editor states
 pub fn editor_remove_mesh(
     mut commands: Commands,
-    mut query: RemovedComponents<MeshPrimitivePrefab>,
+    mut query: RemovedComponents<MeshPrimitive3dPrefab>,
 ) {
     for e in query.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
@@ -163,14 +163,19 @@ pub fn sync_spritesheet(
         )>,
     >,
     asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+    mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    for (e, prefab, clips, mut atlas, clip_name) in query.iter_mut() {
-        if let Some(atlas) = atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server) {
+    for (e, prefab, clips, mut texture_atlas, clip_name) in query.iter_mut() {
+        if let Some(atlas) =
+            texture_atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server)
+        {
             if let Some(clip) = clips.clips.get(&clip_name.name) {
                 commands.entity(e).insert(SpriteSheetBundle {
-                    texture_atlas: atlas,
-                    sprite: TextureAtlasSprite::new(clip.first),
+                    atlas: TextureAtlas {
+                        layout: atlas,
+                        index: clip.first,
+                    },
+                    texture: texture_atlas.clone().texture.unwrap_or_default(),
                     transform: Transform::from_scale(Vec3::splat(6.0)),
                     ..default()
                 });
@@ -239,7 +244,7 @@ mod tests {
         assert_eq!(event.kind, space_shared::toast::ToastKind::Info);
         assert_eq!(
             event.text,
-            "Spawning player start: 0v0 with \"cube.glb#Scene0\""
+            "Spawning player start: 0v1 with \"cube.glb#Scene0\""
         );
 
         let mut query = app
@@ -249,12 +254,3 @@ mod tests {
         assert!(iter.next().unwrap().2.is_some());
     }
 }
-
-// pub fn despawn_player_start(
-//     mut commands : Commands,
-//     query : Query<Entity, (With<PlayerStart>, With<Handle<Scene>>)>
-// ) {
-//     for e in query.iter() {
-
-//     }
-// }

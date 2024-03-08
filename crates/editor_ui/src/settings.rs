@@ -2,7 +2,7 @@ use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
 };
-use bevy_egui_next::*;
+use bevy_egui::*;
 use space_editor_core::hotkeys::AllHotkeys;
 use space_shared::ext::bevy_inspector_egui::bevy_inspector;
 use space_undo::ChangeChainSettings;
@@ -231,7 +231,7 @@ impl EditorTab for SettingsWindow {
                                     if hotkey_name == *read_input_for_hotkey {
                                         let mut key_text = String::new();
 
-                                        world.resource_scope::<Input<KeyCode>, _>(
+                                        world.resource_scope::<ButtonInput<KeyCode>, _>(
                                             |_world, input| {
                                                 let all_pressed = input
                                                     .get_pressed()

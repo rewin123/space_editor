@@ -1,6 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
-use bevy_egui_next::*;
+use bevy_egui::*;
 use space_shared::ext::bevy_inspector_egui;
 
 use crate::prelude::*;

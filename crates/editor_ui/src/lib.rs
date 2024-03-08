@@ -80,7 +80,7 @@ use bevy::{
     utils::HashMap,
     window::PrimaryWindow,
 };
-use bevy_egui_next::{egui, EguiContext};
+use bevy_egui::{egui, EguiContext};
 
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
@@ -126,7 +126,7 @@ pub mod prelude {
 
 /// External dependencies for editor crate
 pub mod ext {
-    pub use bevy_egui_next;
+    pub use bevy_egui;
     pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
     pub use space_shared::ext::*;
@@ -157,7 +157,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(EditorSetsPlugin)
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
-            .add(bevy_egui_next::EguiPlugin)
+            .add(bevy_egui::EguiPlugin)
             .add(EventListenerPlugin::<selection::SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
@@ -229,12 +229,18 @@ impl Plugin for EditorGizmoConfigPlugin {
     }
 }
 
-fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
+fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
+    gizmos_config
+        .config_mut::<DefaultGizmoConfigGroup>()
+        .0
+        .render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
 }
 
-fn game_gizmos(mut gizmos_config: ResMut<GizmoConfig>) {
-    gizmos_config.render_layers = RenderLayers::layer(0)
+fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
+    gizmos_config
+        .config_mut::<DefaultGizmoConfigGroup>()
+        .0
+        .render_layers = RenderLayers::layer(0)
 }
 
 type AutoAddQueryFilter = (
@@ -391,7 +397,7 @@ pub fn game_mode_changed(
 }
 
 pub mod colors {
-    use bevy_egui_next::egui::{Color32, Stroke};
+    use bevy_egui::egui::{Color32, Stroke};
 
     pub fn stroke_default_color() -> Stroke {
         Stroke::new(1., STROKE_COLOR)

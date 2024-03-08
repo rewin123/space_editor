@@ -8,7 +8,7 @@ use bevy::{
     },
     window::PrimaryWindow,
 };
-use bevy_egui_next::{egui, EguiContexts};
+use bevy_egui::{egui, EguiContexts};
 
 use space_prefab::component::CameraPlay;
 use space_shared::*;
@@ -77,12 +77,7 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 }
 
 impl EditorTab for CameraViewTab {
-    fn ui(
-        &mut self,
-        ui: &mut bevy_egui_next::egui::Ui,
-        commands: &mut Commands,
-        world: &mut World,
-    ) {
+    fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
         if self.real_camera.is_none() {
             if world.resource::<GameModeSettings>().is_3d() {
                 self.real_camera = Some(
@@ -92,11 +87,7 @@ impl EditorTab for CameraViewTab {
                                 camera: Camera {
                                     is_active: false,
                                     order: 2,
-                                    ..default()
-                                },
-                                camera_3d: Camera3d {
-                                    clear_color:
-                                        bevy::core_pipeline::clear_color::ClearColorConfig::Default,
+                                    clear_color: bevy::render::camera::ClearColorConfig::Default,
                                     ..default()
                                 },
                                 ..default()
@@ -168,7 +159,7 @@ impl EditorTab for CameraViewTab {
                 }
             } else if ui.button("Add 2D Playmode Camera").clicked() {
                 commands.spawn((
-                    Camera2d::default(),
+                    Camera2d {},
                     Name::new("Camera2d".to_string()),
                     Transform::default(),
                     Visibility::default(),
@@ -224,7 +215,7 @@ impl EditorTab for CameraViewTab {
         }
     }
 
-    fn title(&self) -> bevy_egui_next::egui::WidgetText {
+    fn title(&self) -> bevy_egui::egui::WidgetText {
         "Camera view".into()
     }
 }
@@ -258,7 +249,7 @@ fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
     mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui_next::EguiSettings>,
+    egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
 ) {
@@ -326,8 +317,8 @@ fn set_camera_viewport(
         scale_factor *= ratio;
     }
 
-    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor as f32;
-    let mut viewport_size = viewport_rect.size() * scale_factor as f32;
+    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
+    let mut viewport_size = viewport_rect.size() * scale_factor;
 
     // Fixes camera viewport size to be proportional to main watch camera
     if let Some(ratio) = cam_aspect_ratio {
