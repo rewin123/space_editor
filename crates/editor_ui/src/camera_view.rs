@@ -314,7 +314,7 @@ fn set_camera_viewport(
         .map(|cam| cam.y as f64 / cam.x as f64);
     #[cfg(target_os = "macos")]
     if let Some(ratio) = cam_aspect_ratio {
-        scale_factor *= ratio;
+        scale_factor *= ratio as f32;
     }
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
