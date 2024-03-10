@@ -67,7 +67,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.register_type::<Direction3d>();
         app.register_type::<Direction2d>();
-        
+
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
         app.editor_registry::<Visibility>();
