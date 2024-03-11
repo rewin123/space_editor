@@ -2,7 +2,10 @@
 use std::sync::Arc;
 
 use bevy::{ecs::query::QueryFilter, prelude::*, utils::HashMap};
-use bevy_egui::{egui::collapsing_header::CollapsingState, *};
+use bevy_egui::{
+    egui::{collapsing_header::CollapsingState, TextEdit},
+    *,
+};
 use space_editor_core::prelude::*;
 use space_prefab::{component::SceneAutoChild, editor_registry::EditorRegistry};
 use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
@@ -77,7 +80,13 @@ pub fn show_hierarchy(
     };
     all.sort_by_key(|a| a.0);
     let ui = &mut ui.0;
-    ui.text_edit_singleline(&mut state.entity_filter);
+    ui.horizontal(|ui| {
+        let width = ui.available_width() * 0.85;
+        ui.add(TextEdit::singleline(&mut state.entity_filter).desired_width(width));
+        if ui.button("🗑").on_hover_text("Clear test").clicked() {
+            state.entity_filter.clear();
+        }
+    });
     ui.spacing();
     let lower_filter = state.entity_filter.to_lowercase();
 

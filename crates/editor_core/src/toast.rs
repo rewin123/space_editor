@@ -240,4 +240,23 @@ mod tests {
         let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
         assert!(!storage.has_toasts());
     }
+
+    #[test]
+    fn empty_storage_for_info_toasts() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, ToastBasePlugin));
+
+        app.update();
+        assert!(!app
+            .world
+            .get_resource::<ToastStorage>()
+            .unwrap()
+            .has_toasts());
+        app.world
+            .send_event(ToastMessage::new("Test message", ToastKind::Info));
+        app.update();
+
+        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        assert!(!storage.has_toasts());
+    }
 }

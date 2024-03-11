@@ -14,7 +14,7 @@ use bevy::{
     utils::HashMap,
 };
 
-use bevy_egui::*;
+use bevy_egui::{egui::TextEdit, *};
 
 use space_editor_core::prelude::*;
 use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
@@ -212,7 +212,13 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
             }
             ui.heading(&name);
             let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
-            ui.text_edit_singleline(&mut state.component_add_filter);
+            ui.horizontal(|ui| {
+                let width = ui.available_width() * 0.85;
+                ui.add(TextEdit::singleline(&mut state.component_add_filter).desired_width(width));
+                if ui.button("🗑").on_hover_text("Clear test").clicked() {
+                    state.component_add_filter.clear();
+                }
+            });
             let lower_filter = state.component_add_filter.to_lowercase();
             let e_id = e.id().index();
             ui.label("Components:");
@@ -317,7 +323,14 @@ pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashM
         .default_pos(components_area.inner_rect.center_bottom())
         .show(ui.ctx(), |ui: &mut egui::Ui| {
             let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
-            ui.text_edit_singleline(&mut state.component_add_filter);
+            ui.horizontal(|ui| {
+                let width = ui.available_width() * 0.85;
+                ui.add(TextEdit::singleline(&mut state.component_add_filter).desired_width(width));
+                // ui.text_edit_singleline(&mut state.component_add_filter);
+                if ui.button("🗑").on_hover_text("Clear test").clicked() {
+                    state.component_add_filter.clear();
+                }
+            });
             let lower_filter = state.component_add_filter.to_lowercase();
             egui::Grid::new("Component grid").show(ui, |ui| {
                 let _counter = 0;

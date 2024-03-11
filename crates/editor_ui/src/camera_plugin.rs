@@ -25,6 +25,8 @@ impl Plugin for EditorDefaultCameraPlugin {
                 .before(update_pan_orbit)
                 .in_set(EditorSet::Editor),
         );
+        app.add_systems(OnEnter(EditorState::GamePrepare), reset_play_camera_state);
+        app.add_systems(OnEnter(EditorState::Editor), reset_editor_camera_state);
     }
 }
 
@@ -32,9 +34,20 @@ impl Plugin for EditorDefaultCameraPlugin {
 #[derive(Resource, Default)]
 pub struct EditorCameraEnabled(pub bool);
 
+impl From<bool> for EditorCameraEnabled {
+    fn from(value: bool) -> Self {
+        Self(value)
+    }
+}
+
 /// This system executes before all UI systems and is used to enable pan orbit camera on frame start
 pub fn reset_editor_camera_state(mut state: ResMut<EditorCameraEnabled>) {
-    *state = EditorCameraEnabled(true);
+    *state = true.into();
+}
+
+/// This system executes before all UI systems and is used to enable pan orbit camera on frame start
+pub fn reset_play_camera_state(mut state: ResMut<EditorCameraEnabled>) {
+    *state = false.into();
 }
 
 /// This system executes after all UI systems and is used to set pan orbit camera state.
