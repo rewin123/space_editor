@@ -86,6 +86,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Point light"),
             PointLight::default(),
             LightAreaToggle::default(),
+            LightPlay::default(),
         ),
     );
 
@@ -96,6 +97,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Directional light"),
             DirectionalLight::default(),
             LightAreaToggle::default(),
+            LightPlay::default(),
         ),
     );
 
@@ -106,6 +108,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Spot light"),
             SpotLight::default(),
             LightAreaToggle::default(),
+            LightPlay::default(),
         ),
     );
 }

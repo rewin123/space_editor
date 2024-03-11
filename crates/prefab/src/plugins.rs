@@ -75,6 +75,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Visibility>();
 
         app.editor_registry::<GltfPrefab>();
+        app.editor_relation::<GltfPrefab, PrefabMarker>();
         app.editor_registry::<MaterialPrefab>();
         app.editor_registry::<ColorMaterialPrefab>();
 
@@ -82,11 +83,13 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<SpriteTexture>();
         app.editor_relation::<SpriteTexture, Transform>();
         app.editor_relation::<SpriteTexture, Visibility>();
+        app.editor_relation::<Sprite, PrefabMarker>();
 
         // Spritesheet bundle
         app.editor_registry::<SpritesheetTexture>();
         app.editor_relation::<SpritesheetTexture, Transform>();
         app.editor_relation::<SpritesheetTexture, Visibility>();
+        app.editor_relation::<SpritesheetTexture, PrefabMarker>();
         app.editor_registry::<AnimationIndicesSpriteSheet>();
         app.editor_registry::<AnimationClipName>();
         app.editor_registry::<AvailableAnimationClips>();
@@ -98,11 +101,13 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
         app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
         app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
+        app.editor_relation::<MeshPrimitive3dPrefab, PrefabMarker>();
 
         app.editor_registry::<MeshPrimitive2dPrefab>();
         app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
         app.editor_relation::<MeshPrimitive2dPrefab, Visibility>();
         app.editor_relation::<MeshPrimitive2dPrefab, ColorMaterialPrefab>();
+        app.editor_relation::<MeshPrimitive2dPrefab, PrefabMarker>();
 
         //shape registration
         app.register_type::<SpherePrefab>();
@@ -144,6 +149,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Projection>();
         app.editor_registry::<OrthographicProjection>();
         app.editor_registry::<CameraPlay>();
+        app.editor_relation::<CameraPlay, PrefabMarker>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
@@ -167,9 +173,9 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<PlayerStart, Visibility>();
         app.editor_relation::<PlayerStart, ViewVisibility>();
         app.editor_relation::<PlayerStart, InheritedVisibility>();
+        app.editor_relation::<PlayerStart, PrefabMarker>();
 
         app.editor_relation::<Transform, GlobalTransform>();
-        app.editor_relation::<Transform, PrefabMarker>();
 
         //Light
         app.editor_registry::<LightAreaToggle>();
@@ -193,6 +199,10 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<SpotLight, Frustum>();
         app.editor_relation::<SpotLight, Transform>();
         app.editor_relation::<SpotLight, Visibility>();
+
+        app.editor_registry::<LightPlay>();
+        app.editor_relation::<LightPlay, PrefabMarker>();
+
         #[cfg(feature = "editor")]
         app.add_event::<ToastMessage>();
 
