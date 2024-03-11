@@ -53,22 +53,47 @@ type ChangeCameraQueryFilter = (Without<EditorCameraMarker>, With<CameraPlay>);
 /// System to change camera from editor camera to game camera (if exist)
 pub fn change_camera_in_play(
     mut cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
-    mut play_cameras: Query<(&mut Camera, &CameraPlay), ChangeCameraQueryFilter>,
+    mut play_cameras: Query<&mut Camera, ChangeCameraQueryFilter>,
+    primary_window: Query<&mut Window, With<PrimaryWindow>>,
+    #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
 ) {
     if !play_cameras.is_empty() {
-        let (mut some_camera, _) = play_cameras.iter_mut().next().unwrap();
-        cameras.single_mut().is_active = false;
-        some_camera.is_active = true;
+        cameras.iter_mut().for_each(|mut cam| {
+            cam.is_active = false;
+        });
+        play_cameras.iter_mut().for_each(|mut cam| {
+            cam.is_active = true;
+        });
+
+        let Ok(window) = primary_window.get_single() else {
+            return;
+        };
+        let mut cam = play_cameras.single_mut();
+        cam.viewport = Some(bevy::render::camera::Viewport {
+            physical_position: UVec2::new(0, 0),
+            physical_size: UVec2::new(window.width() as u32, window.height() as u32),
+            depth: 0.0..1.0,
+        });
+    } else {
+        error!("No play camera found");
+        #[cfg(feature = "editor")]
+        toast.send(ToastMessage::new(
+            "No play camera found",
+            space_shared::toast::ToastKind::Error,
+        ));
     }
 }
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
-    mut play_cameras: Query<&mut Camera, Without<EditorCameraMarker>>,
+    mut play_cameras: Query<&mut Camera, (Without<EditorCameraMarker>, With<CameraPlay>)>,
 ) {
     for mut ecam in cameras.iter_mut() {
         ecam.is_active = true;
+        play_cameras.iter_mut().for_each(|mut cam| {
+            cam.is_active = false;
+        });
     }
 
     for mut play_cam in play_cameras.iter_mut() {

@@ -93,6 +93,7 @@ use space_editor_core::toast::ToastUiPlugin;
 use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
+    toast::ToastMessage,
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
 use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
@@ -250,7 +251,14 @@ type AutoAddQueryFilter = (
     Changed<Handle<Mesh>>,
 );
 
-fn save_prefab_before_play(mut editor_events: EventWriter<space_shared::EditorEvent>) {
+fn save_prefab_before_play(
+    mut editor_events: EventWriter<space_shared::EditorEvent>,
+    mut toast: EventWriter<ToastMessage>,
+) {
+    toast.send(ToastMessage::new(
+        "Preparing prefab to save for playmode",
+        space_shared::toast::ToastKind::Info,
+    ));
     editor_events.send(space_shared::EditorEvent::Save(
         space_shared::EditorPrefabPath::MemoryCache,
     ));

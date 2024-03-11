@@ -30,6 +30,7 @@ impl Plugin for BottomMenuPlugin {
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
         }
+
         app.init_resource::<EditorLoader>();
         app.init_resource::<MenuToolbarState>();
 
@@ -79,6 +80,7 @@ fn in_game_menu(
             let layout = egui::Layout::left_to_right(Align::Center).with_main_align(Align::Center);
             ui.with_layout(layout, |ui| {
                 ui.label(format!("FPS: {:04.0}", 1.0 / *smoothed_dt));
+
                 let distance = ui.available_width() / 2. - 64.;
                 ui.add_space(distance);
                 let button = if time.is_paused() {
@@ -86,9 +88,6 @@ fn in_game_menu(
                 } else {
                     to_richtext("⏸", &sizing.icon)
                 };
-                if ui.button(to_richtext("⏮", &sizing.icon)).clicked() {
-                    time.advance_by(frame_duration.mul_f32(-1.));
-                }
                 if ui.button(button).clicked() {
                     if time.is_paused() {
                         time.unpause();
@@ -99,7 +98,11 @@ fn in_game_menu(
                 if ui.button(to_richtext("⏹", &sizing.icon)).clicked() {
                     state.set(EditorState::Editor);
                 }
-                if ui.button(to_richtext("⏭", &sizing.icon)).clicked() {
+                if ui
+                    .button(to_richtext("⏭", &sizing.icon))
+                    .on_hover_text("Step by delta time")
+                    .clicked()
+                {
                     time.advance_by(frame_duration);
                 }
 
