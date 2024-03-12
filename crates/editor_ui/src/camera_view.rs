@@ -96,6 +96,7 @@ impl EditorTab for CameraViewTab {
                             TemporalJitter::default(),
                             Name::new("Camera for Camera view tab"),
                             DisableCameraSkip,
+                            EditorCameraMarker,
                             ViewCamera,
                         ))
                         .id(),
@@ -108,6 +109,7 @@ impl EditorTab for CameraViewTab {
                             RenderLayers::layer(0),
                             Name::new("Camera for Camera view tab"),
                             DisableCameraSkip,
+                            EditorCameraMarker,
                             ViewCamera,
                         ))
                         .id(),

@@ -89,7 +89,7 @@ pub fn sync_2d_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (e, prefab) in query.iter() {
-        let mesh = meshes.add(prefab.to_mesh());
+        let mesh = bevy::sprite::Mesh2dHandle(meshes.add(prefab.to_mesh()));
         commands.entity(e).insert(mesh);
     }
 }
