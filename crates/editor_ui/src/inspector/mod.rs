@@ -73,15 +73,270 @@ impl Plugin for SpaceInspectorPlugin {
 #[derive(Resource, Default)]
 pub struct InspectorTab {
     open_components: HashMap<String, bool>,
+    show_all_components: bool,
 }
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        inspect(ui, world, &mut self.open_components);
+        let sizing = world.resource::<Sizing>().clone();
+        let selected_entity = world
+            .query_filtered::<Entity, With<Selected>>()
+            .get_single(world);
+
+        let Ok(selected_entity) = selected_entity else {
+            return;
+        };
+
+        let editor_registry_resource = world.resource::<EditorRegistry>().clone();
+        let editor_regitry_handle = editor_registry_resource.registry.clone();
+        let editor_registry = editor_regitry_handle.read();
+
+        let app_registry_handle = world.resource::<AppTypeRegistry>().clone();
+        let app_registry = app_registry_handle.read();
+        let mut disable_pan_orbit = false;
+
+        //Collet data about all components
+        let components_priority = world.resource::<ComponentsOrder>().clone().components;
+        let mut components_id = Vec::new();
+        if self.show_all_components {
+            for reg in app_registry.iter() {
+                if let Some(c_id) = world.components().get_id(reg.type_id()) {
+                    let name = pretty_type_name::pretty_type_name_str(
+                        world.components().get_info(c_id).unwrap().name(),
+                    );
+                    let priority = components_priority.get(&name).unwrap_or(&u8::MAX);
+                    components_id.push((c_id, reg.type_id(), name, priority));
+                }
+            }
+        } else {
+            for reg in editor_registry.iter() {
+                if let Some(c_id) = world.components().get_id(reg.type_id()) {
+                    let name = pretty_type_name::pretty_type_name_str(
+                        world.components().get_info(c_id).unwrap().name(),
+                    );
+                    let priority = components_priority.get(&name).unwrap_or(&u8::MAX);
+                    components_id.push((c_id, reg.type_id(), name, priority));
+                }
+            }
+        }
+        components_id.sort_by(|(.., name_a, priority_a), (.., name_b, priority_b)| {
+            priority_a.cmp(priority_b).then(name_a.cmp(name_b))
+        });
+
+        let cell = world.as_unsafe_world_cell();
+        let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
+
+        let mut commands: Vec<InspectCommand> = vec![];
+        let mut queue = CommandQueue::default();
+        let mut cx = unsafe {
+            bevy_inspector_egui::reflect_inspector::Context {
+                world: Some(cell.world_mut().into()),
+                queue: Some(&mut queue),
+            }
+        };
+        let mut env = InspectorUi::for_bevy(&app_registry, &mut cx);
+
+        //Open context window by right mouse button click
+        //ui.interact blocks all control of inspector window
+        if ui
+            .interact(ui.min_rect(), "painter".into(), egui::Sense::click())
+            .secondary_clicked()
+        {
+            state.show_add_component_window = true;
+        }
+
+        let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
+            ui.checkbox(&mut self.show_all_components, "Show non editor components");
+            ui.separator();
+
+            if let Some(e) = cell.get_entity(selected_entity) {
+                let mut name;
+                if let Some(name_struct) = unsafe { e.get::<Name>() } {
+                    name = name_struct.as_str().to_string();
+                    if name.is_empty() {
+                        name = format!("{:?} (empty name)", e.id());
+                    }
+                } else {
+                    name = format!("{:?}", e.id());
+                }
+                ui.heading(&name);
+                let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
+                ui.text_edit_singleline(&mut state.component_add_filter);
+                let lower_filter = state.component_add_filter.to_lowercase();
+                let e_id = e.id().index();
+                ui.label("Components:");
+                egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
+                    for (c_id, t_id, name, _) in &components_id {
+                        if name.to_lowercase().contains(&lower_filter) {
+                            if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
+                                let mut is_editor_component = false;
+                                let registration;
+                                if let Some(reg) = editor_registry.get(*t_id) {
+                                    is_editor_component = true;
+                                    registration = reg;
+                                } else {
+                                    registration = app_registry.get(*t_id).unwrap();
+                                }
+
+                                if let Some(reflect_from_ptr) =
+                                    registration.data::<ReflectFromPtr>()
+                                {
+                                    let (ptr, mut set_changed) = mut_untyped_split(data);
+
+                                    let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+
+                                    if is_editor_component {
+                                        if !editor_registry_resource
+                                            .silent
+                                            .contains(&registration.type_id())
+                                        {
+                                            self.show_component(
+                                                ui,
+                                                e,
+                                                name,
+                                                &mut env,
+                                                value,
+                                                &mut set_changed,
+                                            );
+
+                                            ui.push_id(
+                                                format!("del component {:?}-{}", &e.id(), &name),
+                                                |ui| {
+                                                    //must be on top
+                                                    ui.with_layout(
+                                                        egui::Layout::top_down(egui::Align::Min),
+                                                        |ui| {
+                                                            let button = egui::Button::new("🗙")
+                                                                .fill(DEFAULT_BG_COLOR);
+                                                            if ui.add(button).clicked() {
+                                                                commands.push(
+                                                                    InspectCommand::RemoveComponent(
+                                                                        e.id(),
+                                                                        *t_id,
+                                                                    ),
+                                                                );
+                                                            }
+                                                        },
+                                                    );
+                                                },
+                                            );
+                                            ui.end_row();
+                                        }
+                                    } else {
+                                        self.show_component(
+                                            ui,
+                                            e,
+                                            name,
+                                            &mut env,
+                                            value,
+                                            &mut set_changed,
+                                        );
+                                        ui.end_row();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                ui.separator();
+            }
+        });
+
+        let width = ui.available_width();
+        let add_component_str = to_label("Add component", sizing.text);
+        let pixel_count = add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
+        let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
+
+        //Open context window by button
+        ui.vertical_centered(|ui| {
+            ui.spacing();
+            ui.style_mut().spacing.button_padding = egui::Vec2 {
+                x: x_padding,
+                y: 2.,
+            };
+            if ui
+                .add(add_component_icon(sizing.icon.to_size(), add_component_str))
+                .clicked()
+            {
+                state.show_add_component_window = true;
+            }
+        });
+
+        egui::Window::new("Add component")
+            .open(&mut state.show_add_component_window)
+            .resizable(true)
+            .scroll2([false, true])
+            .default_width(120.)
+            .default_height(300.)
+            .default_pos(components_area.inner_rect.center_bottom())
+            .show(ui.ctx(), |ui: &mut egui::Ui| {
+                let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
+                ui.text_edit_singleline(&mut state.component_add_filter);
+                let lower_filter = state.component_add_filter.to_lowercase();
+                egui::Grid::new("Component grid").show(ui, |ui| {
+                    let _counter = 0;
+                    for (c_id, _t_id, name, _) in &components_id {
+                        if name.to_lowercase().contains(&lower_filter) {
+                            ui.label(name);
+                            if ui.button("+").clicked() {
+                                let id = cell
+                                    .components()
+                                    .get_info(*c_id)
+                                    .unwrap()
+                                    .type_id()
+                                    .unwrap();
+                                commands.push(InspectCommand::AddComponent(selected_entity, id));
+                            }
+                            ui.end_row();
+                        }
+                    }
+                });
+            });
+
+        //All works with this if statement. Dont change it and dont add is_using_pointer() method
+        if ui.ui_contains_pointer() {
+            disable_pan_orbit = true;
+        }
+
+        state.commands = commands;
+
+        if disable_pan_orbit {
+            world.resource_mut::<crate::EditorCameraEnabled>().0 = false;
+        }
     }
 
     fn title(&self) -> egui::WidgetText {
         "Inspector".into()
+    }
+}
+
+impl InspectorTab {
+    fn show_component(
+        &mut self,
+        ui: &mut egui::Ui,
+        e: bevy::ecs::world::unsafe_world_cell::UnsafeEntityCell<'_>,
+        name: &String,
+        env: &mut InspectorUi<'_, '_>,
+        value: &mut dyn Reflect,
+        set_changed: &mut impl FnMut(),
+    ) {
+        ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+            let header = egui::CollapsingHeader::new(name)
+                .default_open(*self.open_components.get(name).unwrap_or(&true))
+                .show(ui, |ui| {
+                    ui.push_id(format!("content-{:?}-{}", &e.id(), &name), |ui| {
+                        if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                            (set_changed)();
+                        }
+                    });
+                });
+            if header.header_response.clicked() {
+                let open_name = self.open_components.entry(name.clone()).or_default();
+                //At click header not opened simultaneously so its need to check percent of opened
+                *open_name = header.openness < 0.5;
+            }
+        });
     }
 }
 
@@ -141,212 +396,4 @@ fn execute_inspect_command(
         }
     }
     state.commands.clear();
-}
-
-/// System to show inspector panel
-pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_components: &mut HashMap<String, bool>) {
-    let sizing = world.resource::<Sizing>().clone();
-    let selected_entity = world
-        .query_filtered::<Entity, With<Selected>>()
-        .get_single(world);
-
-    let Ok(selected_entity) = selected_entity else {
-        return;
-    };
-
-    let editor_registry = world.resource::<EditorRegistry>().clone();
-    let all_registry = editor_registry.registry.clone();
-    let registry = all_registry.read();
-    let app_registry = world.resource::<AppTypeRegistry>().clone();
-    let world_registry = app_registry.read();
-    let mut disable_pan_orbit = false;
-
-    //Collet data about all components
-    let components_priority = world.resource::<ComponentsOrder>().clone().components;
-    let mut components_id = Vec::new();
-    for reg in registry.iter() {
-        if let Some(c_id) = world.components().get_id(reg.type_id()) {
-            let name = pretty_type_name::pretty_type_name_str(
-                world.components().get_info(c_id).unwrap().name(),
-            );
-            let priority = components_priority.get(&name).unwrap_or(&u8::MAX);
-            components_id.push((c_id, reg.type_id(), name, priority));
-        }
-    }
-    components_id.sort_by(|(.., name_a, priority_a), (.., name_b, priority_b)| {
-        priority_a.cmp(priority_b).then(name_a.cmp(name_b))
-    });
-
-    let cell = world.as_unsafe_world_cell();
-    let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
-
-    let mut commands: Vec<InspectCommand> = vec![];
-    let mut queue = CommandQueue::default();
-    let mut cx = unsafe {
-        bevy_inspector_egui::reflect_inspector::Context {
-            world: Some(cell.world_mut().into()),
-            queue: Some(&mut queue),
-        }
-    };
-    let mut env = InspectorUi::for_bevy(&world_registry, &mut cx);
-
-    //Open context window by right mouse button click
-    //ui.interact blocks all control of inspector window
-    if ui
-        .interact(ui.min_rect(), "painter".into(), egui::Sense::click())
-        .secondary_clicked()
-    {
-        state.show_add_component_window = true;
-    }
-
-    let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
-        if let Some(e) = cell.get_entity(selected_entity) {
-            let mut name;
-            if let Some(name_struct) = unsafe { e.get::<Name>() } {
-                name = name_struct.as_str().to_string();
-                if name.is_empty() {
-                    name = format!("{:?} (empty name)", e.id());
-                }
-            } else {
-                name = format!("{:?}", e.id());
-            }
-            ui.heading(&name);
-            let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
-            ui.text_edit_singleline(&mut state.component_add_filter);
-            let lower_filter = state.component_add_filter.to_lowercase();
-            let e_id = e.id().index();
-            ui.label("Components:");
-            egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
-                for (c_id, t_id, name, _) in &components_id {
-                    if name.to_lowercase().contains(&lower_filter) {
-                        if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
-                            let registration = registry.get(*t_id).unwrap();
-                            if let Some(reflect_from_ptr) = registration.data::<ReflectFromPtr>() {
-                                let (ptr, mut set_changed) = mut_untyped_split(data);
-
-                                let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
-
-                                if !editor_registry.silent.contains(&registration.type_id()) {
-                                    ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
-                                        let header = egui::CollapsingHeader::new(name)
-                                            .default_open(
-                                                *open_components.get(name).unwrap_or(&false),
-                                            )
-                                            .show(ui, |ui| {
-                                                ui.push_id(
-                                                    format!("content-{:?}-{}", &e.id(), &name),
-                                                    |ui| {
-                                                        if env.ui_for_reflect_with_options(
-                                                            value,
-                                                            ui,
-                                                            ui.id(),
-                                                            &(),
-                                                        ) {
-                                                            set_changed();
-                                                        }
-                                                    },
-                                                );
-                                            });
-                                        if header.header_response.clicked() {
-                                            let open_name =
-                                                open_components.entry(name.clone()).or_default();
-                                            //At click header not opened simultaneously so its need to check percent of opened
-                                            *open_name = header.openness < 0.5;
-                                        }
-                                    });
-
-                                    ui.push_id(
-                                        format!("del component {:?}-{}", &e.id(), &name),
-                                        |ui| {
-                                            //must be on top
-                                            ui.with_layout(
-                                                egui::Layout::top_down(egui::Align::Min),
-                                                |ui| {
-                                                    let button = egui::Button::new("🗙")
-                                                        .fill(DEFAULT_BG_COLOR);
-                                                    if ui.add(button).clicked() {
-                                                        commands.push(
-                                                            InspectCommand::RemoveComponent(
-                                                                e.id(),
-                                                                *t_id,
-                                                            ),
-                                                        );
-                                                    }
-                                                },
-                                            );
-                                        },
-                                    );
-                                    ui.end_row();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            ui.separator();
-        }
-    });
-
-    let width = ui.available_width();
-    let add_component_str = to_label("Add component", sizing.text);
-    let pixel_count = add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
-    let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
-
-    //Open context window by button
-    ui.vertical_centered(|ui| {
-        ui.spacing();
-        ui.style_mut().spacing.button_padding = egui::Vec2 {
-            x: x_padding,
-            y: 2.,
-        };
-        if ui
-            .add(add_component_icon(sizing.icon.to_size(), add_component_str))
-            .clicked()
-        {
-            state.show_add_component_window = true;
-        }
-    });
-
-    egui::Window::new("Add component")
-        .open(&mut state.show_add_component_window)
-        .resizable(true)
-        .scroll2([false, true])
-        .default_width(120.)
-        .default_height(300.)
-        .default_pos(components_area.inner_rect.center_bottom())
-        .show(ui.ctx(), |ui: &mut egui::Ui| {
-            let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
-            ui.text_edit_singleline(&mut state.component_add_filter);
-            let lower_filter = state.component_add_filter.to_lowercase();
-            egui::Grid::new("Component grid").show(ui, |ui| {
-                let _counter = 0;
-                for (c_id, _t_id, name, _) in &components_id {
-                    if name.to_lowercase().contains(&lower_filter) {
-                        ui.label(name);
-                        if ui.button("+").clicked() {
-                            let id = cell
-                                .components()
-                                .get_info(*c_id)
-                                .unwrap()
-                                .type_id()
-                                .unwrap();
-                            commands.push(InspectCommand::AddComponent(selected_entity, id));
-                        }
-                        ui.end_row();
-                    }
-                }
-            });
-        });
-
-    //All works with this if statement. Dont change it and dont add is_using_pointer() method
-    if ui.ui_contains_pointer() {
-        disable_pan_orbit = true;
-    }
-
-    state.commands = commands;
-
-    if disable_pan_orbit {
-        world.resource_mut::<crate::EditorCameraEnabled>().0 = false;
-    }
 }
