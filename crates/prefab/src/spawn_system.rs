@@ -1,4 +1,4 @@
-use bevy::{ecs::system::QueryLens, prelude::*};
+use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
 use space_shared::{toast::ToastMessage, PrefabMarker};
 
@@ -66,7 +66,7 @@ pub fn create_child_path(
     prefabs: Query<(Entity, &GltfPrefab), (With<WantChildPath>, With<WantChildPath>)>,
     children: Query<&Children>,
 ) {
-    for (e, prefab) in prefabs.iter() {
+    for (e, _) in prefabs.iter() {
         recursive_path(&mut commands, &children, e, vec![]);
         commands.entity(e).remove::<WantChildPath>();
     }

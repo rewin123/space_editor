@@ -120,7 +120,7 @@ unsafe fn recursive_extract<'w>(
         let mut scene = scene.extract_entity(entity);
 
         if let Some(children) = cell.world().entity(entity).get::<Children>() {
-            for (i, child_entity) in children.iter().enumerate() {
+            for child_entity in children.iter() {
                 scene = recursive_extract(cell, scene, *child_entity);
             }
         }
