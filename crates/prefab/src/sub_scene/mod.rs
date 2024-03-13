@@ -59,7 +59,7 @@ pub struct CollapsedSubScene(pub String);
 
 #[derive(Component, Reflect, Default, Clone)]
 #[reflect(Component)]
-pub struct ChildPath(Vec<usize>);
+pub struct ChildPath(pub Vec<usize>);
 
 fn clear_after_save(mut commands: Commands, queue: Query<Entity, With<CollapsedSubScene>>) {
     for entity in queue.iter() {
@@ -95,7 +95,7 @@ fn prepare_auto_scene(world: &mut World) {
                     allow_types.iter().cloned(),
                 )));
 
-            dyn_scene = recursive_path(&cell, dyn_scene, *root_entity, vec![]);
+            dyn_scene = recursive_extract(&cell, dyn_scene, *root_entity);
 
             let scene = dyn_scene.build();
             let data = scene.serialize_ron(cell.world().resource::<AppTypeRegistry>());
@@ -112,25 +112,17 @@ fn prepare_auto_scene(world: &mut World) {
     }
 }
 
-unsafe fn recursive_path<'w>(
+unsafe fn recursive_extract<'w>(
     cell: &UnsafeWorldCell,
     scene: DynamicSceneBuilder<'w>,
     entity: Entity,
-    path: Vec<usize>,
 ) -> DynamicSceneBuilder<'w> {
     if cell.get_entity(entity).is_some() {
-        cell.world_mut()
-            .entity_mut(entity)
-            .insert(ChildPath(path.clone()));
-
         let mut scene = scene.extract_entity(entity);
 
         if let Some(children) = cell.world().entity(entity).get::<Children>() {
-            for (i, child_entity) in children.iter().enumerate() {
-                let mut child_path = path.clone();
-                child_path.push(i);
-
-                scene = recursive_path(cell, scene, *child_entity, child_path);
+            for child_entity in children.iter() {
+                scene = recursive_extract(cell, scene, *child_entity);
             }
         }
         scene
@@ -187,11 +179,31 @@ fn decompress_scene(
 
 fn apply_compressed_scenes(
     mut commands: Commands,
-    mut roots: Query<(Entity, &mut DecompressedScene, &Children)>,
-    child_tree: Query<(Entity, Option<&Children>)>,
+    mut roots: Query<(Entity, &mut DecompressedScene, &Handle<Scene>, &Children)>,
+    child_tree: Query<(Entity, Option<&Children>, Option<&ChildPath>)>,
     editor_registry: Res<EditorRegistry>,
+    asset_server: Res<AssetServer>,
 ) {
-    for (root_entity, mut scene, children) in roots.iter_mut() {
+    for (root_entity, mut scene, base_scene, children) in roots.iter_mut() {
+        if asset_server.load_state(base_scene) != bevy::asset::LoadState::Loaded {
+            continue;
+        }
+
+        let mut all_sub_entities = HashSet::new();
+        let mut stack = vec![root_entity];
+        while let Some(entity) = stack.pop() {
+            let sub_entities = child_tree.get(entity).unwrap();
+            if let Some(children) = sub_entities.1 {
+                for child in children.iter() {
+                    stack.push(*child);
+                    all_sub_entities.insert(*child);
+                }
+            }
+        }
+
+        info!("all sub entities: {:?}", all_sub_entities);
+        info!("root entity: {:?}", root_entity);
+
         let mut scene_query = scene.world.query::<Entity>();
 
         let scene_entities = scene_query.iter(&scene.world).collect::<Vec<_>>();
@@ -222,6 +234,9 @@ fn apply_compressed_scenes(
                 }
 
                 if let Some(mut cmds) = commands.get_entity(target_entity) {
+                    if all_sub_entities.contains(&target_entity) {
+                        all_sub_entities.remove(&target_entity);
+                    }
                     for clone_fn in editor_registry.clone_components.iter() {
                         (clone_fn.func)(&mut cmds, &scene.world.entity(entity));
                     }
@@ -231,6 +246,11 @@ fn apply_compressed_scenes(
             } else {
                 warn!("failed to find child path in sub entity");
             }
+        }
+
+        //Destroy not stored entity
+        for entity in all_sub_entities.iter() {
+            commands.entity(*entity).despawn_recursive();
         }
 
         commands.entity(root_entity).remove::<DecompressedScene>();

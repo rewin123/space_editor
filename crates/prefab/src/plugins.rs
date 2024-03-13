@@ -201,6 +201,8 @@ impl Plugin for BasePrefabPlugin {
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 
         app.add_systems(Update, spawn_scene.in_set(PrefabSet::PrefabLoad));
+        app.add_systems(PreUpdate, create_child_path);
+
         app.add_systems(
             Update,
             (

@@ -170,7 +170,10 @@ fn draw_entity<F: QueryFilter>(
             let is_clicked = response.clicked();
             if is_auto_child {
                 response.context_menu(|ui| {
-                    ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
+                    if ui.button("Delete").clicked() {
+                        commands.entity(entity).despawn_recursive();
+                    }
+                    ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or cloned.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
                 });
             } else {
                 response.context_menu(|ui| {
@@ -229,7 +232,10 @@ fn draw_entity<F: QueryFilter>(
 
         if is_auto_child {
             selectable.context_menu(|ui| {
-                ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or deleted.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
+                if ui.button("Delete").clicked() {
+                    commands.entity(entity).despawn_recursive();
+                }
+                ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or cloned.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
             });
         } else {
             selectable.context_menu(|ui| {
