@@ -83,7 +83,7 @@ pub fn show_hierarchy(
     ui.horizontal(|ui| {
         let width = ui.available_width() * 0.85;
         ui.add(TextEdit::singleline(&mut state.entity_filter).desired_width(width));
-        if ui.button("🗑").on_hover_text("Clear test").clicked() {
+        if ui.button("🗑").on_hover_text("Clear filter").clicked() {
             state.entity_filter.clear();
         }
     });
