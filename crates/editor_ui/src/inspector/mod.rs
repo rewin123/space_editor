@@ -163,7 +163,9 @@ impl EditorTab for InspectorTab {
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
                 ui.horizontal(|ui| {
                     let width = ui.available_width() * 0.85;
-                    ui.add(TextEdit::singleline(&mut state.component_add_filter).desired_width(width));
+                    ui.add(
+                        TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
+                    );
                     if ui.button("🗑").on_hover_text("Clear test").clicked() {
                         state.component_add_filter.clear();
                     }
@@ -280,7 +282,9 @@ impl EditorTab for InspectorTab {
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
                 ui.horizontal(|ui| {
                     let width = ui.available_width() * 0.85;
-                    ui.add(TextEdit::singleline(&mut state.component_add_filter).desired_width(width));
+                    ui.add(
+                        TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
+                    );
                     if ui.button("🗑").on_hover_text("Clear test").clicked() {
                         state.component_add_filter.clear();
                     }
