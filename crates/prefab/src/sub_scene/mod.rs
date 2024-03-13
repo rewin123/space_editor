@@ -187,8 +187,7 @@ fn apply_compressed_scenes(
 
         let mut all_sub_entities = HashSet::new();
         let mut stack = vec![root_entity];
-        while !stack.is_empty() {
-            let entity = stack.pop().unwrap();
+        while let Some(entity) = stack.pop() {
             let sub_entities = child_tree.get(entity).unwrap();
             if let Some(children) = sub_entities.1 {
                 for child in children.iter() {
