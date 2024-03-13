@@ -119,6 +119,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cube",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Cube(1.0),
             Name::new("Cube".to_string()),
             Transform::default(),
@@ -129,6 +130,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Box",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Box(BoxPrefab::default()),
             Name::new("Box".to_string()),
             Transform::default(),
@@ -139,6 +141,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Sphere",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Sphere(SpherePrefab::default()),
             Name::new("UVSphere".to_string()),
             Transform::default(),
@@ -149,6 +152,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Rectagle",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Quad(QuadPrefab::default()),
             Name::new("Rectagle".to_string()),
             Transform::default(),
@@ -159,6 +163,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Capsule",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Capsule(CapsulePrefab::default()),
             Name::new("Capsule"),
             Transform::default(),
@@ -169,6 +174,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Circle",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Circle(CirclePrefab::default()),
             Name::new("Circle".to_string()),
             Transform::default(),
@@ -179,6 +185,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Cylinder",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Cylinder(CylinderPrefab::default()),
             Name::new("Cylinder".to_string()),
             Transform::default(),
@@ -189,6 +196,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Plane",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Plane(Plane3dPrefab::default()),
             Name::new("Plane".to_string()),
             Transform::default(),
@@ -199,6 +207,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Plane Multipoint",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::PlaneMultipoint(PlaneMultiPointPrefab::default()),
             Name::new("Plane Multipoint".to_string()),
             Transform::default(),
@@ -209,6 +218,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Regular Polygon",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("Regular Polygon".to_string()),
             Transform::default(),
@@ -219,6 +229,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "3D Torus",
         (
+            PrefabMarker,
             MeshPrimitive3dPrefab::Torus(TorusPrefab::default()),
             Name::new("Torus".to_string()),
             Transform::default(),
@@ -230,6 +241,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Rectagle",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::Rectagle(QuadPrefab::default()),
             Name::new("2D Quad".to_string()),
             Transform::default(),
@@ -241,6 +253,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Circle",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::Circle(CirclePrefab::default()),
             Name::new("2D Circle".to_string()),
             Transform::default(),
@@ -252,6 +265,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Ellipse",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::Ellipse(EllipsePrefab::default()),
             Name::new("2D Ellipse".to_string()),
             Transform::default(),
@@ -263,6 +277,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Triangle",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
             Name::new("2D Triangle".to_string()),
             Transform::default(),
@@ -274,6 +289,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Triangle",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::Triangle(TrianglePrefab::default()),
             Name::new("2D Triangle".to_string()),
             Transform::default(),
@@ -285,6 +301,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "Mesh",
         "2D Regular Polygon",
         (
+            PrefabMarker,
             MeshPrimitive2dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
             Name::new("2D Regular Polygon".to_string()),
             Transform::default(),
