@@ -175,11 +175,16 @@ fn decompress_scene(
 
 fn apply_compressed_scenes(
     mut commands: Commands,
-    mut roots: Query<(Entity, &mut DecompressedScene, &Children)>,
+    mut roots: Query<(Entity, &mut DecompressedScene, &Handle<Scene>, &Children)>,
     child_tree: Query<(Entity, Option<&Children>, Option<&ChildPath>)>,
     editor_registry: Res<EditorRegistry>,
+    asset_server: Res<AssetServer>,
 ) {
-    for (root_entity, mut scene, children) in roots.iter_mut() {
+    for (root_entity, mut scene, base_scene, children) in roots.iter_mut() {
+        if asset_server.load_state(base_scene) != bevy::asset::LoadState::Loaded {
+            continue;
+        }
+
         let mut all_sub_entities = HashSet::new();
         let mut stack = vec![root_entity];
         while stack.len() > 0 {
@@ -192,6 +197,9 @@ fn apply_compressed_scenes(
                 }
             }
         }
+
+        info!("all sub entities: {:?}", all_sub_entities);
+        info!("root entity: {:?}", root_entity);
 
         let mut scene_query = scene.world.query::<Entity>();
 
@@ -223,8 +231,8 @@ fn apply_compressed_scenes(
                 }
 
                 if let Some(mut cmds) = commands.get_entity(target_entity) {
-                    if all_sub_entities.contains(&entity) {
-                        all_sub_entities.remove(&entity);
+                    if all_sub_entities.contains(&target_entity) {
+                        all_sub_entities.remove(&target_entity);
                     }
                     for clone_fn in editor_registry.clone_components.iter() {
                         (clone_fn.func)(&mut cmds, &scene.world.entity(entity));
