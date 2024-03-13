@@ -1,8 +1,13 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::QueryLens, prelude::*};
 use bevy_scene_hook::SceneHook;
 use space_shared::{toast::ToastMessage, PrefabMarker};
 
+use crate::prelude::ChildPath;
+
 use super::component::*;
+
+#[derive(Component)]
+pub struct WantChildPath;
 
 /// System responsible for spawning GLTF objects in the scene
 pub fn spawn_scene(
@@ -39,6 +44,7 @@ pub fn spawn_scene(
             .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
             .insert(SceneHook::new(move |e, cmd| {
                 if e.contains::<SceneAutoRoot>() {
+                    cmd.insert(WantChildPath);
                 } else if is_auto_child {
                     cmd.insert(SceneAutoChild);
                 } else {
@@ -51,6 +57,35 @@ pub fn spawn_scene(
         }
         if tr.is_none() {
             commands.entity(e).insert(TransformBundle::default());
+        }
+    }
+}
+
+pub fn create_child_path(
+    mut commands: Commands,
+    prefabs: Query<(Entity, &GltfPrefab), (With<WantChildPath>, With<WantChildPath>)>,
+    children: Query<&Children>,
+) {
+    for (e, prefab) in prefabs.iter() {
+        recursive_path(&mut commands, &children, e, vec![]);
+        commands.entity(e).remove::<WantChildPath>();
+    }
+}
+
+fn recursive_path(
+    commands: &mut Commands,
+    q_children: &Query<&Children>,
+    entity: Entity,
+    path: Vec<usize>,
+) {
+    commands.entity(entity).insert(ChildPath(path.clone()));
+
+    if let Ok(children) = q_children.get(entity) {
+        for (i, child_entity) in children.iter().enumerate() {
+            let mut child_path = path.clone();
+            child_path.push(i);
+
+            recursive_path(commands, q_children, *child_entity, child_path);
         }
     }
 }
