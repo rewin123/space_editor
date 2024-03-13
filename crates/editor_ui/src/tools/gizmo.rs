@@ -130,7 +130,10 @@ impl EditorTool for GizmoTool {
             }
         }
 
-        if ui.input(|s| s.key_pressed(Key::Delete) || input.just_pressed(GizmoHotkey::Delete)) {
+        if ui.input(|s| {
+            input.just_pressed(GizmoHotkey::Delete)
+                || (s.modifiers.shift && s.modifiers.ctrl && s.key_pressed(Key::Delete))
+        }) {
             del = true;
         }
 

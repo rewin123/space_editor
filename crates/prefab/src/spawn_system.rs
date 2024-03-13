@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_scene_hook::SceneHook;
-use space_shared::{toast::ToastMessage, PrefabMarker};
+#[cfg(feature = "editor")]
+use space_shared::toast::ToastMessage;
+use space_shared::PrefabMarker;
 
 use super::component::*;
 
@@ -87,7 +89,7 @@ pub fn sync_2d_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (e, prefab) in query.iter() {
-        let mesh = meshes.add(prefab.to_mesh());
+        let mesh = bevy::sprite::Mesh2dHandle(meshes.add(prefab.to_mesh()));
         commands.entity(e).insert(mesh);
     }
 }
@@ -191,10 +193,11 @@ pub fn spawn_player_start(
     mut commands: Commands,
     query: Query<(Entity, &PlayerStart)>,
     asset_server: Res<AssetServer>,
-    mut toast: EventWriter<ToastMessage>,
+    #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
 ) {
     for (e, prefab) in query.iter() {
         let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
+        #[cfg(feature = "editor")]
         toast.send(ToastMessage::new(
             &msg,
             space_shared::toast::ToastKind::Info,

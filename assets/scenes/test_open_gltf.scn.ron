@@ -50,7 +50,7 @@
           max_parallax_layer_count: 16.0,
         ),
         "space_prefab::component::AssetMesh": (
-          path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
+          path: "models/low_poly_fighter_2.gltf#Mesh1/Primitive0",
         ),
         "space_prefab::save::ChildrenPrefab": ([
           4294967305,
@@ -74,10 +74,10 @@
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::AssetMesh": (
-          path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
+          path: "models/low_poly_fighter_2.gltf#Mesh0/Primitive0",
         ),
         "space_prefab::component::AssetMaterial": (
-          path: "low_poly_fighter_2.gltf#Material0",
+          path: "models/low_poly_fighter_2.gltf#Material0",
         ),
       },
     ),
@@ -130,7 +130,7 @@
           max_parallax_layer_count: 16.0,
         ),
         "space_prefab::component::AssetMesh": (
-          path: "low_poly_fighter_2.gltf#Mesh1/Primitive0",
+          path: "models/low_poly_fighter_2.gltf#Mesh1/Primitive0",
         ),
         "space_prefab::save::ChildrenPrefab": ([
           4294967307,
@@ -154,10 +154,10 @@
         ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::AssetMesh": (
-          path: "low_poly_fighter_2.gltf#Mesh0/Primitive0",
+          path: "models/low_poly_fighter_2.gltf#Mesh0/Primitive0",
         ),
         "space_prefab::component::AssetMaterial": (
-          path: "low_poly_fighter_2.gltf#Material0",
+          path: "models/low_poly_fighter_2.gltf#Material0",
         ),
       },
     ),
@@ -210,7 +210,7 @@
           max_parallax_layer_count: 16.0,
         ),
         "space_prefab::component::AssetMesh": (
-          path: "low_poly_fighter_2.gltf#Mesh2/Primitive0",
+          path: "models/low_poly_fighter_2.gltf#Mesh2/Primitive0",
         ),
         "space_prefab::save::ChildrenPrefab": ([
           4294967306,

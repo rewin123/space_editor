@@ -52,7 +52,7 @@ impl Default for MeshPrimitive2dPrefab {
 }
 
 impl MeshPrimitive3dPrefab {
-    /// Convert [`MeshPrimitivePrefab`] to bevy [`Mesh`]
+    /// Convert [`MeshPrimitive3DPrefab`] to bevy [`Mesh`]
     pub fn to_mesh(&self) -> Mesh {
         match self {
             Self::Cube(s) => Mesh::from(math_shapes::Cuboid::new(*s, *s, *s)),
@@ -140,7 +140,9 @@ pub struct QuadPrefab {
 
 impl Default for QuadPrefab {
     fn default() -> Self {
-        Self { size: Vec2::ONE }
+        Self {
+            size: Vec2::ONE * 10.,
+        }
     }
 }
 
@@ -189,7 +191,9 @@ pub struct CirclePrefab {
 impl Default for CirclePrefab {
     fn default() -> Self {
         let def = math_shapes::Circle::default();
-        Self { r: def.radius }
+        Self {
+            r: def.radius * 10.,
+        }
     }
 }
 
@@ -211,7 +215,7 @@ impl Default for EllipsePrefab {
     fn default() -> Self {
         let def = math_shapes::Ellipse::default();
         Self {
-            radius_pair: def.half_size,
+            radius_pair: def.half_size * 10.,
         }
     }
 }
@@ -262,8 +266,8 @@ impl Default for Capsule2dPrefab {
     fn default() -> Self {
         let def = math_shapes::Capsule2d::default();
         Self {
-            radius: def.radius,
-            half_length: def.half_length,
+            radius: def.radius * 10.,
+            half_length: def.half_length * 10.,
         }
     }
 }
@@ -317,7 +321,7 @@ impl Default for PlanePrefab {
     fn default() -> Self {
         let def = math_shapes::Rectangle::default();
         Self {
-            size: def.half_size * 2.,
+            size: def.half_size * 2. * 10.,
         }
     }
 }
@@ -418,7 +422,7 @@ impl Default for RegularPolygonPrefab {
     fn default() -> Self {
         let def = math_shapes::RegularPolygon::default();
         Self {
-            circumcircle_radius: def.circumcircle.radius,
+            circumcircle_radius: def.circumcircle.radius * 10.,
             sides: def.sides,
         }
     }

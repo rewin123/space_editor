@@ -131,7 +131,9 @@ fn show_toast(
     mut storage: ResMut<ToastStorage>,
     mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
 ) {
-    let mut ctx = ctxs.single_mut();
+    let Ok(mut ctx) = ctxs.get_single_mut() else {
+        return;
+    };
     storage.toasts.show(ctx.get_mut());
 }
 
@@ -233,6 +235,25 @@ mod tests {
         app.update();
 
         app.world.send_event(ClearToastMessage::all());
+        app.update();
+
+        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        assert!(!storage.has_toasts());
+    }
+
+    #[test]
+    fn empty_storage_for_info_toasts() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, ToastBasePlugin));
+
+        app.update();
+        assert!(!app
+            .world
+            .get_resource::<ToastStorage>()
+            .unwrap()
+            .has_toasts());
+        app.world
+            .send_event(ToastMessage::new("Test message", ToastKind::Info));
         app.update();
 
         let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();

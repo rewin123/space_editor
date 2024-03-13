@@ -12,6 +12,8 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
+#[cfg(feature = "editor")]
+use space_shared::toast::ToastMessage;
 use space_shared::{LightAreaToggle, PrefabMarker};
 
 use crate::{
@@ -110,8 +112,13 @@ impl Plugin for BasePrefabPlugin {
         app.register_type::<CirclePrefab>();
         app.register_type::<CylinderPrefab>();
         app.register_type::<PlanePrefab>();
+        app.register_type::<Plane3dPrefab>();
+        app.register_type::<PlaneMultiPointPrefab>();
         app.register_type::<RegularPolygonPrefab>();
         app.register_type::<TorusPrefab>();
+        app.register_type::<EllipsePrefab>();
+        app.register_type::<TrianglePrefab>();
+        app.register_type::<Capsule2dPrefab>();
 
         app.editor_registry::<AssetMesh>();
         app.add_systems(
@@ -185,6 +192,11 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<SpotLight, Frustum>();
         app.editor_relation::<SpotLight, Transform>();
         app.editor_relation::<SpotLight, Visibility>();
+
+        app.editor_registry::<LightPlay>();
+
+        #[cfg(feature = "editor")]
+        app.add_event::<ToastMessage>();
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
 

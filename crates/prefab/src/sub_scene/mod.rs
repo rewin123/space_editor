@@ -5,6 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
+#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 
 use crate::{
@@ -145,13 +146,14 @@ fn decompress_scene(
     mut commands: Commands,
     roots: Query<(Entity, &CollapsedSubScene)>,
     type_registry: Res<AppTypeRegistry>,
-    mut toast: EventWriter<ToastMessage>,
+    #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
 ) {
     for (root_entity, root) in roots.iter() {
         let scene_deserializer = SceneDeserializer {
             type_registry: &type_registry.read(),
         };
         let Ok(mut deserializer) = ron::de::Deserializer::from_str(root.0.as_str()) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Failed create Deserializer for sub scene",
                 space_shared::toast::ToastKind::Error,
@@ -159,6 +161,7 @@ fn decompress_scene(
             continue;
         };
         let Ok(dyn_scene) = scene_deserializer.deserialize(&mut deserializer) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Failed to deserialize sub scene",
                 space_shared::toast::ToastKind::Error,
@@ -167,6 +170,7 @@ fn decompress_scene(
         };
 
         let Ok(scene) = Scene::from_dynamic_scene(&dyn_scene, &type_registry) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Decompress scene does not exist",
                 space_shared::toast::ToastKind::Error,
@@ -260,6 +264,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn decompress_scene_trows_event_when_missing_subscene() {
         let file = "test.ron";
 

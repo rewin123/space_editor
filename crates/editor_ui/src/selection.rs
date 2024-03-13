@@ -100,8 +100,7 @@ pub fn delete_selected(
 ) {
     let shift = keyboard.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]);
     let ctrl = keyboard.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]);
-    let delete =
-        keyboard.just_pressed(KeyCode::Backspace) || keyboard.just_pressed(KeyCode::Delete);
+    let delete = keyboard.any_just_pressed([KeyCode::Backspace, KeyCode::Delete]);
 
     if ctrl && shift && delete {
         for entity in query.iter() {

@@ -47,7 +47,7 @@ impl Plugin for SettingsWindowPlugin {
     }
 }
 
-#[derive(Default, Reflect, PartialEq, Eq, Clone)]
+#[derive(Default, Reflect, PartialEq, Eq, Clone, Debug)]
 pub enum GameMode {
     Game2D,
     #[default]
@@ -63,7 +63,7 @@ impl ToString for GameMode {
     }
 }
 
-#[derive(Default, Resource, Reflect, Clone)]
+#[derive(Default, Resource, Reflect, Clone, Debug)]
 #[reflect(Resource)]
 pub struct GameModeSettings {
     pub mode: GameMode,
@@ -191,9 +191,8 @@ impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
         let game_mode_setting = &world.resource::<GameModeSettings>();
         if let Some(new_game_mode) = game_mode_setting.ui(ui) {
-            let game_mode_setting: &mut GameModeSettings =
-                &mut world.resource_mut::<GameModeSettings>();
-            *game_mode_setting = new_game_mode;
+            info!("Game Mode changed: {:?}", new_game_mode);
+            *world.resource_mut::<GameModeSettings>() = new_game_mode;
         }
 
         ui.heading("Undo");
