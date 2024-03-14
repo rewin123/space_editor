@@ -81,7 +81,15 @@ pub fn show_hierarchy(
     all.sort_by_key(|a| a.0);
     let ui = &mut ui.0;
     ui.horizontal(|ui| {
-        let width = ui.available_width() * 0.85;
+        let button_size = ui
+            .style()
+            .text_styles
+            .get(&egui::TextStyle::Button)
+            .map(|f| f.size)
+            .unwrap_or(14.);
+        let button_padding = ui.style().spacing.button_padding.x * 2.;
+        let space = ui.style().spacing.item_spacing.x;
+        let width = 2.0f32.mul_add(-space, ui.available_width() - button_size - button_padding);
         ui.add(TextEdit::singleline(&mut state.entity_filter).desired_width(width));
         if ui.button("🗑").on_hover_text("Clear filter").clicked() {
             state.entity_filter.clear();
