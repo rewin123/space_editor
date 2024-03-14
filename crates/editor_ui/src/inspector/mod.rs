@@ -145,10 +145,14 @@ impl EditorTab for InspectorTab {
             state.show_add_component_window = true;
         }
 
-        let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
-            ui.checkbox(&mut self.show_all_components, "Show non editor components");
-            ui.separator();
+        let add_component_width = ui.available_width();
+        let add_component_str = to_label("Add component", sizing.text);
+        let add_component_pixel_count =
+            add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
+        let add_component_x_padding =
+            (add_component_width - add_component_pixel_count - 16. - sizing.icon.to_size()) / 2.;
 
+        let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
             if let Some(e) = cell.get_entity(selected_entity) {
                 let mut name;
                 if let Some(name_struct) = unsafe { e.get::<Name>() } {
@@ -166,12 +170,13 @@ impl EditorTab for InspectorTab {
                     ui.add(
                         TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
                     );
-                    if ui.button("🗑").on_hover_text("Clear test").clicked() {
+                    if ui.button("🗑").on_hover_text("Clear filter").clicked() {
                         state.component_add_filter.clear();
                     }
                 });
                 let lower_filter = state.component_add_filter.to_lowercase();
                 let e_id = e.id().index();
+
                 ui.label("Components:");
                 egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
                     for (c_id, t_id, name, _) in &components_id {
@@ -250,17 +255,14 @@ impl EditorTab for InspectorTab {
                 ui.separator();
             }
         });
-
-        let width = ui.available_width();
-        let add_component_str = to_label("Add component", sizing.text);
-        let pixel_count = add_component_str.text().len() as f32 * 8. * sizing.text / 12.;
-        let x_padding = (width - pixel_count - 16. - sizing.icon.to_size()) / 2.;
+        ui.checkbox(&mut self.show_all_components, "Show non editor components");
+        ui.spacing();
 
         //Open context window by button
         ui.vertical_centered(|ui| {
             ui.spacing();
             ui.style_mut().spacing.button_padding = egui::Vec2 {
-                x: x_padding,
+                x: add_component_x_padding,
                 y: 2.,
             };
             if ui
@@ -285,7 +287,7 @@ impl EditorTab for InspectorTab {
                     ui.add(
                         TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
                     );
-                    if ui.button("🗑").on_hover_text("Clear test").clicked() {
+                    if ui.button("🗑").on_hover_text("Clear filter").clicked() {
                         state.component_add_filter.clear();
                     }
                 });
@@ -338,8 +340,9 @@ impl InspectorTab {
         set_changed: &mut impl FnMut(),
     ) {
         ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
+            let default = name.to_lowercase() == *"transform";
             let header = egui::CollapsingHeader::new(name)
-                .default_open(*self.open_components.get(name).unwrap_or(&true))
+                .default_open(*self.open_components.get(name).unwrap_or(&default))
                 .show(ui, |ui| {
                     ui.push_id(format!("content-{:?}-{}", &e.id(), &name), |ui| {
                         if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
