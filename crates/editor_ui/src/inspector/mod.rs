@@ -258,20 +258,35 @@ impl EditorTab for InspectorTab {
         ui.checkbox(&mut self.show_all_components, "Show non editor components");
         ui.spacing();
 
-        //Open context window by button
-        ui.vertical_centered(|ui| {
+        // Shifts `add compoenent` button full left in case width is not large enough
+        // for all components widths
+        if add_component_width > 1.35 * (add_component_pixel_count + 16. + sizing.icon.to_size()) {
+            //Open context window by button
+            ui.vertical_centered(|ui| {
+                ui.spacing();
+                ui.style_mut().spacing.button_padding = egui::Vec2 {
+                    x: add_component_x_padding,
+                    y: 2.,
+                };
+
+                if ui
+                    .add(add_component_icon(sizing.icon.to_size(), add_component_str))
+                    .clicked()
+                {
+                    state.show_add_component_window = true;
+                }
+            });
+        } else {
             ui.spacing();
-            ui.style_mut().spacing.button_padding = egui::Vec2 {
-                x: add_component_x_padding,
-                y: 2.,
-            };
+            ui.style_mut().spacing.button_padding = egui::Vec2 { x: 16., y: 2. };
+
             if ui
                 .add(add_component_icon(sizing.icon.to_size(), add_component_str))
                 .clicked()
             {
                 state.show_add_component_window = true;
             }
-        });
+        }
 
         egui::Window::new("Add component")
             .open(&mut state.show_add_component_window)
