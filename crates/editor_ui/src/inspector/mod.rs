@@ -166,7 +166,16 @@ impl EditorTab for InspectorTab {
                 ui.heading(&name);
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
                 ui.horizontal(|ui| {
-                    let width = ui.available_width() * 0.85;
+                    let button_size = ui
+                        .style()
+                        .text_styles
+                        .get(&egui::TextStyle::Button)
+                        .map(|f| f.size)
+                        .unwrap_or(14.);
+                    let button_padding = ui.style().spacing.button_padding.x * 2.;
+                    let space = ui.style().spacing.item_spacing.x;
+                    let width =
+                        2.0f32.mul_add(-space, ui.available_width() - button_size - button_padding);
                     ui.add(
                         TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
                     );
@@ -258,20 +267,35 @@ impl EditorTab for InspectorTab {
         ui.checkbox(&mut self.show_all_components, "Show non editor components");
         ui.spacing();
 
-        //Open context window by button
-        ui.vertical_centered(|ui| {
+        // Shifts `add compoenent` button full left in case width is not large enough
+        // for all components widths
+        if add_component_width > 1.35 * (add_component_pixel_count + 16. + sizing.icon.to_size()) {
+            //Open context window by button
+            ui.vertical_centered(|ui| {
+                ui.spacing();
+                ui.style_mut().spacing.button_padding = egui::Vec2 {
+                    x: add_component_x_padding,
+                    y: 2.,
+                };
+
+                if ui
+                    .add(add_component_icon(sizing.icon.to_size(), add_component_str))
+                    .clicked()
+                {
+                    state.show_add_component_window = true;
+                }
+            });
+        } else {
             ui.spacing();
-            ui.style_mut().spacing.button_padding = egui::Vec2 {
-                x: add_component_x_padding,
-                y: 2.,
-            };
+            ui.style_mut().spacing.button_padding = egui::Vec2 { x: 16., y: 2. };
+
             if ui
                 .add(add_component_icon(sizing.icon.to_size(), add_component_str))
                 .clicked()
             {
                 state.show_add_component_window = true;
             }
-        });
+        }
 
         egui::Window::new("Add component")
             .open(&mut state.show_add_component_window)
@@ -283,7 +307,16 @@ impl EditorTab for InspectorTab {
             .show(ui.ctx(), |ui: &mut egui::Ui| {
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
                 ui.horizontal(|ui| {
-                    let width = ui.available_width() * 0.85;
+                    let button_size = ui
+                        .style()
+                        .text_styles
+                        .get(&egui::TextStyle::Button)
+                        .map(|f| f.size)
+                        .unwrap_or(14.);
+                    let button_padding = ui.style().spacing.button_padding.x * 2.;
+                    let space = ui.style().spacing.item_spacing.x;
+                    let width =
+                        2.0f32.mul_add(-space, ui.available_width() - button_size - button_padding);
                     ui.add(
                         TextEdit::singleline(&mut state.component_add_filter).desired_width(width),
                     );
