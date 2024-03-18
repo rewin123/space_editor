@@ -28,9 +28,6 @@ pub struct SpaceHierarchyPlugin {}
 
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<SelectedPlugin>() {
-            app.add_plugins(SelectedPlugin);
-        }
 
         app.init_resource::<HierarchyTabState>();
         app.editor_tab(EditorTabName::Hierarchy, "Hierarchy".into(), show_hierarchy);
