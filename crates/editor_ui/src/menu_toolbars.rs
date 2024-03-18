@@ -20,6 +20,7 @@ use crate::{
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
     sizing::{to_colored_richtext, to_label, to_richtext, Sizing},
     ui_registration::{BundleReg, EditorBundleUntyped},
+    ShowEditorUi,
 };
 
 /// Plugin to activate bottom menu in editor UI
@@ -36,11 +37,17 @@ impl Plugin for BottomMenuPlugin {
 
         app.add_systems(
             Update,
-            bottom_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
+            bottom_menu
+                .before(EditorLoadSet)
+                .in_set(EditorSet::Editor)
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
         app.add_systems(
             Update,
-            top_menu.before(EditorLoadSet).in_set(EditorSet::Editor),
+            top_menu
+                .before(EditorLoadSet)
+                .in_set(EditorSet::Editor)
+                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
         app.add_systems(Update, in_game_menu.in_set(EditorSet::Game));
         app.add_event::<MenuLoadEvent>();
