@@ -87,6 +87,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             PointLight::default(),
             LightAreaToggle::default(),
             LightPlay::default(),
+            PrefabMarker,
         ),
     );
 
@@ -98,6 +99,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             DirectionalLight::default(),
             LightAreaToggle::default(),
             LightPlay::default(),
+            PrefabMarker,
         ),
     );
 
@@ -109,6 +111,7 @@ pub fn register_light_editor_bundles(app: &mut App) {
             SpotLight::default(),
             LightAreaToggle::default(),
             LightPlay::default(),
+            PrefabMarker,
         ),
     );
 }
@@ -318,6 +321,8 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             Transform::default(),
             VisibilityBundle::default(),
             CameraPlay::default(),
+            PrefabMarker,
+            CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::Core3d),
         ),
     );
 
@@ -331,6 +336,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             VisibilityBundle::default(),
             CameraPlay::default(),
             CameraRenderGraph::new(bevy::core_pipeline::core_2d::graph::Core2d),
+            PrefabMarker,
         ),
     );
 
@@ -347,6 +353,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
                 ..default()
             },
             Name::new("Sprite".to_string()),
+            PrefabMarker,
         ),
     );
 
@@ -358,6 +365,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
                 texture: "branding/bevy_bird_dark.png".to_string(),
             },
             Name::new("Texture Sprite".to_string()),
+            PrefabMarker,
         ),
     );
 
@@ -374,6 +382,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             AvailableAnimationClips::default(),
             AnimationTimerSpriteSheet::default(),
             TextureAtlasPrefab::default(),
+            PrefabMarker,
         ),
     )
 }

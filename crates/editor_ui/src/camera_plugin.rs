@@ -81,7 +81,15 @@ pub fn change_camera_in_play(
         let Ok(window) = primary_window.get_single() else {
             return;
         };
-        let mut cam = play_cameras.single_mut();
+        let Ok(mut cam) = play_cameras.get_single_mut() else {
+            error!("No play camera found");
+            #[cfg(feature = "editor")]
+            toast.send(ToastMessage::new(
+                "No play camera found",
+                space_shared::toast::ToastKind::Error,
+            ));
+            return;
+        };
         cam.viewport = Some(bevy::render::camera::Viewport {
             physical_position: UVec2::new(0, 0),
             physical_size: UVec2::new(window.width() as u32, window.height() as u32),

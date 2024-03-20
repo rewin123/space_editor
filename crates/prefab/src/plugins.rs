@@ -243,7 +243,15 @@ impl Plugin for BasePrefabPlugin {
 
 fn camera_render_graph_creation(
     mut commands: Commands,
-    query: Query<Entity, (With<Camera>, With<PrefabMarker>, Without<CameraRenderGraph>)>,
+    query: Query<
+        Entity,
+        (
+            With<Camera>,
+            With<Camera3d>,
+            With<PrefabMarker>,
+            Without<CameraRenderGraph>,
+        ),
+    >,
 ) {
     for e in query.iter() {
         commands.entity(e).insert(CameraRenderGraph::new(
