@@ -1,5 +1,6 @@
 use anyhow::Context;
 use bevy::{
+    core_pipeline::tonemapping::DebandDither,
     prelude::*,
     render::{
         camera::{CameraRenderGraph, RenderTarget, TemporalJitter},
@@ -14,7 +15,7 @@ use bevy_egui::{
     EguiContexts,
 };
 
-use space_prefab::component::CameraPlay;
+use space_prefab::component::PlaymodeCamera;
 use space_shared::{toast::ToastMessage, *};
 
 use crate::{
@@ -86,7 +87,7 @@ impl EditorTab for CameraViewTab {
                         .spawn((
                             Camera3dBundle {
                                 camera: Camera {
-                                    is_active: false,
+                                    is_active: true,
                                     order: 10,
                                     clear_color: bevy::render::camera::ClearColorConfig::Default,
                                     ..default()
@@ -126,7 +127,7 @@ impl EditorTab for CameraViewTab {
 
         let mut camera_query = world.query_filtered::<Entity, (
             With<Camera>,
-            With<CameraPlay>,
+            With<PlaymodeCamera>,
             Without<EditorCameraMarker>,
         )>();
 
@@ -164,10 +165,13 @@ impl EditorTab for CameraViewTab {
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
                         Camera3d::default(),
+                        Camera::default(),
+                        DebandDither::Enabled,
+                        Projection::Perspective(PerspectiveProjection::default()),
                         Name::new("Camera3d".to_string()),
                         Transform::default(),
                         VisibilityBundle::default(),
-                        CameraPlay::default(),
+                        PlaymodeCamera::default(),
                         PrefabMarker,
                         CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::Core3d),
                     ));
@@ -178,9 +182,9 @@ impl EditorTab for CameraViewTab {
                     Name::new("Camera2d".to_string()),
                     Transform::default(),
                     VisibilityBundle::default(),
-                    CameraPlay::default(),
-                    PrefabMarker,
+                    PlaymodeCamera::default(),
                     CameraRenderGraph::new(bevy::core_pipeline::core_2d::graph::Core2d),
+                    PrefabMarker,
                 ));
             }
         }

@@ -6,7 +6,7 @@ use bevy::{
     pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
     prelude::*,
     render::{
-        camera::CameraRenderGraph,
+        camera::{CameraMainTextureUsages, CameraRenderGraph, Exposure},
         primitives::{CascadesFrusta, CubemapFrusta, Frustum},
         view::{ColorGrading, VisibleEntities},
     },
@@ -143,7 +143,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Camera2d>();
         app.editor_registry::<Projection>();
         app.editor_registry::<OrthographicProjection>();
-        app.editor_registry::<CameraPlay>();
+        app.editor_registry::<PlaymodeCamera>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
@@ -153,11 +153,13 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<Camera3d, Camera>();
         app.editor_relation::<Camera3d, Projection>();
         app.editor_relation::<Camera3d, ColorGrading>();
+        app.editor_relation::<Camera3d, Exposure>();
         app.editor_relation::<Camera, VisibleEntities>();
         app.editor_relation::<Camera, Frustum>();
         app.editor_relation::<Camera, Transform>();
         app.editor_relation::<Camera, Tonemapping>();
         app.editor_relation::<Camera, DebandDither>();
+        app.editor_relation::<Camera, CameraMainTextureUsages>();
 
         app.add_systems(Update, camera_render_graph_creation);
 
@@ -193,7 +195,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_relation::<SpotLight, Transform>();
         app.editor_relation::<SpotLight, Visibility>();
 
-        app.editor_registry::<LightPlay>();
+        app.editor_registry::<PlaymodeLight>();
 
         #[cfg(feature = "editor")]
         app.add_event::<ToastMessage>();

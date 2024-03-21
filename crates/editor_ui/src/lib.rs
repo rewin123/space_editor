@@ -329,7 +329,12 @@ pub fn simple_editor_setup(mut commands: Commands) {
             count: 9,
             color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
         },
-        GridAxis::new_rgb(),
+        // Darker grid to make it easier to see entity gizmos when Transform (0, 0, 0)
+        GridAxis {
+            x: Some(Color::rgb(0.9, 0.1, 0.1)),
+            y: Some(Color::rgb(0.1, 0.9, 0.1)),
+            z: Some(Color::rgb(0.1, 0.1, 0.9)),
+        },
         TrackedGrid::default(),
         TransformBundle::default(),
         VisibilityBundle::default(),
@@ -342,7 +347,8 @@ pub fn simple_editor_setup(mut commands: Commands) {
         Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             camera: Camera {
-                order: 0,
+                order: isize::MIN,
+                clear_color: ClearColorConfig::None,
                 ..default()
             },
             ..default()

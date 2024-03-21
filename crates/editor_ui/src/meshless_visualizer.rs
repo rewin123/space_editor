@@ -544,13 +544,15 @@ mod tests {
         let mut app = App::new();
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn_empty();
-            commands.spawn(BillboardTextureBundle::default());
+            commands.spawn_empty().with_children(|cb| {
+                cb.spawn(BillboardTextureBundle::default());
+            });
         });
         app.add_systems(Update, clean_meshless);
         app.update();
 
         let mut query = app.world.query::<Entity>();
 
-        assert_eq!(query.iter(&app.world).count(), 1);
+        assert_eq!(query.iter(&app.world).count(), 2);
     }
 }
