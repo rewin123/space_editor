@@ -235,8 +235,6 @@ impl EditorTab for CameraViewTab {
         }
 
         if let Some((cam_image, _)) = self.egui_tex_id {
-            ui.style_mut().visuals.extreme_bg_color = egui::Color32::BLACK;
-            ui.style_mut().visuals.faint_bg_color = egui::Color32::RED;
             ui.image(egui::load::SizedTexture {
                 id: cam_image,
                 size: ui.available_size(),
