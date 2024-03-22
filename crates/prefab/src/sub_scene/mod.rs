@@ -9,8 +9,6 @@ pub struct SceneUnpackPlugin;
 
 impl Plugin for SceneUnpackPlugin {
     fn build(&self, app: &mut App) {
-        app.configure_sets(Update, SubScenePersistSet::Prepare);
-        app.configure_sets(Update, SubScenePersistSet::Unpack);
 
         app.add_systems(OnEnter(SaveState::Save), (
             (prepare_auto_scene, apply_deferred).chain().before(crate::prelude::serialize_scene),
@@ -25,11 +23,6 @@ impl Plugin for SceneUnpackPlugin {
     }
 }
 
-#[derive(SystemSet, Clone, PartialEq, Eq, Hash, Debug)]
-pub enum SubScenePersistSet {
-    Prepare,
-    Unpack,
-}
 
 #[derive(Component, Reflect, Default)]
 #[reflect(Component)]
@@ -49,7 +42,7 @@ fn clear_after_save(
     }
 }
 
-fn prepare_auto_scene(
+pub fn prepare_auto_scene(
     world: &mut World
 ) {
     unsafe {
