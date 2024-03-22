@@ -23,9 +23,12 @@ pub fn load_listener(world: &mut World) {
     }
     world.resource_mut::<EditorLoader>().scene = None;
 
-    let mut query = world.query_filtered::<Entity, With<PrefabMarker>>();
-    let mark_to_delete: Vec<_> = query.iter(world).collect();
-    for entity in mark_to_delete {
+    let mut query = world.query_filtered::<(Entity, Option<&Name>), With<PrefabMarker>>();
+    let mark_to_delete: Vec<_> = query
+        .iter(world)
+        .map(|(e, name)| (e, name.cloned()))
+        .collect();
+    for (entity, name) in mark_to_delete {
         let mut despawned = false;
         if let Some(e) = world.get_entity_mut(entity) {
             e.despawn_recursive();
@@ -34,7 +37,11 @@ pub fn load_listener(world: &mut World) {
 
         if despawned {
             world.send_event(ToastMessage::new(
-                &format!("Despawning {entity:?}"),
+                &if name.is_some() {
+                    format!("Despawning {}: {:?}", name.unwrap(), entity)
+                } else {
+                    format!("Despawning {:?}", entity)
+                },
                 egui_toast::ToastKind::Warning,
             ));
         }
@@ -47,7 +54,12 @@ pub fn load_listener(world: &mut World) {
     let mut map = EntityHashMap::default();
     let res = prefab.write_to_world(world, &mut map);
     match res {
-        Ok(_) => { /*some info planned*/ }
+        Ok(_) => {
+            world.send_event(ToastMessage::new(
+                "Prefab loaded successfully",
+                egui_toast::ToastKind::Success,
+            ));
+        }
         Err(err) => {
             world.send_event(ToastMessage::new(
                 &format!("Failed to create scene:\n{err}"),

@@ -46,7 +46,7 @@
           near: 0.1,
           far: 1000.0,
         )),
-        "space_prefab::component::camera::CameraPlay": (),
+        "space_prefab::component::camera::PlaymodeCamera": (),
         "space_prefab::save::ChildrenPrefab": ([
           17179869198,
         ]),

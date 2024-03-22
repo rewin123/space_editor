@@ -1,6 +1,9 @@
 use std::collections::BTreeMap;
 
-use bevy::{ecs::system::EntityCommands, render::camera::CameraRenderGraph};
+use bevy::{
+    core_pipeline::tonemapping::DebandDither, ecs::system::EntityCommands,
+    render::camera::CameraRenderGraph,
+};
 
 use space_prefab::{component::*, ext::*};
 use space_shared::{LightAreaToggle, PrefabMarker};
@@ -86,7 +89,8 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Point light"),
             PointLight::default(),
             LightAreaToggle::default(),
-            LightPlay::default(),
+            PlaymodeLight::default(),
+            PrefabMarker,
         ),
     );
 
@@ -97,7 +101,8 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Directional light"),
             DirectionalLight::default(),
             LightAreaToggle::default(),
-            LightPlay::default(),
+            PlaymodeLight::default(),
+            PrefabMarker,
         ),
     );
 
@@ -108,7 +113,8 @@ pub fn register_light_editor_bundles(app: &mut App) {
             Name::new("Spot light"),
             SpotLight::default(),
             LightAreaToggle::default(),
-            LightPlay::default(),
+            PlaymodeLight::default(),
+            PrefabMarker,
         ),
     );
 }
@@ -314,10 +320,15 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         "3D Playmode Camera",
         (
             Camera3d::default(),
+            Camera::default(),
+            DebandDither::Enabled,
+            Projection::Perspective(PerspectiveProjection::default()),
             Name::new("Camera3d".to_string()),
             Transform::default(),
             VisibilityBundle::default(),
-            CameraPlay::default(),
+            PlaymodeCamera::default(),
+            PrefabMarker,
+            CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::Core3d),
         ),
     );
 
@@ -329,8 +340,9 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             Name::new("Camera2d".to_string()),
             Transform::default(),
             VisibilityBundle::default(),
-            CameraPlay::default(),
+            PlaymodeCamera::default(),
             CameraRenderGraph::new(bevy::core_pipeline::core_2d::graph::Core2d),
+            PrefabMarker,
         ),
     );
 
@@ -347,6 +359,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
                 ..default()
             },
             Name::new("Sprite".to_string()),
+            PrefabMarker,
         ),
     );
 
@@ -358,6 +371,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
                 texture: "branding/bevy_bird_dark.png".to_string(),
             },
             Name::new("Texture Sprite".to_string()),
+            PrefabMarker,
         ),
     );
 
@@ -374,6 +388,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
             AvailableAnimationClips::default(),
             AnimationTimerSpriteSheet::default(),
             TextureAtlasPrefab::default(),
+            PrefabMarker,
         ),
     )
 }

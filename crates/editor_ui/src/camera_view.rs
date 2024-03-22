@@ -1,17 +1,22 @@
+use anyhow::Context;
 use bevy::{
+    core_pipeline::tonemapping::DebandDither,
     prelude::*,
     render::{
-        camera::{RenderTarget, TemporalJitter},
+        camera::{CameraRenderGraph, RenderTarget, TemporalJitter},
         render_resource::{
             Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
         },
     },
     window::PrimaryWindow,
 };
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{
+    egui::{self, RichText},
+    EguiContexts,
+};
 
-use space_prefab::component::CameraPlay;
-use space_shared::*;
+use space_prefab::component::PlaymodeCamera;
+use space_shared::{toast::ToastMessage, *};
 
 use crate::{
     colors::ERROR_COLOR,
@@ -35,9 +40,6 @@ impl Plugin for CameraViewTabPlugin {
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
-
-#[derive(Component)]
-pub struct ViewCamera;
 
 /// Tab for camera view in editor
 #[derive(Resource, Default)]
@@ -85,7 +87,7 @@ impl EditorTab for CameraViewTab {
                         .spawn((
                             Camera3dBundle {
                                 camera: Camera {
-                                    is_active: false,
+                                    is_active: true,
                                     order: 2,
                                     clear_color: bevy::render::camera::ClearColorConfig::Default,
                                     ..default()
@@ -96,8 +98,6 @@ impl EditorTab for CameraViewTab {
                             TemporalJitter::default(),
                             Name::new("Camera for Camera view tab"),
                             DisableCameraSkip,
-                            EditorCameraMarker,
-                            ViewCamera,
                         ))
                         .id(),
                 );
@@ -105,12 +105,18 @@ impl EditorTab for CameraViewTab {
                 self.real_camera = Some(
                     commands
                         .spawn((
-                            Camera2dBundle::default(),
+                            Camera2dBundle {
+                                camera: Camera {
+                                    is_active: false,
+                                    order: 2,
+                                    clear_color: bevy::render::camera::ClearColorConfig::Default,
+                                    ..default()
+                                },
+                                ..default()
+                            },
                             RenderLayers::layer(0),
                             Name::new("Camera for Camera view tab"),
                             DisableCameraSkip,
-                            EditorCameraMarker,
-                            ViewCamera,
                         ))
                         .id(),
                 );
@@ -119,14 +125,19 @@ impl EditorTab for CameraViewTab {
 
         let mut camera_query = world.query_filtered::<Entity, (
             With<Camera>,
+            With<PlaymodeCamera>,
             Without<EditorCameraMarker>,
-            Without<ViewCamera>,
         )>();
 
         if camera_query.iter(world).count() == 1 {
             let selected_entity = camera_query.iter(world).next();
             self.camera_entity = selected_entity;
-            ui.label(format!("Camera: {:?}", selected_entity.unwrap()));
+
+            if let Some(entity) = selected_entity {
+                ui.label(format!("Camera: {:?}", entity));
+            } else {
+                ui.label(RichText::new("No selected Camera").color(ERROR_COLOR));
+            }
         } else if camera_query.iter(world).count() > 0 {
             egui::ComboBox::from_label("Camera")
                 .selected_text(format!("{:?}", self.camera_entity))
@@ -152,11 +163,15 @@ impl EditorTab for CameraViewTab {
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
                         Camera3d::default(),
+                        Camera::default(),
+                        DebandDither::Enabled,
+                        Projection::Perspective(PerspectiveProjection::default()),
                         Name::new("Camera3d".to_string()),
                         Transform::default(),
-                        Visibility::default(),
-                        CameraPlay::default(),
+                        VisibilityBundle::default(),
+                        PlaymodeCamera::default(),
                         PrefabMarker,
+                        CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::Core3d),
                     ));
                 }
             } else if ui.button("Add 2D Playmode Camera").clicked() {
@@ -164,8 +179,9 @@ impl EditorTab for CameraViewTab {
                     Camera2d {},
                     Name::new("Camera2d".to_string()),
                     Transform::default(),
-                    Visibility::default(),
-                    CameraPlay::default(),
+                    VisibilityBundle::default(),
+                    PlaymodeCamera::default(),
+                    CameraRenderGraph::new(bevy::core_pipeline::core_2d::graph::Core2d),
                     PrefabMarker,
                 ));
             }
@@ -187,20 +203,29 @@ impl EditorTab for CameraViewTab {
                 ));
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
+            let msg = format!(
+                "Camera target created. W: {}, H: {}",
+                clipped.width(),
+                clipped.height()
+            );
+            world.send_event(ToastMessage::new(&msg, toast::ToastKind::Success));
         } else if let Some(handle) = &self.target_image {
             if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
                 if image.texture_descriptor.size.width != clipped.width() as u32
                     || image.texture_descriptor.size.height != clipped.height() as u32
                 {
-                    world
+                    if let Ok(image) = world
                         .resource_mut::<Assets<Image>>()
                         .get_mut(handle)
-                        .unwrap()
-                        .resize(Extent3d {
+                        .context("Failed to get image from Handle.")
+                        .inspect_err(|err| error!("{err:?}"))
+                    {
+                        image.resize(Extent3d {
                             width: clipped.width() as u32,
                             height: clipped.height() as u32,
                             ..default()
                         });
+                    }
                     self.need_reinit_egui_tex = true;
                 }
             } else {
@@ -241,7 +266,7 @@ fn clean_camera_view_tab(
     ui_state.real_camera = None;
     ui_state.viewport_rect = None;
 
-    info!("Clean camera view tab");
+    info!("Clean camera view tab successful");
 }
 
 #[derive(Default)]
@@ -268,12 +293,13 @@ fn set_camera_viewport(
     };
 
     if ui_state.egui_tex_id.is_none() {
+        ui_state.target_image = Some(target_image.clone());
         ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
     }
 
     if ui_state.need_reinit_egui_tex {
         ctxs.remove_image(&ui_state.egui_tex_id.as_ref().unwrap().1);
-        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
+        ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image));
         ui_state.need_reinit_egui_tex = false;
     }
 
@@ -292,8 +318,14 @@ fn set_camera_viewport(
     };
 
     let Some(viewport_rect) = ui_state.viewport_rect else {
+        local.0 = None;
+        warn!("No viewport rect for UI");
         return;
     };
+
+    if local.0 == Some(viewport_rect) {
+        return;
+    }
 
     local.0 = Some(viewport_rect);
 
@@ -301,10 +333,10 @@ fn set_camera_viewport(
         *real_cam = watch_cam.clone();
     }
     // set editor params for real_cam
-    real_cam.order = 2;
     real_cam.is_active = true;
-    real_cam.target = RenderTarget::Image(target_image);
-
+    if let Some(target_handle) = ui_state.target_image.clone() {
+        real_cam.target = RenderTarget::Image(target_handle);
+    }
     *real_cam_transform = *camera_transform;
 
     #[cfg(target_os = "macos")]
@@ -330,9 +362,25 @@ fn set_camera_viewport(
     // Place viewport in the center of the tab
     viewport_pos.y += (viewport_rect.size().y - viewport_size.y) / 2.0;
 
-    real_cam.viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(0, (viewport_rect.size().y - viewport_size.y) as u32 / 2),
+    let new_viewport = Some(bevy::render::camera::Viewport {
+        physical_position: UVec2::new(
+            0,
+            ((viewport_rect.size().y as u32).saturating_sub(viewport_size.y as u32)) / 2,
+        ),
         physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
         depth: 0.0..1.0,
     });
+
+    // We need to check if the current state of viewport is equals to the previous state
+    // If it isn't, we need to wait a frame
+    if local.0.map(|r| UVec2 {
+        x: r.width().round() as u32,
+        y: r.height().round() as u32,
+    }) != new_viewport.as_ref().map(|v| v.physical_size)
+    {
+        return;
+    }
+
+    real_cam.viewport = new_viewport;
+    error!("Local: {:?}, real_cam: {:?}", local.0, real_cam.viewport);
 }

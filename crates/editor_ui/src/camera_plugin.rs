@@ -61,17 +61,18 @@ pub fn update_pan_orbit(
     }
 }
 
-type ChangeCameraQueryFilter = (Without<EditorCameraMarker>, With<CameraPlay>);
+type PlayModeCameraFilter = (Without<EditorCameraMarker>, With<PlaymodeCamera>);
+type EditorModeCameraFilter = (With<EditorCameraMarker>, Without<PlaymodeCamera>);
 
-/// System to change camera from editor camera to game camera (if exist)
+/// System to change camera from editor camera to game play camera (if exist)
 pub fn change_camera_in_play(
-    mut cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<CameraPlay>)>,
-    mut play_cameras: Query<&mut Camera, ChangeCameraQueryFilter>,
+    mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
+    mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
 ) {
     if !play_cameras.is_empty() {
-        cameras.iter_mut().for_each(|mut cam| {
+        editor_cameras.iter_mut().for_each(|mut cam| {
             cam.is_active = false;
         });
         play_cameras.iter_mut().for_each(|mut cam| {
@@ -79,9 +80,23 @@ pub fn change_camera_in_play(
         });
 
         let Ok(window) = primary_window.get_single() else {
+            error!("Failed to get Primary Window");
+            #[cfg(feature = "editor")]
+            toast.send(ToastMessage::new(
+                "Failed to get Primary Window",
+                space_shared::toast::ToastKind::Error,
+            ));
             return;
         };
-        let mut cam = play_cameras.single_mut();
+        let Ok(mut cam) = play_cameras.get_single_mut() else {
+            error!("No play camera found");
+            #[cfg(feature = "editor")]
+            toast.send(ToastMessage::new(
+                "No play camera found",
+                space_shared::toast::ToastKind::Error,
+            ));
+            return;
+        };
         cam.viewport = Some(bevy::render::camera::Viewport {
             physical_position: UVec2::new(0, 0),
             physical_size: UVec2::new(window.width() as u32, window.height() as u32),
@@ -99,14 +114,11 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
-    mut play_cameras: Query<&mut Camera, (Without<EditorCameraMarker>, With<CameraPlay>)>,
+    mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
+    mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
 ) {
-    for mut ecam in cameras.iter_mut() {
+    for mut ecam in editor_cameras.iter_mut() {
         ecam.is_active = true;
-        play_cameras.iter_mut().for_each(|mut cam| {
-            cam.is_active = false;
-        });
     }
 
     for mut play_cam in play_cameras.iter_mut() {

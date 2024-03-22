@@ -103,7 +103,9 @@ pub fn reset_camera_viewport(
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
     mut game_view_tab: ResMut<GameViewTab>,
 ) {
-    let mut cam = cameras.single_mut();
+    let Ok(mut cam) = cameras.get_single_mut() else {
+        return;
+    };
 
     let Ok(window) = primary_window.get_single() else {
         return;

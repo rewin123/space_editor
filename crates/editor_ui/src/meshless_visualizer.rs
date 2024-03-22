@@ -271,6 +271,7 @@ pub fn visualize_meshless(
                         ..default()
                     },
                     RenderLayers::layer(LAST_RENDER_LAYER),
+                    Name::from("Billboard Texture"),
                 ))
                 .with_children(|adult| {
                     adult.spawn((
@@ -280,6 +281,7 @@ pub fn visualize_meshless(
                             ..default()
                         },
                         SelectParent { parent },
+                        Name::from("Billboard Mesh"),
                     ));
                 })
                 .id();
@@ -300,6 +302,7 @@ pub fn visualize_meshless(
                         ..default()
                     },
                     RenderLayers::layer(LAST_RENDER_LAYER),
+                    Name::from("Billboard Texture"),
                 ))
                 .with_children(|adult| {
                     adult.spawn((
@@ -309,6 +312,7 @@ pub fn visualize_meshless(
                             ..default()
                         },
                         SelectParent { parent },
+                        Name::from("Billboard Mesh"),
                     ));
                 })
                 .id();
@@ -349,6 +353,7 @@ pub fn visualize_custom_meshless(
                                 texture: BillboardTextureHandle(texture),
                                 ..default()
                             },
+                            Name::from("Billboard Texture"),
                             RenderLayers::layer(LAST_RENDER_LAYER),
                         ))
                         .with_children(|adult| {
@@ -359,6 +364,7 @@ pub fn visualize_custom_meshless(
                                     ..default()
                                 },
                                 SelectParent { parent: entity },
+                                Name::from("Billboard Mesh"),
                             ));
                         })
                         .id()
@@ -377,6 +383,7 @@ pub fn visualize_custom_meshless(
                         },
                         SelectParent { parent: entity },
                         RenderLayers::layer(LAST_RENDER_LAYER),
+                        Name::from("Meshless Object"),
                     ))
                     .id(),
             };
@@ -387,9 +394,15 @@ pub fn visualize_custom_meshless(
 
 pub fn clean_meshless(
     mut commands: Commands,
-    // this covers all entities that are the children of the lights
+    // this covers all entities that are the children of the lights and Cameras
     // this can be extended to cover the custom children as well
-    objects: Query<Entity, Or<(With<BillboardTextureHandle>, With<BillboardMeshHandle>)>>,
+    objects: Query<
+        Entity,
+        (
+            Or<(With<BillboardTextureHandle>, With<BillboardMeshHandle>)>,
+            With<Parent>,
+        ),
+    >,
 ) {
     for entity in objects.iter() {
         commands.entity(entity).despawn_recursive();
@@ -531,13 +544,15 @@ mod tests {
         let mut app = App::new();
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn_empty();
-            commands.spawn(BillboardTextureBundle::default());
+            commands.spawn_empty().with_children(|cb| {
+                cb.spawn(BillboardTextureBundle::default());
+            });
         });
         app.add_systems(Update, clean_meshless);
         app.update();
 
         let mut query = app.world.query::<Entity>();
 
-        assert_eq!(query.iter(&app.world).count(), 1);
+        assert_eq!(query.iter(&app.world).count(), 2);
     }
 }
