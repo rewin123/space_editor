@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 
-use space_shared::EditorSet;
+use space_shared::{EditorSet, EditorState};
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
@@ -21,6 +21,7 @@ impl Plugin for SelectedPlugin {
             Update,
             selected_entity_wireframe_update.in_set(EditorSet::Editor),
         );
+        app.add_systems(OnEnter(EditorState::GamePrepare), clear_wireframes);
     }
 }
 
@@ -35,5 +36,11 @@ fn selected_entity_wireframe_update(
 
     for e in need_wireframe.iter() {
         cmds.entity(e).insert(Wireframe);
+    }
+}
+
+fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<Wireframe>>) {
+    for e in del_wireframe.iter() {
+        cmds.entity(e).remove::<Wireframe>();
     }
 }
