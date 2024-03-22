@@ -140,6 +140,7 @@ pub fn serialize_scene(world: &mut World) {
                         .spawn(async move {
                             fs::OpenOptions::new()
                                 .create(true)
+                                .truncate(true)
                                 .append(false)
                                 .write(true)
                                 .open(&path)
