@@ -1,4 +1,3 @@
-use anyhow::Context;
 use bevy::{
     core_pipeline::tonemapping::DebandDither,
     prelude::*,
@@ -230,8 +229,6 @@ impl EditorTab for CameraViewTab {
 
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
-
-            need_recreate_texture = false;
         }
 
         if let Some((cam_image, _)) = self.egui_tex_id {
@@ -276,7 +273,6 @@ fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
     mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
     images: Res<Assets<Image>>,
@@ -314,7 +310,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Ok(window) = primary_window.get_single() else {
+    let Ok(_) = primary_window.get_single() else {
         return;
     };
 
@@ -349,7 +345,6 @@ fn set_camera_viewport(
     #[cfg(target_os = "macos")]
     let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
     #[cfg(not(target_os = "macos"))]
-    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
     let cam_aspect_ratio = watch_cam
         .logical_viewport_size()
         .map(|cam| cam.y as f64 / cam.x as f64);
@@ -369,7 +364,7 @@ fn set_camera_viewport(
     preferred_width = preferred_width.min(image_rect.size().x);
     preferred_height = preferred_height.min(image_rect.size().y);
 
-    let mut view_image_rect = Rect::from_center_half_size(
+    let view_image_rect = Rect::from_center_half_size(
         Vec2::new(image_rect.center().x, image_rect.center().y),
         Vec2::new(preferred_width, preferred_height) / 2.0,
     );
