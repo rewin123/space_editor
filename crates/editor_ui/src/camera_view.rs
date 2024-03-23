@@ -31,11 +31,7 @@ pub struct CameraViewTabPlugin;
 impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
-        app.add_systems(
-            PreUpdate,
-            set_camera_viewport
-                .in_set(EditorSet::Editor),
-        );
+        app.add_systems(PreUpdate, set_camera_viewport.in_set(EditorSet::Editor));
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
@@ -231,7 +227,7 @@ impl EditorTab for CameraViewTab {
                     clipped.width() as u32,
                     clipped.height() as u32,
                 ));
-            
+
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
 
@@ -337,17 +333,17 @@ fn set_camera_viewport(
         return;
     };
     real_cam.target = RenderTarget::Image(target_handle.clone());
-    
+
     *real_cam_transform = *camera_transform;
 
     local.0 = Some(viewport_rect);
 
     let image_data = images.get(target_handle).unwrap();
     let image_rect = Rect::new(
-        0.0, 
-        0.0, 
-        image_data.texture_descriptor.size.width as f32 - 10.0, 
-        image_data.texture_descriptor.size.height as f32 - 10.0
+        0.0,
+        0.0,
+        image_data.texture_descriptor.size.width as f32 - 10.0,
+        image_data.texture_descriptor.size.height as f32 - 10.0,
     );
 
     #[cfg(target_os = "macos")]
@@ -379,11 +375,11 @@ fn set_camera_viewport(
     );
 
     let new_viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(
-            view_image_rect.min.x as u32,
-            view_image_rect.min.y as u32,
+        physical_position: UVec2::new(view_image_rect.min.x as u32, view_image_rect.min.y as u32),
+        physical_size: UVec2::new(
+            view_image_rect.size().x as u32,
+            view_image_rect.size().y as u32,
         ),
-        physical_size: UVec2::new(view_image_rect.size().x as u32, view_image_rect.size().y as u32),
         depth: 0.0..1.0,
     });
 
