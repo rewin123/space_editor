@@ -160,4 +160,28 @@ mod tests {
         assert_eq!(prefab.path, String::new());
         assert_eq!(prefab.scene, "Scene0".to_string());
     }
+
+    // Not really useful test
+    #[test]
+    fn get_auto_struct_data() {
+        #[derive(Debug, Default, Clone, Reflect, Component, PartialEq, Eq)]
+        #[reflect(Default, Component)]
+        pub struct TestAuto {
+            pub value: bool,
+        }
+
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .register_type::<TestAuto>();
+
+        app.update();
+
+        let server = app.world.resource::<AssetServer>();
+        let prefab = AutoStruct::<TestAuto>::new(&TestAuto { value: false }, server);
+
+        app.update();
+
+        let server = app.world.resource::<AssetServer>();
+        assert_eq!(prefab.get_data(server), TestAuto { value: false });
+    }
 }
