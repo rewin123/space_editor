@@ -32,10 +32,9 @@ impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(
-            Update,
+            PreUpdate,
             set_camera_viewport
-                .in_set(EditorSet::Editor)
-                .after(super::game_view::set_camera_viewport),
+                .in_set(EditorSet::Editor),
         );
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -329,6 +328,15 @@ fn set_camera_viewport(
 
     local.0 = Some(viewport_rect);
 
+    /// Convert viewport rect to image rect
+    let mut image_rect = Rect::new(
+        0.0, 
+        0.0, 
+        viewport_rect.width(),
+         viewport_rect.height()
+    );
+
+
     if watch_cam.is_changed() {
         *real_cam = watch_cam.clone();
     }
@@ -351,23 +359,28 @@ fn set_camera_viewport(
         scale_factor *= ratio as f32;
     }
 
-    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
-    let mut viewport_size = viewport_rect.size() * scale_factor;
+    let mut preferred_height = viewport_rect.height() * scale_factor;
+    let mut preferred_width = viewport_rect.width() * scale_factor;
 
     // Fixes camera viewport size to be proportional to main watch camera
     if let Some(ratio) = cam_aspect_ratio {
-        viewport_size.y = viewport_size.x * ratio as f32;
+        preferred_height = image_rect.size().x * ratio as f32;
     }
 
-    // Place viewport in the center of the tab
-    viewport_pos.y += (viewport_rect.size().y - viewport_size.y) / 2.0;
+    preferred_width = preferred_width.min(image_rect.size().x);
+    preferred_height = preferred_height.min(image_rect.size().y);
+
+    let mut view_image_rect = Rect::from_center_half_size(
+        Vec2::new(image_rect.center().x, image_rect.center().y),
+        Vec2::new(preferred_width, preferred_height) / 2.0,
+    );
 
     let new_viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(
-            0,
-            ((viewport_rect.size().y as u32).saturating_sub(viewport_size.y as u32)) / 2,
+            view_image_rect.min.x as u32,
+            view_image_rect.min.y as u32,
         ),
-        physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
+        physical_size: UVec2::new(view_image_rect.size().x as u32, view_image_rect.size().y as u32),
         depth: 0.0..1.0,
     });
 
