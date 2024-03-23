@@ -65,7 +65,7 @@ pub fn spawn_scene(
 
 pub fn create_child_path(
     mut commands: Commands,
-    prefabs: Query<(Entity, &GltfPrefab), (With<WantChildPath>, With<WantChildPath>)>,
+    prefabs: Query<(Entity, &GltfPrefab), With<WantChildPath>>,
     children: Query<&Children>,
 ) {
     for (e, _) in prefabs.iter() {
@@ -250,10 +250,23 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
-    #[cfg(feature = "editor")]
     use super::*;
-    #[cfg(feature = "editor")]
-    use bevy::scene::ScenePlugin;
+
+    #[test]
+    fn sync_cube_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
 
     #[test]
     #[cfg(feature = "editor")]
@@ -263,7 +276,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            ScenePlugin,
+            bevy::scene::ScenePlugin,
         ))
         .add_event::<ToastMessage>();
         app.add_systems(Startup, |mut commands: Commands| {
@@ -290,5 +303,48 @@ mod tests {
             .query::<(Entity, &PlayerStart, Option<&Children>)>();
         let mut iter = query.iter(&app.world);
         assert!(iter.next().unwrap().2.is_some());
+    }
+
+    #[test]
+    fn create_gltf_with_child() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_systems(Startup, |mut commands: Commands| {
+                let child_1 = commands
+                    .spawn(TransformBundle::default())
+                    .with_children(|c| {
+                        c.spawn(TransformBundle::default());
+                    })
+                    .id();
+                let child_2 = commands
+                    .spawn(TransformBundle::default())
+                    .with_children(|c| {
+                        c.spawn(TransformBundle::default());
+                    })
+                    .id();
+
+                commands
+                    .spawn((
+                        GltfPrefab::default(),
+                        TransformBundle::default(),
+                        WantChildPath,
+                    ))
+                    .add_child(child_1)
+                    .add_child(child_2);
+            })
+            .add_systems(Update, create_child_path);
+
+        app.update();
+
+        let mut parent_query = app
+            .world
+            .query_filtered::<Entity, (Without<WantChildPath>, Without<Parent>, With<Children>)>();
+        assert_eq!(parent_query.iter(&app.world).count(), 1);
+
+        let possibilities = vec![vec![0], vec![1], vec![0, 0], vec![1, 0], vec![]];
+        let mut child_paths = app.world.query::<&ChildPath>();
+        child_paths
+            .iter(&app.world)
+            .for_each(|d| assert!(possibilities.contains(&d.0)));
     }
 }
