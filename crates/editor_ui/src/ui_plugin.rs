@@ -123,7 +123,8 @@ impl Plugin for EditorUiCore {
                     .after(menu_toolbars::bottom_menu),
                 set_camera_viewport,
             )
-                .in_set(UiSystemSet),
+                .in_set(UiSystemSet)
+                .before(PanOrbitCameraSystemSet),
         );
 
         app.add_systems(
