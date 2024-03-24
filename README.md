@@ -47,7 +47,7 @@ The following explains how to integrate `space_editor` as a game plugin to use t
 
 Add this line to your Cargo.toml file
 ```toml
-space_editor = "0.4.0"
+space_editor = {git = "https://github.com/rewin123/space_editor.git"}
 
 # For now it is recomendended to use the following patches of the libraries we are using
 [patch.crates-io]
