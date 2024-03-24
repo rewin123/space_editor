@@ -34,10 +34,10 @@ fn simple_tab_system(mut ui: NonSendMut<EditorUiRef>) {
     ui.label("Hello editor");
 }
 
-fn configure_editor(mut load_event: EventWriter<MenuLoadEvent>) {
-    load_event.send(MenuLoadEvent {
-        path: "scenes/platformer".to_string(),
-    });
+fn configure_editor(mut load_event: EventWriter<EditorEvent>) {
+    load_event.send(EditorEvent::Load(EditorPrefabPath::File(
+        "scenes/platformer.scn.ron".to_string()
+    )));
 }
 
 #[derive(Component, Reflect, Clone)]

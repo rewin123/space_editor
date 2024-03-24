@@ -14,7 +14,7 @@ fn main() {
 fn setup(mut commands: Commands, _assets: Res<AssetServer>) {
     // prefab loaded by adding PrefabLoader component to any entity (it will be parent of prefab) or with prefab bundle
     commands
-        .spawn(PrefabBundle::new("scenes/tile.scn.ron"))
+        .spawn(PrefabBundle::new("scenes/Scene0.scn.ron"))
         .insert(Name::new("Prefab"));
 
     // light
