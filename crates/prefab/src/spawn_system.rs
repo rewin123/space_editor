@@ -269,6 +269,144 @@ mod tests {
     }
 
     #[test]
+    fn sync_cube_material() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn((MeshPrimitive3dPrefab::Cube(3.), MaterialPrefab::default()));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .init_resource::<Assets<StandardMaterial>>()
+            .add_systems(Update, sync_material);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&MaterialPrefab, &Handle<StandardMaterial>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn sync_2d_circle_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_2d_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn sync_2d_material_prefab() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn((
+                    MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }),
+                    ColorMaterialPrefab::default(),
+                ));
+            })
+            .init_resource::<Assets<ColorMaterial>>()
+            .add_systems(Update, sync_2d_material);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&ColorMaterialPrefab, &Handle<ColorMaterial>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn remove_synced_2d_circle_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_2d_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+
+        app.add_systems(
+            PreUpdate,
+            |mut commands: Commands, entity: Query<Entity, With<MeshPrimitive2dPrefab>>| {
+                commands
+                    .entity(entity.single())
+                    .remove::<MeshPrimitive2dPrefab>();
+            },
+        );
+        app.add_systems(Update, editor_remove_mesh_2d);
+
+        app.update();
+        let mut query = app.world.query_filtered::<Entity, With<Handle<Mesh>>>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn remove_synced_cube_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+
+        app.add_systems(
+            PreUpdate,
+            |mut commands: Commands, entity: Query<Entity, With<MeshPrimitive3dPrefab>>| {
+                commands
+                    .entity(entity.single())
+                    .remove::<MeshPrimitive3dPrefab>();
+            },
+        );
+        app.add_systems(Update, editor_remove_mesh);
+
+        app.update();
+        let mut query = app.world.query_filtered::<Entity, With<Handle<Mesh>>>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn sync_sprite_texture_prefab() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ))
+        .add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(SpriteTexture {
+                texture: String::from("test_asset.png"),
+            });
+        })
+        .add_systems(Update, sync_sprite_texture)
+        .init_resource::<Assets<Image>>();
+
+        app.update();
+
+        let mut query = app.world.query::<(&SpriteTexture, &Sprite)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
     #[cfg(feature = "editor")]
     fn spawns_player_with_prefab() {
         let mut app = App::new();
