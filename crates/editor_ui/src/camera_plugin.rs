@@ -57,7 +57,6 @@ pub fn update_pan_orbit(
     state: Res<EditorCameraEnabled>,
 ) {
     for mut pan_orbit in pan_orbit_query.iter_mut() {
-        info!("Enabled: {}", state.0);
         pan_orbit.enabled = state.0;
     }
 }
