@@ -36,7 +36,7 @@ fn simple_tab_system(mut ui: NonSendMut<EditorUiRef>) {
 
 fn configure_editor(mut load_event: EventWriter<EditorEvent>) {
     load_event.send(EditorEvent::Load(EditorPrefabPath::File(
-        "scenes/platformer.scn.ron".to_string()
+        "scenes/platformer.scn.ron".to_string(),
     )));
 }
 
@@ -102,7 +102,7 @@ fn move_player(
             }
             info!("time of impact: {:?} {:?}", hit.entity, hit.time_of_impact);
             let frw = transform.forward();
-            let up = transform.up();
+            // let up = transform.up();
             let right = transform.right();
 
             let mut target_vel = Vector::new(0.0, 0.0, 0.0);
@@ -138,7 +138,6 @@ fn move_player(
             if !keyboard_input.just_pressed(KeyCode::Space) {
                 controller.jumped = false;
             }
-
 
             vel.0 = cur_vel;
         } else {
