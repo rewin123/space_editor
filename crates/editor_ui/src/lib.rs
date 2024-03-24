@@ -347,8 +347,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         Camera3dBundle {
             transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             camera: Camera {
-                order: isize::MIN,
-                clear_color: ClearColorConfig::None,
+                order: 100,
                 ..default()
             },
             ..default()
@@ -379,7 +378,7 @@ pub fn game_mode_changed(
                     transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
                     camera: Camera {
                         // We had too many editor cameras at order 0
-                        order: -100,
+                        order: 100,
                         ..default()
                     },
                     ..default()
@@ -396,7 +395,7 @@ pub fn game_mode_changed(
             commands.spawn((
                 Camera2dBundle {
                     camera: Camera {
-                        order: -100,
+                        order: 100,
                         ..default()
                     },
                     ..default()

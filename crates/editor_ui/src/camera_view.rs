@@ -1,4 +1,3 @@
-use anyhow::Context;
 use bevy::{
     core_pipeline::tonemapping::DebandDither,
     prelude::*,
@@ -31,12 +30,7 @@ pub struct CameraViewTabPlugin;
 impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
-        app.add_systems(
-            Update,
-            set_camera_viewport
-                .in_set(EditorSet::Editor)
-                .after(super::game_view::set_camera_viewport),
-        );
+        app.add_systems(PreUpdate, set_camera_viewport.in_set(EditorSet::Editor));
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
 }
@@ -194,6 +188,8 @@ impl EditorTab for CameraViewTab {
         clipped.set_top(pos.y);
         self.viewport_rect = Some(clipped);
 
+        let mut need_recreate_texture = false;
+
         if self.target_image.is_none() {
             let handle = world
                 .resource_mut::<Assets<Image>>()
@@ -214,24 +210,25 @@ impl EditorTab for CameraViewTab {
                 if image.texture_descriptor.size.width != clipped.width() as u32
                     || image.texture_descriptor.size.height != clipped.height() as u32
                 {
-                    if let Ok(image) = world
-                        .resource_mut::<Assets<Image>>()
-                        .get_mut(handle)
-                        .context("Failed to get image from Handle.")
-                        .inspect_err(|err| error!("{err:?}"))
-                    {
-                        image.resize(Extent3d {
-                            width: clipped.width() as u32,
-                            height: clipped.height() as u32,
-                            ..default()
-                        });
-                    }
+                    need_recreate_texture = true;
                     self.need_reinit_egui_tex = true;
                 }
             } else {
                 self.target_image = None;
                 self.need_reinit_egui_tex = true;
             }
+        }
+
+        if need_recreate_texture {
+            let handle = world
+                .resource_mut::<Assets<Image>>()
+                .add(create_camera_image(
+                    clipped.width() as u32,
+                    clipped.height() as u32,
+                ));
+
+            self.target_image = Some(handle);
+            self.need_reinit_egui_tex = true;
         }
 
         if let Some((cam_image, _)) = self.egui_tex_id {
@@ -276,9 +273,9 @@ fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
     mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
     mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
+    images: Res<Assets<Image>>,
 ) {
     let Some(real_cam_entity) = ui_state.real_camera else {
         return;
@@ -313,7 +310,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Ok(window) = primary_window.get_single() else {
+    let Ok(_) = primary_window.get_single() else {
         return;
     };
 
@@ -323,26 +320,31 @@ fn set_camera_viewport(
         return;
     };
 
-    if local.0 == Some(viewport_rect) {
-        return;
-    }
-
-    local.0 = Some(viewport_rect);
-
     if watch_cam.is_changed() {
         *real_cam = watch_cam.clone();
     }
     // set editor params for real_cam
     real_cam.is_active = true;
-    if let Some(target_handle) = ui_state.target_image.clone() {
-        real_cam.target = RenderTarget::Image(target_handle);
-    }
+    let Some(target_handle) = ui_state.target_image.clone() else {
+        return;
+    };
+    real_cam.target = RenderTarget::Image(target_handle.clone());
+
     *real_cam_transform = *camera_transform;
+
+    local.0 = Some(viewport_rect);
+
+    let image_data = images.get(target_handle).unwrap();
+    let image_rect = Rect::new(
+        0.0,
+        0.0,
+        image_data.texture_descriptor.size.width as f32 - 10.0,
+        image_data.texture_descriptor.size.height as f32 - 10.0,
+    );
 
     #[cfg(target_os = "macos")]
     let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
     #[cfg(not(target_os = "macos"))]
-    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
     let cam_aspect_ratio = watch_cam
         .logical_viewport_size()
         .map(|cam| cam.y as f64 / cam.x as f64);
@@ -351,36 +353,30 @@ fn set_camera_viewport(
         scale_factor *= ratio as f32;
     }
 
-    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
-    let mut viewport_size = viewport_rect.size() * scale_factor;
+    let mut preferred_height = image_rect.height();
+    let mut preferred_width = image_rect.width();
 
     // Fixes camera viewport size to be proportional to main watch camera
     if let Some(ratio) = cam_aspect_ratio {
-        viewport_size.y = viewport_size.x * ratio as f32;
+        preferred_height = image_rect.size().x * ratio as f32;
     }
 
-    // Place viewport in the center of the tab
-    viewport_pos.y += (viewport_rect.size().y - viewport_size.y) / 2.0;
+    preferred_width = preferred_width.min(image_rect.size().x);
+    preferred_height = preferred_height.min(image_rect.size().y);
+
+    let view_image_rect = Rect::from_center_half_size(
+        Vec2::new(image_rect.center().x, image_rect.center().y),
+        Vec2::new(preferred_width, preferred_height) / 2.0,
+    );
 
     let new_viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(
-            0,
-            ((viewport_rect.size().y as u32).saturating_sub(viewport_size.y as u32)) / 2,
+        physical_position: UVec2::new(view_image_rect.min.x as u32, view_image_rect.min.y as u32),
+        physical_size: UVec2::new(
+            view_image_rect.size().x as u32,
+            view_image_rect.size().y as u32,
         ),
-        physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
         depth: 0.0..1.0,
     });
 
-    // We need to check if the current state of viewport is equals to the previous state
-    // If it isn't, we need to wait a frame
-    if local.0.map(|r| UVec2 {
-        x: r.width().round() as u32,
-        y: r.height().round() as u32,
-    }) != new_viewport.as_ref().map(|v| v.physical_size)
-    {
-        return;
-    }
-
     real_cam.viewport = new_viewport;
-    error!("Local: {:?}, real_cam: {:?}", local.0, real_cam.viewport);
 }
