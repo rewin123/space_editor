@@ -123,7 +123,8 @@ impl Plugin for EditorUiCore {
                     .after(menu_toolbars::bottom_menu),
                 set_camera_viewport,
             )
-                .in_set(UiSystemSet),
+                .in_set(UiSystemSet)
+                .before(PanOrbitCameraSystemSet),
         );
 
         app.add_systems(
@@ -431,6 +432,7 @@ pub fn ui_camera_block(
         };
         if let Some(area) = game_view.viewport_rect {
             if area.contains(pos) {
+
             } else {
                 *state = EditorCameraEnabled(false);
             }
