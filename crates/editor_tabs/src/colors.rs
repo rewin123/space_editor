@@ -1,3 +1,5 @@
+/// Colors used in editor
+
 use bevy_egui::egui::{Color32, Stroke};
 
 pub fn stroke_default_color() -> Stroke {
