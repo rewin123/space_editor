@@ -4197,7 +4197,7 @@ dependencies = [
 
 [[package]]
 name = "space_bevy_xpbd_plugin"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
@@ -4207,7 +4207,7 @@ dependencies = [
 
 [[package]]
 name = "space_editor"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "space_bevy_xpbd_plugin",
@@ -4217,7 +4217,7 @@ dependencies = [
 
 [[package]]
 name = "space_editor_core"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "bevy_egui",
@@ -4230,8 +4230,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "space_editor_tabs"
+version = "0.6.0"
+dependencies = [
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_egui",
+ "convert_case 0.6.0",
+ "egui_dock",
+ "egui_extras",
+]
+
+[[package]]
 name = "space_editor_ui"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "bevy",
@@ -4250,6 +4262,7 @@ dependencies = [
  "pretty-type-name",
  "serde",
  "space_editor_core",
+ "space_editor_tabs",
  "space_persistence",
  "space_prefab",
  "space_shared",
@@ -4258,7 +4271,7 @@ dependencies = [
 
 [[package]]
 name = "space_persistence"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "ron",
@@ -4267,7 +4280,7 @@ dependencies = [
 
 [[package]]
 name = "space_prefab"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "bevy-inspector-egui",
@@ -4281,7 +4294,7 @@ dependencies = [
 
 [[package]]
 name = "space_shared"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "bevy",
@@ -4293,7 +4306,7 @@ dependencies = [
 
 [[package]]
 name = "space_undo"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "bevy",
  "pretty-type-name",
