@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_scene_hook::SceneHook;
 #[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
@@ -162,7 +162,7 @@ pub fn editor_remove_mesh_2d(
 ) {
     for e in query.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>();
+            cmd.remove::<Handle<Mesh>>().remove::<Mesh2dHandle>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -250,6 +250,8 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
+    use bevy::sprite::Mesh2dHandle;
+
     use super::*;
 
     #[test]
@@ -299,7 +301,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Handle<Mesh>)>();
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
         assert_eq!(query.iter(&app.world).count(), 1);
     }
 
@@ -332,25 +334,24 @@ mod tests {
                 commands.spawn(MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }));
             })
             .init_resource::<Assets<Mesh>>()
-            .add_systems(Update, sync_2d_mesh);
+            .add_systems(Update, sync_2d_mesh)
+            .add_systems(Update, editor_remove_mesh_2d);
 
         app.update();
 
-        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Handle<Mesh>)>();
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
         assert_eq!(query.iter(&app.world).count(), 1);
 
-        app.add_systems(
-            PreUpdate,
-            |mut commands: Commands, entity: Query<Entity, With<MeshPrimitive2dPrefab>>| {
-                commands
-                    .entity(entity.single())
-                    .remove::<MeshPrimitive2dPrefab>();
-            },
-        );
-        app.add_systems(Update, editor_remove_mesh_2d);
+        let mut query = app
+            .world
+            .query_filtered::<Entity, With<MeshPrimitive2dPrefab>>();
+        let entity = query.single(&app.world);
+        app.world
+            .entity_mut(entity)
+            .remove::<MeshPrimitive2dPrefab>();
 
         app.update();
-        let mut query = app.world.query_filtered::<Entity, With<Handle<Mesh>>>();
+        let mut query = app.world.query_filtered::<Entity, With<Mesh2dHandle>>();
         assert_eq!(query.iter(&app.world).count(), 0);
     }
 
@@ -362,22 +363,21 @@ mod tests {
                 commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
             })
             .init_resource::<Assets<Mesh>>()
-            .add_systems(Update, sync_mesh);
+            .add_systems(Update, sync_mesh)
+            .add_systems(Update, editor_remove_mesh);
 
         app.update();
 
         let mut query = app.world.query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
         assert_eq!(query.iter(&app.world).count(), 1);
 
-        app.add_systems(
-            PreUpdate,
-            |mut commands: Commands, entity: Query<Entity, With<MeshPrimitive3dPrefab>>| {
-                commands
-                    .entity(entity.single())
-                    .remove::<MeshPrimitive3dPrefab>();
-            },
-        );
-        app.add_systems(Update, editor_remove_mesh);
+        let mut query = app
+            .world
+            .query_filtered::<Entity, With<MeshPrimitive3dPrefab>>();
+        let entity = query.single(&app.world);
+        app.world
+            .entity_mut(entity)
+            .remove::<MeshPrimitive3dPrefab>();
 
         app.update();
         let mut query = app.world.query_filtered::<Entity, With<Handle<Mesh>>>();
