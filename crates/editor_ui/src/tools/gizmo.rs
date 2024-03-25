@@ -5,13 +5,14 @@ use space_editor_core::prelude::*;
 use space_shared::*;
 
 use crate::{
-    colors::SELECTED_ITEM_COLOR,
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
-    sizing::Sizing,
     tool::ToolExt,
 };
+
+use space_editor_tabs::prelude::*;
+
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {

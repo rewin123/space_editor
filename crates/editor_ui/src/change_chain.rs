@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use super::{editor_tab::EditorTab, EditorUiAppExt};
+use space_editor_tabs::prelude::*;
 use space_undo::ChangeChain;
 
 pub struct ChangeChainViewPlugin;
@@ -8,7 +8,7 @@ pub struct ChangeChainViewPlugin;
 impl Plugin for ChangeChainViewPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(
-            super::editor_tab::EditorTabName::Other("Change Chain".to_string()),
+            EditorTabName::Other("Change Chain".to_string()),
             ChangeChainView,
         );
     }

@@ -10,15 +10,14 @@ use space_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
+use space_editor_tabs::prelude::*;
 use space_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
 use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
-    colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
-    sizing::{to_colored_richtext, to_label, to_richtext, Sizing},
     ui_registration::{BundleReg, EditorBundleUntyped},
     ShowEditorUi,
 };
