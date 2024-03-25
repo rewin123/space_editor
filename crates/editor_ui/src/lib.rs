@@ -1,4 +1,5 @@
 #![allow(clippy::type_complexity)]
+#![allow(clippy::ambiguous_glob_reexports)]
 
 /// This module contains ui logics, which will be work through events with editor core module and prefab module
 mod mouse_check;
@@ -64,7 +65,6 @@ use bevy_mod_picking::{
 };
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
-use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
@@ -73,7 +73,6 @@ use bevy::{
     pbr::CascadeShadowConfigBuilder,
     prelude::*,
     render::{render_resource::PrimitiveTopology, view::RenderLayers},
-    utils::HashMap,
     window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
@@ -82,8 +81,8 @@ use space_editor_tabs::prelude::*;
 
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
-    clean_meshless, reset_camera_viewport, set_camera_viewport,
-    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, SpaceHierarchyPlugin, SpaceInspectorPlugin,
+    clean_meshless, reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
+    MeshlessVisualizerPlugin, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_editor_core::toast::ToastUiPlugin;
 use space_prefab::prelude::*;
@@ -110,6 +109,7 @@ pub mod prelude {
     };
 
     pub use space_editor_core::prelude::*;
+    pub use space_editor_tabs::prelude::*;
     pub use space_persistence::*;
     pub use space_prefab::prelude::*;
     pub use space_shared::prelude::*;

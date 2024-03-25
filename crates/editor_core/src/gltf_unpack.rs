@@ -38,9 +38,6 @@ impl Plugin for UnpackGltfPlugin {
 #[reflect(Component)]
 struct GltfHolder(Handle<Gltf>);
 
-#[derive(Component)]
-struct NeedUnpackTag;
-
 #[derive(Resource, Default)]
 struct GltfSceneQueue(Vec<Handle<Gltf>>);
 
