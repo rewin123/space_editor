@@ -1,5 +1,4 @@
 #![allow(clippy::type_complexity)]
-#![allow(clippy::ambiguous_glob_reexports)]
 
 /// This module contains ui logics, which will be work through events with editor core module and prefab module
 mod mouse_check;
