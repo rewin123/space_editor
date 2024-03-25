@@ -1,27 +1,34 @@
+pub mod colors;
 /// This library contains dock-tab implementation for Space Editor
 pub mod editor_tab;
 pub mod schedule_editor_tab;
-pub mod colors;
 pub mod sizing;
 pub mod tab_viewer;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
-use bevy_egui::{egui::{self, FontId, Rounding}, EguiContext};
 use bevy_egui::egui::FontFamily::{Monospace, Proportional};
+use bevy_egui::{
+    egui::{self, FontId, Rounding},
+    EguiContext,
+};
 
-use editor_tab::*;
 use colors::*;
+use editor_tab::*;
 use egui_dock::DockArea;
+use schedule_editor_tab::*;
 use sizing::{to_label, Sizing};
+use tab_viewer::*;
 
 use bevy_egui::egui::TextStyle as ETextStyle;
 
 pub mod prelude {
-    pub use super::*;
-    pub use editor_tab::*;
-    pub use colors::*;
     pub use super::sizing::*;
+    pub use super::*;
+    pub use colors::*;
+    pub use editor_tab::*;
+    pub use schedule_editor_tab::*;
+    pub use tab_viewer::*;
 }
 
 /// This system use to show all egui editor ui on primary window
@@ -80,7 +87,6 @@ impl Default for EditorUi {
         }
     }
 }
-
 
 pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
 pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
@@ -245,7 +251,6 @@ impl EditorUiAppExt for App {
         self
     }
 }
-
 
 #[derive(Default, Reflect, PartialEq, Eq, Clone)]
 pub enum NewTabBehaviour {

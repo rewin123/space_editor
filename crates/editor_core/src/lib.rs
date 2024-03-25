@@ -8,8 +8,8 @@ pub mod task_storage;
 pub mod toast;
 
 pub mod prelude {
-    pub use super::*;
     pub use super::{hotkeys::*, load::*, selected::*, task_storage::*};
+    pub use crate::*;
     pub use space_undo;
 }
 

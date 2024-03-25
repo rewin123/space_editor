@@ -19,7 +19,7 @@ use bevy_egui::{egui::TextEdit, *};
 use space_editor_core::prelude::*;
 use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
 use space_shared::ext::bevy_inspector_egui::{
-    self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+    inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
 use crate::{

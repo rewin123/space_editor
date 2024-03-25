@@ -1,7 +1,6 @@
 use bevy::{asset::ReflectAsset, prelude::*, utils::HashMap};
 
 use bevy_egui::*;
-use space_shared::ext::bevy_inspector_egui;
 
 use crate::prelude::*;
 
