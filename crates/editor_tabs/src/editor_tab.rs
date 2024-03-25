@@ -3,12 +3,20 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui::{self, WidgetText};
 use convert_case::{Case, Casing};
 
-use crate::{
-    colors::ERROR_COLOR,
-    sizing::{to_label, Sizing},
-};
+use crate::sizing::{to_label, Sizing};
+use crate::EditorUiReg;
+use crate::colors::*;
+use crate::NewTabBehaviour;
 
-use super::{EditorUiRef, EditorUiReg};
+/// Temporary resource for pretty system, based tab registration
+pub struct EditorUiRef(pub egui::Ui);
+
+
+pub const TAB_MODES: [NewTabBehaviour; 3] = [
+    NewTabBehaviour::Pop,
+    NewTabBehaviour::SameNode,
+    NewTabBehaviour::SplitNode,
+];
 
 pub trait EditorTab {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World);
