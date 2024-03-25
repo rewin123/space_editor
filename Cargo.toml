@@ -34,7 +34,7 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13"
+bevy = "0.13.1"
 
 # Editor Crates
 space_prefab = { version = "0.5.0", path = "crates/prefab" }
