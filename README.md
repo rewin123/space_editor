@@ -148,11 +148,15 @@ Game mode can be changed between 3D and 2D in `settings > GameMode`. This change
 
 |bevy|space_editor crates|
 |---|---|
+|0.13| 0.5|
 |0.12| 0.3 - 0.4|
 
 ### Contributing
 Any request for adding functionality to the editor is welcome. Open an issue on the [issue tracker](https://github.com/rewin123/space_editor/issues).
-Any pull request is welcome too:) 
+Any pull request is welcome too:)
+
+- PR to main: Bug Fixes and Tests
+- New features and others: next version branch **(ex: last released is 0.5, so create PRs for branch v0.6)**
 
 ### License
 MIT - https://choosealicense.com/licenses/mit/
