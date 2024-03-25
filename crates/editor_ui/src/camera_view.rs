@@ -17,13 +17,9 @@ use bevy_egui::{
 use space_prefab::component::PlaymodeCamera;
 use space_shared::{toast::ToastMessage, *};
 
-use crate::{
-    colors::ERROR_COLOR,
-    prelude::{EditorTabName, GameModeSettings},
-    DisableCameraSkip, EditorUiAppExt, RenderLayers,
-};
+use crate::{prelude::GameModeSettings, DisableCameraSkip, RenderLayers};
 
-use super::editor_tab::EditorTab;
+use space_editor_tabs::prelude::*;
 
 pub struct CameraViewTabPlugin;
 
