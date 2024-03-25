@@ -1,8 +1,11 @@
+use crate::{
+    prelude::{to_label, Sizing},
+    schedule_editor_tab::ScheduleEditorTabStorage,
+    EditorTab, EditorTabName, EditorUiReg, ERROR_COLOR,
+};
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui;
 use convert_case::{Case, Casing};
-use crate::{prelude::{to_label, Sizing}, schedule_editor_tab::ScheduleEditorTabStorage, EditorTab, EditorTabName, EditorUiReg, ERROR_COLOR};
-
 
 pub enum EditorTabCommand {
     Add {

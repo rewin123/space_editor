@@ -1,9 +1,8 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui::*;
-use space_shared::ext::bevy_inspector_egui;
 
-use crate::{colors::ERROR_COLOR, prelude::*};
+use crate::prelude::*;
 
 #[derive(Resource, Default)]
 pub struct EventDispatcherTab {

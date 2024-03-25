@@ -1,4 +1,3 @@
-
 use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 use egui_dock::egui::{Color32, RichText};

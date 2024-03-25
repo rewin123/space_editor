@@ -1,15 +1,8 @@
 use crate::*;
 use bevy::prelude::*;
-use bevy_egui::egui::{
-    FontFamily::{Monospace, Proportional},
-    FontId, Margin, Rounding, TextStyle as ETextStyle, Vec2,
-};
-use camera_plugin::draw_camera_gizmo;
 use meshless_visualizer::draw_light_gizmo;
 
-use self::{
-    change_chain::ChangeChainViewPlugin, colors::*, sizing::{to_label, Sizing}
-};
+use self::change_chain::ChangeChainViewPlugin;
 
 /// All systems for editor ui will be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -193,7 +186,6 @@ impl Plugin for EditorUiCore {
         app.init_resource::<BundleReg>();
     }
 }
-
 
 /// System to block camera control if egui is using mouse
 pub fn ui_camera_block(

@@ -1,9 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
-use bevy::ecs::schedule::Schedule;
 use bevy_egui::egui;
 
 use crate::{EditorTab, EditorTabName};
-
 
 /// Temporary resource for pretty system, based tab registration
 pub struct EditorUiRef(pub egui::Ui);
