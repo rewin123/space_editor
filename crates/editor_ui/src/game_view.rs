@@ -5,9 +5,8 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
-use crate::{colors::TEXT_COLOR, prelude::EditorTabName, EditorUiAppExt};
-
-use super::{editor_tab::EditorTab, tool::EditorTool};
+use super::tool::EditorTool;
+use space_editor_tabs::prelude::*;
 
 pub struct GameViewPlugin;
 

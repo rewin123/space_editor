@@ -1,36 +1,11 @@
-/// This module contains the implementation of the editor tabs
-use bevy::{prelude::*, utils::HashMap};
-use bevy_egui::egui::{self, WidgetText};
-use convert_case::{Case, Casing};
-
 use crate::{
-    colors::ERROR_COLOR,
-    sizing::{to_label, Sizing},
+    prelude::{to_label, Sizing},
+    schedule_editor_tab::ScheduleEditorTabStorage,
+    EditorTab, EditorTabName, EditorUiReg, ERROR_COLOR,
 };
-
-use super::{EditorUiRef, EditorUiReg};
-
-pub trait EditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World);
-    fn title(&self) -> egui::WidgetText;
-}
-
-#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
-pub enum EditorTabName {
-    CameraView,
-    EventDispatcher,
-    GameView,
-    Hierarchy,
-    Inspector,
-    Resource,
-    RuntimeAssets,
-    Settings,
-    ToolBox,
-    Other(String),
-}
-
-pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
-pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> WidgetText + Send + Sync>;
+use bevy::{prelude::*, utils::HashMap};
+use bevy_egui::egui;
+use convert_case::{Case, Casing};
 
 pub enum EditorTabCommand {
     Add {
@@ -144,25 +119,3 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         }
     }
 }
-
-pub struct ScheduleEditorTab {
-    pub schedule: Schedule,
-    pub title: egui::WidgetText,
-}
-
-impl EditorTab for ScheduleEditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
-        world.insert_non_send_resource(EditorUiRef(inner_ui));
-
-        self.schedule.run(world);
-        world.remove_non_send_resource::<EditorUiRef>();
-    }
-
-    fn title(&self) -> egui::WidgetText {
-        self.title.clone()
-    }
-}
-
-#[derive(Resource, Default)]
-pub struct ScheduleEditorTabStorage(pub HashMap<EditorTabName, ScheduleEditorTab>);

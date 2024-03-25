@@ -10,18 +10,7 @@ use space_undo::ChangeChainSettings;
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
 
-use crate::sizing::{IconSize, Sizing};
-
-use super::{
-    editor_tab::{EditorTab, EditorTabName},
-    EditorUiAppExt,
-};
-
-const TAB_MODES: [NewTabBehaviour; 3] = [
-    NewTabBehaviour::Pop,
-    NewTabBehaviour::SameNode,
-    NewTabBehaviour::SplitNode,
-];
+use space_editor_tabs::prelude::*;
 
 const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
 
@@ -109,48 +98,6 @@ impl GameModeSettings {
         ui.spacing();
         ui.separator();
         new_settings
-    }
-}
-
-#[derive(Default, Reflect, PartialEq, Eq, Clone)]
-pub enum NewTabBehaviour {
-    Pop,
-    #[default]
-    SameNode,
-    SplitNode,
-}
-
-impl ToString for NewTabBehaviour {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Pop => "New window",
-            Self::SameNode => "Same Node",
-            Self::SplitNode => "Splits Node",
-        }
-        .to_string()
-    }
-}
-
-#[derive(Default, Resource, Reflect)]
-#[reflect(Resource)]
-pub struct NewWindowSettings {
-    pub new_tab: NewTabBehaviour,
-}
-
-impl NewWindowSettings {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        egui::ComboBox::new("new_tab", "")
-            .selected_text(self.new_tab.to_string())
-            .show_ui(ui, |ui| {
-                for mode in TAB_MODES.into_iter() {
-                    if ui
-                        .selectable_label(self.new_tab == mode, mode.to_string())
-                        .clicked()
-                    {
-                        self.new_tab = mode;
-                    }
-                }
-            });
     }
 }
 

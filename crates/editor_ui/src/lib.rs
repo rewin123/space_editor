@@ -15,9 +15,6 @@ pub mod change_chain;
 /// This module contains UI logic for debug panels (like WorldInspector)
 pub mod debug_panels;
 
-/// This module contains traits and logic for editor dock tabs. Also it contains logic to run all editor dock ui
-pub mod editor_tab;
-
 /// This module contains Game view tab logic
 pub mod game_view;
 
@@ -67,27 +64,24 @@ use bevy_mod_picking::{
 };
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
-use egui_dock::DockArea;
 use space_editor_core::prelude::*;
 
 use bevy::{
     app::PluginGroupBuilder,
-    ecs::system::CommandQueue,
     input::common_conditions::input_toggle_active,
     pbr::CascadeShadowConfigBuilder,
     prelude::*,
     render::{render_resource::PrimitiveTopology, view::RenderLayers},
-    utils::HashMap,
     window::PrimaryWindow,
 };
 use bevy_egui::{egui, EguiContext};
 
+use space_editor_tabs::prelude::*;
+
 use game_view::{has_window_changed, GameViewPlugin};
 use prelude::{
-    clean_meshless, reset_camera_viewport, set_camera_viewport, ChangeChainViewPlugin, EditorTab,
-    EditorTabCommand, EditorTabGetTitleFn, EditorTabName, EditorTabShowFn, EditorTabViewer,
-    GameModeSettings, GameViewTab, MeshlessVisualizerPlugin, NewTabBehaviour, NewWindowSettings,
-    ScheduleEditorTab, ScheduleEditorTabStorage, SpaceHierarchyPlugin, SpaceInspectorPlugin,
+    clean_meshless, reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
+    MeshlessVisualizerPlugin, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 use space_editor_core::toast::ToastUiPlugin;
 use space_prefab::prelude::*;
@@ -108,12 +102,13 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, change_chain::*, debug_panels::*, editor_tab::*, game_view::*,
-        hierarchy::*, inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*,
-        tools::*, ui_registration::*,
+        asset_inspector::*, change_chain::*, debug_panels::*, game_view::*, hierarchy::*,
+        inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*, tools::*,
+        ui_registration::*,
     };
 
     pub use space_editor_core::prelude::*;
+    pub use space_editor_tabs::prelude::*;
     pub use space_persistence::*;
     pub use space_prefab::prelude::*;
     pub use space_shared::prelude::*;
@@ -407,90 +402,5 @@ pub fn game_mode_changed(
                 RenderLayers::all(),
             ));
         }
-    }
-}
-
-pub mod colors {
-    use bevy_egui::egui::{Color32, Stroke};
-
-    pub fn stroke_default_color() -> Stroke {
-        Stroke::new(1., STROKE_COLOR)
-    }
-    pub const STROKE_COLOR: Color32 = Color32::from_rgb(70, 70, 70);
-    pub const SPECIAL_BG_COLOR: Color32 = Color32::from_rgb(20, 20, 20);
-    pub const DEFAULT_BG_COLOR: Color32 = Color32::from_rgb(27, 27, 27);
-    pub const PLAY_COLOR: Color32 = Color32::from_rgb(0, 194, 149);
-    pub const ERROR_COLOR: Color32 = Color32::from_rgb(255, 59, 33);
-    pub const HYPERLINK_COLOR: Color32 = Color32::from_rgb(99, 235, 231);
-    pub const WARM_COLOR: Color32 = Color32::from_rgb(225, 206, 67);
-    pub const SELECTED_ITEM_COLOR: Color32 = Color32::from_rgb(76, 93, 235);
-    pub const TEXT_COLOR: Color32 = Color32::WHITE;
-}
-
-pub mod sizing {
-    use bevy::prelude::*;
-    use bevy_inspector_egui::prelude::*;
-    use egui_dock::egui::{Color32, RichText};
-
-    #[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions)]
-    #[reflect(Resource, Default, InspectorOptions)]
-    pub struct Sizing {
-        pub icon: IconSize,
-        pub gizmos: IconSize,
-        #[inspector(min = 12.0, max = 24.0)]
-        pub text: f32,
-    }
-
-    impl Default for Sizing {
-        fn default() -> Self {
-            Self {
-                icon: IconSize::Regular,
-                gizmos: IconSize::Gizmos,
-                text: 14.,
-            }
-        }
-    }
-
-    #[derive(Clone, Default, PartialEq, Eq, Reflect)]
-    #[reflect(Default)]
-    pub enum IconSize {
-        XSmall,
-        Small,
-        SmallPlus,
-        Gizmos,
-        #[default]
-        Regular,
-        Medium,
-        Large,
-        XLarge,
-    }
-
-    impl IconSize {
-        pub const fn to_size(&self) -> f32 {
-            match self {
-                Self::XSmall => 12.,
-                Self::Small => 16.,
-                Self::SmallPlus => 18.,
-                Self::Gizmos => 20.,
-                Self::Regular => 20.,
-                Self::Medium => 24.,
-                Self::Large => 28.,
-                Self::XLarge => 32.,
-            }
-        }
-    }
-
-    pub fn to_richtext(text: &str, size: &IconSize) -> RichText {
-        RichText::new(text).size(size.to_size())
-    }
-
-    pub fn to_colored_richtext(text: &str, size: &IconSize, color: Color32) -> RichText {
-        RichText::new(text).size(size.to_size()).color(color)
-    }
-
-    pub fn to_label(text: &str, size: f32) -> RichText {
-        RichText::new(text)
-            .size(size)
-            .family(egui_dock::egui::FontFamily::Proportional)
     }
 }

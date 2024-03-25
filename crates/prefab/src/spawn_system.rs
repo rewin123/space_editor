@@ -250,8 +250,6 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
-    use bevy::sprite::Mesh2dHandle;
-
     use super::*;
 
     #[test]
