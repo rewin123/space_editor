@@ -342,16 +342,9 @@ fn set_camera_viewport(
         image_data.texture_descriptor.size.height as f32 - 10.0,
     );
 
-    #[cfg(target_os = "macos")]
-    let mut scale_factor = window.scale_factor() * egui_settings.scale_factor;
-    #[cfg(not(target_os = "macos"))]
     let cam_aspect_ratio = watch_cam
         .logical_viewport_size()
         .map(|cam| cam.y as f64 / cam.x as f64);
-    #[cfg(target_os = "macos")]
-    if let Some(ratio) = cam_aspect_ratio {
-        scale_factor *= ratio as f32;
-    }
 
     let mut preferred_height = image_rect.height();
     let mut preferred_width = image_rect.width();

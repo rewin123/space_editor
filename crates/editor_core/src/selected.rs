@@ -44,3 +44,55 @@ fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<Wirefr
         cmds.entity(e).remove::<Wireframe>();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_clear_wireframes() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, clear_wireframes);
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Wireframe);
+            commands.spawn(Wireframe);
+        });
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<Wireframe>>();
+        assert_eq!(0, query.iter(&app.world).count());
+    }
+
+    #[test]
+    fn removes_wireframe_if_not_selected() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, selected_entity_wireframe_update);
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Wireframe);
+            commands.spawn(Wireframe);
+        });
+        app.update();
+
+        let mut query = app.world.query_filtered::<Entity, With<Wireframe>>();
+        assert_eq!(0, query.iter(&app.world).count());
+    }
+
+    #[test]
+    fn adds_wireframe_if_selected() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, selected_entity_wireframe_update);
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Selected);
+            commands.spawn(Selected);
+        });
+        app.update();
+
+        let mut query = app
+            .world
+            .query_filtered::<Entity, (With<Wireframe>, With<Selected>)>();
+        assert_eq!(2, query.iter(&app.world).count());
+    }
+}

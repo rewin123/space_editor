@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_scene_hook::SceneHook;
 #[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
@@ -65,7 +65,7 @@ pub fn spawn_scene(
 
 pub fn create_child_path(
     mut commands: Commands,
-    prefabs: Query<(Entity, &GltfPrefab), (With<WantChildPath>, With<WantChildPath>)>,
+    prefabs: Query<(Entity, &GltfPrefab), With<WantChildPath>>,
     children: Query<&Children>,
 ) {
     for (e, _) in prefabs.iter() {
@@ -162,7 +162,7 @@ pub fn editor_remove_mesh_2d(
 ) {
     for e in query.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>();
+            cmd.remove::<Handle<Mesh>>().remove::<Mesh2dHandle>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -250,10 +250,161 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
-    #[cfg(feature = "editor")]
+    use bevy::sprite::Mesh2dHandle;
+
     use super::*;
-    #[cfg(feature = "editor")]
-    use bevy::scene::ScenePlugin;
+
+    #[test]
+    fn sync_cube_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn sync_cube_material() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn((MeshPrimitive3dPrefab::Cube(3.), MaterialPrefab::default()));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .init_resource::<Assets<StandardMaterial>>()
+            .add_systems(Update, sync_material);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&MaterialPrefab, &Handle<StandardMaterial>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn sync_2d_circle_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_2d_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn sync_2d_material_prefab() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn((
+                    MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }),
+                    ColorMaterialPrefab::default(),
+                ));
+            })
+            .init_resource::<Assets<ColorMaterial>>()
+            .add_systems(Update, sync_2d_material);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&ColorMaterialPrefab, &Handle<ColorMaterial>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn remove_synced_2d_circle_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive2dPrefab::Circle(CirclePrefab { r: 3.0 }));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_2d_mesh)
+            .add_systems(Update, editor_remove_mesh_2d);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+
+        let mut query = app
+            .world
+            .query_filtered::<Entity, With<MeshPrimitive2dPrefab>>();
+        let entity = query.single(&app.world);
+        app.world
+            .entity_mut(entity)
+            .remove::<MeshPrimitive2dPrefab>();
+
+        app.update();
+        let mut query = app.world.query_filtered::<Entity, With<Mesh2dHandle>>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn remove_synced_cube_mesh() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
+            })
+            .init_resource::<Assets<Mesh>>()
+            .add_systems(Update, sync_mesh)
+            .add_systems(Update, editor_remove_mesh);
+
+        app.update();
+
+        let mut query = app.world.query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+
+        let mut query = app
+            .world
+            .query_filtered::<Entity, With<MeshPrimitive3dPrefab>>();
+        let entity = query.single(&app.world);
+        app.world
+            .entity_mut(entity)
+            .remove::<MeshPrimitive3dPrefab>();
+
+        app.update();
+        let mut query = app.world.query_filtered::<Entity, With<Handle<Mesh>>>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+    }
+
+    #[test]
+    fn sync_sprite_texture_prefab() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ))
+        .add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(SpriteTexture {
+                texture: String::from("test_asset.png"),
+            });
+        })
+        .add_systems(Update, sync_sprite_texture)
+        .init_resource::<Assets<Image>>();
+
+        app.update();
+
+        let mut query = app.world.query::<(&SpriteTexture, &Sprite)>();
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
 
     #[test]
     #[cfg(feature = "editor")]
@@ -263,7 +414,7 @@ mod tests {
             MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
-            ScenePlugin,
+            bevy::scene::ScenePlugin,
         ))
         .add_event::<ToastMessage>();
         app.add_systems(Startup, |mut commands: Commands| {
@@ -290,5 +441,48 @@ mod tests {
             .query::<(Entity, &PlayerStart, Option<&Children>)>();
         let mut iter = query.iter(&app.world);
         assert!(iter.next().unwrap().2.is_some());
+    }
+
+    #[test]
+    fn create_gltf_with_child() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_systems(Startup, |mut commands: Commands| {
+                let child_1 = commands
+                    .spawn(TransformBundle::default())
+                    .with_children(|c| {
+                        c.spawn(TransformBundle::default());
+                    })
+                    .id();
+                let child_2 = commands
+                    .spawn(TransformBundle::default())
+                    .with_children(|c| {
+                        c.spawn(TransformBundle::default());
+                    })
+                    .id();
+
+                commands
+                    .spawn((
+                        GltfPrefab::default(),
+                        TransformBundle::default(),
+                        WantChildPath,
+                    ))
+                    .add_child(child_1)
+                    .add_child(child_2);
+            })
+            .add_systems(Update, create_child_path);
+
+        app.update();
+
+        let mut parent_query = app
+            .world
+            .query_filtered::<Entity, (Without<WantChildPath>, Without<Parent>, With<Children>)>();
+        assert_eq!(parent_query.iter(&app.world).count(), 1);
+
+        let possibilities = vec![vec![0], vec![1], vec![0, 0], vec![1, 0], vec![]];
+        let mut child_paths = app.world.query::<&ChildPath>();
+        child_paths
+            .iter(&app.world)
+            .for_each(|d| assert!(possibilities.contains(&d.0)));
     }
 }

@@ -163,3 +163,19 @@ pub fn set_camera_viewport(
         depth: 0.0..1.0,
     });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_game_view_tab() {
+        let default_tab = GameViewTab::default();
+
+        assert_eq!(default_tab.viewport_rect, None);
+        assert_eq!(default_tab.gizmo_mode, GizmoMode::Translate);
+        assert_eq!(default_tab.smoothed_dt, 0.0);
+        assert_eq!(default_tab.tools.len(), 0);
+        assert_eq!(default_tab.active_tool, None);
+    }
+}

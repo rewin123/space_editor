@@ -407,3 +407,38 @@ fn draw_lines_system(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_gizmo_tool() {
+        let default_tool = GizmoTool::default();
+
+        assert_eq!(default_tool.gizmo_mode, GizmoMode::Translate);
+        assert_eq!(default_tool.is_move_cloned_entities, false);
+        assert_eq!(default_tool.name(), "Gizmo");
+    }
+
+    #[test]
+    fn test_gizmo_hotkey_name() {
+        let gizmo_hotkey = GizmoHotkey::Translate;
+        assert_eq!(gizmo_hotkey.name(), "Translate entity");
+
+        let gizmo_hotkey = GizmoHotkey::Rotate;
+        assert_eq!(gizmo_hotkey.name(), "Rotate entity");
+
+        let gizmo_hotkey = GizmoHotkey::Scale;
+        assert_eq!(gizmo_hotkey.name(), "Scale entity");
+
+        let gizmo_hotkey = GizmoHotkey::Delete;
+        assert_eq!(gizmo_hotkey.name(), "Delete entity");
+
+        let gizmo_hotkey = GizmoHotkey::Multiple;
+        assert_eq!(gizmo_hotkey.name(), "Change multiple entities");
+
+        let gizmo_hotkey = GizmoHotkey::Clone;
+        assert_eq!(gizmo_hotkey.name(), "Clone entity");
+    }
+}
