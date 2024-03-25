@@ -103,9 +103,9 @@ pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, change_chain::*, debug_panels::*, editor_tab::*, game_view::*,
-        hierarchy::*, inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*,
-        tools::*, ui_registration::*,
+        asset_inspector::*, change_chain::*, debug_panels::*, game_view::*, hierarchy::*,
+        inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*, tools::*,
+        ui_registration::*,
     };
 
     pub use space_editor_core::prelude::*;

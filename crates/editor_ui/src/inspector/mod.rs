@@ -22,11 +22,8 @@ use space_shared::ext::bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::{
-    colors::DEFAULT_BG_COLOR,
-    icons::add_component_icon,
-    sizing::{to_label, Sizing},
-};
+use crate::icons::add_component_icon;
+use space_editor_tabs::prelude::*;
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -34,11 +31,6 @@ use self::{
     refl_impl::{entity_ref_ui, entity_ref_ui_readonly, many_unimplemented},
     resources::ResourceTab,
     runtime_assets::RuntimeAssetsTab,
-};
-
-use super::{
-    editor_tab::{EditorTab, EditorTabName},
-    EditorUiAppExt,
 };
 
 /// Entities with this marker will be skipped in inspector

@@ -23,12 +23,16 @@ use tab_viewer::*;
 use bevy_egui::egui::TextStyle as ETextStyle;
 
 pub mod prelude {
+    pub use super::colors::*;
+    pub use super::editor_tab::*;
+    pub use super::schedule_editor_tab::*;
     pub use super::sizing::*;
-    pub use super::*;
-    pub use colors::*;
-    pub use editor_tab::*;
-    pub use schedule_editor_tab::*;
-    pub use tab_viewer::*;
+    pub use super::tab_viewer::*;
+
+    pub use super::{
+        show_editor_ui, EditorTabGetTitleFn, EditorTabShowFn, EditorUi, EditorUiAppExt,
+        EditorUiReg, NewTabBehaviour, NewWindowSettings,
+    };
 }
 
 /// This system use to show all egui editor ui on primary window

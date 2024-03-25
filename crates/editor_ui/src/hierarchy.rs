@@ -12,7 +12,7 @@ use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use space_shared::*;
 
-use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
+use space_editor_tabs::prelude::*;
 
 pub const WARN_COLOR: egui::Color32 = egui::Color32::from_rgb(225, 206, 67);
 
