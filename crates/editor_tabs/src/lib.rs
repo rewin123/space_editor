@@ -1,7 +1,9 @@
 /// This library contains dock-tab implementation for Space Editor
 pub mod editor_tab;
+pub mod schedule_editor_tab;
 pub mod colors;
 pub mod sizing;
+pub mod tab_viewer;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
@@ -78,6 +80,10 @@ impl Default for EditorUi {
         }
     }
 }
+
+
+pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
+pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
 
 /// This enum determine how tab was registered.
 /// ResourceBased - tab will be registered as resource
