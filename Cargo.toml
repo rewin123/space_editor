@@ -15,7 +15,8 @@ repository = "https://github.com/rewin123/space_editor"
 [workspace]
 members = [
     "crates/*",
-    "modules/bevy_xpbd_plugin"]
+    "modules/bevy_xpbd_plugin"
+]
 
 [workspace.package]
 version = "0.6.0"
