@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
@@ -45,11 +47,11 @@ pub enum GameMode {
     Game3D,
 }
 
-impl ToString for GameMode {
-    fn to_string(&self) -> String {
+impl Display for GameMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Game2D => String::from("2D"),
-            Self::Game3D => String::from("3D"),
+            Self::Game2D => write!(f, "2D"),
+            Self::Game3D => write!(f, "3D"),
         }
     }
 }
