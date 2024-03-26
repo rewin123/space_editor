@@ -3,7 +3,11 @@ pub mod colors;
 pub mod editor_tab;
 pub mod schedule_editor_tab;
 pub mod sizing;
+pub mod start_layout;
+pub mod tab_name;
 pub mod tab_viewer;
+
+use std::fmt::Display;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
@@ -18,6 +22,8 @@ use editor_tab::*;
 use egui_dock::DockArea;
 use schedule_editor_tab::*;
 use sizing::{to_label, Sizing};
+use start_layout::StartLayout;
+use tab_name::{TabName, TabNameHolder};
 use tab_viewer::*;
 
 use bevy_egui::egui::TextStyle as ETextStyle;
@@ -27,6 +33,8 @@ pub mod prelude {
     pub use super::editor_tab::*;
     pub use super::schedule_editor_tab::*;
     pub use super::sizing::*;
+    pub use super::start_layout::*;
+    pub use super::tab_name::*;
     pub use super::tab_viewer::*;
 
     pub use super::{
@@ -79,8 +87,8 @@ pub fn show_editor_ui(world: &mut World) {
 /// This resource contains registered editor tabs and current dock tree state
 #[derive(Resource)]
 pub struct EditorUi {
-    pub registry: HashMap<EditorTabName, EditorUiReg>,
-    pub tree: egui_dock::DockState<EditorTabName>,
+    pub registry: HashMap<TabNameHolder, EditorUiReg>,
+    pub tree: egui_dock::DockState<TabNameHolder>,
 }
 
 impl Default for EditorUi {
@@ -92,21 +100,11 @@ impl Default for EditorUi {
     }
 }
 
-pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
-pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
-
-/// This enum determine how tab was registered.
-/// ResourceBased - tab will be registered as resource
-/// Schedule - tab will be registered as system
-pub enum EditorUiReg {
-    ResourceBased {
-        show_command: EditorTabShowFn,
-        title_command: EditorTabGetTitleFn,
-    },
-    Schedule,
-}
-
 impl EditorUi {
+    pub fn set_layout<T: StartLayout>(&mut self, layout: &T) {
+        self.tree = layout.build();
+    }
+
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
         //collect tab names to vec to detect visible
         let mut visible = vec![];
@@ -192,22 +190,23 @@ impl EditorUi {
 
 /// Trait for registering editor tabs via app.**
 pub trait EditorUiAppExt {
-    fn editor_tab_by_trait<T>(&mut self, tab_id: EditorTabName, tab: T) -> &mut Self
+    fn editor_tab_by_trait<T>(&mut self, tab: T) -> &mut Self
     where
         T: EditorTab + Resource + Send + Sync + 'static;
-    fn editor_tab<T>(
+    fn editor_tab<T, N: TabName>(
         &mut self,
-        tab_id: EditorTabName,
-        title: egui::WidgetText,
+        tab_name: N,
         tab_systems: impl IntoSystemConfigs<T>,
     ) -> &mut Self;
 }
 
 impl EditorUiAppExt for App {
-    fn editor_tab_by_trait<T>(&mut self, tab_id: EditorTabName, tab: T) -> &mut Self
+    fn editor_tab_by_trait<T>(&mut self, tab: T) -> &mut Self
     where
         T: EditorTab + Resource + Send + Sync + 'static,
     {
+        let tab_name = tab.tab_name();
+
         self.insert_resource(tab);
         let show_fn = Box::new(
             |ui: &mut egui::Ui, commands: &mut Commands, world: &mut World| {
@@ -220,26 +219,31 @@ impl EditorUiAppExt for App {
             show_command: show_fn,
             title_command: Box::new(|world| {
                 let sizing = world.resource::<Sizing>().clone();
-                to_label(world.resource_mut::<T>().title().text(), sizing.text).into()
+                to_label(
+                    world.resource_mut::<T>().tab_name().title.as_str(),
+                    sizing.text,
+                )
+                .into()
             }),
         };
 
         self.world
             .resource_mut::<EditorUi>()
             .registry
-            .insert(tab_id, reg);
+            .insert(tab_name, reg);
         self
     }
 
-    fn editor_tab<T>(
+    fn editor_tab<T, N: TabName>(
         &mut self,
-        tab_id: EditorTabName,
-        title: egui::WidgetText,
+        tab_name: N,
         tab_systems: impl IntoSystemConfigs<T>,
     ) -> &mut Self {
+        let tab_name_holder = TabNameHolder::new(tab_name);
+
         let mut tab = ScheduleEditorTab {
             schedule: Schedule::default(),
-            title,
+            tab_name: tab_name_holder.clone(),
         };
 
         tab.schedule.add_systems(tab_systems);
@@ -247,13 +251,27 @@ impl EditorUiAppExt for App {
         self.world
             .resource_mut::<ScheduleEditorTabStorage>()
             .0
-            .insert(tab_id.clone(), tab);
+            .insert(tab_name_holder.clone(), tab);
         self.world
             .resource_mut::<EditorUi>()
             .registry
-            .insert(tab_id, EditorUiReg::Schedule);
+            .insert(tab_name_holder, EditorUiReg::Schedule);
         self
     }
+}
+
+pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
+pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
+
+/// This enum determine how tab was registered.
+/// ResourceBased - tab will be registered as resource
+/// Schedule - tab will be registered as system
+pub enum EditorUiReg {
+    ResourceBased {
+        show_command: EditorTabShowFn,
+        title_command: EditorTabGetTitleFn,
+    },
+    Schedule,
 }
 
 #[derive(Default, Reflect, PartialEq, Eq, Clone)]
@@ -264,14 +282,13 @@ pub enum NewTabBehaviour {
     SplitNode,
 }
 
-impl ToString for NewTabBehaviour {
-    fn to_string(&self) -> String {
+impl Display for NewTabBehaviour {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Pop => "New window",
-            Self::SameNode => "Same Node",
-            Self::SplitNode => "Splits Node",
+            Self::Pop => write!(f, "New window"),
+            Self::SameNode => write!(f, "Same Node"),
+            Self::SplitNode => write!(f, "Splits Node"),
         }
-        .to_string()
     }
 }
 

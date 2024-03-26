@@ -18,7 +18,7 @@ members = [
     "game",
     "crates/*",
     "modules/bevy_xpbd_plugin"
-, "crates/editor_tabs"]
+]
 
 resolver = "2"
 

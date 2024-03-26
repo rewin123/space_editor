@@ -155,11 +155,15 @@ Any pull request is welcome too:)
 - PR to main: Bug Fixes and Tests
 - New features and others: next version branch **(ex: last released is 0.5, so create PRs for branch v0.6)**
 
+### Branch Policy
+* **v0.x Branches:** These branches house versions of the editor that are actively being developed. Currently, the primary focus is on branch v0.6.
+* **Main Branch:** The main branch exclusively hosts stable versions of the space_editor without any known bugs. Updates to this branch are limited to bug fixes, documentation improvements, or merging in the v0.x branch once all identified issues have been resolved, and the version is considered complete.
+
 ### License
 MIT - https://choosealicense.com/licenses/mit/
 
 
 ### Project naming
 
-I'm using the editor to create my own Sci-Fi space game, so the name of the project starts with space_ :)
+Space_editor started as part of my prototype space game, which I feel could be useful in development, so I thought I'd share my inbuilt editor. Since the game is about space and the name of the editor starts with space_*:)
 

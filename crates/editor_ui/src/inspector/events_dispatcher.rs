@@ -14,8 +14,8 @@ impl EditorTab for EventDispatcherTab {
         inspect(ui, world, &mut self.open_events);
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Event Dispatcher".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        TabNameHolder::new(EditorTabName::EventDispatcher)
     }
 }
 

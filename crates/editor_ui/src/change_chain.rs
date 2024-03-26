@@ -3,14 +3,13 @@ use bevy::prelude::*;
 use space_editor_tabs::prelude::*;
 use space_undo::ChangeChain;
 
+use crate::editor_tab_name::EditorTabName;
+
 pub struct ChangeChainViewPlugin;
 
 impl Plugin for ChangeChainViewPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(
-            EditorTabName::Other("Change Chain".to_string()),
-            ChangeChainView,
-        );
+        app.editor_tab_by_trait(ChangeChainView);
     }
 }
 
@@ -31,7 +30,7 @@ impl EditorTab for ChangeChainView {
         }
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
-        "Change Chain".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::ChangeChain.into()
     }
 }

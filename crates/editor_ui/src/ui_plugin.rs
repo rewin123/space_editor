@@ -2,7 +2,7 @@ use crate::*;
 use bevy::prelude::*;
 use meshless_visualizer::draw_light_gizmo;
 
-use self::change_chain::ChangeChainViewPlugin;
+use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
 
 /// All systems for editor ui will be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -65,18 +65,13 @@ pub struct DefaultEditorLayoutPlugin;
 
 impl Plugin for DefaultEditorLayoutPlugin {
     fn build(&self, app: &mut App) {
-        let mut editor = app.world.resource_mut::<EditorUi>();
-        editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView]);
+        app.init_layout_group::<DoublePanelGroup, _>();
 
-        let [_game, hierarchy] = editor.tree.main_surface_mut().split_left(
-            egui_dock::NodeIndex::root(),
-            0.2,
-            vec![EditorTabName::Hierarchy],
-        );
-        let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(
-            hierarchy,
-            0.3,
-            vec![EditorTabName::Inspector],
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::GameView);
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopPanel, EditorTabName::Hierarchy);
+        app.layout_push::<DoublePanelGroup, _, _>(
+            DoublePanel::BottomPanel,
+            EditorTabName::Inspector,
         );
     }
 }
@@ -130,12 +125,9 @@ impl Plugin for EditorUiCore {
             reset_camera_viewport.run_if(in_state(EditorState::Game)),
         );
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
-        app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
+        app.editor_tab_by_trait(GameViewTab::default());
 
-        app.editor_tab_by_trait(
-            EditorTabName::Other("Debug World Inspector".to_string()),
-            self::debug_panels::DebugWorldInspector {},
-        );
+        app.editor_tab_by_trait(self::debug_panels::DebugWorldInspector {});
 
         app.init_resource::<EditorLoader>();
 

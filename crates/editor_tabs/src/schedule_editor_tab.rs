@@ -1,14 +1,14 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui;
 
-use crate::{EditorTab, EditorTabName};
+use crate::{tab_name::TabNameHolder, EditorTab};
 
 /// Temporary resource for pretty system, based tab registration
 pub struct EditorUiRef(pub egui::Ui);
 
 pub struct ScheduleEditorTab {
     pub schedule: Schedule,
-    pub title: egui::WidgetText,
+    pub tab_name: TabNameHolder,
 }
 
 impl EditorTab for ScheduleEditorTab {
@@ -20,10 +20,10 @@ impl EditorTab for ScheduleEditorTab {
         world.remove_non_send_resource::<EditorUiRef>();
     }
 
-    fn title(&self) -> egui::WidgetText {
-        self.title.clone()
+    fn tab_name(&self) -> TabNameHolder {
+        self.tab_name.clone()
     }
 }
 
 #[derive(Resource, Default)]
-pub struct ScheduleEditorTabStorage(pub HashMap<EditorTabName, ScheduleEditorTab>);
+pub struct ScheduleEditorTabStorage(pub HashMap<TabNameHolder, ScheduleEditorTab>);
