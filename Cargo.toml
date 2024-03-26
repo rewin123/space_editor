@@ -17,7 +17,8 @@ default-run = "space_editor"
 members = [
     "game",
     "crates/*",
-    "modules/bevy_xpbd_plugin"]
+    "modules/bevy_xpbd_plugin"
+]
 
 resolver = "2"
 
