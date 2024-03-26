@@ -7,6 +7,8 @@ pub mod start_layout;
 pub mod tab_name;
 pub mod tab_viewer;
 
+use std::fmt::Display;
+
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
 use bevy_egui::egui::FontFamily::{Monospace, Proportional};
@@ -280,14 +282,13 @@ pub enum NewTabBehaviour {
     SplitNode,
 }
 
-impl ToString for NewTabBehaviour {
-    fn to_string(&self) -> String {
+impl Display for NewTabBehaviour {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Pop => "New window",
-            Self::SameNode => "Same Node",
-            Self::SplitNode => "Splits Node",
+            Self::Pop => write!(f, "New window"),
+            Self::SameNode => write!(f, "Same Node"),
+            Self::SplitNode => write!(f, "Splits Node"),
         }
-        .to_string()
     }
 }
 
