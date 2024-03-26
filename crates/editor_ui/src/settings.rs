@@ -12,13 +12,15 @@ use space_persistence::*;
 
 use space_editor_tabs::prelude::*;
 
+use crate::editor_tab_name::EditorTabName;
+
 const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
 
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        app.editor_tab_by_trait(SettingsWindow::default());
         app.register_type::<GameMode>()
             .init_resource::<GameModeSettings>()
             .init_resource::<Sizing>()
@@ -248,7 +250,7 @@ impl EditorTab for SettingsWindow {
         }
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Settings".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::Settings.into()
     }
 }

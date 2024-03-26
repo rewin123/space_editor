@@ -14,8 +14,8 @@ impl EditorTab for ResourceTab {
         inspect(ui, world, &mut self.open_resources);
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Resource".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::Resource.into()
     }
 }
 
