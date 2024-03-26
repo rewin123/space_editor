@@ -1,4 +1,4 @@
-use crate::{tab_name::{TabName, TabNameHolder}, NewTabBehaviour};
+use crate::{tab_name::TabNameHolder, NewTabBehaviour};
 /// This module contains the implementation of the editor tabs
 use bevy::prelude::*;
 use bevy_egui::egui;

@@ -1,0 +1,93 @@
+/// This mod contains start layouts templates for tabs
+/// It was created for easy customization of shown tabs on startup
+
+use bevy::prelude::*;
+use crate::{tab_name::{TabName, TabNameHolder}, EditorUi};
+
+pub trait StartLayout {
+    fn build(&self) -> egui_dock::DockState<TabNameHolder>;
+}
+
+pub trait GroupLayout<G> : StartLayout {
+    /// Add tab to group to end
+    fn push<N : TabName>(&mut self, group : G, tab : N);
+    /// Add tab to group to start
+    fn push_front<N : TabName>(&mut self, group : G, tab : N);
+}
+
+pub enum DoublePanel {
+    TopPanel,
+    BottomPanel,
+    MainPanel
+}
+
+pub struct DoublePanelGroup {
+    pub top_panel : Vec<TabNameHolder>,
+    pub bottom_panel : Vec<TabNameHolder>,
+    pub main_panel : Vec<TabNameHolder>
+}
+
+impl StartLayout for DoublePanelGroup {
+    fn build(&self) -> egui_dock::DockState<TabNameHolder> {
+        let mut state = egui_dock::DockState::new(self.main_panel.clone());
+
+        let [_game, panels] = state.main_surface_mut().split_left(
+            egui_dock::NodeIndex::root(),
+            0.2,
+            self.top_panel.clone(),
+        );
+
+        let [_, _] = state.main_surface_mut().split_below(
+            panels,
+            0.3,
+            self.bottom_panel.clone(),
+        );
+
+        state
+    }
+}
+
+impl GroupLayout<DoublePanel> for DoublePanelGroup {
+    fn push<N : TabName>(&mut self, group : DoublePanel, tab : N) {
+        match group {
+            DoublePanel::TopPanel => self.top_panel.push(tab.into()),
+            DoublePanel::BottomPanel => self.bottom_panel.push(tab.into()),
+            DoublePanel::MainPanel => self.main_panel.push(tab.into())
+        }
+    }
+
+    fn push_front<N : TabName>(&mut self, group : DoublePanel, tab : N) {
+        match group {
+            DoublePanel::TopPanel => self.top_panel.insert(0, tab.into()),
+            DoublePanel::BottomPanel => self.bottom_panel.insert(0, tab.into()),
+            DoublePanel::MainPanel => self.main_panel.insert(0, tab.into())
+        }
+    }
+}
+
+pub trait GroupLayoutExt {
+    fn push<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self;
+    fn push_front<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self;
+    fn init_layout_group<G, R: GroupLayout<G> + Resource + Default>(&mut self) -> &mut Self;
+}
+
+impl GroupLayoutExt for App {
+    fn push<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self {
+        self.world.resource_mut::<R>().push(group, tab);
+        self
+    }
+
+    fn push_front<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self {
+        self.world.resource_mut::<R>().push_front(group, tab);
+        self
+    }
+    
+    fn init_layout_group<G, R: GroupLayout<G> + Resource + Default>(&mut self) -> &mut Self {
+        self.init_resource::<R>();
+        self.add_systems(Startup, 
+            |mut editor: ResMut<EditorUi>, layout: Res<R>| {
+                editor.set_layout(layout.as_ref());
+            }
+        )
+    }
+}

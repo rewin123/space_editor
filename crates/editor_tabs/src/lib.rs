@@ -5,6 +5,7 @@ pub mod sizing;
 pub mod colors;
 pub mod tab_viewer;
 pub mod tab_name;
+pub mod start_layout;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
@@ -19,6 +20,7 @@ use editor_tab::*;
 use egui_dock::DockArea;
 use schedule_editor_tab::*;
 use sizing::{to_label, Sizing};
+use start_layout::StartLayout;
 use tab_name::{TabName, TabNameHolder};
 use tab_viewer::*;
 
@@ -95,21 +97,12 @@ impl Default for EditorUi {
     }
 }
 
-pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
-pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
-
-/// This enum determine how tab was registered.
-/// ResourceBased - tab will be registered as resource
-/// Schedule - tab will be registered as system
-pub enum EditorUiReg {
-    ResourceBased {
-        show_command: EditorTabShowFn,
-        title_command: EditorTabGetTitleFn,
-    },
-    Schedule,
-}
 
 impl EditorUi {
+    pub fn set_layout<T : StartLayout>(&mut self, layout: &T) {
+        self.tree = layout.build();
+    }
+
     pub fn ui(&mut self, world: &mut World, ctx: &mut egui::Context) {
         //collect tab names to vec to detect visible
         let mut visible = vec![];
@@ -260,6 +253,21 @@ impl EditorUiAppExt for App {
             .insert(tab_name_holder, EditorUiReg::Schedule);
         self
     }
+}
+
+
+pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
+pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;
+
+/// This enum determine how tab was registered.
+/// ResourceBased - tab will be registered as resource
+/// Schedule - tab will be registered as system
+pub enum EditorUiReg {
+    ResourceBased {
+        show_command: EditorTabShowFn,
+        title_command: EditorTabGetTitleFn,
+    },
+    Schedule,
 }
 
 #[derive(Default, Reflect, PartialEq, Eq, Clone)]
