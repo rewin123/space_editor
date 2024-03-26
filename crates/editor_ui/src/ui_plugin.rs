@@ -73,11 +73,6 @@ impl Plugin for DefaultEditorLayoutPlugin {
             DoublePanel::BottomPanel,
             EditorTabName::Inspector,
         );
-
-        app.layout_push_front::<DoublePanelGroup, _, _>(
-            DoublePanel::MainPanel,
-            EditorTabName::Resource,
-        );
     }
 }
 
