@@ -33,3 +33,31 @@ impl<T: TabName> From<T> for TabNameHolder {
         Self::new(value)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Debug)]
+    struct TestTabName(String);
+
+    impl TabName for TestTabName {
+        fn clear_background(&self) -> bool {
+            false
+        }
+
+        fn title(&self) -> String {
+            self.0.clone()
+        }
+    }
+
+    #[test]
+    fn test_tab_name_holder() {
+        let holder = TabNameHolder::new(TestTabName("test".to_string()));
+
+        assert_eq!(holder.value, "TestTabName(\"test\")");
+        assert_eq!(holder.type_id, TypeId::of::<TestTabName>());
+        assert_eq!(holder.clear_background, false);
+        assert_eq!(holder.title, "test");
+    }
+}
