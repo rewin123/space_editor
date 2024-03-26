@@ -1,5 +1,8 @@
 use crate::{
-    prelude::{to_label, Sizing}, schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, EditorTab, EditorUiReg, ERROR_COLOR
+    prelude::{to_label, Sizing},
+    schedule_editor_tab::ScheduleEditorTabStorage,
+    tab_name::TabNameHolder,
+    EditorTab, EditorUiReg, ERROR_COLOR,
 };
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui;
@@ -92,7 +95,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         for registry in tab_registry.iter() {
             if !self.visible.contains(registry.0) {
                 let format_name;
-                
+
                 format_name = format!("{}", registry.0.title.as_str())
                     .from_case(Case::Pascal)
                     .to_case(Case::Title);

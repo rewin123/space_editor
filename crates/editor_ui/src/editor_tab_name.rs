@@ -1,6 +1,5 @@
 use space_editor_tabs::tab_name::TabName;
 
-
 #[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub enum EditorTabName {
     CameraView,
@@ -13,7 +12,7 @@ pub enum EditorTabName {
     Settings,
     ToolBox,
     ChangeChain,
-    DebugWorldInspector
+    DebugWorldInspector,
 }
 
 impl TabName for EditorTabName {
