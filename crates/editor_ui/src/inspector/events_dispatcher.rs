@@ -1,7 +1,6 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui::*;
-use space_editor_tabs::tab_name::TabNameHolder;
 
 use crate::prelude::*;
 
