@@ -11,12 +11,21 @@ description = "Prefab editor for bevy game engine. Make levels/object templates 
 readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
+default-run = "space_editor"
 
 [workspace]
 members = [
+    "game",
     "crates/*",
     "modules/bevy_xpbd_plugin"
 , "crates/editor_tabs"]
+
+resolver = "2"
+
+[[bin]]
+name = "game_app"
+path = "game/src/main.rs"
+required-features = ["bevy_xpbd_3d"]
 
 [workspace.package]
 version = "0.6.0"
@@ -29,7 +38,7 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13"
+bevy = "0.13.1"
 
 # Editor Crates
 space_prefab = { version = "0.6.0", path = "crates/prefab" }
@@ -71,11 +80,13 @@ serde = "1"
 
 # Community Modules
 space_bevy_xpbd_plugin = { version = "0.6.0", path = "modules/bevy_xpbd_plugin"}
+game_app = { version = "0.1.0", path = "game" }
 
 [dependencies]
 bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
+game_app.workspace = true
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
@@ -98,15 +109,17 @@ too_many_arguments = { level = "allow", priority = 2 }
 [lints]
 workspace = true
 
-[profile.dev.package.bevy_xpbd_3d]
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
 opt-level = 3
 
 [features]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-editor = ["space_prefab/editor", "space_editor_ui/editor"]
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
+default = ["bevy_xpbd_3d", "persistence_editor", "bevy/dynamic_linking"]
 
 [[example]]
 name = "platformer"

@@ -1,27 +1,36 @@
 (
   resources: {},
   entities: {
-    34359738372: (
+    8589934597: (
       components: {
         "bevy_transform::components::transform::Transform": (
           translation: (
             x: 0.0,
             y: 0.0,
-            z: -0.25151563,
+            z: 0.0,
           ),
-          rotation: (x: 0.0, y: 0.0, z: 0.0, w: 1.0),
+          rotation: (
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            w: 1.0,
+          ),
           scale: (
             x: 1.0,
             y: 1.0,
             z: 1.0,
           ),
         ),
+        "bevy_core::name::Name": (
+          hash: 15911118245497133296,
+          name: "Cube",
+        ),
         "bevy_render::view::visibility::Visibility": Inherited,
         "space_prefab::component::material::MaterialPrefab": (
           base_color: Rgba(
-            red: 1.0,
-            green: 1.0,
-            blue: 1.0,
+            red: 0.40784314,
+            green: 0.91764706,
+            blue: 0.5764706,
             alpha: 1.0,
           ),
           base_color_texture: "",
@@ -49,11 +58,7 @@
           parallax_mapping_method: Occlusion,
           max_parallax_layer_count: 16.0,
         ),
-        "space_prefab::component::shape::MeshPrimitive3dPrefab": Box((
-          w: 1.0,
-          h: 1.0,
-          d: 1.0,
-        )),
+        "space_prefab::component::shape::MeshPrimitive3dPrefab": Cube(1.0),
       },
     ),
   },
