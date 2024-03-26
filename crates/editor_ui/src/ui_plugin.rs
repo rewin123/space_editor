@@ -65,19 +65,13 @@ pub struct DefaultEditorLayoutPlugin;
 
 impl Plugin for DefaultEditorLayoutPlugin {
     fn build(&self, app: &mut App) {
-        let mut editor = app.world.resource_mut::<EditorUi>();
-        editor.tree = egui_dock::DockState::new(vec![EditorTabName::GameView.into()]);
+        app.init_layout_group::<DoublePanelGroup, _>();
 
-        let [_game, hierarchy] = editor.tree.main_surface_mut().split_left(
-            egui_dock::NodeIndex::root(),
-            0.2,
-            vec![EditorTabName::Hierarchy.into()],
-        );
-        let [_hierarchy, _inspector] = editor.tree.main_surface_mut().split_below(
-            hierarchy,
-            0.3,
-            vec![EditorTabName::Inspector.into()],
-        );
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::GameView);
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopPanel, EditorTabName::Hierarchy);
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::BottomPanel, EditorTabName::Inspector);
+
+        app.layout_push_front::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::Resource);
     }
 }
 

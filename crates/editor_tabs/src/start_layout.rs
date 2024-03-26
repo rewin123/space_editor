@@ -21,6 +21,7 @@ pub enum DoublePanel {
     MainPanel
 }
 
+#[derive(Default, Resource)]
 pub struct DoublePanelGroup {
     pub top_panel : Vec<TabNameHolder>,
     pub bottom_panel : Vec<TabNameHolder>,
@@ -66,23 +67,23 @@ impl GroupLayout<DoublePanel> for DoublePanelGroup {
 }
 
 pub trait GroupLayoutExt {
-    fn push<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self;
-    fn push_front<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self;
-    fn init_layout_group<G, R: GroupLayout<G> + Resource + Default>(&mut self) -> &mut Self;
+    fn layout_push<R: GroupLayout<G> + Resource, N: TabName, G>(&mut self, group: G, tab: N) -> &mut Self;
+    fn layout_push_front<R: GroupLayout<G> + Resource, N: TabName, G>(&mut self, group: G, tab: N) -> &mut Self;
+    fn init_layout_group<R: GroupLayout<G> + Resource + Default, G>(&mut self) -> &mut Self;
 }
 
 impl GroupLayoutExt for App {
-    fn push<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self {
+    fn layout_push<R: GroupLayout<G> + Resource, N: TabName, G>(&mut self, group: G, tab: N) -> &mut Self {
         self.world.resource_mut::<R>().push(group, tab);
         self
     }
 
-    fn push_front<G, R: GroupLayout<G> + Resource, N: TabName>(&mut self, group: G, tab: N) -> &mut Self {
+    fn layout_push_front<R: GroupLayout<G> + Resource, N: TabName, G>(&mut self, group: G, tab: N) -> &mut Self {
         self.world.resource_mut::<R>().push_front(group, tab);
         self
     }
     
-    fn init_layout_group<G, R: GroupLayout<G> + Resource + Default>(&mut self) -> &mut Self {
+    fn init_layout_group<R: GroupLayout<G> + Resource + Default, G>(&mut self) -> &mut Self {
         self.init_resource::<R>();
         self.add_systems(Startup, 
             |mut editor: ResMut<EditorUi>, layout: Res<R>| {
