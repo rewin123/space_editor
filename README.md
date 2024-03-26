@@ -168,5 +168,5 @@ MIT - https://choosealicense.com/licenses/mit/
 
 ### Project naming
 
-I'm using the editor to create my own Sci-Fi space game, so the name of the project starts with space_ :)
+Space_editor started as part of my prototype space game, which I feel could be useful in development, so I thought I'd share my inbuilt editor. Since the game is about space and the name of the editor starts with space_*:)
 
