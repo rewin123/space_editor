@@ -104,7 +104,6 @@ pub fn serialize_scene(world: &mut World) {
     let entities = prefab_query.iter(world).collect::<Vec<_>>();
 
     if entities.is_empty() {
-        #[cfg(feature = "editor")]
         world.send_event(space_shared::toast::ToastMessage::new(
             "Saving empty scene",
             space_shared::toast::ToastKind::Warning,
@@ -161,7 +160,6 @@ pub fn serialize_scene(world: &mut World) {
         // Any ideas on how to test this error case?
         #[cfg_attr(tarpaulin, ignore)]
         let err = format!("failed to serialize prefab: {:?}", e);
-        #[cfg(feature = "editor")]
         world.send_event(space_shared::toast::ToastMessage::new(
             &err,
             space_shared::toast::ToastKind::Error,
@@ -309,7 +307,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "editor")]
     fn attempts_to_serialize_empty_scene() {
         let save_config = SaveConfig {
             path: Some(EditorPrefabPath::MemoryCache),
