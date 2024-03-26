@@ -158,6 +158,10 @@ Any pull request is welcome too:)
 - PR to main: Bug Fixes and Tests
 - New features and others: next version branch **(ex: last released is 0.5, so create PRs for branch v0.6)**
 
+### Branch Policy
+* **v0.x Branches:** These branches house versions of the editor that are actively being developed. Currently, the primary focus is on branch v0.6.
+* **Main Branch:** The main branch exclusively hosts stable versions of the space_editor without any known bugs. Updates to this branch are limited to bug fixes, documentation improvements, or merging in the v0.x branch once all identified issues have been resolved, and the version is considered complete.
+
 ### License
 MIT - https://choosealicense.com/licenses/mit/
 
