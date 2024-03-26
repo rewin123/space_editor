@@ -9,9 +9,7 @@ pub struct ChangeChainViewPlugin;
 
 impl Plugin for ChangeChainViewPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(
-            ChangeChainView,
-        );
+        app.editor_tab_by_trait(ChangeChainView);
     }
 }
 

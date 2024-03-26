@@ -1,11 +1,11 @@
+pub mod colors;
 /// This library contains dock-tab implementation for Space Editor
 pub mod editor_tab;
 pub mod schedule_editor_tab;
 pub mod sizing;
-pub mod colors;
-pub mod tab_viewer;
-pub mod tab_name;
 pub mod start_layout;
+pub mod tab_name;
+pub mod tab_viewer;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
@@ -31,9 +31,9 @@ pub mod prelude {
     pub use super::editor_tab::*;
     pub use super::schedule_editor_tab::*;
     pub use super::sizing::*;
-    pub use super::tab_viewer::*;
-    pub use super::tab_name::*;
     pub use super::start_layout::*;
+    pub use super::tab_name::*;
+    pub use super::tab_viewer::*;
 
     pub use super::{
         show_editor_ui, EditorTabGetTitleFn, EditorTabShowFn, EditorUi, EditorUiAppExt,
@@ -44,7 +44,6 @@ pub mod prelude {
 /// This system use to show all egui editor ui on primary window
 /// Will be useful in some specific cases to ad new system before/after this system
 pub fn show_editor_ui(world: &mut World) {
-
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
         .get_single(world)
@@ -99,9 +98,8 @@ impl Default for EditorUi {
     }
 }
 
-
 impl EditorUi {
-    pub fn set_layout<T : StartLayout>(&mut self, layout: &T) {
+    pub fn set_layout<T: StartLayout>(&mut self, layout: &T) {
         self.tree = layout.build();
     }
 
@@ -193,7 +191,7 @@ pub trait EditorUiAppExt {
     fn editor_tab_by_trait<T>(&mut self, tab: T) -> &mut Self
     where
         T: EditorTab + Resource + Send + Sync + 'static;
-    fn editor_tab<T, N : TabName>(
+    fn editor_tab<T, N: TabName>(
         &mut self,
         tab_name: N,
         tab_systems: impl IntoSystemConfigs<T>,
@@ -219,7 +217,11 @@ impl EditorUiAppExt for App {
             show_command: show_fn,
             title_command: Box::new(|world| {
                 let sizing = world.resource::<Sizing>().clone();
-                to_label(world.resource_mut::<T>().tab_name().title.as_str(), sizing.text).into()
+                to_label(
+                    world.resource_mut::<T>().tab_name().title.as_str(),
+                    sizing.text,
+                )
+                .into()
             }),
         };
 
@@ -230,7 +232,7 @@ impl EditorUiAppExt for App {
         self
     }
 
-    fn editor_tab<T, N : TabName>(
+    fn editor_tab<T, N: TabName>(
         &mut self,
         tab_name: N,
         tab_systems: impl IntoSystemConfigs<T>,
@@ -244,7 +246,6 @@ impl EditorUiAppExt for App {
 
         tab.schedule.add_systems(tab_systems);
 
-
         self.world
             .resource_mut::<ScheduleEditorTabStorage>()
             .0
@@ -256,7 +257,6 @@ impl EditorUiAppExt for App {
         self
     }
 }
-
 
 pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
 pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> egui::WidgetText + Send + Sync>;

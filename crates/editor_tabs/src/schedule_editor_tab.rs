@@ -8,7 +8,7 @@ pub struct EditorUiRef(pub egui::Ui);
 
 pub struct ScheduleEditorTab {
     pub schedule: Schedule,
-    pub tab_name: TabNameHolder
+    pub tab_name: TabNameHolder,
 }
 
 impl EditorTab for ScheduleEditorTab {
@@ -19,7 +19,7 @@ impl EditorTab for ScheduleEditorTab {
         self.schedule.run(world);
         world.remove_non_send_resource::<EditorUiRef>();
     }
-    
+
     fn tab_name(&self) -> TabNameHolder {
         self.tab_name.clone()
     }

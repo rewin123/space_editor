@@ -17,7 +17,9 @@ use bevy_egui::{
 use space_prefab::component::PlaymodeCamera;
 use space_shared::{toast::ToastMessage, *};
 
-use crate::{editor_tab_name::EditorTabName, prelude::GameModeSettings, DisableCameraSkip, RenderLayers};
+use crate::{
+    editor_tab_name::EditorTabName, prelude::GameModeSettings, DisableCameraSkip, RenderLayers,
+};
 
 use space_editor_tabs::prelude::*;
 

@@ -69,9 +69,15 @@ impl Plugin for DefaultEditorLayoutPlugin {
 
         app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::GameView);
         app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopPanel, EditorTabName::Hierarchy);
-        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::BottomPanel, EditorTabName::Inspector);
+        app.layout_push::<DoublePanelGroup, _, _>(
+            DoublePanel::BottomPanel,
+            EditorTabName::Inspector,
+        );
 
-        app.layout_push_front::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::Resource);
+        app.layout_push_front::<DoublePanelGroup, _, _>(
+            DoublePanel::MainPanel,
+            EditorTabName::Resource,
+        );
     }
 }
 
@@ -126,9 +132,7 @@ impl Plugin for EditorUiCore {
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(GameViewTab::default());
 
-        app.editor_tab_by_trait(
-            self::debug_panels::DebugWorldInspector {},
-        );
+        app.editor_tab_by_trait(self::debug_panels::DebugWorldInspector {});
 
         app.init_resource::<EditorLoader>();
 
