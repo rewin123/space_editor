@@ -12,7 +12,6 @@ homepage.workspace = true
 
 [features]
 persistence_editor = []
-editor = []
 
 [dependencies]
 bevy.workspace = true

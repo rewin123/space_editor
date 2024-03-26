@@ -12,7 +12,6 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
-#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 use space_shared::{LightAreaToggle, PrefabMarker};
 
@@ -197,7 +196,6 @@ impl Plugin for BasePrefabPlugin {
 
         app.editor_registry::<PlaymodeLight>();
 
-        #[cfg(feature = "editor")]
         app.add_event::<ToastMessage>();
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
