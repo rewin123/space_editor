@@ -94,9 +94,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
 
         for registry in tab_registry.iter() {
             if !self.visible.contains(registry.0) {
-                let format_name;
-
-                format_name = format!("{}", registry.0.title.as_str())
+                let format_name = format!("{}", registry.0.title)
                     .from_case(Case::Pascal)
                     .to_case(Case::Title);
 
