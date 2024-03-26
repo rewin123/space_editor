@@ -17,7 +17,7 @@ use bevy_egui::{
 use space_prefab::component::PlaymodeCamera;
 use space_shared::{toast::ToastMessage, *};
 
-use crate::{prelude::GameModeSettings, DisableCameraSkip, RenderLayers};
+use crate::{editor_tab_name::EditorTabName, prelude::GameModeSettings, DisableCameraSkip, RenderLayers};
 
 use space_editor_tabs::prelude::*;
 
@@ -25,7 +25,7 @@ pub struct CameraViewTabPlugin;
 
 impl Plugin for CameraViewTabPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
+        app.editor_tab_by_trait(CameraViewTab::default());
         app.add_systems(PreUpdate, set_camera_viewport.in_set(EditorSet::Editor));
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -235,8 +235,8 @@ impl EditorTab for CameraViewTab {
         }
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
-        "Camera view".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::CameraView.into()
     }
 }
 

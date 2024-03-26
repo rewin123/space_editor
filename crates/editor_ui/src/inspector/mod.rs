@@ -22,7 +22,7 @@ use space_shared::ext::bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
 
-use crate::icons::add_component_icon;
+use crate::{editor_tab_name::EditorTabName, icons::add_component_icon};
 use space_editor_tabs::prelude::*;
 
 use self::{
@@ -48,13 +48,12 @@ impl Plugin for SpaceInspectorPlugin {
         app.editor_component_priority::<Name>(0);
         app.editor_component_priority::<Transform>(1);
 
-        app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
-        app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
+        app.editor_tab_by_trait(InspectorTab::default());
+        app.editor_tab_by_trait(ResourceTab::default());
         app.editor_tab_by_trait(
-            EditorTabName::EventDispatcher,
             EventDispatcherTab::default(),
         );
-        app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
+        app.editor_tab_by_trait(RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 
@@ -349,8 +348,8 @@ impl EditorTab for InspectorTab {
         }
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Inspector".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        space_editor_tabs::tab_name::TabNameHolder::new(EditorTabName::Inspector)
     }
 }
 

@@ -14,6 +14,8 @@ use space_shared::*;
 
 use space_editor_tabs::prelude::*;
 
+use crate::editor_tab_name::EditorTabName;
+
 pub const WARN_COLOR: egui::Color32 = egui::Color32::from_rgb(225, 206, 67);
 
 /// Event to clone entity with clone all registered components
@@ -29,7 +31,7 @@ pub struct SpaceHierarchyPlugin {}
 impl Plugin for SpaceHierarchyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<HierarchyTabState>();
-        app.editor_tab(EditorTabName::Hierarchy, "Hierarchy".into(), show_hierarchy);
+        app.editor_tab(EditorTabName::Hierarchy, show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
         app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));

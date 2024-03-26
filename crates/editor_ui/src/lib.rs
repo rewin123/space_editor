@@ -51,6 +51,9 @@ pub mod camera_plugin;
 ///Selection logic
 pub mod selection;
 
+/// Editor tab name
+pub mod editor_tab_name;
+
 pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
@@ -118,6 +121,8 @@ pub mod prelude {
     pub use crate::simple_editor_setup;
     pub use crate::ui_plugin::*;
     pub use crate::EditorPlugin;
+
+    pub use crate::editor_tab_name::*;
 }
 
 /// External dependencies for editor crate
