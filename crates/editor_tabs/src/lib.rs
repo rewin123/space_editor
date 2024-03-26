@@ -32,6 +32,8 @@ pub mod prelude {
     pub use super::schedule_editor_tab::*;
     pub use super::sizing::*;
     pub use super::tab_viewer::*;
+    pub use super::tab_name::*;
+    pub use super::start_layout::*;
 
     pub use super::{
         show_editor_ui, EditorTabGetTitleFn, EditorTabShowFn, EditorUi, EditorUiAppExt,
