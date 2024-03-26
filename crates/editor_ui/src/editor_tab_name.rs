@@ -17,26 +17,22 @@ pub enum EditorTabName {
 
 impl TabName for EditorTabName {
     fn clear_background(&self) -> bool {
-        if *self == EditorTabName::GameView {
-            false
-        } else {
-            true
-        }
+        *self != Self::GameView
     }
 
     fn title(&self) -> String {
         match self {
-            EditorTabName::CameraView => "Camera View".to_string(),
-            EditorTabName::EventDispatcher => "Event Dispatcher".to_string(),
-            EditorTabName::GameView => "Game View".to_string(),
-            EditorTabName::Hierarchy => "Hierarchy".to_string(),
-            EditorTabName::Inspector => "Inspector".to_string(),
-            EditorTabName::Resource => "Resource".to_string(),
-            EditorTabName::RuntimeAssets => "Runtime Assets".to_string(),
-            EditorTabName::Settings => "Settings".to_string(),
-            EditorTabName::ToolBox => "Tool Box".to_string(),
-            EditorTabName::ChangeChain => "Change Chain".to_string(),
-            EditorTabName::DebugWorldInspector => "Debug World Inspector".to_string(),
+            Self::CameraView => "Camera View".to_string(),
+            Self::EventDispatcher => "Event Dispatcher".to_string(),
+            Self::GameView => "Game View".to_string(),
+            Self::Hierarchy => "Hierarchy".to_string(),
+            Self::Inspector => "Inspector".to_string(),
+            Self::Resource => "Resource".to_string(),
+            Self::RuntimeAssets => "Runtime Assets".to_string(),
+            Self::Settings => "Settings".to_string(),
+            Self::ToolBox => "Tool Box".to_string(),
+            Self::ChangeChain => "Change Chain".to_string(),
+            Self::DebugWorldInspector => "Debug World Inspector".to_string(),
         }
     }
 }
