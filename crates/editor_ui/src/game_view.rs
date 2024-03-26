@@ -5,6 +5,8 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
+use crate::editor_tab_name::EditorTabName;
+
 use super::tool::EditorTool;
 use space_editor_tabs::prelude::*;
 
@@ -12,7 +14,7 @@ pub struct GameViewPlugin;
 
 impl Plugin for GameViewPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
+        app.editor_tab_by_trait(GameViewTab::default());
     }
 }
 
@@ -92,8 +94,8 @@ impl EditorTab for GameViewTab {
         });
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
-        "Game view".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::GameView.into()
     }
 }
 

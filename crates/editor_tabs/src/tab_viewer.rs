@@ -1,7 +1,5 @@
 use crate::{
-    prelude::{to_label, Sizing},
-    schedule_editor_tab::ScheduleEditorTabStorage,
-    EditorTab, EditorTabName, EditorUiReg, ERROR_COLOR,
+    prelude::{to_label, Sizing}, schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, EditorTab, EditorUiReg, ERROR_COLOR
 };
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui;
@@ -9,7 +7,7 @@ use convert_case::{Case, Casing};
 
 pub enum EditorTabCommand {
     Add {
-        name: EditorTabName,
+        name: TabNameHolder,
         surface: egui_dock::SurfaceIndex,
         node: egui_dock::NodeIndex,
     },
@@ -18,13 +16,13 @@ pub enum EditorTabCommand {
 pub struct EditorTabViewer<'a, 'w, 's> {
     pub world: &'a mut World,
     pub commands: &'a mut Commands<'w, 's>,
-    pub registry: &'a mut HashMap<EditorTabName, EditorUiReg>,
-    pub visible: Vec<EditorTabName>,
+    pub registry: &'a mut HashMap<TabNameHolder, EditorUiReg>,
+    pub visible: Vec<TabNameHolder>,
     pub tab_commands: Vec<EditorTabCommand>,
 }
 
 impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
-    type Tab = EditorTabName;
+    type Tab = TabNameHolder;
 
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
         if let Some(reg) = self.registry.get_mut(tab_name) {
@@ -67,7 +65,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                     .get(tab)
                     .map_or_else(
                         || to_label(&format!("{tab:?}"), sizing.text).into(),
-                        |tab| to_label(tab.title.text(), sizing.text).into(),
+                        |tab| to_label(&tab.tab_name.title, sizing.text).into(),
                     ),
             }
         } else {
@@ -76,7 +74,7 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     }
 
     fn clear_background(&self, window: &Self::Tab) -> bool {
-        !matches!(window, EditorTabName::GameView)
+        window.clear_background
     }
 
     fn add_popup(
@@ -88,19 +86,16 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         ui.set_min_width(200.0);
         ui.style_mut().visuals.button_frame = false;
         let mut counter = 0;
-        let mut tab_registry: Vec<(&EditorTabName, &EditorUiReg)> = self.registry.iter().collect();
+        let mut tab_registry: Vec<(&TabNameHolder, &EditorUiReg)> = self.registry.iter().collect();
         tab_registry.sort_by(|a, b| a.0.cmp(b.0));
 
         for registry in tab_registry.iter() {
             if !self.visible.contains(registry.0) {
                 let format_name;
-                if let EditorTabName::Other(name) = registry.0 {
-                    format_name = name.clone();
-                } else {
-                    format_name = format!("{:?}", registry.0)
-                        .from_case(Case::Pascal)
-                        .to_case(Case::Title);
-                }
+                
+                format_name = format!("{}", registry.0.title.as_str())
+                    .from_case(Case::Pascal)
+                    .to_case(Case::Title);
 
                 if ui.button(format_name).clicked() {
                     self.tab_commands.push(EditorTabCommand::Add {
