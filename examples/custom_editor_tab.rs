@@ -20,10 +20,7 @@ fn main() {
             CustomTabName::TraitBased,
         )
         // Add system based tab as first tab in Main panel
-        .layout_push_front::<DoublePanelGroup, _, _>(
-            DoublePanel::Main,
-            CustomTabName::SystemBased,
-        )
+        .layout_push_front::<DoublePanelGroup, _, _>(DoublePanel::Main, CustomTabName::SystemBased)
         .run();
 }
 
