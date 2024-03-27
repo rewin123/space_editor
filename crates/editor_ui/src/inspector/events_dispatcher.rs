@@ -2,6 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui::*;
 
+use crate::colors::*;
 use crate::prelude::*;
 
 #[derive(Resource, Default)]

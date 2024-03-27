@@ -1,40 +1,31 @@
-pub mod colors;
 /// This library contains dock-tab implementation for Space Editor
 pub mod editor_tab;
 pub mod schedule_editor_tab;
-pub mod sizing;
 pub mod start_layout;
 pub mod tab_name;
+pub mod tab_style;
 pub mod tab_viewer;
 
 use std::fmt::Display;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
-use bevy_egui::egui::FontFamily::{Monospace, Proportional};
-use bevy_egui::{
-    egui::{self, FontId, Rounding},
-    EguiContext,
-};
+use bevy_egui::{egui, EguiContext};
 
-use colors::*;
 use editor_tab::*;
 use egui_dock::DockArea;
 use schedule_editor_tab::*;
-use sizing::{to_label, Sizing};
 use start_layout::StartLayout;
 use tab_name::{TabName, TabNameHolder};
+use tab_style::*;
 use tab_viewer::*;
 
-use bevy_egui::egui::TextStyle as ETextStyle;
-
 pub mod prelude {
-    pub use super::colors::*;
     pub use super::editor_tab::*;
     pub use super::schedule_editor_tab::*;
-    pub use super::sizing::*;
     pub use super::start_layout::*;
     pub use super::tab_name::*;
+    pub use super::tab_style::*;
     pub use super::tab_viewer::*;
 
     pub use super::{
@@ -55,29 +46,15 @@ pub fn show_editor_ui(world: &mut World) {
     let mut egui_context = egui_context.clone();
     let ctx = egui_context.get_mut();
     egui_extras::install_image_loaders(ctx);
-    ctx.style_mut(|stl| {
-        stl.spacing.button_padding = bevy_egui::egui::Vec2::new(8., 2.);
-        stl.spacing.icon_spacing = 4.;
-        stl.spacing.icon_width = 16.;
-        stl.spacing.menu_margin = bevy_egui::egui::Margin {
-            left: 8.,
-            right: 8.,
-            top: 4.,
-            bottom: 8.,
-        };
-        stl.visuals.error_fg_color = ERROR_COLOR;
-        stl.visuals.hyperlink_color = HYPERLINK_COLOR;
-        stl.visuals.warn_fg_color = WARM_COLOR;
-        stl.visuals.menu_rounding = Rounding::same(0.5);
-        stl.text_styles = [
-            (ETextStyle::Small, FontId::new(10.0, Proportional)),
-            (ETextStyle::Body, FontId::new(12., Proportional)),
-            (ETextStyle::Button, FontId::new(14., Proportional)),
-            (ETextStyle::Heading, FontId::new(20.0, Proportional)),
-            (ETextStyle::Monospace, FontId::new(12.0, Monospace)),
-        ]
-        .into()
-    });
+
+    {
+        // set style for editor
+        let editor_ui = world.get_resource::<EditorUi>().unwrap();
+        let tab_style = (editor_ui.style_getter)(world);
+        ctx.style_mut(|stl| {
+            tab_style.set_egui_style(world, stl);
+        });
+    }
 
     world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
         editor_ui.ui(world, ctx);
@@ -89,6 +66,7 @@ pub fn show_editor_ui(world: &mut World) {
 pub struct EditorUi {
     pub registry: HashMap<TabNameHolder, EditorUiReg>,
     pub tree: egui_dock::DockState<TabNameHolder>,
+    pub style_getter: fn(&World) -> &dyn TabStyle,
 }
 
 impl Default for EditorUi {
@@ -96,11 +74,16 @@ impl Default for EditorUi {
         Self {
             registry: HashMap::default(),
             tree: egui_dock::DockState::new(vec![]),
+            style_getter: |_| &DEFAULT_STYLE,
         }
     }
 }
 
 impl EditorUi {
+    pub fn set_style<T: TabStyle>(&mut self) {
+        self.style_getter = |world: &World| world.resource::<T>();
+    }
+
     pub fn set_layout<T: StartLayout>(&mut self, layout: &T) {
         self.tree = layout.build();
     }
@@ -129,6 +112,12 @@ impl EditorUi {
             }
         }
 
+        let collected_style = {
+            let editor = world.resource::<Self>();
+            let editor_style = (editor.style_getter)(world);
+            editor_style.collect_style(world)
+        };
+
         let cell = world.as_unsafe_world_cell();
 
         let mut command_queue = CommandQueue::default();
@@ -141,6 +130,7 @@ impl EditorUi {
                 registry: &mut self.registry,
                 visible,
                 tab_commands: vec![],
+                style: collected_style,
             }
         };
 
@@ -218,10 +208,15 @@ impl EditorUiAppExt for App {
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
             title_command: Box::new(|world| {
-                let sizing = world.resource::<Sizing>().clone();
+                let text_size = {
+                    let editor = world.resource::<EditorUi>();
+                    let editor_style = (editor.style_getter)(world);
+                    editor_style.text_size(world)
+                };
+
                 to_label(
                     world.resource_mut::<T>().tab_name().title.as_str(),
-                    sizing.text,
+                    text_size,
                 )
                 .into()
             }),

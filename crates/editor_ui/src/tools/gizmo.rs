@@ -4,14 +4,13 @@ use egui_gizmo::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
 
+use crate::{colors::*, sizing::Sizing};
 use crate::{
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
     tool::ToolExt,
 };
-
-use space_editor_tabs::prelude::*;
 
 pub struct GizmoToolPlugin;
 
