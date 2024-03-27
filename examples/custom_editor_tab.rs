@@ -16,12 +16,12 @@ fn main() {
         .editor_tab(CustomTabName::SystemBased, system_tab)
         // Add trait based tab as first tab in Bottom panel
         .layout_push_front::<DoublePanelGroup, _, _>(
-            DoublePanel::BottomPanel,
+            DoublePanel::BottomLeft,
             CustomTabName::TraitBased,
         )
         // Add system based tab as first tab in Main panel
         .layout_push_front::<DoublePanelGroup, _, _>(
-            DoublePanel::MainPanel,
+            DoublePanel::Main,
             CustomTabName::SystemBased,
         )
         .run();

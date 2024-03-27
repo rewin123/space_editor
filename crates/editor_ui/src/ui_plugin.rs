@@ -67,10 +67,10 @@ impl Plugin for DefaultEditorLayoutPlugin {
     fn build(&self, app: &mut App) {
         app.init_layout_group::<DoublePanelGroup, _>();
 
-        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::MainPanel, EditorTabName::GameView);
-        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopPanel, EditorTabName::Hierarchy);
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::Main, EditorTabName::GameView);
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopLeft, EditorTabName::Hierarchy);
         app.layout_push::<DoublePanelGroup, _, _>(
-            DoublePanel::BottomPanel,
+            DoublePanel::BottomLeft,
             EditorTabName::Inspector,
         );
     }

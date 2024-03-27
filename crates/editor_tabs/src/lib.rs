@@ -52,7 +52,7 @@ pub fn show_editor_ui(world: &mut World) {
         let editor_ui = world.get_resource::<EditorUi>().unwrap();
         let tab_style = (editor_ui.style_getter)(world);
         ctx.style_mut(|stl| {
-            tab_style.set_egui_style(&world, stl);
+            tab_style.set_egui_style(world, stl);
         });
     }
 
@@ -113,7 +113,7 @@ impl EditorUi {
         }
 
         let collected_style = {
-            let editor = world.resource::<EditorUi>();
+            let editor = world.resource::<Self>();
             let editor_style = (editor.style_getter)(world);
             editor_style.collect_style(world)
         };
