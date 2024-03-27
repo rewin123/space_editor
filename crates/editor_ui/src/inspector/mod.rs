@@ -32,6 +32,7 @@ use self::{
     resources::ResourceTab,
     runtime_assets::RuntimeAssetsTab,
 };
+use crate::{colors::*, sizing::Sizing};
 
 /// Entities with this marker will be skipped in inspector
 #[derive(Component)]

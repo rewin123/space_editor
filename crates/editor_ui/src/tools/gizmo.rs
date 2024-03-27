@@ -10,8 +10,7 @@ use crate::{
     prelude::{CloneEvent, EditorTool},
     tool::ToolExt,
 };
-
-use space_editor_tabs::prelude::*;
+use crate::{colors::*, sizing::Sizing};
 
 pub struct GizmoToolPlugin;
 
