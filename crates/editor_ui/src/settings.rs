@@ -14,7 +14,7 @@ use space_persistence::*;
 
 use space_editor_tabs::prelude::*;
 
-use crate::editor_tab_name::EditorTabName;
+use crate::{editor_tab_name::EditorTabName, sizing::{IconSize, Sizing}};
 
 const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
 
