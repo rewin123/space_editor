@@ -10,6 +10,8 @@ use crate::editor_tab_name::EditorTabName;
 use super::tool::EditorTool;
 use space_editor_tabs::prelude::*;
 
+use crate::colors::*;
+
 pub struct GameViewPlugin;
 
 impl Plugin for GameViewPlugin {

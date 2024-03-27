@@ -23,6 +23,8 @@ use crate::{
 
 use space_editor_tabs::prelude::*;
 
+use crate::colors::*;
+
 pub struct CameraViewTabPlugin;
 
 impl Plugin for CameraViewTabPlugin {

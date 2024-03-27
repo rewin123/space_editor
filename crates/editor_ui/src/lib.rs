@@ -54,6 +54,11 @@ pub mod selection;
 /// Editor tab name
 pub mod editor_tab_name;
 
+/// This module contains editor style definitions
+pub mod editor_style;
+pub mod sizing;
+pub mod colors;
+
 pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
