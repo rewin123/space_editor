@@ -3,33 +3,30 @@ pub mod editor_tab;
 pub mod schedule_editor_tab;
 pub mod start_layout;
 pub mod tab_name;
-pub mod tab_viewer;
 pub mod tab_style;
+pub mod tab_viewer;
 
 use std::fmt::Display;
 
 use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
-use bevy_egui::{
-    egui,
-    EguiContext,
-};
+use bevy_egui::{egui, EguiContext};
 
 use editor_tab::*;
 use egui_dock::DockArea;
 use schedule_editor_tab::*;
 use start_layout::StartLayout;
 use tab_name::{TabName, TabNameHolder};
-use tab_viewer::*;
 use tab_style::*;
+use tab_viewer::*;
 
 pub mod prelude {
     pub use super::editor_tab::*;
     pub use super::schedule_editor_tab::*;
     pub use super::start_layout::*;
     pub use super::tab_name::*;
-    pub use super::tab_viewer::*;
     pub use super::tab_style::*;
+    pub use super::tab_viewer::*;
 
     pub use super::{
         show_editor_ui, EditorTabGetTitleFn, EditorTabShowFn, EditorUi, EditorUiAppExt,
@@ -50,7 +47,8 @@ pub fn show_editor_ui(world: &mut World) {
     let ctx = egui_context.get_mut();
     egui_extras::install_image_loaders(ctx);
 
-    { // set style for editor
+    {
+        // set style for editor
         let editor_ui = world.get_resource::<EditorUi>().unwrap();
         let tab_style = (editor_ui.style_getter)(world);
         ctx.style_mut(|stl| {
@@ -63,8 +61,6 @@ pub fn show_editor_ui(world: &mut World) {
     });
 }
 
-
-
 /// This resource contains registered editor tabs and current dock tree state
 #[derive(Resource)]
 pub struct EditorUi {
@@ -72,7 +68,6 @@ pub struct EditorUi {
     pub tree: egui_dock::DockState<TabNameHolder>,
     pub style_getter: fn(&World) -> &dyn TabStyle,
 }
-
 
 impl Default for EditorUi {
     fn default() -> Self {
@@ -85,12 +80,8 @@ impl Default for EditorUi {
 }
 
 impl EditorUi {
-
-    pub fn set_style<T : TabStyle>(&mut self) {
-        self.style_getter = 
-            |world: &World| {
-                world.resource::<T>()
-            };
+    pub fn set_style<T: TabStyle>(&mut self) {
+        self.style_getter = |world: &World| world.resource::<T>();
     }
 
     pub fn set_layout<T: StartLayout>(&mut self, layout: &T) {
@@ -217,7 +208,6 @@ impl EditorUiAppExt for App {
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
             title_command: Box::new(|world| {
-
                 let text_size = {
                     let editor = world.resource::<EditorUi>();
                     let editor_style = (editor.style_getter)(world);
@@ -226,7 +216,7 @@ impl EditorUiAppExt for App {
 
                 to_label(
                     world.resource_mut::<T>().tab_name().title.as_str(),
-                    text_size
+                    text_size,
                 )
                 .into()
             }),
@@ -319,5 +309,3 @@ impl NewWindowSettings {
             });
     }
 }
-
-

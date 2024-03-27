@@ -1,5 +1,6 @@
 use crate::{
-    schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, to_label, CollectedStyle, EditorTab, EditorUiReg
+    schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, to_label,
+    CollectedStyle, EditorTab, EditorUiReg,
 };
 use bevy::{prelude::*, utils::HashMap};
 use bevy_egui::egui;
@@ -19,14 +20,13 @@ pub struct EditorTabViewer<'a, 'w, 's> {
     pub registry: &'a mut HashMap<TabNameHolder, EditorUiReg>,
     pub visible: Vec<TabNameHolder>,
     pub tab_commands: Vec<EditorTabCommand>,
-    pub style: CollectedStyle
+    pub style: CollectedStyle,
 }
 
 impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
     type Tab = TabNameHolder;
 
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
-
         if let Some(reg) = self.registry.get_mut(tab_name) {
             match reg {
                 EditorUiReg::ResourceBased {
@@ -41,7 +41,10 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                             if let Some(tab) = storage.0.get_mut(tab_name) {
                                 tab.ui(ui, self.commands, world);
                             } else {
-                                ui.colored_label(self.style.error_color, "Not implemented schedule tab");
+                                ui.colored_label(
+                                    self.style.error_color,
+                                    "Not implemented schedule tab",
+                                );
                             }
                         },
                     );

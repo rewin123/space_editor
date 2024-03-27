@@ -2,8 +2,8 @@ use bevy::{prelude::*, utils::HashMap};
 
 use bevy_egui::*;
 
-use crate::prelude::*;
 use crate::colors::*;
+use crate::prelude::*;
 
 #[derive(Resource, Default)]
 pub struct EventDispatcherTab {

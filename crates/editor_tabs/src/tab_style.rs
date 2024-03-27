@@ -4,7 +4,7 @@ use bevy_egui::egui::{self, RichText};
 pub const DEFAULT_STYLE: DefaultStyle = DefaultStyle;
 
 /// This trait use to get tab style
-pub trait TabStyle : Resource {
+pub trait TabStyle: Resource {
     fn error_color(&self) -> egui::Color32;
     fn set_egui_style(&self, world: &World, style: &mut egui::Style);
     fn text_size(&self, world: &World) -> f32;
@@ -23,7 +23,6 @@ pub struct CollectedStyle {
     pub error_color: egui::Color32,
     pub text_size: f32,
 }
-
 
 pub fn to_label(text: &str, size: f32) -> RichText {
     RichText::new(text)
