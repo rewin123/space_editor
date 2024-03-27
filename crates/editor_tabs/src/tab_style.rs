@@ -24,6 +24,15 @@ pub struct CollectedStyle {
     pub text_size: f32,
 }
 
+impl Default for CollectedStyle {
+    fn default() -> Self {
+        Self {
+            error_color: egui::Color32::RED,
+            text_size: 14.0,
+        }
+    }
+}
+
 pub fn to_label(text: &str, size: f32) -> RichText {
     RichText::new(text)
         .size(size)

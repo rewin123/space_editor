@@ -48,7 +48,10 @@ pub mod ui_plugin;
 /// Camera plugin and logic
 pub mod camera_plugin;
 
-///Selection logic
+/// View systems that affects specific entity
+pub mod systems_view;
+
+/// Selection logic
 pub mod selection;
 
 /// Editor tab name

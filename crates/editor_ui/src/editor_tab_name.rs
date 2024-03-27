@@ -8,6 +8,7 @@ pub enum EditorTabName {
     Hierarchy,
     Inspector,
     Resource,
+    Systems,
     RuntimeAssets,
     Settings,
     ToolBox,
@@ -33,6 +34,7 @@ impl TabName for EditorTabName {
             Self::ToolBox => "Tool Box".to_string(),
             Self::ChangeChain => "Change Chain".to_string(),
             Self::DebugWorldInspector => "Debug World Inspector".to_string(),
+            Self::Systems => "Systems View".to_string(),
         }
     }
 }

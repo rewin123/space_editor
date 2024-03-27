@@ -2,7 +2,10 @@ use crate::*;
 use bevy::prelude::*;
 use meshless_visualizer::draw_light_gizmo;
 
-use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
+use self::{
+    change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName,
+    systems_view::SystemsViewPlugin,
+};
 
 /// All systems for editor ui will be placed in UiSystemSet
 #[derive(SystemSet, Hash, PartialEq, Eq, Debug, Clone, Copy)]
@@ -43,6 +46,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(SpaceInspectorPlugin)
             .add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
+            .add(SystemsViewPlugin)
             .add(settings::SettingsWindowPlugin);
 
         if self.use_standard_layout {
@@ -91,6 +95,7 @@ impl Default for EditorUiCore {
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         app.init_state::<ShowEditorUi>();
+        app.init_resource::<EditorUi>();
 
         app.configure_sets(
             Update,
@@ -98,7 +103,6 @@ impl Plugin for EditorUiCore {
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
-        app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
             Update,
