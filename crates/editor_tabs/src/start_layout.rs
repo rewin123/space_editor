@@ -18,9 +18,9 @@ pub trait GroupLayout<G>: StartLayout {
 }
 
 pub enum DoublePanel {
-    TopPanel,
-    BottomPanel,
-    MainPanel,
+    TopLeft,
+    BottomLeft,
+    Main,
 }
 
 #[derive(Default, Resource)]
@@ -51,17 +51,17 @@ impl StartLayout for DoublePanelGroup {
 impl GroupLayout<DoublePanel> for DoublePanelGroup {
     fn push<N: TabName>(&mut self, group: DoublePanel, tab: N) {
         match group {
-            DoublePanel::TopPanel => self.top_panel.push(tab.into()),
-            DoublePanel::BottomPanel => self.bottom_panel.push(tab.into()),
-            DoublePanel::MainPanel => self.main_panel.push(tab.into()),
+            DoublePanel::TopLeft => self.top_panel.push(tab.into()),
+            DoublePanel::BottomLeft => self.bottom_panel.push(tab.into()),
+            DoublePanel::Main => self.main_panel.push(tab.into()),
         }
     }
 
     fn push_front<N: TabName>(&mut self, group: DoublePanel, tab: N) {
         match group {
-            DoublePanel::TopPanel => self.top_panel.insert(0, tab.into()),
-            DoublePanel::BottomPanel => self.bottom_panel.insert(0, tab.into()),
-            DoublePanel::MainPanel => self.main_panel.insert(0, tab.into()),
+            DoublePanel::TopLeft => self.top_panel.insert(0, tab.into()),
+            DoublePanel::BottomLeft => self.bottom_panel.insert(0, tab.into()),
+            DoublePanel::Main => self.main_panel.insert(0, tab.into()),
         }
     }
 }
