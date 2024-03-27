@@ -1,15 +1,12 @@
-use space_editor_tabs::prelude::*;
 use bevy::prelude::*;
+use space_editor_tabs::prelude::*;
 
 use crate::{colors::*, sizing::Sizing};
-use bevy_egui::egui::{FontId, Rounding, TextStyle as ETextStyle};
 use bevy_egui::egui::FontFamily::{Monospace, Proportional};
+use bevy_egui::egui::{FontId, Rounding, TextStyle as ETextStyle};
 
 #[derive(Resource, Default)]
-pub struct EditorStyle {
-
-}
-
+pub struct EditorStyle {}
 
 impl TabStyle for EditorStyle {
     fn error_color(&self) -> bevy_egui::egui::Color32 {
@@ -39,7 +36,7 @@ impl TabStyle for EditorStyle {
         ]
         .into()
     }
-    
+
     fn text_size(&self, world: &World) -> f32 {
         world.resource::<Sizing>().text
     }
