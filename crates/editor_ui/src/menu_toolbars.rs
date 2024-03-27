@@ -16,7 +16,11 @@ use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
-    hierarchy::{HierarchyQueryIter, HierarchyTabState}, icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon}, sizing::{to_colored_richtext, to_richtext}, ui_registration::{BundleReg, EditorBundleUntyped}, ShowEditorUi
+    hierarchy::{HierarchyQueryIter, HierarchyTabState},
+    icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
+    sizing::{to_colored_richtext, to_richtext},
+    ui_registration::{BundleReg, EditorBundleUntyped},
+    ShowEditorUi,
 };
 
 use crate::{colors::*, sizing::Sizing};
