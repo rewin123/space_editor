@@ -93,8 +93,16 @@ future-incompatible = "warn"
 nonstandard_style = "deny"
 
 [workspace.lints.clippy]
-nursery = { level = "deny", priority = 0 }
-all = { level = "deny", priority = 1 }
+nursery = { level = "deny", priority = -1 }
+all = { level = "deny", priority = -1 }
+# Restricted
+get_unwrap = { level = "deny", priority = -1 }
+manual_while_let_some = { level = "deny", priority = -1 }
+panicking_unwrap = { level = "deny", priority = -1 }
+unnecessary_unwrap = { level = "deny", priority = -1 }
+unnecessary_literal_unwrap = { level = "deny", priority = -1 }
+unwrap_in_result = { level = "deny", priority = -1 }
+
 # Bevy Related
 cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }

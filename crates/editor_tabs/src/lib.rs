@@ -47,9 +47,8 @@ pub fn show_editor_ui(world: &mut World) {
     let ctx = egui_context.get_mut();
     egui_extras::install_image_loaders(ctx);
 
-    {
-        // set style for editor
-        let editor_ui = world.get_resource::<EditorUi>().unwrap();
+    // set style for editor
+    if let Some(editor_ui) = world.get_resource::<EditorUi>() {
         let tab_style = (editor_ui.style_getter)(world);
         ctx.style_mut(|stl| {
             tab_style.set_egui_style(world, stl);

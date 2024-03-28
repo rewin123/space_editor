@@ -294,8 +294,8 @@ fn set_camera_viewport(
         ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
     }
 
-    if ui_state.need_reinit_egui_tex {
-        ctxs.remove_image(&ui_state.egui_tex_id.as_ref().unwrap().1);
+    if let (Some((_tx_id, handle)), true) = (&ui_state.egui_tex_id, ui_state.need_reinit_egui_tex) {
+        ctxs.remove_image(handle);
         ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image));
         ui_state.need_reinit_egui_tex = false;
     }
@@ -334,7 +334,11 @@ fn set_camera_viewport(
 
     local.0 = Some(viewport_rect);
 
-    let image_data = images.get(target_handle).unwrap();
+    let Some(image_data) = images.get(target_handle) else {
+        error!("Could not get image data");
+        return;
+    };
+
     let image_rect = Rect::new(
         0.0,
         0.0,
