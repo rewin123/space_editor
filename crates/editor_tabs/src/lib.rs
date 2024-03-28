@@ -53,11 +53,11 @@ pub fn show_editor_ui(world: &mut World) {
         ctx.style_mut(|stl| {
             tab_style.set_egui_style(world, stl);
         });
-    }
 
-    world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
-        editor_ui.ui(world, ctx);
-    });
+        world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
+            editor_ui.ui(world, ctx);
+        });
+    }
 }
 
 /// This resource contains registered editor tabs and current dock tree state
@@ -112,8 +112,7 @@ impl EditorUi {
         }
 
         let collected_style = {
-            let editor = world.resource::<Self>();
-            let editor_style = (editor.style_getter)(world);
+            let editor_style = (self.style_getter)(world);
             editor_style.collect_style(world)
         };
 
@@ -204,14 +203,17 @@ impl EditorUiAppExt for App {
                 });
             },
         );
+
         let reg = EditorUiReg::ResourceBased {
             show_command: show_fn,
             title_command: Box::new(|world| {
-                let text_size = {
-                    let editor = world.resource::<EditorUi>();
-                    let editor_style = (editor.style_getter)(world);
-                    editor_style.text_size(world)
-                };
+                let text_size =
+                    world
+                        .get_resource::<EditorUi>()
+                        .map_or(DEFAULT_TAB_FONT_SIZE, |editor| {
+                            let editor_style = (editor.style_getter)(world);
+                            editor_style.text_size(world)
+                        });
 
                 to_label(
                     world.resource_mut::<T>().tab_name().title.as_str(),
@@ -221,10 +223,9 @@ impl EditorUiAppExt for App {
             }),
         };
 
-        self.world
-            .resource_mut::<EditorUi>()
-            .registry
-            .insert(tab_name, reg);
+        if let Some(mut editor) = self.world.get_resource_mut::<EditorUi>() {
+            editor.registry.insert(tab_name, reg);
+        };
         self
     }
 
@@ -246,10 +247,11 @@ impl EditorUiAppExt for App {
             .resource_mut::<ScheduleEditorTabStorage>()
             .0
             .insert(tab_name_holder.clone(), tab);
-        self.world
-            .resource_mut::<EditorUi>()
-            .registry
-            .insert(tab_name_holder, EditorUiReg::Schedule);
+        if let Some(mut editor) = self.world.get_resource_mut::<EditorUi>() {
+            editor
+                .registry
+                .insert(tab_name_holder, EditorUiReg::Schedule);
+        };
         self
     }
 }
