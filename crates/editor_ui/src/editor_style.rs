@@ -25,7 +25,7 @@ impl TabStyle for EditorStyle {
         };
         stl.visuals.error_fg_color = ERROR_COLOR;
         stl.visuals.hyperlink_color = HYPERLINK_COLOR;
-        stl.visuals.warn_fg_color = WARM_COLOR;
+        stl.visuals.warn_fg_color = WARN_COLOR;
         stl.visuals.menu_rounding = Rounding::same(0.5);
         stl.text_styles = [
             (ETextStyle::Small, FontId::new(10.0, Proportional)),
