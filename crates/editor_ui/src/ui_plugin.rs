@@ -91,6 +91,7 @@ impl Default for EditorUiCore {
 impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         app.init_state::<ShowEditorUi>();
+        app.init_resource::<EditorUi>();
 
         app.configure_sets(
             Update,
@@ -98,7 +99,7 @@ impl Plugin for EditorUiCore {
                 .in_set(EditorSet::Editor)
                 .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
         );
-        app.init_resource::<EditorUi>();
+
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
             Update,
