@@ -55,18 +55,21 @@ bevy_asset_loader = "0.20"
 bevy_common_assets = { version = "0.10", features = ["ron"] }
 bevy_debug_grid = "0.5"
 bevy_egui = "0.25"
-bevy-inspector-egui = "0.23"
+bevy-inspector-egui = { version = "0.23", features = [
+    "bevy_pbr",
+    "highlight_changes",
+] }
 bevy_mod_billboard = { git = "https://github.com/kulkalkul/bevy_mod_billboard", branch = "main" }
-bevy_mod_picking = { version = "0.18.2", default-features = false, features = ["backend_raycast"] }
+bevy_mod_picking = { version = "0.18.2", default-features = false, features = ["backend_raycast",  "selection",] }
 bevy_panorbit_camera = { version = "0.16", default-features = false }
 bevy-scene-hook = "10"
 convert_case = "0.6"
 egui_dock = "0.11"
-egui_extras = "0.26"
+egui_extras = { version = "0.26", features = ["all_loaders"] }
 egui_file = "0.15"
 egui-gizmo = "0.16.1"
 egui-toast = "0.12.1"
-image = "0.24.8"
+image = {version = "0.24.8", feature = ["png"] }
 
 pretty-type-name = "1"
 ron = "0.8"
