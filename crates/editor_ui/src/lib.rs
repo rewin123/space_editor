@@ -288,15 +288,16 @@ fn clear_and_load_on_start(
     if save_confg.path.is_none() {
         return;
     }
-    match save_confg.path.as_ref().unwrap() {
-        space_shared::EditorPrefabPath::File(path) => {
+    match save_confg.path.as_ref() {
+        Some(space_shared::EditorPrefabPath::File(path)) => {
             info!("Loading prefab from file {}", path);
             load_server.scene = Some(assets.load(format!("{}.scn.ron", path)));
         }
-        space_shared::EditorPrefabPath::MemoryCache => {
+        Some(space_shared::EditorPrefabPath::MemoryCache) => {
             info!("Loading prefab from cache");
             load_server.scene = cache.scene.clone();
         }
+        _ => {}
     }
 }
 
