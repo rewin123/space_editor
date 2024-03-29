@@ -1,11 +1,11 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::egui::{self};
+use bevy_egui::egui::{self, RichText, Widget};
 use egui_gizmo::GizmoMode;
 use space_undo::UndoRedo;
 
 use space_shared::*;
 
-use crate::editor_tab_name::EditorTabName;
+use crate::{editor_tab_name::EditorTabName, prelude::SettingsWindow};
 
 use super::tool::EditorTool;
 use space_editor_tabs::prelude::*;
@@ -93,11 +93,30 @@ impl EditorTab for GameViewTab {
             let dt = world.get_resource::<Time>().unwrap().delta_seconds();
             self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
             ui.colored_label(TEXT_COLOR, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
+            // spacing = available_width - button_widt - margin
+            let button_distance = ui.available_width() - 92.0 - 8.0;
+            ui.add_space(button_distance);
+
+            #[cfg(debug_assertions)]
+            if let Some(settings) = world.get_resource::<SettingsWindow>() {
+                if settings.enable_debug_alert {
+                    warn_if_debug_build(ui);
+                }
+            }
         });
     }
 
     fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
         EditorTabName::GameView.into()
+    }
+}
+
+pub fn warn_if_debug_build(ui: &mut egui::Ui) {
+    if cfg!(debug_assertions) {
+        egui::Button::new(RichText::new("⚠ Debug build").color(SPECIAL_BG_COLOR))
+            .fill(WARN_COLOR)
+            .ui(ui)
+            .on_hover_text("space_editor was compiled with debug assertions enabled.");
     }
 }
 
