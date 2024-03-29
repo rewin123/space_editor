@@ -5,7 +5,7 @@ use space_undo::UndoRedo;
 
 use space_shared::*;
 
-use crate::editor_tab_name::EditorTabName;
+use crate::{editor_tab_name::EditorTabName, prelude::SettingsWindow};
 
 use super::tool::EditorTool;
 use space_editor_tabs::prelude::*;
@@ -96,7 +96,13 @@ impl EditorTab for GameViewTab {
             // spacing = available_width - button_widt - margin
             let button_distance = ui.available_width() - 92.0 - 8.0;
             ui.add_space(button_distance);
-            warn_if_debug_build(ui);
+
+            #[cfg(debug_assertions)]
+            if let Some(settings) = world.get_resource::<SettingsWindow>() {
+                if settings.enable_debug_alert {
+                    warn_if_debug_build(ui);
+                }
+            }
         });
     }
 
