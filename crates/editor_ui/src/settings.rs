@@ -108,7 +108,7 @@ impl GameModeSettings {
     }
 }
 
-#[derive(Default, Resource)]
+#[derive(Resource)]
 pub struct SettingsWindow {
     read_input_for_hotkey: Option<String>,
     all_pressed_hotkeys: HashSet<KeyCode>,
@@ -116,6 +116,18 @@ pub struct SettingsWindow {
         String,
         Box<dyn FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static>,
     >,
+    #[cfg(debug_assertions)]
+    pub enable_debug_alert: bool,
+}
+
+impl Default for SettingsWindow {
+    fn default() -> Self {
+        Self {
+            #[cfg(debug_assertions)]
+            enable_debug_alert: true,
+            ..default()
+        }
+    }
 }
 
 /// Trait for registering blocks in settings tab
@@ -248,6 +260,8 @@ impl EditorTab for SettingsWindow {
                     });
                 });
 
+            #[cfg(debug_assertions)]
+            ui.checkbox(&mut self.enable_debug_alert, "Enable debug mode alert");
             for (name, block) in self.sub_blocks.iter_mut() {
                 ui.heading(name);
                 (*block)(ui, commands, world);

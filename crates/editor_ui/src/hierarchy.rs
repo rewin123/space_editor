@@ -14,9 +14,7 @@ use space_shared::*;
 
 use space_editor_tabs::prelude::*;
 
-use crate::editor_tab_name::EditorTabName;
-
-pub const WARN_COLOR: egui::Color32 = egui::Color32::from_rgb(225, 206, 67);
+use crate::{colors::WARN_COLOR, editor_tab_name::EditorTabName};
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
