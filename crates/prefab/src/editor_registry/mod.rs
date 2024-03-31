@@ -528,4 +528,49 @@ mod tests {
 
         assert_eq!(an_event.val, 17);
     }
+
+    #[test]
+    fn into_target_component() {
+        #[derive(Component, Clone)]
+        pub struct Named {
+            name: String,
+        }
+
+        impl Into<Named> for Name {
+            fn into(self) -> Named {
+                Named {
+                    name: self.to_string(),
+                }
+            }
+        }
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_systems(Startup, |mut cmd: Commands| {
+                cmd.spawn(Name::from("value"));
+            })
+            .add_systems(Update, into_sync_system::<Name, Named>);
+
+        app.update();
+
+        let mut query = app.world.query::<(&Name, &Named)>();
+        let s = query.single(&app.world);
+        assert_eq!(s.1.name, "value");
+    }
+
+    #[test]
+    fn event_editor_registration() {
+        #[derive(Default, Event, Resource, Clone, Debug, Reflect)]
+        struct AnEvent {
+            val: usize,
+        }
+
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, EditorRegistryPlugin))
+            .editor_registry_event::<AnEvent>()
+            .add_event::<AnEvent>();
+        app.update();
+
+        let registry = app.world.resource::<EditorRegistry>();
+        assert_eq!("AnEvent", registry.send_events.first().unwrap().name);
+    }
 }
