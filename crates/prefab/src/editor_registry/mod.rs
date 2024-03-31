@@ -499,7 +499,7 @@ mod tests {
         assert_eq!(send_event.name(), "AnEvent");
         assert_eq!(
             send_event.path(),
-            "space_prefab::editor_registry::send_events::AnEvent"
+            "space_prefab::editor_registry::tests::send_events::AnEvent"
         );
         assert_eq!(send_event.type_id, TypeId::of::<AnEvent>());
 
