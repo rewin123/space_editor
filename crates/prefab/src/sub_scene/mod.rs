@@ -66,7 +66,7 @@ fn clear_after_save(mut commands: Commands, queue: Query<Entity, With<CollapsedS
     }
 }
 
-fn prepare_auto_scene(world: &mut World) {
+pub fn prepare_auto_scene(world: &mut World) {
     unsafe {
         let cell = world.as_unsafe_world_cell();
 
