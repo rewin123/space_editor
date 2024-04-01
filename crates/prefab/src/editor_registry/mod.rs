@@ -333,7 +333,7 @@ impl EditorRegistryExt for App {
         self.editor_registry::<T>();
 
         self.add_systems(OnEnter(SaveState::Save), generate_auto_structs::<T>);
-        self.add_systems(Update, despawn_auto_structs::<T>);
+        self.add_systems(Update, clear_auto_structs::<T>);
         self
     }
 
@@ -386,7 +386,7 @@ fn generate_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>
 }
 
 /// Not used
-fn despawn_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
+fn clear_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
     mut commands: Commands,
     query: Query<(Entity, &AutoStruct<T>)>,
     assets: Res<AssetServer>,
@@ -410,7 +410,47 @@ fn relation_system<T: Component, Relation: Component + Default>(
 mod tests {
     use bevy::{ecs::system::CommandQueue, prelude::*};
 
-    use crate::prelude::{EditorRegistry, EditorRegistryExt, EditorRegistryPlugin};
+    use super::*;
+
+    #[test]
+    fn entity_relation_test() {
+        #[derive(Component, Default)]
+        struct TestRelation;
+
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_systems(Update, relation_system::<Name, TestRelation>)
+            .add_systems(Startup, |mut commands: Commands| {
+                commands.spawn(Name::from("value"));
+            });
+        app.update();
+
+        let mut query = app.world.query::<(&Name, &TestRelation)>();
+        let s = query.single(&app.world);
+
+        assert_eq!(s.0, &Name::from("value"));
+    }
+
+    #[test]
+    fn entity_relation_plugin_test() {
+        #[derive(Component, Default, Reflect)]
+        struct TestRelation;
+
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, EditorRegistryPlugin));
+        app.editor_registry::<Name>();
+        app.editor_registry::<TestRelation>();
+        app.editor_relation::<Name, TestRelation>();
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Name::from("value"));
+        });
+        app.update();
+
+        let mut query = app.world.query::<(&Name, &TestRelation)>();
+        let s = query.single(&app.world);
+
+        assert_eq!(s.0, &Name::from("value"));
+    }
 
     /// Test for clone logic in editor registry
     #[test]
@@ -441,5 +481,96 @@ mod tests {
             app.world.entity(new_e_id).get::<Name>().unwrap().as_str(),
             name
         );
+    }
+
+    #[test]
+    fn send_events() {
+        #[derive(Default, Event, Resource, Clone, Debug)]
+        struct AnEvent {
+            val: usize,
+        }
+
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .init_resource::<AnEvent>()
+            .add_event::<AnEvent>();
+
+        let send_event = SendEvent::new::<AnEvent>();
+        assert_eq!(send_event.name(), "AnEvent");
+        assert_eq!(
+            send_event.path(),
+            "space_prefab::editor_registry::tests::send_events::AnEvent"
+        );
+        assert_eq!(send_event.type_id, TypeId::of::<AnEvent>());
+
+        send_event.send(&mut app.world);
+        app.update();
+
+        let events = app.world.resource::<Events<AnEvent>>();
+        let mut events_reader = events.get_reader();
+        let an_event = events_reader.read(events).next().unwrap();
+
+        // Check the event has been sent
+        assert_eq!(an_event.val, 0);
+        let mut events = app.world.resource_mut::<Events<AnEvent>>();
+        events.clear();
+
+        // Change send event value
+        app.world.resource_mut::<AnEvent>().val = 17;
+        app.update();
+
+        send_event.send(&mut app.world);
+        app.update();
+
+        let events = app.world.resource::<Events<AnEvent>>();
+        let mut events_reader = events.get_reader();
+        let an_event = events_reader.read(events).next().unwrap();
+
+        assert_eq!(an_event.val, 17);
+    }
+
+    #[test]
+    fn into_target_component() {
+        #[derive(Component, Clone)]
+        pub struct Named {
+            name: String,
+        }
+
+        impl Into<Named> for Name {
+            fn into(self) -> Named {
+                Named {
+                    name: self.to_string(),
+                }
+            }
+        }
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_systems(Startup, |mut cmd: Commands| {
+                cmd.spawn(Name::from("value"));
+            })
+            .add_systems(Update, into_sync_system::<Name, Named>);
+
+        app.update();
+
+        let mut query = app.world.query::<(&Name, &Named)>();
+        let s = query.single(&app.world);
+        assert_eq!(s.1.name, "value");
+    }
+
+    #[test]
+    fn event_editor_registration() {
+        #[derive(Default, Event, Resource, Clone, Debug, Reflect)]
+        struct AnEvent {
+            val: usize,
+        }
+
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, EditorRegistryPlugin))
+            .editor_registry_event::<AnEvent>()
+            .add_event::<AnEvent>();
+        app.update();
+
+        let registry = app.world.resource::<EditorRegistry>();
+        assert_eq!("AnEvent", registry.send_events.first().unwrap().name);
     }
 }

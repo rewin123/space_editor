@@ -28,7 +28,7 @@ pub fn spawn_scene(
     auto_children: Query<&SceneAutoChild>,
     asset_server: Res<AssetServer>,
 ) {
-    for (e, prefab, children, vis, tr, auto_child) in prefabs.iter() {
+    for (e, prefab, children, visibility, transform, auto_child) in prefabs.iter() {
         if let Some(children) = children {
             for e in children {
                 if auto_children.contains(*e) {
@@ -50,14 +50,14 @@ pub fn spawn_scene(
                 } else if is_auto_child {
                     cmd.insert(SceneAutoChild);
                 } else {
-                    cmd.insert(SceneAutoChild).insert(PrefabMarker);
+                    cmd.insert((SceneAutoChild, PrefabMarker));
                 }
             }));
 
-        if vis.is_none() {
+        if visibility.is_none() {
             commands.entity(e).insert(VisibilityBundle::default());
         }
-        if tr.is_none() {
+        if transform.is_none() {
             commands.entity(e).insert(TransformBundle::default());
         }
     }
@@ -250,9 +250,9 @@ pub fn spawn_player_start(
 
 #[cfg(test)]
 mod tests {
-    use bevy::sprite::Mesh2dHandle;
-
     use super::*;
+    use bevy::scene::ScenePlugin;
+    use bevy::sprite::Mesh2dHandle;
 
     #[test]
     fn sync_cube_mesh() {
@@ -484,5 +484,105 @@ mod tests {
         child_paths
             .iter(&app.world)
             .for_each(|d| assert!(possibilities.contains(&d.0)));
+    }
+
+    #[test]
+    fn sync_spritesheet_to_spritesheetbundle() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ImagePlugin::default(),
+        ))
+        .init_resource::<Assets<TextureAtlasLayout>>()
+        .init_resource::<Assets<Image>>();
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((
+                SpritesheetTexture {
+                    texture: String::from("gabe-idle-run.png"),
+                },
+                AnimationIndicesSpriteSheet::default(),
+                TextureAtlasPrefab::default(),
+                AnimationClipName::default(),
+            ));
+        });
+        app.add_systems(Update, sync_spritesheet);
+
+        app.update();
+
+        let mut query = app.world.query::<(&TextureAtlas, &Sprite)>();
+
+        assert_eq!(query.iter(&app.world).count(), 1);
+    }
+
+    #[test]
+    fn spawns_gltf() {
+        #[derive(Component)]
+        struct DespawnTestChild;
+
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ScenePlugin::default(),
+        ));
+        app.add_systems(Startup, |mut commands: Commands| {
+            let child = commands.spawn((SceneAutoChild, DespawnTestChild)).id();
+            commands
+                .spawn(GltfPrefab {
+                    path: String::from("low_poly_fighter_2.gltf"),
+                    scene: String::from("Scene0"),
+                })
+                .add_child(child);
+        })
+        .add_systems(Update, spawn_scene);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&Handle<Scene>, &SceneAutoRoot, &Visibility, &Transform)>();
+
+        let s = query.single(&app.world);
+
+        assert_eq!(
+            s.0.path().unwrap().to_string(),
+            "low_poly_fighter_2.gltf#Scene0"
+        );
+
+        let mut query = app.world.query::<(Entity, &DespawnTestChild)>();
+        assert!(query.get_single(&app.world).is_err());
+    }
+
+    #[test]
+    fn spawns_gltf_with_visibility_and_transform() {
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            AssetPlugin::default(),
+            ScenePlugin::default(),
+        ));
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((
+                GltfPrefab {
+                    path: String::from("low_poly_fighter_2.gltf"),
+                    scene: String::from("Scene0"),
+                },
+                Visibility::Hidden,
+                TransformBundle::IDENTITY,
+            ));
+        })
+        .add_systems(Update, spawn_scene);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query::<(&Handle<Scene>, &Visibility, &Transform)>();
+
+        let s = query.single(&app.world);
+
+        assert_eq!(s.1, Visibility::Hidden);
+        assert_eq!(s.2, &Transform::IDENTITY);
     }
 }
