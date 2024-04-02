@@ -44,13 +44,13 @@ jobs:
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: |
-          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --features "bevy_xpbd_3d,ci_testing"
+          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --features "bevy_xpbd_3d,ci-testing"
       - name: Run examples
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=platformer xvfb-run cargo run --example platformer --features "bevy_xpbd_3d,ci_testing"
+          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=platformer xvfb-run cargo run --example platformer --features "bevy_xpbd_3d,ci-testing"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer
