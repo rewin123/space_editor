@@ -15,8 +15,8 @@ env:
 
 jobs:
   
-  run-platformer-linux-vulkan:
-    runs-on: ubuntu-latest
+  run-platformer-example-windows:
+    runs-on: windows-latest
     timeout-minutes: 30
     steps:
       - name: Install Bevy dependencies
@@ -42,15 +42,17 @@ jobs:
           key: ${{ runner.os }}-cargo-run-examples-${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@stable
       - name: Build bevy
+        shell: bash
         # this uses the same command as when running the example to ensure build is reused
         run: |
-          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+          WGPU_BACKEND=dx12 TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --release --example platformer --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
       - name: Run examples
+        shell: bash
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron xvfb-run cargo run --release --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+          time WGPU_BACKEND=dx12 TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron xvfb-run cargo run --release --example platformer --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer
@@ -61,15 +63,15 @@ jobs:
       - name: save traces
         uses: actions/upload-artifact@v4
         with:
-          name: example-traces-linux
+          name: example-traces-windows
           path: traces
       - name: save screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-linux
+          name: screenshots-windows
           path: screenshots
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && github.event_name == 'pull_request' }}
         with:
-          name: example-run-linux
+          name: example-run-windows
           path: example-run/
