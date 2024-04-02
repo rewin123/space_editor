@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt-get update;
           DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
-            libasound2-dev libudev-dev libxkbcommon-x11-0;
+            libasound2-dev libudev-dev libxkbcommon-x11-0  libwayland-dev; 
       - name: install xvfb, llvmpipe and lavapipe
         run: |
           sudo apt-get update -y -qq
@@ -44,13 +44,13 @@ jobs:
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: |
-          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --features "bevy_xpbd_3d,ci-testing"
+          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
       - name: Run examples
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=platformer xvfb-run cargo run --example platformer --features "bevy_xpbd_3d,ci-testing"
+          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=platformer xvfb-run cargo run --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer
