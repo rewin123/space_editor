@@ -51,6 +51,8 @@ impl Plugin for EditorCore {
         app.auto_reflected_undo::<Parent>();
         app.auto_reflected_undo::<Children>();
         app.auto_undo::<PrefabMarker>();
+        
+        app.init_resource::<EditorLoader>();
     }
 }
 
