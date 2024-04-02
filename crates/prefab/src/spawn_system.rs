@@ -250,7 +250,6 @@ pub fn spawn_player_start(
 mod tests {
     use super::*;
     use bevy::scene::ScenePlugin;
-    use bevy::sprite::Mesh2dHandle;
 
     #[test]
     fn sync_cube_mesh() {
