@@ -7,6 +7,7 @@ use bevy::utils::HashMap;
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::AppPersistenceExt;
+use space_persistence::PersistenceRegistry;
 
 pub trait Hotkey:
     Send
@@ -115,11 +116,13 @@ impl HotkeyAppExt for App {
             self.init_resource::<ButtonInput<T>>();
             #[cfg(feature = "persistence_editor")]
             {
-                self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
-                    |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
-                        dst.bindings.extend(src.bindings);
-                    },
-                ));
+                if self.world.contains_resource::<PersistenceRegistry>() {
+                    self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
+                        |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
+                            dst.bindings.extend(src.bindings);
+                        },
+                    ));
+                }
             }
             self.add_systems(PreUpdate, hotkey_mapper::<T>);
             self.register_type::<Vec<KeyCode>>();
@@ -172,6 +175,48 @@ fn hotkey_mapper<T>(
             hotkeys.press(*key);
         } else {
             hotkeys.release(*key);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bevy::input::InputPlugin;
+
+    use super::*;
+
+    #[derive(Reflect, Hash, PartialEq, Eq, Clone, Copy, Debug)]
+    enum TestKey {
+        A,
+        B,
+    }
+
+    impl Hotkey for TestKey {
+        fn name(&self) -> String {
+            format!("{:?}", self)
+        }
+    }
+
+    #[test]
+    fn hotkey_tester() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_plugins(InputPlugin);
+
+        app.editor_hotkey(TestKey::A, vec![KeyCode::KeyA]);
+        app.editor_hotkey(TestKey::B, vec![KeyCode::KeyB]);
+
+        app.update();
+        {
+            let mut input = app.world.resource_mut::<ButtonInput<KeyCode>>();
+            input.press(KeyCode::KeyA);
+            assert!(input.pressed(KeyCode::KeyA));
+        }
+        app.update();
+
+        {
+            let input = app.world.resource::<ButtonInput<TestKey>>();
+            assert_eq!(input.pressed(TestKey::A), true);
         }
     }
 }
