@@ -97,7 +97,7 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
-        run: RUSTFLAGS="-C target-cpu=native" cargo test --workspace --all-features --release
+        run: cargo test --workspace --all-features --release -- -C target-cpu=native
 
   # Run cargo clippy -- -D warnings
   clippy_check:
