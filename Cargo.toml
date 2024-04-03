@@ -116,7 +116,7 @@ too_many_arguments = { level = "allow", priority = 2 }
 [lints]
 workspace = true
 
-[profile.dev] #243.439463 s
+[profile.dev]
 opt-level = 0
 debug = "line-tables-only" 
 
