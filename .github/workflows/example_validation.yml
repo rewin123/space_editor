@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Install Bevy dependencies
         run: |
           sudo apt-get update;
@@ -39,14 +42,14 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-example-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo +nightly build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+        run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
@@ -58,7 +61,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron xvfb-run cargo +nightly run --release --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron xvfb-run cargo +nightly run --release --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer
@@ -69,23 +72,26 @@ jobs:
       - name: save traces
         uses: actions/upload-artifact@v4
         with:
-          name: example-traces-linux
+          name: example-traces-linux-platformer-${{ steps.date.outputs.date }}
           path: traces
       - name: save screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-linux
+          name: screenshots-linux-platformer-${{ steps.date.outputs.date }}
           path: screenshots
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && github.event_name == 'pull_request' }}
         with:
-          name: example-run-linux
+          name: example-run-linux-platformer-${{ steps.date.outputs.date }}
           path: example-run/
   
   run-spawn_prefab_with_physics-example-linux:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Install Bevy dependencies
         run: |
           sudo apt-get update;
@@ -106,14 +112,14 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-example-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo +nightly build --example spawn_prefab_with_physics --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+        run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron cargo +nightly build --example spawn_prefab_with_physics --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
@@ -125,7 +131,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running spawn_prefab_with_physics - "`date`
-          time TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/data.ron xvfb-run cargo +nightly run --release --example spawn_prefab_with_physics --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+          time TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron xvfb-run cargo +nightly run --release --example spawn_prefab_with_physics --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-spawn_prefab_with_physics
@@ -136,15 +142,15 @@ jobs:
       - name: save traces
         uses: actions/upload-artifact@v4
         with:
-          name: example-traces-linux
+          name: example-traces-linux-spawn-prefab-${{ steps.date.outputs.date }}
           path: traces
       - name: save screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-linux
+          name: screenshots-linux-spawn-prefab-${{ steps.date.outputs.date }}
           path: screenshots
       - uses: actions/upload-artifact@v4
         if: ${{ failure() && github.event_name == 'pull_request' }}
         with:
-          name: example-run-linux
+          name: example-run-linux-spawn-prefab-${{ steps.date.outputs.date }}
           path: example-run/
