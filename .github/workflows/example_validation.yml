@@ -14,6 +14,73 @@ env:
   NIGHTLY_TOOLCHAIN: nightly
 
 jobs:
+
+  run-platformer-example-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Install Bevy dependencies
+        run: |
+          sudo apt-get update;
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+            libasound2-dev libudev-dev libxkbcommon-x11-0  libwayland-dev; 
+      - name: install xvfb, llvmpipe and lavapipe
+        run: |
+          sudo apt-get update -y -qq
+          sudo add-apt-repository ppa:kisak/turtle -y
+          sudo apt-get update
+          sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-example-${{ hashFiles('**/Cargo.toml') }}
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          target: x86_64-unknown-linux-gnu
+      - name: Build bevy
+        # this uses the same command as when running the example to ensure build is reused
+        run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo +nightly build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
+      - name: Run examples
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
+        run: |
+          example_name=`basename plaformer.ron`
+          echo -n $example_name > last_example_run
+          echo "running platformer - "`date`
+          time TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron xvfb-run cargo +nightly run --release --example platformer --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+          sleep 10
+          if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
+            mkdir screenshots-platformer
+            mv screenshot-*.png screenshots-platformer/
+          fi
+          mkdir traces && mv trace*.json traces/
+          mkdir screenshots && mv screenshots-* screenshots/
+      - name: save traces
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-traces-linux
+          path: traces
+      - name: save screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-linux
+          path: screenshots
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() && github.event_name == 'pull_request' }}
+        with:
+          name: example-run-linux
+          path: example-run/
   
   run-spawn_prefab_with_physics-example-linux:
     runs-on: ubuntu-latest
