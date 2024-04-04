@@ -118,14 +118,13 @@ workspace = true
 
 [profile.dev]
 opt-level = 1
+incremental = true
 
 [profile.dev.package."*"]
 opt-level = 3
 
 [profile.release]
-opt-level = 3
 lto = true
-codegen-units = 1
 panic = "abort"
 
 [features]
