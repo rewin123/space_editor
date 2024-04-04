@@ -43,8 +43,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: |
-          TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+        run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         run: |
           example_name=`basename plaformer.ron`
