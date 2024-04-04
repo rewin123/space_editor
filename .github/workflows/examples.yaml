@@ -39,15 +39,18 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-example-${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@stable
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo build --example platformer --release --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
         env:
           CARGO_INCREMENTAL: 0
-          RUSTFLAGS: "-C debuginfo=0"
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort"
       - name: Run examples
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort"
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run

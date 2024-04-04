@@ -124,15 +124,16 @@ incremental = true
 opt-level = 3
 
 [profile.release]
-opt-level = "s"
+opt-level = 3
 panic = "abort"
+codegen-units = 1
 
 [features]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-dynamic = ["bevy/dynamic_linking"]
-default = ["bevy_xpbd_3d", "persistence_editor",]
+dynamic_linking = ["bevy/dynamic_linking"]
+default = ["bevy_xpbd_3d", "persistence_editor","dynamic_linking"]
 
 [[example]]
 name = "platformer"
