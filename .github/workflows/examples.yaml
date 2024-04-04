@@ -41,6 +41,9 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-example-${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly
+          target: x86_64-unknown-linux-gnu
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo +nightly build --example platformer --profile=CI --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
