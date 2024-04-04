@@ -124,7 +124,7 @@ incremental = true
 opt-level = 3
 
 [profile.release]
-lto = true
+opt-level = "s"
 panic = "abort"
 
 [features]
