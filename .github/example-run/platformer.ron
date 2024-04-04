@@ -1,5 +1,5 @@
 (
     exit_after: Some(1000),
     frame_time: Some(0.03),
-    screenshot_frames: [100],
+    screenshot_frames: [200],
 )
