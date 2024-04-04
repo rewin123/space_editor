@@ -125,7 +125,6 @@ opt-level = 3
 
 [profile.release]
 opt-level = 3
-panic = "abort"
 codegen-units = 1
 
 [profile.CI]
