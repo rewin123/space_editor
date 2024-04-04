@@ -49,11 +49,11 @@ jobs:
         run: TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/data.ron cargo +nightly build --example platformer --profile=CI --features "bevy_xpbd_3d,"bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace""
         env:
           CARGO_INCREMENTAL: 0
-          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort -Z threads=24"
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
       - name: Run examples
         env:
           CARGO_INCREMENTAL: 0
-          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z build-std=std,panic_abort -Z build-std-features=panic_immediate_abort -Z threads=24"
+          RUSTFLAGS: "-C debuginfo=0 -Z location-detail=none -Z threads=24"
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
