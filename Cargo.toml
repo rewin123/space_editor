@@ -126,7 +126,8 @@ opt-level = 3
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-default = ["bevy_xpbd_3d", "persistence_editor", "bevy/dynamic_linking"]
+dynamic = ["bevy/dynamic_linking"]
+default = ["bevy_xpbd_3d", "persistence_editor",]
 
 [[example]]
 name = "platformer"
