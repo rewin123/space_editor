@@ -1,12 +1,9 @@
 name: CI
-  
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - "*"
+    branches: [ "*" ]
+  push:
+    branches: [ main ]
 
 permissions:
   contents: write
