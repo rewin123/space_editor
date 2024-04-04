@@ -128,6 +128,13 @@ opt-level = 3
 panic = "abort"
 codegen-units = 1
 
+[profile.CI]
+inherits = "release"
+debug = false
+strip = true
+lto = false
+split-debuginfo = "off"
+
 [features]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
