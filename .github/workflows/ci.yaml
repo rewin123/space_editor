@@ -42,7 +42,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies
@@ -66,7 +66,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies
@@ -91,7 +91,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
