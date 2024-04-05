@@ -5,11 +5,11 @@ use space_editor_ui::{game_mode_changed, settings::GameModeSettings, simple_edit
 
 fn main() {
     /// Backtrace only supported on unix
-    #[cfg(all(feature = "backtrace" , not(target_os = "windows")))]
+    #[cfg(all(feature = "backtrace", not(target_os = "windows")))]
     unsafe {
         backtrace_on_stack_overflow::enable()
     };
-    
+
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {

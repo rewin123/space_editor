@@ -41,7 +41,7 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Install Flame Dependencies
         run: |
-          sudo apt install linux-perf linux-tools-common linux-tools-generic linux-tools-`uname -r`
+          sudo apt install linux-tools-common linux-tools-generic linux-tools-`uname -r`
           cargo install flamegraph
           sudo sysctl -w kernel.perf_event_paranoid=-1
           sudo sh -c 'echo "kernel.perf_event_paranoid=-1" >> /etc/sysctl.conf'
