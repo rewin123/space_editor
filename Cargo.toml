@@ -132,7 +132,7 @@ codegen-units = 256
 incremental = true
 
 [features]
-backtrace = ["dep:backtrace-on-stack-overflow"]
+backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
