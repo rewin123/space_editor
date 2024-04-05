@@ -52,7 +52,7 @@ jobs:
           target: x86_64-unknown-linux-gnu
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+        run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace,backtrace"
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-C debuginfo=0"
@@ -64,7 +64,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron xvfb-run cargo +nightly run --profile=ci --example platformer --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron xvfb-run cargo +nightly run --profile=ci --example platformer --features "backtrace,bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer

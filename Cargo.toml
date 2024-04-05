@@ -85,7 +85,7 @@ bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
 game_app.workspace = true
-backtrace-on-stack-overflow = {version = "0.3"}
+backtrace-on-stack-overflow = {version = "0.3", optional = true}
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
@@ -132,6 +132,7 @@ codegen-units = 256
 incremental = true
 
 [features]
+backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
