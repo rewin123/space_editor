@@ -6,6 +6,7 @@ on:
       - main
   pull_request:
     branches:
+      - main
       - "v*"
 permissions:
     contents: write
