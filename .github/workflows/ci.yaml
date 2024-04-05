@@ -48,7 +48,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Run cargo test
-        run: cargo test --workspace --no-default-features --release
+        run: cargo test --workspace --no-default-features --profile=ci
     
   test_all:
     name: Test all features
@@ -72,7 +72,7 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run cargo test
-        run: cargo test --workspace --all-features --release
+        run: cargo test --workspace --all-features --profile=ci
   
   test_all_macos:
     strategy:
@@ -97,7 +97,7 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
-        run: cargo test --workspace --all-features --release
+        run: cargo test --workspace --all-features --profile=ci
 
   # Run cargo clippy -- -D warnings
   clippy_check:
