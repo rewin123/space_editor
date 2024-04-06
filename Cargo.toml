@@ -38,7 +38,7 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13.1"
+bevy = "0.13.2"
 
 # Editor Crates
 space_prefab = { version = "0.6.0", path = "crates/prefab" }
@@ -70,8 +70,8 @@ egui_file = "0.15"
 egui-gizmo = "0.16.1"
 egui-toast = "0.12.1"
 image = {version = "0.24.8", feature = ["png"] }
-
 pretty-type-name = "1"
+rand = "*"
 ron = "0.8"
 serde = "1"
 
@@ -79,13 +79,13 @@ serde = "1"
 space_bevy_xpbd_plugin = { version = "0.6.0", path = "modules/bevy_xpbd_plugin"}
 game_app = { version = "0.1.0", path = "game" }
 bevy_xpbd_3d = { version = "0.4.2", default-features = false }
-rand = "*"
 
 [dependencies]
 bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
 game_app.workspace = true
+backtrace-on-stack-overflow = {version = "0.3", optional = true}
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
@@ -123,7 +123,17 @@ debug = "line-tables-only"
 [profile.dev.package."*"]
 opt-level = 3
 
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+debug = 0
+strip = "none"
+lto = false
+codegen-units = 256
+incremental = true
+
 [features]
+backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
