@@ -5,7 +5,7 @@ use space_editor_ui::{game_mode_changed, settings::GameModeSettings, simple_edit
 
 fn main() {
     // Backtrace only supported on unix
-    #[cfg(feature = "backtrace")]
+    #[cfg(all(feature = "backtrace", target_os = "linux"))]
     unsafe {
         backtrace_on_stack_overflow::enable()
     };
