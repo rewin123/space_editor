@@ -211,6 +211,7 @@ fn draw_entity<F: QueryFilter>(
             }
         })
         .body(|ui| {
+            // already checked that children is some
             for child in children.unwrap().iter() {
                 draw_entity(
                     commands,

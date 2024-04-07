@@ -156,7 +156,9 @@ fn unpack_gltf(world: &mut World) {
             let mut roots = vec![];
             for e in scene.world.iter_entities() {
                 if !e.contains::<Parent>() && e.contains::<Children>() {
-                    let children = e.get::<Children>().unwrap();
+                    let Some(children) = e.get::<Children>() else {
+                        continue;
+                    };
                     for child in children.iter() {
                         if let Some(name) = scene.world.entity(*child).get::<Name>() {
                             info!("Name: {:?}", &name);

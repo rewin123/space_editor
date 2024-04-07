@@ -152,7 +152,9 @@ impl HotkeyAppExt for App {
                 }))
         }
 
-        let mut set = self.world.get_resource_mut::<HotkeySet<T>>().unwrap();
+        let Some(mut set) = self.world.get_resource_mut::<HotkeySet<T>>() else {
+            return self;
+        };
         set.bindings.insert(key, binding);
         self
     }

@@ -70,7 +70,11 @@ impl EditorUiExt for App {
             reg
         } else {
             self.init_resource::<BundleReg>();
-            self.world.get_resource_mut::<BundleReg>().unwrap()
+            if let Some(reg) = self.world.get_resource_mut::<BundleReg>() {
+                reg
+            } else {
+                return;
+            }
         };
 
         reg.add_bundle(EditorBundle {

@@ -18,8 +18,11 @@ use bevy_egui::{egui::TextEdit, *};
 
 use space_editor_core::prelude::*;
 use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
-use space_shared::ext::bevy_inspector_egui::{
-    inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+use space_shared::{
+    ext::bevy_inspector_egui::{
+        inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+    },
+    toast::{ToastKind, ToastMessage},
 };
 
 use crate::{editor_tab_name::EditorTabName, icons::add_component_icon};
@@ -114,7 +117,14 @@ impl EditorTab for InspectorTab {
         });
 
         let cell = world.as_unsafe_world_cell();
-        let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
+        let Some(mut state) = (unsafe { cell.get_resource_mut::<InspectState>() }) else {
+            error!("Failed to load inspect state");
+            world.send_event(ToastMessage::new(
+                "Failed to load inspect state",
+                ToastKind::Error,
+            ));
+            return;
+        };
 
         let mut commands: Vec<InspectCommand> = vec![];
         let mut queue = CommandQueue::default();

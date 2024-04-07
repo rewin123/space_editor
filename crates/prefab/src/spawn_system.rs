@@ -405,6 +405,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn spawns_player_with_prefab() {
         let mut app = App::new();
         app.add_plugins((
