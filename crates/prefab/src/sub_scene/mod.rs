@@ -5,6 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
+#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 
 use crate::{

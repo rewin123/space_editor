@@ -1,5 +1,6 @@
 use bevy::{prelude::*, sprite::Mesh2dHandle};
 use bevy_scene_hook::SceneHook;
+#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 use space_shared::PrefabMarker;
 
