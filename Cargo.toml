@@ -85,10 +85,12 @@ bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
 game_app.workspace = true
-backtrace-on-stack-overflow = {version = "0.3", optional = true}
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+backtrace-on-stack-overflow = {version = "0.3", optional = true}
 
 # For versions 1.74+
 [workspace.lints.rust]
