@@ -28,6 +28,10 @@ name = "game_app"
 path = "game/src/main.rs"
 required-features = ["bevy_xpbd_3d"]
 
+[[bin]]
+name = "plugin_test"
+path = "external/editor_as_plugin/src/main.rs"
+
 [workspace.package]
 version = "0.6.0"
 edition = "2021"
