@@ -290,6 +290,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn decompress_scene_trows_event_when_missing_subscene() {
         let file = "test.ron";
 
