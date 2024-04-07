@@ -167,7 +167,7 @@ impl EditorUi {
                         if let Some(surface) = self.tree.get_surface_mut(surface) {
                             surface
                                 .node_tree_mut()
-                                .unwrap() // Guarenteed to exist
+                                .unwrap() // Guaranteed to exist
                                 .split_right(node, 0.5, vec![name]);
                         }
                     }
