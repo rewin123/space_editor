@@ -10,7 +10,19 @@ homepage.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["dylib"]
+
 [features]
+dynamic_linking = [
+    "bevy/dynamic_linking",
+    "space_editor_core/dynamic_linking",
+    "space_editor_tabs/dynamic_linking",
+    "space_prefab/dynamic_linking", 
+    "space_undo/dynamic_linking",  
+    "space_persistence/dynamic_linking", 
+    "space_shared/dynamic_linking",
+]
 persistence_editor = []
 
 [dependencies]

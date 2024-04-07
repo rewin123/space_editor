@@ -54,11 +54,11 @@ jobs:
         # this uses the same command as when running the example to ensure build is reused
         run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace,backtrace"
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
         run: |
           example_name=`basename plaformer.ron`
@@ -124,11 +124,11 @@ jobs:
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron cargo +nightly build --example spawn_prefab_with_physics --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
         run: |
           example_name=`basename plaformer.ron`
@@ -194,7 +194,7 @@ jobs:
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo +nightly build --bin plugin_test --profile=ci --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:

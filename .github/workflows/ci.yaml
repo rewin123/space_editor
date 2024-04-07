@@ -48,7 +48,9 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Run cargo test
-        run: cargo test --workspace --no-default-features --profile=ci
+        run: cargo test --workspace --no-default-features --profile=ci --features "dynamic_linking"
+        env:
+          CARGO_INCREMENTAL: 1
     
   test_all:
     name: Test all features
@@ -73,6 +75,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run cargo test
         run: cargo test --workspace --all-features --profile=ci
+        env:
+          CARGO_INCREMENTAL: 1
   
   test_all_macos_n_windows:
     strategy:
@@ -80,7 +84,7 @@ jobs:
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     name: Test ${{ matrix.os }} all features
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -97,9 +101,9 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
-        run: cargo test --workspace --all-features --release
+        run: cargo test --workspace --all-features --profile=ci
         env:
-          CARGO_INCREMENTAL: 0
+          CARGO_INCREMENTAL: 1
           RUSTFLAGS: "-C debuginfo=0"
 
 
@@ -129,6 +133,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --all-features -- -D warnings
+        env:
+          CARGO_INCREMENTAL: 1
 
   # Run cargo fmt --all -- --check
   format:

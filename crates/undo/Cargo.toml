@@ -10,6 +10,9 @@ homepage.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+dynamic_linking = ["bevy/dynamic_linking",]
+
 [dependencies]
 bevy.workspace = true
 pretty-type-name.workspace = true
