@@ -74,7 +74,7 @@ jobs:
       - name: Run cargo test
         run: cargo test --workspace --all-features --profile=ci
   
-  test_all_macos:
+  test_all_macos_n_windows:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
@@ -98,6 +98,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Run cargo test
         run: cargo test --workspace --all-features --release
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: "-C debuginfo=0"
+
 
   # Run cargo clippy -- -D warnings
   clippy_check:

@@ -5,6 +5,7 @@ use bevy::{
     utils::HashSet,
 };
 use serde::de::DeserializeSeed;
+#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 
 use crate::{
@@ -289,6 +290,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "editor")]
     fn decompress_scene_trows_event_when_missing_subscene() {
         let file = "test.ron";
 
