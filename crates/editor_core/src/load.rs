@@ -21,7 +21,14 @@ pub fn load_listener(world: &mut World) {
             return;
         }
     }
-    world.resource_mut::<EditorLoader>().scene = None;
+    let Some(mut editor_loader) = world.get_resource_mut::<EditorLoader>() else {
+        world.send_event(ToastMessage::new(
+            "Failed to get prefab loader",
+            egui_toast::ToastKind::Error,
+        ));
+        return;
+    };
+    editor_loader.scene = None;
 
     let mut query = world.query_filtered::<(Entity, Option<&Name>), With<PrefabMarker>>();
     let mark_to_delete: Vec<_> = query

@@ -12,6 +12,7 @@ description = "Subcrate for the space_editor crate. Contains the prefab systems 
 
 [features]
 no_event_registration = []
+editor = []
 
 [dependencies]
 bevy.workspace = true

@@ -137,7 +137,12 @@ impl EditorUi {
             .show_add_popup(true)
             .show(ctx, &mut tab_viewer);
 
-        let windows_setting = unsafe { cell.world_mut().resource_mut::<NewWindowSettings>() };
+        let Some(windows_setting) =
+            (unsafe { cell.world_mut().get_resource_mut::<NewWindowSettings>() })
+        else {
+            error!("Failed to load new window settings");
+            return;
+        };
         for command in tab_viewer.tab_commands {
             match command {
                 EditorTabCommand::Add {
@@ -216,7 +221,10 @@ impl EditorUiAppExt for App {
                         });
 
                 to_label(
-                    world.resource_mut::<T>().tab_name().title.as_str(),
+                    &world
+                        .get_resource::<T>()
+                        .map(|tab| tab.tab_name().title)
+                        .unwrap_or_else(|| "Unknown".to_string()),
                     text_size,
                 )
                 .into()
@@ -243,6 +251,7 @@ impl EditorUiAppExt for App {
 
         tab.schedule.add_systems(tab_systems);
 
+        // Not much we can do here
         self.world
             .resource_mut::<ScheduleEditorTabStorage>()
             .0

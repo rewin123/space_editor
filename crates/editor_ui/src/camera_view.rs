@@ -191,12 +191,18 @@ impl EditorTab for CameraViewTab {
         let mut need_recreate_texture = false;
 
         if self.target_image.is_none() {
-            let handle = world
-                .resource_mut::<Assets<Image>>()
-                .add(create_camera_image(
+            let Some(handle) = world.get_resource_mut::<Assets<Image>>().map(|mut assets| {
+                assets.add(create_camera_image(
                     clipped.width() as u32,
                     clipped.height() as u32,
+                ))
+            }) else {
+                world.send_event(ToastMessage::new(
+                    "No camera image target found.",
+                    toast::ToastKind::Error,
                 ));
+                return;
+            };
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
             let msg = format!(
@@ -220,12 +226,18 @@ impl EditorTab for CameraViewTab {
         }
 
         if need_recreate_texture {
-            let handle = world
-                .resource_mut::<Assets<Image>>()
-                .add(create_camera_image(
+            let Some(handle) = world.get_resource_mut::<Assets<Image>>().map(|mut assets| {
+                assets.add(create_camera_image(
                     clipped.width() as u32,
                     clipped.height() as u32,
+                ))
+            }) else {
+                world.send_event(ToastMessage::new(
+                    "No camera image target found.",
+                    toast::ToastKind::Error,
                 ));
+                return;
+            };
 
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;

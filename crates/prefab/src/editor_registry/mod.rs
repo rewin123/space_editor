@@ -107,8 +107,9 @@ impl SendEvent {
             path,
             type_id,
             func: Arc::new(move |world| {
-                let event = world.resource::<T>().clone();
-                world.send_event(event);
+                if let Some(event) = world.get_resource::<T>().cloned() {
+                    world.send_event(event);
+                }
             }),
         }
     }
@@ -274,7 +275,9 @@ impl EditorRegistryExt for App {
     >(
         &mut self,
     ) -> &mut Self {
-        self.world.resource_mut::<EditorRegistry>().register::<T>();
+        if let Some(mut registry) = self.world.get_resource_mut::<EditorRegistry>() {
+            registry.register::<T>()
+        }
         self.world.init_component::<T>();
         self.register_type::<T>();
         self.auto_reflected_undo::<T>();
@@ -286,9 +289,9 @@ impl EditorRegistryExt for App {
     >(
         &mut self,
     ) -> &mut Self {
-        self.world
-            .resource_mut::<EditorRegistry>()
-            .only_clone_register::<T>();
+        if let Some(mut registry) = self.world.get_resource_mut::<EditorRegistry>() {
+            registry.only_clone_register::<T>()
+        }
         self.register_type::<T>();
         self
     }
@@ -298,9 +301,9 @@ impl EditorRegistryExt for App {
     >(
         &mut self,
     ) -> &mut Self {
-        self.world
-            .resource_mut::<EditorRegistry>()
-            .silent_register::<T>();
+        if let Some(mut registry) = self.world.get_resource_mut::<EditorRegistry>() {
+            registry.silent_register::<T>()
+        }
         self.register_type::<T>();
         self
     }
@@ -357,9 +360,9 @@ impl EditorRegistryExt for App {
             self.register_type::<T>();
             self.world.init_resource::<T>();
         }
-        self.world
-            .resource_mut::<EditorRegistry>()
-            .event_register::<T>();
+        if let Some(mut registry) = self.world.get_resource_mut::<EditorRegistry>() {
+            registry.event_register::<T>()
+        }
         self
     }
 }

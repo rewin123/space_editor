@@ -78,7 +78,9 @@ struct UnpackContext<'a> {
 
 fn unpack_gltf(world: &mut World) {
     let loaded_scenes = {
-        let mut events = world.resource_mut::<Events<GltfLoaded>>();
+        let Some(mut events) = world.get_resource_mut::<Events<GltfLoaded>>() else {
+            return;
+        };
         let mut reader = events.get_reader();
         let loaded = reader.read(&events).cloned().collect::<Vec<GltfLoaded>>();
         events.clear();
@@ -95,15 +97,44 @@ fn unpack_gltf(world: &mut World) {
         };
         info!("Path: {:?}", &gltf_path);
 
-        let Some(gltf) = world.resource::<Assets<Gltf>>().get(&gltf.0) else {
+        let Some(gltf) = world
+            .get_resource::<Assets<Gltf>>()
+            .and_then(|gltfs| gltfs.get(&gltf.0))
+        else {
+            #[cfg(feature = "editor")]
+            world.send_event(space_shared::toast::ToastMessage::new(
+                "Gltf asset not found or empty",
+                space_shared::toast::ToastKind::Error,
+            ));
             continue;
         };
 
         let mut commands = Commands::new(&mut command_queue, world);
 
-        let gltf_nodes = world.resource::<Assets<GltfNode>>();
-        let gltf_meshs = world.resource::<Assets<GltfMesh>>();
-        let scenes = world.resource::<Assets<Scene>>();
+        let Some(gltf_nodes) = world.get_resource::<Assets<GltfNode>>() else {
+            #[cfg(feature = "editor")]
+            world.send_event(space_shared::toast::ToastMessage::new(
+                "Gltf Node asset not found",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
+        let Some(gltf_meshs) = world.get_resource::<Assets<GltfMesh>>() else {
+            #[cfg(feature = "editor")]
+            world.send_event(space_shared::toast::ToastMessage::new(
+                "Gltf Mesh asset not found",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
+        let Some(scenes) = world.get_resource::<Assets<Scene>>() else {
+            #[cfg(feature = "editor")]
+            world.send_event(space_shared::toast::ToastMessage::new(
+                "Scene asset not found",
+                space_shared::toast::ToastKind::Error,
+            ));
+            continue;
+        };
 
         let mut mesh_map = HashMap::new();
         for idx in 0..gltf.meshes.len() {
