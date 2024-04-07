@@ -42,13 +42,15 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-nofeatures_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Run cargo test
         run: cargo test --workspace --no-default-features --profile=ci --features "dynamic_linking"
+        env:
+          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
     
   test_all:
     name: Test all features
@@ -73,6 +75,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run cargo test
         run: cargo test --workspace --all-features --profile=ci
+        env:
+          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
   
   test_all_macos_n_windows:
     strategy:
@@ -99,7 +103,7 @@ jobs:
       - name: Run cargo test
         run: cargo test --workspace --all-features --profile=ci
         env:
-          RUSTFLAGS: "-C debuginfo=0"
+          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
 
 
   # Run cargo clippy -- -D warnings

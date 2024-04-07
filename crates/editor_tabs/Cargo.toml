@@ -10,7 +10,7 @@ repository.workspace = true
 homepage.workspace = true
 
 [lib]
-crate-type = ["dylib"]
+crate-type = ["rlib", "dylib"]
 
 [features]
 dynamic_linking = ["bevy/dynamic_linking",]
