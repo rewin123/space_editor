@@ -11,7 +11,9 @@ pub fn load_listener(world: &mut World) {
         let assets = world.resource::<Assets<DynamicScene>>();
         if let Some(scene) = &load_server.scene {
             if let Some(scene) = assets.get(scene) {
-                let mut scene = Scene::from_dynamic_scene(scene, &app_registry).unwrap();
+                let Ok(mut scene) = Scene::from_dynamic_scene(scene, &app_registry) else {
+                    return;
+                };
                 scene.world.insert_resource(app_registry);
                 prefab = DynamicScene::from_scene(&scene); //kill me, is it clone() analog for DynamicScene
             } else {
@@ -21,7 +23,14 @@ pub fn load_listener(world: &mut World) {
             return;
         }
     }
-    world.resource_mut::<EditorLoader>().scene = None;
+    let Some(mut editor_loader) = world.get_resource_mut::<EditorLoader>() else {
+        world.send_event(ToastMessage::new(
+            "Failed to get prefab loader",
+            egui_toast::ToastKind::Error,
+        ));
+        return;
+    };
+    editor_loader.scene = None;
 
     let mut query = world.query_filtered::<(Entity, Option<&Name>), With<PrefabMarker>>();
     let mark_to_delete: Vec<_> = query
@@ -38,7 +47,11 @@ pub fn load_listener(world: &mut World) {
         if despawned {
             world.send_event(ToastMessage::new(
                 &if name.is_some() {
-                    format!("Despawning {}: {:?}", name.unwrap(), entity)
+                    format!(
+                        "Despawning {}: {:?}",
+                        name.unwrap_or_else(|| Name::from(format!("{entity:?}"))),
+                        entity
+                    )
                 } else {
                     format!("Despawning {:?}", entity)
                 },

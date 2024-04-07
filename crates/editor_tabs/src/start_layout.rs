@@ -86,7 +86,9 @@ impl GroupLayoutExt for App {
         group: G,
         tab: N,
     ) -> &mut Self {
-        self.world.resource_mut::<R>().push(group, tab);
+        if let Some(mut layout) = self.world.get_resource_mut::<R>() {
+            layout.push(group, tab)
+        }
         self
     }
 
@@ -95,7 +97,9 @@ impl GroupLayoutExt for App {
         group: G,
         tab: N,
     ) -> &mut Self {
-        self.world.resource_mut::<R>().push_front(group, tab);
+        if let Some(mut layout) = self.world.get_resource_mut::<R>() {
+            layout.push_front(group, tab)
+        }
         self
     }
 

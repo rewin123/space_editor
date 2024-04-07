@@ -128,6 +128,7 @@ pub struct EditorIconAssets {
 fn register_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     use space_shared::asset_fs::*;
     let assets = EditorIconAssets {
+        // Unwraps are logged
         unknown: asset_server.add(
             create_unknown_image()
                 .inspect_err(|err| error!("failed to load image `Unknown`: {err}"))

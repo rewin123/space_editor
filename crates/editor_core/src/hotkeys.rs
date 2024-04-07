@@ -130,6 +130,7 @@ impl HotkeyAppExt for App {
             self.register_type::<HashMap<T, Vec<KeyCode>>>();
             self.register_type::<T>();
             self.world
+                // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .mappers
                 .push(Box::new(|w, map_fun| {
@@ -141,6 +142,7 @@ impl HotkeyAppExt for App {
                 }));
 
             self.world
+                // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .global_mapper
                 .push(Box::new(|w, map_fun| {
@@ -150,7 +152,9 @@ impl HotkeyAppExt for App {
                 }))
         }
 
-        let mut set = self.world.get_resource_mut::<HotkeySet<T>>().unwrap();
+        let Some(mut set) = self.world.get_resource_mut::<HotkeySet<T>>() else {
+            return self;
+        };
         set.bindings.insert(key, binding);
         self
     }

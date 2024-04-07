@@ -77,10 +77,13 @@ pub fn prepare_auto_scene(world: &mut World) {
         let scene_roots = scene_root_query.iter(cell.world()).collect::<Vec<_>>();
 
         for root_entity in scene_roots.iter() {
-            let registry = cell
+            let Some(registry) = cell
                 .world()
-                .resource::<crate::prelude::EditorRegistry>()
-                .clone();
+                .get_resource::<crate::prelude::EditorRegistry>()
+                .cloned()
+            else {
+                continue;
+            };
             let allow_types: Vec<TypeId> = registry
                 .registry
                 .read()
@@ -97,7 +100,10 @@ pub fn prepare_auto_scene(world: &mut World) {
             dyn_scene = recursive_extract(&cell, dyn_scene, *root_entity);
 
             let scene = dyn_scene.build();
-            let data = scene.serialize_ron(cell.world().resource::<AppTypeRegistry>());
+            let Some(app_registry) = cell.world().get_resource::<AppTypeRegistry>() else {
+                continue;
+            };
+            let data = scene.serialize_ron(app_registry);
 
             if let Ok(data) = data {
                 info!("serialized sub scene: {:?}", data);
@@ -137,13 +143,14 @@ fn decompress_scene(
     mut commands: Commands,
     roots: Query<(Entity, &CollapsedSubScene)>,
     type_registry: Res<AppTypeRegistry>,
-    mut toast: EventWriter<ToastMessage>,
+    #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
 ) {
     for (root_entity, root) in roots.iter() {
         let scene_deserializer = SceneDeserializer {
             type_registry: &type_registry.read(),
         };
         let Ok(mut deserializer) = ron::de::Deserializer::from_str(root.0.as_str()) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Failed create Deserializer for sub scene",
                 space_shared::toast::ToastKind::Error,
@@ -151,6 +158,7 @@ fn decompress_scene(
             continue;
         };
         let Ok(dyn_scene) = scene_deserializer.deserialize(&mut deserializer) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Failed to deserialize sub scene",
                 space_shared::toast::ToastKind::Error,
@@ -159,6 +167,7 @@ fn decompress_scene(
         };
 
         let Ok(scene) = Scene::from_dynamic_scene(&dyn_scene, &type_registry) else {
+            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Decompress scene does not exist",
                 space_shared::toast::ToastKind::Error,
