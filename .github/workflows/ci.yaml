@@ -133,7 +133,7 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all-features -- -D warnings
         env:
-          CARGO_INCREMENTAL: 1
+          CARGO_INCREMENTAL: 0
 
   # Run cargo fmt --all -- --check
   format:

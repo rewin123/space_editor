@@ -136,7 +136,7 @@ debug = 0
 strip = "none"
 lto = false
 codegen-units = 256
-incremental = true
+incremental = false
 
 [features]
 backtrace = ["backtrace-on-stack-overflow"]
