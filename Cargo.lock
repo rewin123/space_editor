@@ -2020,6 +2020,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "editor_as_plugin"
+version = "0.6.0"
+dependencies = [
+ "bevy",
+ "space_editor_ui",
+]
+
+[[package]]
 name = "egui"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
