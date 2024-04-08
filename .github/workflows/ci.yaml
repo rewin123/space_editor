@@ -42,7 +42,7 @@ jobs:
           sudo apt-get install lld clang
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --no-default-features --profile=release-ci
+        run: cargo nextest run --workspace --no-default-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
     
@@ -62,7 +62,7 @@ jobs:
           sudo apt-get install lld clang
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --profile=release-ci
+        run: cargo nextest run --workspace --all-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
   
@@ -83,7 +83,7 @@ jobs:
         run: |
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --profile=release-ci
+        run: cargo nextest run --workspace --all-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
 
