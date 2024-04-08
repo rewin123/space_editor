@@ -143,11 +143,7 @@ backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-dynamic_linking = [
-    "bevy/dynamic_linking", 
-    "space_editor_ui/dynamic_linking", 
-    "space_prefab/dynamic_linking",
-]
+dynamic_linking = ["bevy/dynamic_linking"]
 default = [
     "bevy_xpbd_3d", 
     "persistence_editor", 

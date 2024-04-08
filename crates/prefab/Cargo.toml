@@ -11,11 +11,6 @@ description = "Subcrate for the space_editor crate. Contains the prefab systems 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-dynamic_linking = [
-    "bevy/dynamic_linking",
-    "space_shared/dynamic_linking", 
-    "space_undo/dynamic_linking",
-]
 no_event_registration = []
 editor = []
 

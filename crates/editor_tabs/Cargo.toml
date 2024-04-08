@@ -12,9 +12,6 @@ homepage.workspace = true
 [lib]
 crate-type = ["rlib", "dylib"]
 
-[features]
-dynamic_linking = ["bevy/dynamic_linking",]
-
 [dependencies]
 bevy.workspace = true
 bevy_egui.workspace = true
