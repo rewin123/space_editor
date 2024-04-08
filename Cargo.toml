@@ -101,6 +101,7 @@ backtrace-on-stack-overflow = {version = "0.3", optional = true}
 [workspace.lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
+non_local_definitions = { level = "allow", priority = 2 }
 
 [workspace.lints.clippy]
 nursery = { level = "deny", priority = -1 }
@@ -119,7 +120,6 @@ needless_pass_by_ref_mut = { level = "allow", priority = 2 }
 significant_drop_in_scrutinee = { level = "allow", priority = 2 }
 significant_drop_tightening = { level = "allow", priority = 2 }
 too_many_arguments = { level = "allow", priority = 2 }
-non_local_definitions = { level = "allow", priority = 2 }
 
 [lints]
 workspace = true

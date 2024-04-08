@@ -41,9 +41,9 @@ jobs:
           sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
           sudo apt-get install lld clang
       - name: Compile
-        run: cargo test --no-run --locked --profile=release-fast
+        run: cargo test --no-run --locked --release
       - name: Run cargo test
-        run: cargo test --workspace --no-default-features --profile=release-fast
+        run: cargo test --workspace --no-default-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
     
@@ -62,9 +62,9 @@ jobs:
           sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
           sudo apt-get install lld clang
       - name: Compile
-        run: cargo test --no-run --locked --profile=release-fast
+        run: cargo test --no-run --locked --release
       - name: Run cargo test
-        run: cargo test --workspace --all-features --profile=release-fast
+        run: cargo test --workspace --all-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
   
@@ -87,9 +87,9 @@ jobs:
           cargo install -f cargo-binutils
           rustup component add llvm-tools-preview
       - name: Compile
-        run: cargo test --no-run --locked --profile=release-fast
+        run: cargo test --no-run --locked --release
       - name: Run cargo test
-        run: cargo test --workspace --all-features --profile=release-fast
+        run: cargo test --workspace --all-features --release
         env:
           RUSTFLAGS: "-C debuginfo=0"
 
