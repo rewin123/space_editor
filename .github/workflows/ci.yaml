@@ -25,7 +25,7 @@ jobs:
     - name: Check spelling
       uses: crate-ci/typos@master
 
-  # Run cargo nextest run
+  # Run cargo test
   test_minimal:
     name: Test without features
     runs-on: ubuntu-latest
@@ -40,9 +40,10 @@ jobs:
         run: |
           sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
           sudo apt-get install lld clang
-          cargo install cargo-nextest
-      - name: Run cargo nextest run
-        run: cargo nextest run --workspace --no-default-features --release
+      - name: Compile
+        run: cargo test --no-run --locked --profile=release-fast
+      - name: Run cargo test
+        run: cargo test --workspace --no-default-features --profile=release-fast
         env:
           RUSTFLAGS: "-C debuginfo=0"
     
@@ -60,9 +61,10 @@ jobs:
         run: |
           sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
           sudo apt-get install lld clang
-          cargo install cargo-nextest
-      - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --release
+      - name: Compile
+        run: cargo test --no-run --locked --profile=release-fast
+      - name: Run cargo test
+        run: cargo test --workspace --all-features --profile=release-fast
         env:
           RUSTFLAGS: "-C debuginfo=0"
   
@@ -79,11 +81,18 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Install Dependencies
+      - name: Install linker Macos
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: rui314/setup-mold@v1
+      - name: Install linker Windows
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          cargo install cargo-nextest
-      - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --release
+          cargo install -f cargo-binutils
+          rustup component add llvm-tools-preview
+      - name: Compile
+        run: cargo test --no-run --locked --profile=release-fast
+      - name: Run cargo test
+        run: cargo test --workspace --all-features --profile=release-fast
         env:
           RUSTFLAGS: "-C debuginfo=0"
 
