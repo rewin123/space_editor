@@ -539,7 +539,6 @@ mod tests {
             name: String,
         }
 
-        #[allow(clippy::non_local_definitions)]
         impl Into<Named> for Name {
             fn into(self) -> Named {
                 Named {
