@@ -81,9 +81,6 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Install linker Macos
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install mold
       - name: Install linker Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
