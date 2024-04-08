@@ -138,6 +138,14 @@ strip = "debuginfo"
 lto = false
 incremental = false
 
+[profile.retail]
+inherits = "release"
+lto = true
+
+[profile.release-lto]
+inherits = "release"
+lto = "thin"
+
 [features]
 backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
