@@ -28,7 +28,7 @@ jobs:
   # Run cargo nextest run
   test_minimal:
     name: Test without features
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout sources
@@ -42,13 +42,13 @@ jobs:
           sudo apt-get install lld clang
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --no-default-features --profile ci
+        run: cargo nextest run --workspace --no-default-features --profile=release-ci
         env:
           RUSTFLAGS: "-C debuginfo=0"
     
   test_all:
     name: Test all features
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout sources
@@ -62,7 +62,7 @@ jobs:
           sudo apt-get install lld clang
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --profile ci
+        run: cargo nextest run --workspace --all-features --profile=release-ci
         env:
           RUSTFLAGS: "-C debuginfo=0"
   
@@ -83,7 +83,7 @@ jobs:
         run: |
           cargo install cargo-nextest
       - name: Run cargo nextest run
-        run: cargo nextest run --workspace --all-features --profile ci
+        run: cargo nextest run --workspace --all-features --profile=release-ci
         env:
           RUSTFLAGS: "-C debuginfo=0"
 
@@ -91,7 +91,7 @@ jobs:
   # Run cargo clippy -- -D warnings
   clippy_check:
     name: Clippy
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout sources

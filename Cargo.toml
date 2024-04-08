@@ -131,7 +131,7 @@ incremental = true # works well when target/ is stored
 [profile.dev.package."*"]
 opt-level = 3
 
-[profile.ci]
+[profile.release-ci]
 inherits = "release"
 debug = 0
 strip = "debuginfo"

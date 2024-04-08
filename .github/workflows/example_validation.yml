@@ -19,7 +19,7 @@ env:
 jobs:
 
   run-platformer-example-linux:
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -45,7 +45,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace,backtrace"
+        run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile=release-ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace,backtrace"
         env:
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
@@ -55,7 +55,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running platformer - "`date`
-          time CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron xvfb-run cargo +nightly run --profile ci --example platformer --features "backtrace,bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron xvfb-run cargo +nightly run --profile=release-ci --example platformer --features "backtrace,bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-platformer
@@ -80,7 +80,7 @@ jobs:
           path: example-run/
   
   run-spawn_prefab_with_physics-example-linux:
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -106,7 +106,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron cargo +nightly build --example spawn_prefab_with_physics --profile ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+        run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron cargo +nightly build --example spawn_prefab_with_physics --profile=release-ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
@@ -116,7 +116,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running spawn_prefab_with_physics - "`date`
-          time TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron xvfb-run cargo +nightly run --profile ci --example spawn_prefab_with_physics --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron xvfb-run cargo +nightly run --profile=release-ci --example spawn_prefab_with_physics --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-spawn_prefab_with_physics
@@ -141,7 +141,7 @@ jobs:
           path: example-run/
 
   run-external_plugin-example-linux:
-    runs-on: ubicloud
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -167,7 +167,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
-        run: TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo +nightly build --bin plugin_test --profile ci --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+        run: TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo +nightly build --bin plugin_test --profile=release-ci --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
@@ -177,7 +177,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running external_plugin - "`date`
-          time TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron xvfb-run cargo +nightly run --profile ci --bin plugin_test --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron xvfb-run cargo +nightly run --profile=release-ci --bin plugin_test --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-external_plugin
