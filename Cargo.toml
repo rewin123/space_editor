@@ -125,17 +125,17 @@ workspace = true
 
 [profile.dev]
 opt-level = 1
+overflow-checks = false 
+incremental = true # works well when target/ is stored
 
 [profile.dev.package."*"]
 opt-level = 3
 
 [profile.ci]
-inherits = "dev"
-opt-level = 0
+inherits = "release"
 debug = 0
-strip = "none"
+strip = "debuginfo"
 lto = false
-codegen-units = 256
 incremental = false
 
 [features]
@@ -143,12 +143,10 @@ backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-dynamic_linking = ["bevy/dynamic_linking"]
 default = [
     "bevy_xpbd_3d", 
     "persistence_editor", 
     "space_prefab/editor", 
-    "dynamic_linking"
 ]
 
 [[example]]

@@ -25,58 +25,46 @@ jobs:
     - name: Check spelling
       uses: crate-ci/typos@master
 
-  # Run cargo test
+  # Run cargo nextest run
   test_minimal:
     name: Test without features
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 30
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-nofeatures_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
-      - name: Run cargo test
-        run: cargo test --workspace --no-default-features --profile=ci --features "dynamic_linking"
+        run: |
+          sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
+          sudo apt-get install lld clang
+          cargo install cargo-nextest
+      - name: Run cargo nextest run
+        run: cargo nextest run --workspace --no-default-features --profile=ci
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
     
   test_all:
     name: Test all features
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 30
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
-      - name: Run cargo test
-        run: cargo test --workspace --all-features --profile=ci
+        run: |
+          sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
+          sudo apt-get install lld clang
+          cargo install cargo-nextest
+      - name: Run cargo nextest run
+        run: cargo nextest run --workspace --all-features --profile=ci
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
   
   test_all_macos_n_windows:
     strategy:
@@ -88,52 +76,36 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
-      - name: Run cargo test
-        run: cargo test --workspace --all-features --profile=ci
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Dependencies
+        run: |
+          cargo install cargo-nextest
+      - name: Run cargo nextest run
+        run: cargo nextest run --workspace --all-features --profile=ci
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
 
 
   # Run cargo clippy -- -D warnings
   clippy_check:
     name: Clippy
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 30
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --all-features -- -D warnings
-        env:
-          CARGO_INCREMENTAL: 0
+
 
   # Run cargo fmt --all -- --check
   format:

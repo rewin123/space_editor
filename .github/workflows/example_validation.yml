@@ -19,7 +19,7 @@ env:
 jobs:
 
   run-platformer-example-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -36,28 +36,21 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+          sudo apt-get install lld clang
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: CARGO_PROFILE_RELEASE_DEBUG=true TRACE_CHROME=trace-platformer.json CI_TESTING_CONFIG=.github/example-run/platformer.ron cargo +nightly build --example platformer --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace,backtrace"
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
@@ -87,7 +80,7 @@ jobs:
           path: example-run/
   
   run-spawn_prefab_with_physics-example-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -104,28 +97,21 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+          sudo apt-get install lld clang
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-spawn_prefab_with_physics.json CI_TESTING_CONFIG=.github/example-run/spawn_prefab_with_physics.ron cargo +nightly build --example spawn_prefab_with_physics --profile=ci --features "bevy_xpbd_3d,bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
@@ -155,7 +141,7 @@ jobs:
           path: example-run/
 
   run-external_plugin-example-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubicloud
     timeout-minutes: 60
     steps:
       - name: Get current date
@@ -172,28 +158,21 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+          sudo apt-get install lld clang
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - uses: dtolnay/rust-toolchain@nightly
         with:
           toolchain: nightly
           target: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo +nightly build --bin plugin_test --profile=ci --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
         env:
-          RUSTFLAGS: "-C debuginfo=0 -C prefer-dynamic"
+          RUSTFLAGS: "-C debuginfo=0"
         run: |
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
