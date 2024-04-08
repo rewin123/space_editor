@@ -3,9 +3,7 @@ linker = "/usr/bin/clang"
 rustflags = ["-Cdebuginfo=0", "-Dwarnings", "-Clink-arg=-fuse-ld=lld"]
 
 [target.aarch64-apple-darwin]
-linker = "clang"
 rustflags = ["-Clink-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 
 [target.x86_64-apple-darwin]
-linker = "clang"
 rustflags = ["-Clink-arg=-fuse-ld=/opt/homebrew/bin/mold"]
