@@ -101,6 +101,7 @@ backtrace-on-stack-overflow = {version = "0.3", optional = true}
 [workspace.lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
+non_local_definitions = { level = "allow", priority = 2 }
 
 [workspace.lints.clippy]
 nursery = { level = "deny", priority = -1 }
@@ -125,25 +126,37 @@ workspace = true
 
 [profile.dev]
 opt-level = 1
+overflow-checks = false 
+incremental = true # works well when target/ is stored
 
 [profile.dev.package."*"]
 opt-level = 3
 
-[profile.ci]
-inherits = "dev"
-opt-level = 0
+[profile.release-fast]
+inherits = "release"
 debug = 0
-strip = "none"
+strip = "debuginfo"
 lto = false
-codegen-units = 256
-incremental = true
+incremental = false
+
+[profile.retail]
+inherits = "release"
+lto = true
+
+[profile.release-lto]
+inherits = "release"
+lto = "thin"
 
 [features]
 backtrace = ["backtrace-on-stack-overflow"]
 bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-default = ["bevy_xpbd_3d", "persistence_editor", "bevy/dynamic_linking", "space_prefab/editor"]
+default = [
+    "bevy_xpbd_3d", 
+    "persistence_editor", 
+    "space_prefab/editor", 
+]
 
 [[example]]
 name = "platformer"
