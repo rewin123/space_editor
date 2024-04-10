@@ -4,8 +4,12 @@ use space_shared::{toast::ToastMessage, *};
 use crate::EditorLoader;
 
 pub fn load_listener(world: &mut World) {
+    // AppTypeRegistry and are injected in Startup
     let app_registry = world.resource::<AppTypeRegistry>().clone();
-    let load_server = world.resource::<EditorLoader>().clone();
+    let Some(load_server) = world.get_resource::<EditorLoader>().cloned() else {
+        error!("Failed to get Editor Loader");
+        return;
+    };
     let mut prefab;
     {
         let assets = world.resource::<Assets<DynamicScene>>();

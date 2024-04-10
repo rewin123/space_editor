@@ -79,11 +79,12 @@ impl Plugin for BevyXpbdPlugin {
         if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
                 ui.checkbox(
-                    &mut world
-                        .resource_mut::<GizmoConfigStore>()
-                        .config_mut::<PhysicsGizmos>()
-                        .1
-                        .hide_meshes,
+                    &mut world.get_resource_mut::<GizmoConfigStore>().map_or(
+                        false,
+                        |mut gizmos_config| {
+                            gizmos_config.config_mut::<PhysicsGizmos>().1.hide_meshes
+                        },
+                    ),
                     "Hide debug meshes",
                 );
             });

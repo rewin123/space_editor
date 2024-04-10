@@ -38,6 +38,6 @@ impl TabStyle for EditorStyle {
     }
 
     fn text_size(&self, world: &World) -> f32 {
-        world.resource::<Sizing>().text
+        world.get_resource::<Sizing>().map_or(12., |size| size.text)
     }
 }

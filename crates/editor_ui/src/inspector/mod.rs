@@ -71,7 +71,8 @@ pub struct InspectorTab {
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let sizing = world.resource::<Sizing>().clone();
+        // Defaults in case it is missing
+        let sizing = world.get_resource::<Sizing>().cloned().unwrap_or_default();
         let selected_entity = world
             .query_filtered::<Entity, With<Selected>>()
             .get_single(world);
@@ -88,8 +89,12 @@ impl EditorTab for InspectorTab {
         let app_registry = app_registry_handle.read();
         let mut disable_pan_orbit = false;
 
-        //Collet data about all components
-        let components_priority = world.resource::<ComponentsOrder>().clone().components;
+        //Collet data about all components | empty if missing
+        let components_priority = world
+            .get_resource::<ComponentsOrder>()
+            .cloned()
+            .unwrap_or_default()
+            .components;
         let mut components_id = Vec::new();
         if self.show_all_components {
             for reg in app_registry.iter() {
@@ -352,8 +357,13 @@ impl EditorTab for InspectorTab {
 
         state.commands = commands;
 
-        if disable_pan_orbit {
-            world.resource_mut::<crate::EditorCameraEnabled>().0 = false;
+        if let (Some(mut editor_camera_enabled), true) = (
+            world.get_resource_mut::<crate::EditorCameraEnabled>(),
+            disable_pan_orbit,
+        ) {
+            editor_camera_enabled.0 = false;
+        } else {
+            error!("Failed to get editor camera config");
         }
     }
 
