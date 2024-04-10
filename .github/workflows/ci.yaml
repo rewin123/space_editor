@@ -37,9 +37,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
-        run: |
-          sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
-          sudo apt-get install lld clang
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Compile
         run: cargo test --no-run --locked --release
       - name: Run cargo test
@@ -58,9 +56,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
-        run: |
-          sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
-          sudo apt-get install lld clang
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Compile
         run: cargo test --no-run --locked --release
       - name: Run cargo test
@@ -81,11 +77,6 @@ jobs:
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - name: Install linker Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          cargo install -f cargo-binutils
-          rustup component add llvm-tools-preview
       - name: Compile
         run: cargo test --no-run --locked --release
       - name: Run cargo test

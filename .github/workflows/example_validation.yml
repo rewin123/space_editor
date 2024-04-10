@@ -36,7 +36,6 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
-          sudo apt-get install lld clang
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
@@ -97,7 +96,6 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
-          sudo apt-get install lld clang
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
@@ -158,7 +156,6 @@ jobs:
           sudo add-apt-repository ppa:kisak/turtle -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
-          sudo apt-get install lld clang
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@nightly
         with:
