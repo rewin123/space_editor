@@ -18,7 +18,9 @@ impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
 
-        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+        if let Some(mut game_view_tab) = app.world.get_resource_mut::<GameViewTab>() {
+            game_view_tab.active_tool = Some(0);
+        }
         app.init_resource::<MultipleCenter>();
 
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::KeyG]);
@@ -95,6 +97,7 @@ impl EditorTool for GizmoTool {
         // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
         // All hotkeys can be changes in editor ui
 
+        // Not much we can do
         let sizing = world.resource::<Sizing>();
 
         ui.spacing();
@@ -119,7 +122,10 @@ impl EditorTool for GizmoTool {
             }
         });
 
-        let input = world.resource::<ButtonInput<GizmoHotkey>>();
+        let Some(input) = world.get_resource::<ButtonInput<GizmoHotkey>>() else {
+            warn!("Failed to retrieve gizmos hotkey button input");
+            return;
+        };
 
         let mut del = false;
         let mut clone_pressed = false;

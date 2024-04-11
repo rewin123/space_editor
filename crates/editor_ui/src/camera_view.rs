@@ -75,7 +75,10 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 impl EditorTab for CameraViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
         if self.real_camera.is_none() {
-            if world.resource::<GameModeSettings>().is_3d() {
+            if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_3d())
+            {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -95,7 +98,10 @@ impl EditorTab for CameraViewTab {
                         ))
                         .id(),
                 );
-            } else if world.resource::<GameModeSettings>().is_2d() {
+            } else if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_2d())
+            {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -152,7 +158,10 @@ impl EditorTab for CameraViewTab {
             ui.spacing();
             ui.separator();
             ui.spacing();
-            if world.resource::<GameModeSettings>().is_3d() {
+            if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_3d())
+            {
                 ui.spacing();
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
@@ -212,7 +221,10 @@ impl EditorTab for CameraViewTab {
             );
             world.send_event(ToastMessage::new(&msg, toast::ToastKind::Success));
         } else if let Some(handle) = &self.target_image {
-            if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
+            if let Some(image) = world
+                .get_resource::<Assets<Image>>()
+                .and_then(|asset| asset.get(handle))
+            {
                 if image.texture_descriptor.size.width != clipped.width() as u32
                     || image.texture_descriptor.size.height != clipped.height() as u32
                 {

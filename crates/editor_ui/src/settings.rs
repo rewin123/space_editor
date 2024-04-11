@@ -146,7 +146,10 @@ impl RegisterSettingsBlockExt for App {
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-        let game_mode_setting = &world.resource::<GameModeSettings>();
+        let Some(game_mode_setting) = &world.get_resource::<GameModeSettings>() else {
+            error!("Game Mode settings not available");
+            return;
+        };
         if let Some(new_game_mode) = game_mode_setting.ui(ui) {
             info!("Game Mode changed: {:?}", new_game_mode);
             *world.resource_mut::<GameModeSettings>() = new_game_mode;
@@ -162,8 +165,11 @@ impl EditorTab for SettingsWindow {
 
         ui.add_space(12.);
         ui.heading("New Tab Behaviour");
-        let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
-        new_window_settings.ui(ui);
+        if let Some(new_window_settings) = &mut world.get_resource_mut::<NewWindowSettings>() {
+            new_window_settings.ui(ui);
+        } else {
+            error!("New window settings not available");
+        }
 
         ui.add_space(12.);
         ui.heading("Default Sizing");

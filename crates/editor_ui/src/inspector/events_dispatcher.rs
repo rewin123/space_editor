@@ -21,12 +21,18 @@ impl EditorTab for EventDispatcherTab {
 }
 
 pub fn inspect(ui: &mut egui::Ui, world: &mut World, open_events: &mut HashMap<String, bool>) {
-    let events = &mut world.resource::<EditorRegistry>().send_events.clone();
+    let Some(events) = &world.get_resource::<EditorRegistry>() else {
+        error!("Failed to get event registry");
+        return;
+    };
+    let mut events = events.send_events.clone();
+
     events.sort_by(|a, b| a.name().cmp(b.name()));
 
     if events.is_empty() {
         ui.label(egui::RichText::new("No events registered").color(ERROR_COLOR));
     } else {
+        // Safe as was injected by Bevy
         let type_registry = world.resource::<AppTypeRegistry>().clone();
         let type_registry = type_registry.read();
 

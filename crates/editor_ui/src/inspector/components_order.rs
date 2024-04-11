@@ -23,9 +23,12 @@ impl ComponentsPriority for App {
         if !self.world.contains_resource::<ComponentsOrder>() {
             self.insert_resource(ComponentsOrder::default());
         }
-        let component_name = pretty_type_name::pretty_type_name::<T>();
-        let mut order = self.world.resource_mut::<ComponentsOrder>();
-        order.components.insert(component_name, priority);
+        if let Some(mut order) = self.world.get_resource_mut::<ComponentsOrder>() {
+            let component_name = pretty_type_name::pretty_type_name::<T>();
+            order.components.insert(component_name, priority);
+        } else {
+            error!("Failed to configure components order");
+        }
 
         self
     }

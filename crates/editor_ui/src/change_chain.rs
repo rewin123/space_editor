@@ -23,7 +23,10 @@ impl EditorTab for ChangeChainView {
         _commands: &mut bevy::prelude::Commands,
         world: &mut bevy::prelude::World,
     ) {
-        let change_chain = world.resource::<ChangeChain>();
+        let Some(change_chain) = world.get_resource::<ChangeChain>() else {
+            error!("Failed to get Change Chain");
+            return;
+        };
 
         for change in change_chain.changes.iter() {
             ui.label(change.debug_text());
