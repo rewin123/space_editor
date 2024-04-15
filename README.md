@@ -78,7 +78,7 @@ The editor is a ready to use executable that can be used and altered at your own
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
-        .add_plugins(SpaceEditorPlugin::default())
+        .add_plugins(SpaceEditorPlugin)
         .add_systems(Startup, simple_editor_setup)
         .run();
 }
