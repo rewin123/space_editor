@@ -12,8 +12,8 @@ homepage.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy.workspace = true 
-space_editor_ui.workspace = true
+bevy = "0.13.2"
+space_editor = { git = "https://github.com/rewin123/space_editor", branch = "v0.6" }
 
 [lints]
 workspace = true

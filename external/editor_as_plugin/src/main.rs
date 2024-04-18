@@ -17,7 +17,7 @@ fn main() {
         }),
         ..default()
     }))
-    .add_plugins(space_editor_ui::EditorPlugin)
+    .add_plugins(SpaceEditorPlugin)
     .add_systems(Startup, simple_editor_setup)
     .add_systems(Startup, |mut commands: Commands| {
         commands.spawn((
