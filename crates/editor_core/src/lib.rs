@@ -39,6 +39,7 @@ impl Plugin for EditorCore {
         app.add_event::<EditorEvent>();
 
         app.init_resource::<PrefabMemoryCache>();
+        app.init_resource::<EditorLoader>();
 
         app.add_systems(
             Update,
@@ -51,8 +52,6 @@ impl Plugin for EditorCore {
         app.auto_reflected_undo::<Parent>();
         app.auto_reflected_undo::<Children>();
         app.auto_undo::<PrefabMarker>();
-
-        app.init_resource::<EditorLoader>();
     }
 }
 
