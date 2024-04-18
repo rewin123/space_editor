@@ -215,6 +215,7 @@ jobs:
         env:
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
+        shell: bash
         env:
           RUSTFLAGS: "-C debuginfo=0"
         run: |
