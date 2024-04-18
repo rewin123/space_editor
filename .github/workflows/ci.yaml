@@ -40,6 +40,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
       - name: Compile
         run: cargo test --no-run --locked --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run cargo test
         run: cargo test --workspace --no-default-features --release
         env:
@@ -59,6 +61,8 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Compile
         run: cargo test --no-run --locked --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run cargo test
         run: cargo test --workspace --all-features --release
         env:
@@ -79,6 +83,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Compile
         run: cargo test --no-run --locked --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
       - name: Run cargo test
         run: cargo test --workspace --all-features --release
         env:
