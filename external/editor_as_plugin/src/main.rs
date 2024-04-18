@@ -1,7 +1,8 @@
 use bevy::{prelude::*, window::WindowResolution};
-use space_editor_ui::{
+use space_editor::{
     prelude::{MeshPrimitive3dPrefab, PrefabMarker},
-    simple_editor_setup,
+    space_editor_ui::simple_editor_setup,
+    SpaceEditorPlugin,
 };
 
 fn main() {
