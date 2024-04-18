@@ -212,10 +212,6 @@ jobs:
         shell: bash
         run: | 
           WGPU_BACKEND=dx12 TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo build --bin plugin_test --release --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
-      
-      - name: Build bevy
-        # this uses the same command as when running the example to ensure build is reused
-        run: WGPU_BACKEND=dx12  TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo build --bin plugin_test --release --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
         env:
           RUSTFLAGS: "-C debuginfo=0"
       - name: Run examples
@@ -225,7 +221,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running external_plugin - "`date`
-          time TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron xvfb-run cargo +nightly run --release --bin plugin_test --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time WGPU_BACKEND=dx12 TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron xvfb-run cargo run --release --bin plugin_test --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-external_plugin
