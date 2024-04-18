@@ -13,7 +13,7 @@ homepage.workspace = true
 
 [dependencies]
 bevy = "0.13.2"
-space_editor = { git = "https://github.com/rewin123/space_editor", branch = "v0.6" }
+space_editor = { path = "../../"}
 
 [lints]
 workspace = true
