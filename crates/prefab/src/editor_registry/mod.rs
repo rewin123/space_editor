@@ -249,7 +249,8 @@ pub trait EditorRegistryExt {
         T: Component + Clone + Into<Target>,
         Target: Component;
 
-    /// Not used yet
+    // Not used yet
+    #[cfg_attr(tarpaulin, ignore)]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component
@@ -321,6 +322,7 @@ impl EditorRegistryExt for App {
     }
 
     //Not used now
+    #[cfg_attr(tarpaulin, ignore)]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component
@@ -377,7 +379,8 @@ fn into_sync_system<T: Component + Clone + Into<Target>, Target: Component>(
     }
 }
 
-/// Not used
+// Not used
+#[cfg_attr(tarpaulin, ignore)]
 fn generate_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
     mut commands: Commands,
     query: Query<(Entity, &T)>,
@@ -388,7 +391,8 @@ fn generate_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>
     }
 }
 
-/// Not used
+// Not used
+#[cfg_attr(tarpaulin, ignore)]
 fn clear_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
     mut commands: Commands,
     query: Query<(Entity, &AutoStruct<T>)>,
