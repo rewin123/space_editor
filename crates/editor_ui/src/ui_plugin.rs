@@ -30,6 +30,7 @@ pub enum ShowEditorUi {
 }
 
 impl FlatPluginList for EditorUiPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
             .add(SelectedPlugin)
@@ -54,6 +55,7 @@ impl FlatPluginList for EditorUiPlugin {
 }
 
 impl PluginGroup for EditorUiPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(self) -> PluginGroupBuilder {
         let mut group = PluginGroupBuilder::start::<Self>();
         group = self.add_plugins_to_group(group);
@@ -64,6 +66,7 @@ impl PluginGroup for EditorUiPlugin {
 pub struct DefaultEditorLayoutPlugin;
 
 impl Plugin for DefaultEditorLayoutPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_layout_group::<DoublePanelGroup, _>();
 
@@ -89,6 +92,7 @@ impl Default for EditorUiCore {
 }
 
 impl Plugin for EditorUiCore {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();

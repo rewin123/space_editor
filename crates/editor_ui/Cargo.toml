@@ -36,7 +36,6 @@ bevy_panorbit_camera.workspace = true
 bevy_mod_billboard.workspace = true
 convert_case.workspace = true
 anyhow.workspace = true
-bevy_common_assets.workspace = true
 egui_extras.workspace = true
 
 [lints]

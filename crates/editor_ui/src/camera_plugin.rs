@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub struct EditorDefaultCameraPlugin;
 
 impl Plugin for EditorDefaultCameraPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,

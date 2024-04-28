@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::prelude::*;
 use egui_dock::egui::{Color32, RichText};
 
-#[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions)]
+#[derive(Resource, Clone, PartialEq, Reflect, InspectorOptions, Debug)]
 #[reflect(Resource, Default, InspectorOptions)]
 pub struct Sizing {
     pub icon: IconSize,
@@ -21,7 +21,7 @@ impl Default for Sizing {
     }
 }
 
-#[derive(Clone, Default, PartialEq, Eq, Reflect)]
+#[derive(Clone, Default, PartialEq, Eq, Reflect, Debug)]
 #[reflect(Default)]
 pub enum IconSize {
     XSmall,
@@ -62,4 +62,34 @@ pub fn to_label(text: &str, size: f32) -> RichText {
     RichText::new(text)
         .size(size)
         .family(egui_dock::egui::FontFamily::Proportional)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn assert_default_sizing() {
+        let sizing = Sizing::default();
+
+        let expected = Sizing {
+            icon: IconSize::Regular,
+            gizmos: IconSize::Gizmos,
+            text: 14.,
+        };
+
+        assert_eq!(sizing, expected);
+    }
+
+    #[test]
+    fn test_labels() {
+        let label = to_label("text", 14.);
+        assert_eq!(label.text(), "text");
+
+        let text = to_richtext("test", &IconSize::Large);
+        assert_eq!(text.text(), "test");
+
+        let color_text = to_colored_richtext("test", &IconSize::Large, Color32::BLACK);
+        assert!(!color_text.is_empty());
+    }
 }
