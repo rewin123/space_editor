@@ -249,7 +249,8 @@ pub trait EditorRegistryExt {
         T: Component + Clone + Into<Target>,
         Target: Component;
 
-    /// Not used yet
+    // Not used yet
+    #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component
@@ -321,6 +322,7 @@ impl EditorRegistryExt for App {
     }
 
     //Not used now
+    #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
         T: Component
@@ -377,7 +379,8 @@ fn into_sync_system<T: Component + Clone + Into<Target>, Target: Component>(
     }
 }
 
-/// Not used
+// Not used
+#[cfg(not(tarpaulin_include))]
 fn generate_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
     mut commands: Commands,
     query: Query<(Entity, &T)>,
@@ -388,7 +391,8 @@ fn generate_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>
     }
 }
 
-/// Not used
+// Not used
+#[cfg(not(tarpaulin_include))]
 fn clear_auto_structs<T: Component + Reflect + FromReflect + Default + Clone>(
     mut commands: Commands,
     query: Query<(Entity, &AutoStruct<T>)>,
@@ -575,5 +579,68 @@ mod tests {
 
         let registry = app.world.resource::<EditorRegistry>();
         assert_eq!("AnEvent", registry.send_events.first().unwrap().name);
+    }
+
+    #[test]
+    fn remove_by_id_test() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_plugins(EditorRegistryPlugin);
+        app.editor_registry::<Name>();
+
+        let name = "name";
+        let e = app
+            .world
+            .spawn((Name::new(name), VisibilityBundle::default()))
+            .id();
+
+        {
+            let mut command_queue = CommandQueue::default();
+            let mut cmds = Commands::new(&mut command_queue, &app.world);
+
+            app.world
+                .resource::<EditorRegistry>()
+                .remove_by_id(&mut cmds.entity(e), &TypeId::of::<Name>());
+            command_queue.apply(&mut app.world);
+        }
+
+        assert_eq!(app.world.entity(e).get::<Name>(), None);
+        assert_eq!(
+            app.world.entity(e).get::<Visibility>(),
+            Some(&Visibility::Inherited)
+        );
+    }
+
+    #[test]
+    fn get_spawn_command_test() {
+        #[derive(Component, Default, Clone, Reflect, Debug, PartialEq)]
+        struct AStruct {
+            boolean: bool,
+        }
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_plugins(EditorRegistryPlugin);
+        app.editor_registry::<AStruct>();
+
+        let name = "name";
+        let e = app
+            .world
+            .spawn((Name::new(name), VisibilityBundle::default()))
+            .id();
+
+        let mut command_queue = CommandQueue::default();
+
+        let add = app
+            .world
+            .resource::<EditorRegistry>()
+            .get_spawn_command(&TypeId::of::<AStruct>());
+        command_queue.apply(&mut app.world);
+
+        (add.func)(e, &mut app.world);
+
+        assert_eq!(
+            app.world.entity(e).get::<AStruct>(),
+            Some(&AStruct { boolean: false })
+        );
     }
 }

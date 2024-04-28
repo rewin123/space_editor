@@ -42,6 +42,7 @@ pub struct LoadPlugin;
 pub struct PrefabAutoChild;
 
 impl Plugin for LoadPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_registry::<PrefabLoader>();
 
@@ -128,15 +129,48 @@ fn conflict_resolve(
 fn auto_children(
     mut commands: Commands,
     query: Query<(Entity, &ChildrenPrefab)>,
-    existen_entity: Query<Entity>,
+    existing_entity: Query<Entity>,
 ) {
     for (e, children) in query.iter() {
         let mut cmds = commands.entity(e);
         for child in children.0.iter() {
-            if existen_entity.contains(*child) {
+            if existing_entity.contains(*child) {
                 cmds.add_child(*child);
             }
         }
         cmds.remove::<ChildrenPrefab>();
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn new_prefab_bundler() {
+        let bundler = PrefabBundle::new("path");
+
+        assert_eq!(bundler.loader.path, "path");
+    }
+
+    #[test]
+    fn conflict_resolver_only_one_prefab_component_allowed() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((PrefabAutoChild, PrefabMarker));
+            commands.spawn(PrefabAutoChild);
+        })
+        .add_systems(Update, conflict_resolve);
+
+        app.update();
+
+        let mut query = app
+            .world
+            .query_filtered::<Entity, (With<PrefabAutoChild>, With<PrefabMarker>)>();
+        assert_eq!(query.iter(&app.world).count(), 0);
+
+        let mut query = app.world.query_filtered::<Entity, With<PrefabAutoChild>>();
+        assert_eq!(query.iter(&app.world).count(), 2);
     }
 }
