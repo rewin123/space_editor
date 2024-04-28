@@ -209,6 +209,7 @@ mod tests {
 
         app.editor_hotkey(TestKey::A, vec![KeyCode::KeyA]);
         app.editor_hotkey(TestKey::B, vec![KeyCode::KeyB]);
+        assert_eq!(TestKey::A.name(), "A");
 
         app.update();
         {

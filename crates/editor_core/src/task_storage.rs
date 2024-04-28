@@ -3,6 +3,7 @@ use bevy::{asset::LoadState, prelude::*};
 pub struct BackgroundTaskStoragePlugin;
 
 impl Plugin for BackgroundTaskStoragePlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<BackgroundTaskStorage>();
 

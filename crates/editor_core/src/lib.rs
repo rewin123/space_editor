@@ -26,6 +26,7 @@ use task_storage::{BackgroundTask, BackgroundTaskStorage, BackgroundTaskStorageP
 pub struct EditorCore;
 
 impl Plugin for EditorCore {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
 
