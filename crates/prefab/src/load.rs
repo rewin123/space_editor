@@ -42,6 +42,7 @@ pub struct LoadPlugin;
 pub struct PrefabAutoChild;
 
 impl Plugin for LoadPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_registry::<PrefabLoader>();
 

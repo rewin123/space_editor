@@ -38,6 +38,7 @@ impl Plugin for PrefabPlugin {
 pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_state::<EditorState>();
 
