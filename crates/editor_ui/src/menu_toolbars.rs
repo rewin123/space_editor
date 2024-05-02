@@ -621,7 +621,7 @@ pub fn top_menu(
         });
 
     for event in events.read() {
-        menu_state.path = event.path.clone();
+        menu_state.path.clone_from(&event.path);
         editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
             "{}.scn.ron",
             menu_state.path.clone()
