@@ -15,6 +15,7 @@ use crate::{
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
 

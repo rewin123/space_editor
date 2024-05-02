@@ -85,6 +85,7 @@ impl EditorUiExt for App {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 pub fn register_light_editor_bundles(app: &mut App) {
     app.editor_bundle(
         "🔆 Light",

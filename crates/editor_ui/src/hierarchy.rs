@@ -27,6 +27,7 @@ pub struct CloneEvent {
 pub struct SpaceHierarchyPlugin {}
 
 impl Plugin for SpaceHierarchyPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<HierarchyTabState>();
         app.editor_tab(EditorTabName::Hierarchy, show_hierarchy);

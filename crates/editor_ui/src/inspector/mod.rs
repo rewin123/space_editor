@@ -45,6 +45,7 @@ pub struct SkipInspector;
 pub struct SpaceInspectorPlugin;
 
 impl Plugin for SpaceInspectorPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<InspectState>();
         app.init_resource::<FilterComponentState>();

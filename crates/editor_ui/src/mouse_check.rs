@@ -6,6 +6,7 @@ use space_shared::toast::*;
 pub struct MouseCheck;
 
 impl Plugin for MouseCheck {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<PointerContextCheck>()
             .add_systems(Startup, initialize_mouse_context)

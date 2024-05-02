@@ -57,7 +57,6 @@ space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
 # Crates inner libraries
 anyhow = "1.0"
 bevy_asset_loader = "0.20"
-bevy_common_assets = { version = "0.10", features = ["ron"] }
 bevy_debug_grid = "0.5"
 bevy_egui = "0.25"
 bevy-inspector-egui = { version = "0.23", features = [

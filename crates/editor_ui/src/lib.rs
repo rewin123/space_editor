@@ -141,6 +141,7 @@ pub mod ext {
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_plugins(EditorPluginGroup);
     }
@@ -182,6 +183,7 @@ impl PluginGroup for EditorPluginGroup {
 pub struct EditorDefaultBundlesPlugin;
 
 impl Plugin for EditorDefaultBundlesPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         ui_registration::register_mesh_editor_bundles(app);
         ui_registration::register_light_editor_bundles(app);
@@ -191,6 +193,7 @@ impl Plugin for EditorDefaultBundlesPlugin {
 pub struct EditorSetsPlugin;
 
 impl Plugin for EditorSetsPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
 
@@ -229,6 +232,7 @@ impl Plugin for EditorSetsPlugin {
 pub struct EditorGizmoConfigPlugin;
 
 impl Plugin for EditorGizmoConfigPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_systems(Update, editor_gizmos);
         app.add_systems(Update, game_gizmos);

@@ -8,6 +8,7 @@ use crate::editor_tab_name::EditorTabName;
 pub struct ChangeChainViewPlugin;
 
 impl Plugin for ChangeChainViewPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(ChangeChainView);
     }

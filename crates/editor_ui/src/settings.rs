@@ -24,6 +24,7 @@ const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(SettingsWindow::default());
         app.register_type::<GameMode>()

@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 

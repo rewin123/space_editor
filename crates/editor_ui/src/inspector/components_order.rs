@@ -33,3 +33,24 @@ impl ComponentsPriority for App {
         self
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn component_priority() {
+        let mut app = App::new();
+
+        app.add_plugins(MinimalPlugins)
+            .init_resource::<ComponentsOrder>()
+            .editor_component_priority::<Name>(0)
+            .editor_component_priority::<Transform>(1);
+
+        let order = app.world.resource::<ComponentsOrder>();
+
+        assert_eq!(order.components.get("Name"), Some(&0));
+        assert_eq!(order.components.get("Transform"), Some(&1));
+        assert_eq!(order.components.get("Visibility"), None);
+    }
+}

@@ -29,6 +29,7 @@ use crate::{colors::*, sizing::Sizing};
 pub struct BottomMenuPlugin;
 
 impl Plugin for BottomMenuPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
