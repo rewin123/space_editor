@@ -149,7 +149,10 @@ pub fn set_camera_viewport(
     local.0 = Some(viewport_rect);
 
     let scale_factor = window.scale_factor();
-    info!("Window scale factor: {} egui scale factor: {}", scale_factor, egui_settings.scale_factor);
+    info!(
+        "Window scale factor: {} egui scale factor: {}",
+        scale_factor, egui_settings.scale_factor
+    );
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
     let mut viewport_size = viewport_rect.size() * scale_factor;
@@ -157,8 +160,12 @@ pub fn set_camera_viewport(
     viewport_pos.x = viewport_pos.x.max(0.0);
     viewport_pos.y = viewport_pos.y.max(0.0);
 
-    viewport_size.x = viewport_size.x.min(window.width() as f32 * scale_factor - viewport_pos.x);
-    viewport_size.y = viewport_size.y.min(window.height() as f32 * scale_factor - viewport_pos.y);
+    viewport_size.x = viewport_size
+        .x
+        .min(window.width() as f32 * scale_factor - viewport_pos.x);
+    viewport_size.y = viewport_size
+        .y
+        .min(window.height() as f32 * scale_factor - viewport_pos.y);
 
     if (viewport_size.x <= 0.0) || (viewport_size.y <= 0.0) {
         return;
