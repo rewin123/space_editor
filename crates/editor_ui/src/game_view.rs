@@ -160,6 +160,9 @@ pub fn set_camera_viewport(
     viewport_size.x = viewport_size.x.min(window.width() as f32 * scale_factor - viewport_pos.x);
     viewport_size.y = viewport_size.y.min(window.height() as f32 * scale_factor - viewport_pos.y);
 
+    if (viewport_size.x <= 0.0) || (viewport_size.y <= 0.0) {
+        return;
+    }
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
         physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),
