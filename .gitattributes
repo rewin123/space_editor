@@ -1,3 +1,11 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 assets/* filter=lfs diff=lfs merge=lfs -text
+assets/audio/* filter=lfs diff=lfs merge=lfs -text
+assets/branding/* filter=lfs diff=lfs merge=lfs -text
+assets/icons/* filter=lfs diff=lfs merge=lfs -text
+assets/models/* filter=lfs diff=lfs merge=lfs -text
+assets/scenes/* filter=lfs diff=lfs merge=lfs -text
+assets/shaders/* filter=lfs diff=lfs merge=lfs -text
+assets/test/* filter=lfs diff=lfs merge=lfs -text
+assets/textures/* filter=lfs diff=lfs merge=lfs -text
