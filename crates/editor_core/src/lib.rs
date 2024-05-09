@@ -86,7 +86,7 @@ fn editor_event_listener(
                     info!("Loading prefab by editor event from file {}", path);
                 }
                 EditorPrefabPath::MemoryCache => {
-                    load_server.scene = cache.scene.clone();
+                    load_server.scene.clone_from(&cache.scene);
                     info!("Loading prefab by editor event from memory cache");
                 }
             },

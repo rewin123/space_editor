@@ -290,7 +290,7 @@ fn clear_and_load_on_start(
         }
         space_shared::EditorPrefabPath::MemoryCache => {
             info!("Loading prefab from cache");
-            load_server.scene = cache.scene.clone();
+            load_server.scene.clone_from(&cache.scene);
         }
     }
 }

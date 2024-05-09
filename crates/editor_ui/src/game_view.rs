@@ -107,7 +107,7 @@ pub fn reset_camera_viewport(
         return;
     };
 
-    let Ok(window) = primary_window.get_single() else {
+    let Ok(_window) = primary_window.get_single() else {
         return;
     };
 
@@ -162,10 +162,10 @@ pub fn set_camera_viewport(
 
     viewport_size.x = viewport_size
         .x
-        .min(window.width() as f32 * scale_factor - viewport_pos.x);
+        .min(window.width().mul_add(scale_factor, -viewport_pos.x));
     viewport_size.y = viewport_size
         .y
-        .min(window.height() as f32 * scale_factor - viewport_pos.y);
+        .min(window.height().mul_add(scale_factor, -viewport_pos.y));
 
     if (viewport_size.x <= 0.0) || (viewport_size.y <= 0.0) {
         return;
