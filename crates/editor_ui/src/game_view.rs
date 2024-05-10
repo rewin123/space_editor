@@ -107,17 +107,13 @@ pub fn reset_camera_viewport(
         return;
     };
 
-    let Ok(window) = primary_window.get_single() else {
+    let Ok(_window) = primary_window.get_single() else {
         return;
     };
 
     game_view_tab.viewport_rect = None;
 
-    cam.viewport = Some(bevy::render::camera::Viewport {
-        physical_position: UVec2::new(0, 0),
-        physical_size: UVec2::new(window.width() as u32, window.height() as u32),
-        depth: 0.0..1.0,
-    });
+    cam.viewport = None;
 }
 
 pub fn has_window_changed(mut events: EventReader<bevy::window::WindowResized>) -> bool {
@@ -152,11 +148,28 @@ pub fn set_camera_viewport(
     }
     local.0 = Some(viewport_rect);
 
-    let scale_factor = window.scale_factor() * egui_settings.scale_factor;
+    let scale_factor = window.scale_factor();
+    info!(
+        "Window scale factor: {} egui scale factor: {}",
+        scale_factor, egui_settings.scale_factor
+    );
 
-    let viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
-    let viewport_size = viewport_rect.size() * scale_factor;
+    let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
+    let mut viewport_size = viewport_rect.size() * scale_factor;
 
+    viewport_pos.x = viewport_pos.x.max(0.0);
+    viewport_pos.y = viewport_pos.y.max(0.0);
+
+    viewport_size.x = viewport_size
+        .x
+        .min(window.width().mul_add(scale_factor, -viewport_pos.x));
+    viewport_size.y = viewport_size
+        .y
+        .min(window.height().mul_add(scale_factor, -viewport_pos.y));
+
+    if (viewport_size.x <= 0.0) || (viewport_size.y <= 0.0) {
+        return;
+    }
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
         physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),

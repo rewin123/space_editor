@@ -1,3 +1,5 @@
+use std::fmt;
+
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
@@ -54,12 +56,16 @@ pub enum GameMode {
     Game3D,
 }
 
-impl ToString for GameMode {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Game2D => String::from("2D"),
-            Self::Game3D => String::from("3D"),
-        }
+impl fmt::Display for GameMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Game2D => "2D",
+                Self::Game3D => "3D",
+            }
+        )
     }
 }
 
@@ -120,14 +126,17 @@ pub enum NewTabBehaviour {
     SplitNode,
 }
 
-impl ToString for NewTabBehaviour {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Pop => "New window",
-            Self::SameNode => "Same Node",
-            Self::SplitNode => "Splits Node",
-        }
-        .to_string()
+impl fmt::Display for NewTabBehaviour {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Pop => "New window",
+                Self::SameNode => "Same Node",
+                Self::SplitNode => "Splits Node",
+            }
+        )
     }
 }
 
