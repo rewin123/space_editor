@@ -43,13 +43,6 @@ impl Plugin for BevyXpbdPlugin {
         register_xpbd_spatial_types(app);
 
         app.add_systems(
-            PreUpdate,
-            (editor_pos_change)
-                .in_set(PrefabSet::DetectPrefabChange)
-                .run_if(in_state(EditorState::Editor)),
-        );
-
-        app.add_systems(
             Update,
             (collider::update_collider).in_set(PrefabSet::DetectPrefabChange),
         );
@@ -98,7 +91,11 @@ fn late_sync_position_spawn(
     mut commands: Commands,
     query: Query<
         Entity,
-        (Without<GlobalTransform>, Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>)>,
+        (
+            Without<GlobalTransform>,
+            Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>,
+        ),
+    >,
 ) {
     for e in query.iter() {
         commands.entity(e).insert(LateSync);
@@ -109,13 +106,18 @@ fn sync_position_spawn(
     mut commands: Commands,
     query: Query<
         (Entity, &GlobalTransform),
-        Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>, With<LateSync>)>,
+        Or<(
+            Changed<RigidBodyPrefab>,
+            Changed<collider::ColliderPrefab>,
+            With<LateSync>,
+        )>,
     >,
 ) {
     for (e, tr) in query.iter() {
-        commands
-            .entity(e)
-            .insert((Position(tr.translation()), Rotation(tr.compute_transform().rotation)));
+        commands.entity(e).insert((
+            Position(tr.translation()),
+            Rotation(tr.compute_transform().rotation),
+        ));
     }
 }
 
@@ -200,18 +202,4 @@ fn rigidbody_type_change(
         commands.entity(e).remove::<RigidBody>();
         commands.entity(e).insert(tp.to_rigidbody());
     }
-}
-
-pub fn editor_pos_change(
-    mut query: Query<(&mut Position, &mut Rotation, &GlobalTransform), Changed<GlobalTransform>>,
-) {
-//     for (mut pos, mut rot, transform) in query.iter_mut() {
-//         let transform = transform.compute_transform();
-//         if pos.0 != transform.translation {
-//             pos.0 = transform.translation;
-//         }
-//         if rot.0 != transform.rotation {
-//             rot.0 = transform.rotation;
-//         }
-//     }
 }
