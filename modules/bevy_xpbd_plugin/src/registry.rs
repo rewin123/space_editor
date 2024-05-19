@@ -43,13 +43,6 @@ impl Plugin for BevyXpbdPlugin {
         register_xpbd_spatial_types(app);
 
         app.add_systems(
-            PreUpdate,
-            (editor_pos_change)
-                .in_set(PrefabSet::DetectPrefabChange)
-                .run_if(in_state(EditorState::Editor)),
-        );
-
-        app.add_systems(
             Update,
             (collider::update_collider).in_set(PrefabSet::DetectPrefabChange),
         );
@@ -73,7 +66,7 @@ impl Plugin for BevyXpbdPlugin {
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(
             Update,
-            (sync_position_spawn).run_if(in_state(EditorState::Editor)),
+            (sync_position_spawn, late_sync_position_spawn).run_if(in_state(EditorState::Editor)),
         );
 
         if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
@@ -92,17 +85,40 @@ impl Plugin for BevyXpbdPlugin {
     }
 }
 
+#[derive(Component)]
+struct LateSync;
+
+fn late_sync_position_spawn(
+    mut commands: Commands,
+    query: Query<
+        Entity,
+        (
+            Without<GlobalTransform>,
+            Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>,
+        ),
+    >,
+) {
+    for e in query.iter() {
+        commands.entity(e).insert(LateSync);
+    }
+}
+
 fn sync_position_spawn(
     mut commands: Commands,
     query: Query<
-        (Entity, &Transform),
-        Or<(Changed<RigidBodyPrefab>, Changed<collider::ColliderPrefab>)>,
+        (Entity, &GlobalTransform),
+        Or<(
+            Changed<RigidBodyPrefab>,
+            Changed<collider::ColliderPrefab>,
+            With<LateSync>,
+        )>,
     >,
 ) {
     for (e, tr) in query.iter() {
-        commands
-            .entity(e)
-            .insert((Position(tr.translation), Rotation(tr.rotation)));
+        commands.entity(e).insert((
+            Position(tr.translation()),
+            Rotation(tr.compute_transform().rotation),
+        ));
     }
 }
 
@@ -132,11 +148,12 @@ impl RigidBodyPrefab {
 
 fn force_rigidbody_type_change_in_editor(
     mut commands: Commands,
-    query: Query<(Entity, &RigidBodyPrefab, Option<&Transform>)>,
+    query: Query<(Entity, &RigidBodyPrefab, Option<&GlobalTransform>)>,
 ) {
     for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
         if let Some(tr) = transform {
+            let tr = tr.compute_transform();
             commands
                 .entity(e)
                 .insert((Position(tr.translation), Rotation(tr.rotation)));
@@ -146,7 +163,7 @@ fn force_rigidbody_type_change_in_editor(
 
 fn rigidbody_type_change_in_editor(
     mut commands: Commands,
-    query: Query<(Entity, &RigidBodyPrefab, Option<&Transform>), Changed<RigidBodyPrefab>>,
+    query: Query<(Entity, &RigidBodyPrefab, Option<&GlobalTransform>), Changed<RigidBodyPrefab>>,
 ) {
     for (e, tp, transform) in query.iter() {
         info!("Rigidbody type changed in {:?}", e);
@@ -155,6 +172,7 @@ fn rigidbody_type_change_in_editor(
             .remove::<RigidBody>()
             .insert(tp.to_rigidbody_editor());
         if let Some(tr) = transform {
+            let tr = tr.compute_transform();
             commands
                 .entity(e)
                 .insert((Position(tr.translation), Rotation(tr.rotation)));
@@ -184,19 +202,5 @@ fn rigidbody_type_change(
     for (e, tp) in query.iter() {
         commands.entity(e).remove::<RigidBody>();
         commands.entity(e).insert(tp.to_rigidbody());
-    }
-}
-
-pub fn editor_pos_change(
-    mut query: Query<(&mut Position, &mut Rotation, &Transform), Changed<Transform>>,
-) {
-    for (mut pos, mut rot, transform) in query.iter_mut() {
-        // let transform = transform.compute_transform();
-        if pos.0 != transform.translation {
-            pos.0 = transform.translation;
-        }
-        if rot.0 != transform.rotation {
-            rot.0 = transform.rotation;
-        }
     }
 }

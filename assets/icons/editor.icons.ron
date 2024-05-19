@@ -1,27 +1,3 @@
-({
-	"sphere": Sphere (
-		radius: 0.75,
-		
-	),
-	"square": Quad (
-		size: (
-			2.0,
-			2.0
-		)
-	),
-	"unknown": Image (
-		path: "icons/unknown.png"
-	),
-	"directional" : Image (
-		path: "icons/DirectionalLightGizmo.png"
-	),
-	"spot" : Image (
-		path: "icons/SpotLightGizmo.png"
-	),
-	"point" : Image (
-		path: "icons/PointLightGizmo.png"
-	),
-	"camera" : Image (
-		path: "icons/CameraGizmo.png"
-	)
-})
+version https://git-lfs.github.com/spec/v1
+oid sha256:9981848b76105c25f0021fa85686c42c7b8ad14fe0e6cb43b8722554034fd261
+size 421
