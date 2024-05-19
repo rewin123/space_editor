@@ -75,7 +75,6 @@ fn selected_entity_wireframe_update(
                 visible: true,
                 colour: Color::YELLOW,
                 width: 2.0,
-                ..Default::default()
             },
             mode: bevy_mod_outline::OutlineMode::RealVertex,
             ..Default::default()
