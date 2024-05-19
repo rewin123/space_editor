@@ -364,7 +364,7 @@ impl EditorTab for InspectorTab {
         ) {
             editor_camera_enabled.0 = false;
         } else {
-            error!("Failed to get editor camera config");
+            // error!("Failed to get editor camera config");
         }
     }
 

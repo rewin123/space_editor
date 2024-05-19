@@ -907,6 +907,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_mod_outline"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba8bdd0b9acfcd478b8aaa94176fc145355088b534bf7d380fcef0e1d88e33bd"
+dependencies = [
+ "bevy",
+ "bitfield",
+ "interpolation",
+ "thiserror",
+ "wgpu-types",
+]
+
+[[package]]
 name = "bevy_mod_picking"
 version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1436,6 +1449,12 @@ name = "bit_field"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc827186963e592360843fb5ba4b973e145841266c1357f7180c43526f2e5b61"
+
+[[package]]
+name = "bitfield"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d7e60934ceec538daadb9d8432424ed043a904d8e0243f3c6446bce549a46ac"
 
 [[package]]
 name = "bitflags"
@@ -2833,6 +2852,12 @@ checksum = "e05c02b5e89bff3b946cedeca278abc628fe811e604f027c45a8aa3cf793d0eb"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "interpolation"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9c13ae9d91148fcb4aab6654c4c2a7d02a15395ea9e23f65170f175f8b269ce"
 
 [[package]]
 name = "io-kit-sys"
@@ -4368,6 +4393,7 @@ version = "0.6.0"
 dependencies = [
  "bevy",
  "bevy_egui",
+ "bevy_mod_outline",
  "egui-toast",
  "egui_dock",
  "space_persistence",
