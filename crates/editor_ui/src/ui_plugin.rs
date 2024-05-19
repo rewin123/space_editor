@@ -29,6 +29,9 @@ pub enum ShowEditorUi {
     Hide,
 }
 
+#[derive(Default, Reflect, GizmoConfigGroup)]
+pub struct EditorGizmo;
+
 impl FlatPluginList for EditorUiPlugin {
     #[cfg(not(tarpaulin_include))]
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {

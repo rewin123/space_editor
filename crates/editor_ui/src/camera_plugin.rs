@@ -140,7 +140,7 @@ pub fn disable_no_editor_cams(
 pub struct NotShowCamera;
 
 pub fn draw_camera_gizmo(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     cameras: Query<
         (&GlobalTransform, &Projection),
         (

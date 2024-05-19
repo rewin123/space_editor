@@ -156,6 +156,7 @@ pub struct EditorPluginGroup;
 impl PluginGroup for EditorPluginGroup {
     fn build(self) -> bevy::app::PluginGroupBuilder {
         let mut res = PluginGroupBuilder::start::<Self>()
+            .add(EditorGizmoPlugin)
             .add(ToastUiPlugin)
             .add(UndoPlugin)
             .add(SyncUndoMarkersPlugin::<PrefabMarker>::default())
@@ -240,17 +241,12 @@ impl Plugin for EditorGizmoConfigPlugin {
 }
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
-    gizmos_config
-        .config_mut::<DefaultGizmoConfigGroup>()
-        .0
-        .render_layers = RenderLayers::layer(LAST_RENDER_LAYER)
+    gizmos_config.config_mut::<EditorGizmo>().0.render_layers =
+        RenderLayers::layer(LAST_RENDER_LAYER)
 }
 
 fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
-    gizmos_config
-        .config_mut::<DefaultGizmoConfigGroup>()
-        .0
-        .render_layers = RenderLayers::layer(0)
+    gizmos_config.config_mut::<EditorGizmo>().0.render_layers = RenderLayers::layer(0)
 }
 
 type AutoAddQueryFilter = (
@@ -259,6 +255,17 @@ type AutoAddQueryFilter = (
     With<Parent>,
     Changed<Handle<Mesh>>,
 );
+
+#[derive(Default, Reflect, GizmoConfigGroup)]
+pub struct EditorGizmo;
+
+pub struct EditorGizmoPlugin;
+
+impl Plugin for EditorGizmoPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_gizmo_group::<EditorGizmo>();
+    }
+}
 
 fn save_prefab_before_play(
     mut editor_events: EventWriter<space_shared::EditorEvent>,

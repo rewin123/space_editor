@@ -16,7 +16,7 @@ use bevy_mod_picking::backends::raycast::{
 use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
-use crate::LAST_RENDER_LAYER;
+use crate::{EditorGizmo, LAST_RENDER_LAYER};
 use space_editor_core::selected::Selected;
 
 #[derive(Default)]
@@ -389,7 +389,7 @@ pub fn clean_meshless(
 }
 
 pub fn draw_light_gizmo(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     // make the gizmos only show up when the light is selected or toggled?
     lights: Query<(
         &GlobalTransform,

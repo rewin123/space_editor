@@ -4,6 +4,7 @@ use egui_gizmo::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
 
+use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
 use crate::{
     game_view::GameViewTab,
@@ -404,7 +405,7 @@ impl ToButton for GizmoMode {
 }
 
 fn draw_lines_system(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     mean_center: Res<MultipleCenter>,
     selected: Query<&GlobalTransform, With<Selected>>,
 ) {
