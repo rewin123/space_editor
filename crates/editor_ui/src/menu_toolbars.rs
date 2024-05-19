@@ -5,6 +5,7 @@ use bevy_egui::{
     egui::{Align, Align2, Margin, Pos2, Stroke, Widget},
     *,
 };
+use bevy_panorbit_camera::PanOrbitCamera;
 use egui_dock::egui::RichText;
 use space_editor_core::{
     prelude::*,
@@ -160,6 +161,7 @@ pub fn bottom_menu(
     ui_reg: Res<BundleReg>,
     menu_state: Res<MenuToolbarState>,
     sizing: Res<Sizing>,
+    q_pan_cam: Query<&PanOrbitCamera>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu")
@@ -244,6 +246,11 @@ pub fn bottom_menu(
                                             let button = egui::Button::new(name).ui(ui);
                                             if button.clicked() {
                                                 let entity = dyn_bundle.spawn(&mut commands);
+                                                if let Ok(pan_cam) = q_pan_cam.get_single() {
+                                                    commands
+                                                        .entity(entity)
+                                                        .insert(SpatialBundle::from_transform(Transform::from_translation(pan_cam.focus)));
+                                                }
                                                 changes.send(NewChange {
                                                     change: Arc::new(AddedEntity { entity }),
                                                 });
