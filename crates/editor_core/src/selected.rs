@@ -31,9 +31,9 @@ impl Plugin for SelectedPlugin {
         }
         app.add_systems(
             Update,
-            selected_entity_wireframe_update.in_set(EditorSet::Editor),
+            selected_entity_wireframe_update,
         );
-        app.add_systems(OnEnter(EditorState::GamePrepare), clear_wireframes);
+        // app.add_systems(OnEnter(ShowEditorUi::Hide), clear_wireframes);
     }
 }
 

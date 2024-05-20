@@ -174,7 +174,6 @@ impl PluginGroup for EditorPluginGroup {
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
                 WorldInspectorPlugin::default()
-                    .run_if(in_state(EditorState::Game))
                     .run_if(input_toggle_active(false, KeyCode::Escape)),
             )
             .add(EditorGizmoConfigPlugin)
@@ -210,22 +209,18 @@ impl Plugin for EditorSetsPlugin {
 
         app.configure_sets(
             PreUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+            EditorSet::Editor.run_if(in_state(ShowEditorUi::Show)),
         );
         app.configure_sets(
             Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+            EditorSet::Editor.run_if(in_state(ShowEditorUi::Show)),
         );
         app.configure_sets(
             PostUpdate,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
+            EditorSet::Editor.run_if(in_state(ShowEditorUi::Show)),
         );
 
         app.configure_sets(Update, EditorSet::Game.run_if(in_state(EditorState::Game)));
-        app.configure_sets(
-            Update,
-            EditorSet::Editor.run_if(in_state(EditorState::Editor)),
-        );
     }
 }
 

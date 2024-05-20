@@ -104,7 +104,7 @@ impl Plugin for EditorUiCore {
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(ShowEditorUi::Show)),
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
