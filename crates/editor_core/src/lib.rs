@@ -35,7 +35,7 @@ impl Plugin for EditorCore {
 
         app.add_plugins(BackgroundTaskStoragePlugin);
 
-        app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::Editor));
+        app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::OnlyEditor));
 
         app.add_event::<EditorEvent>();
 

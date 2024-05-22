@@ -33,11 +33,11 @@ impl Plugin for SpaceHierarchyPlugin {
         app.editor_tab(EditorTabName::Hierarchy, show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
-        app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
+        app.add_systems(Update, clone_enitites.in_set(EditorSet::EditorAndGame));
         app.add_systems(
             PostUpdate,
             detect_cloned_entities
-                .in_set(EditorSet::Editor)
+                .in_set(EditorSet::EditorAndGame)
                 .before(UndoSet::PerType),
         );
         app.add_event::<CloneEvent>();

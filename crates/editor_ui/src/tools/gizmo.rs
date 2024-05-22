@@ -32,7 +32,7 @@ impl Plugin for GizmoToolPlugin {
         app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
 
-        app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
+        app.add_systems(Update, draw_lines_system.in_set(EditorSet::EditorAndGame));
     }
 }
 
