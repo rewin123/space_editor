@@ -128,10 +128,7 @@ impl Plugin for EditorUiCore {
                 .run_if(has_window_changed)
                 .in_set(UiSystemSet),
         );
-        app.add_systems(
-            Update,
-            reset_camera_viewport.run_if(in_state(EditorState::Game)),
-        );
+        
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(GameViewTab::default());
 
