@@ -166,11 +166,27 @@ impl EditorTool for GizmoTool {
 
         let (cam_transform, cam_proj) = {
             let mut cam_query =
-                world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
-            let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
-                return;
+                world.query_filtered::<(&GlobalTransform, &Projection, &Camera), With<EditorCameraMarker>>();
+            let Ok((ref_tr, ref_cam, ref_cam_state)) = cam_query.get_single(world) else {
+                return; //if we havent editor cameras in world, so its wrong using of space_editor
             };
-            (*ref_tr, ref_cam.clone())
+            if ref_cam_state.is_active {
+                (*ref_tr, ref_cam.clone()) //we have active editor camera
+            } else { //if we havent, so its game mode and we can try to find active game camera
+                let mut cam_query =
+                    world.query::<(&GlobalTransform, &Projection, &Camera)>();
+                let mut ret = None;
+                for (ref_tr, ref_cam, ref_cam_state) in cam_query.iter(world) {
+                    if ref_cam_state.is_active {
+                        ret = Some((*ref_tr, ref_cam.clone()));
+                        break;
+                    }
+                }
+                if ret.is_none() {
+                    return;
+                }
+                ret.unwrap()
+            }
         };
 
         let selected = world
