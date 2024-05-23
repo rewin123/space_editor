@@ -43,17 +43,17 @@ impl Plugin for BottomMenuPlugin {
             Update,
             bottom_menu
                 .before(EditorLoadSet)
-                .in_set(EditorSet::Editor)
+                .in_set(EditorShowSet::Show)
                 .run_if(in_state(ShowEditorUi::Show)),
         );
         app.add_systems(
             Update,
             top_menu
                 .before(EditorLoadSet)
-                .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .in_set(EditorSet::OnlyEditor)
+                .run_if(in_state(ShowEditorUi::Show)),
         );
-        app.add_systems(Update, in_game_menu.in_set(EditorSet::Game));
+        app.add_systems(Update, in_game_menu.in_set(EditorSet::OnlyGame));
         app.add_event::<MenuLoadEvent>();
     }
 }
@@ -155,7 +155,6 @@ pub fn bottom_menu(
     mut commands: Commands,
     query: Query<HierarchyQueryIter, With<PrefabMarker>>,
     mut ctxs: EguiContexts,
-    _state: ResMut<NextState<EditorState>>,
     mut changes: EventWriter<NewChange>,
     mut state: ResMut<HierarchyTabState>,
     ui_reg: Res<BundleReg>,
@@ -288,7 +287,6 @@ pub fn bottom_menu(
 pub fn top_menu(
     mut commands: Commands,
     mut ctxs: EguiContexts,
-    _state: ResMut<NextState<EditorState>>,
     mut events: EventReader<MenuLoadEvent>,
     mut menu_state: ResMut<MenuToolbarState>,
     mut editor_events: EventWriter<EditorEvent>,

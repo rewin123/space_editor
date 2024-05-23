@@ -17,8 +17,7 @@ impl Plugin for EditorPickingPlugin {
 
         app.add_systems(
             PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet))
-                .run_if(in_state(EditorState::Editor)),
+            (auto_add_picking, select_listener.after(UiSystemSet)).in_set(EditorSet::OnlyEditor),
         );
         app.add_systems(PostUpdate, auto_add_picking_dummy);
     }

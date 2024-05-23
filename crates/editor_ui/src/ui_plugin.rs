@@ -103,8 +103,7 @@ impl Plugin for EditorUiCore {
         app.configure_sets(
             Update,
             UiSystemSet
-                .in_set(EditorSet::Editor)
-                .run_if(in_state(ShowEditorUi::Show)),
+                .in_set(EditorShowSet::Show),
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -172,7 +171,7 @@ impl Plugin for EditorUiCore {
         if self.disable_no_editor_cams {
             app.add_systems(
                 Update,
-                disable_no_editor_cams.run_if(in_state(EditorState::Editor)),
+                disable_no_editor_cams.in_set(EditorSet::OnlyEditor),
             );
 
             app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);

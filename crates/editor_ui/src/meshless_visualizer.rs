@@ -59,7 +59,7 @@ impl Plugin for MeshlessVisualizerPlugin {
         .add_plugins(BillboardPlugin)
         .add_systems(
             Update,
-            (visualize_meshless, visualize_custom_meshless).run_if(resource_exists::<EditorIconAssets>).in_set(EditorSet::Editor),
+            (visualize_meshless, visualize_custom_meshless).run_if(resource_exists::<EditorIconAssets>).in_set(EditorShowSet::Show),
         )
         .editor_registry::<CustomMeshless>();
     }

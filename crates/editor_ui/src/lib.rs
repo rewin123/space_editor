@@ -97,6 +97,7 @@ use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     toast::ToastMessage,
     EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
+    EditorShowSet
 };
 use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
@@ -195,16 +196,16 @@ pub struct EditorSetsPlugin;
 impl Plugin for EditorSetsPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::Editor));
+        app.configure_sets(PostUpdate, UndoSet::Global.in_set(EditorSet::OnlyEditor));
 
         app.configure_sets(
             PreUpdate,
             EditorSet::OnlyEditor.run_if(in_state(EditorState::Game)),
         );
-        app.configure_sets(Update, EditorSet::OnlyGame.run_if(in_state(EditorState::OnlyGame)));
+        app.configure_sets(Update, EditorSet::OnlyGame.run_if(in_state(EditorState::Game)));
         app.configure_sets(
             PostUpdate,
-            EditorSet::OnlyGame.run_if(in_state(EditorState::OnlyGame)),
+            EditorSet::OnlyGame.run_if(in_state(EditorState::Game)),
         );
 
         app.configure_sets(
@@ -220,6 +221,8 @@ impl Plugin for EditorSetsPlugin {
             EditorSet::OnlyEditor.run_if(in_state(EditorState::Editor)),
         );
 
+
+        app.configure_sets(PreUpdate, EditorShowSet::Show.run_if(in_state(ShowEditorUi::Show)));
     }
 }
 

@@ -1,12 +1,7 @@
-use bevy::prelude::*;
-
-#[cfg(not(feature = "bevy_mod_outline"))]
-use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
-
-use space_shared::{EditorSet, EditorState};
-
-#[cfg(feature = "bevy_mod_outline")]
-use bevy_mod_outline::{OutlineBundle, OutlinePlugin, OutlineVolume};
+use bevy::{
+    pbr::wireframe::{Wireframe, WireframePlugin},
+    prelude::*,
+};
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
