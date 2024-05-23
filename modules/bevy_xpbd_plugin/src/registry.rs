@@ -3,7 +3,7 @@ use bevy_xpbd_3d::prelude::*;
 use collider::ColliderPrefab;
 use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
-    settings::RegisterSettingsBlockExt,
+    settings::RegisterSettingsBlockExt, ui_plugin::UiSystemSet,
 };
 
 use crate::{
@@ -66,7 +66,7 @@ impl Plugin for BevyXpbdPlugin {
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
         app.add_systems(
             Update,
-            (sync_position_spawn, late_sync_position_spawn).run_if(in_state(EditorState::Editor)),
+            (sync_position_spawn, late_sync_position_spawn).run_if(in_state(EditorState::Editor)).after(UiSystemSet),
         );
 
         if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
