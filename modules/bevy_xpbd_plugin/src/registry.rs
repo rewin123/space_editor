@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 use collider::ColliderPrefab;
 use space_editor_ui::{
-    prelude::{EditorRegistryExt, EditorState, PrefabSet},
+    prelude::{EditorRegistryExt, EditorSet, EditorState, PrefabSet},
     settings::RegisterSettingsBlockExt, ui_plugin::UiSystemSet,
 };
 
@@ -43,7 +43,7 @@ impl Plugin for BevyXpbdPlugin {
         register_xpbd_spatial_types(app);
 
         app.add_systems(
-            Update,
+            PostUpdate,
             (collider::update_collider).in_set(PrefabSet::DetectPrefabChange),
         );
 
@@ -51,10 +51,10 @@ impl Plugin for BevyXpbdPlugin {
             Update,
             rigidbody_type_change_in_editor
                 .run_if(in_state(EditorState::Editor))
-                .in_set(PrefabSet::DetectPrefabChange),
+                .after(UiSystemSet),
         );
         app.add_systems(
-            Update,
+            PostUpdate,
             rigidbody_type_change
                 .run_if(in_state(EditorState::Game))
                 .in_set(PrefabSet::DetectPrefabChange),
@@ -64,10 +64,19 @@ impl Plugin for BevyXpbdPlugin {
             force_rigidbody_type_change_in_editor,
         );
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
-        app.add_systems(
-            Update,
-            (sync_position_spawn, late_sync_position_spawn).run_if(in_state(EditorState::Editor)).after(UiSystemSet),
-        );
+        app.add_systems(Update, transform_changed.after(UiSystemSet).in_set(EditorSet::EditorAndGame));
+        // app.add_systems(
+        //     Update,
+        //     (sync_position_spawn, late_sync_position_spawn).in_set(EditorSet::EditorAndGame).after(UiSystemSet),
+        // );
+        // app.add_systems(
+        //     PreUpdate,
+        //     (sync_position_spawn, late_sync_position_spawn),
+        // );
+        // app.add_systems(
+        //     PostUpdate,
+        //     (late_sync_position_spawn, sync_position_spawn).chain().before(PhysicsSet::Prepare)
+        // );
 
         if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
@@ -82,6 +91,16 @@ impl Plugin for BevyXpbdPlugin {
                 );
             });
         }
+    }
+}
+
+
+fn transform_changed(
+    mut commands: Commands,
+    query: Query<(Entity, &GlobalTransform), Changed<GlobalTransform>>,
+) {
+    for (e, tr) in query.iter() {
+        commands.entity(e).insert((Position(tr.translation()), Rotation(tr.compute_transform().rotation)));
     }
 }
 
@@ -152,12 +171,12 @@ fn force_rigidbody_type_change_in_editor(
 ) {
     for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
-        if let Some(tr) = transform {
-            let tr = tr.compute_transform();
-            commands
-                .entity(e)
-                .insert((Position(tr.translation), Rotation(tr.rotation)));
-        }
+        // if let Some(tr) = transform {
+        //     let tr = tr.compute_transform();
+        //     commands
+        //         .entity(e)
+        //         .insert((Position(tr.translation), Rotation(tr.rotation)));
+        // }
     }
 }
 
@@ -171,12 +190,12 @@ fn rigidbody_type_change_in_editor(
             .entity(e)
             .remove::<RigidBody>()
             .insert(tp.to_rigidbody_editor());
-        if let Some(tr) = transform {
-            let tr = tr.compute_transform();
-            commands
-                .entity(e)
-                .insert((Position(tr.translation), Rotation(tr.rotation)));
-        }
+        // if let Some(tr) = transform {
+        //     let tr = tr.compute_transform();
+        //     commands
+        //         .entity(e)
+        //         .insert((Position(tr.translation), Rotation(tr.rotation)));
+        // }
     }
 }
 

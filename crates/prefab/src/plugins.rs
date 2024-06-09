@@ -13,7 +13,7 @@ use bevy::{
 };
 use bevy_scene_hook::HookPlugin;
 use space_shared::toast::ToastMessage;
-use space_shared::{LightAreaToggle, PrefabMarker};
+use space_shared::{EditorSet, LightAreaToggle, PrefabMarker};
 
 use crate::{
     component, editor_registry::EditorRegistryExt, load, prelude::EditorRegistryPlugin, save,
@@ -52,6 +52,18 @@ impl Plugin for BasePrefabPlugin {
 
         app.configure_sets(
             Update,
+            (
+                PrefabSet::PrefabLoad,
+                PrefabSet::Relation,
+                PrefabSet::RelationApply,
+                PrefabSet::DetectPrefabChange,
+                PrefabSet::PrefabChangeApply,
+            )
+                .chain(),
+        );
+
+        app.configure_sets(
+            PostUpdate,
             (
                 PrefabSet::PrefabLoad,
                 PrefabSet::Relation,
@@ -232,7 +244,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.add_systems(
             Update,
-            (editor_remove_mesh, editor_remove_mesh_2d).run_if(in_state(EditorState::Editor)),
+            (editor_remove_mesh, editor_remove_mesh_2d).in_set(EditorSet::EditorAndGame),
         );
         app.add_systems(Update, animate_sprite);
 
