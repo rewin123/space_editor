@@ -2,8 +2,9 @@ use bevy::prelude::*;
 use bevy_xpbd_3d::prelude::*;
 use collider::ColliderPrefab;
 use space_editor_ui::{
-    prelude::{EditorRegistryExt, EditorSet, EditorState, PrefabSet},
-    settings::RegisterSettingsBlockExt, ui_plugin::UiSystemSet,
+    prelude::{EditorRegistryExt, EditorState, PrefabSet},
+    settings::RegisterSettingsBlockExt,
+    ui_plugin::UiSystemSet,
 };
 
 use crate::{

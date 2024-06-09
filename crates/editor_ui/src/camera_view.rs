@@ -31,7 +31,10 @@ impl Plugin for CameraViewTabPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
-        app.add_systems(PreUpdate, set_camera_viewport.run_if(in_state(ShowEditorUi::Show)));
+        app.add_systems(
+            PreUpdate,
+            set_camera_viewport.run_if(in_state(ShowEditorUi::Show)),
+        );
         app.add_systems(OnEnter(ShowEditorUi::Hide), clean_camera_view_tab);
     }
 }

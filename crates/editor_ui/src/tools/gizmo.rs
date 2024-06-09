@@ -172,9 +172,9 @@ impl EditorTool for GizmoTool {
             };
             if ref_cam_state.is_active {
                 (*ref_tr, ref_cam.clone()) //we have active editor camera
-            } else { //if we havent, so its game mode and we can try to find active game camera
-                let mut cam_query =
-                    world.query::<(&GlobalTransform, &Projection, &Camera)>();
+            } else {
+                //if we havent, so its game mode and we can try to find active game camera
+                let mut cam_query = world.query::<(&GlobalTransform, &Projection, &Camera)>();
                 let mut ret = None;
                 for (ref_tr, ref_cam, ref_cam_state) in cam_query.iter(world) {
                     if ref_cam_state.is_active {

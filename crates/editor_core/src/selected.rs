@@ -24,10 +24,7 @@ impl Plugin for SelectedPlugin {
                 app.add_plugins(OutlinePlugin);
             }
         }
-        app.add_systems(
-            Update,
-            selected_entity_wireframe_update,
-        );
+        app.add_systems(Update, selected_entity_wireframe_update);
         // app.add_systems(OnEnter(ShowEditorUi::Hide), clear_wireframes);
     }
 }

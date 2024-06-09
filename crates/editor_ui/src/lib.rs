@@ -96,8 +96,7 @@ use space_prefab::prelude::*;
 use space_shared::{
     ext::bevy_inspector_egui::{quick::WorldInspectorPlugin, DefaultInspectorConfigPlugin},
     toast::ToastMessage,
-    EditorCameraMarker, EditorSet, EditorState, PrefabMarker, PrefabMemoryCache,
-    EditorShowSet
+    EditorCameraMarker, EditorSet, EditorShowSet, EditorState, PrefabMarker, PrefabMemoryCache,
 };
 use space_undo::{SyncUndoMarkersPlugin, UndoPlugin, UndoSet};
 use ui_registration::BundleReg;
@@ -174,8 +173,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(selection::EditorPickingPlugin)
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
-                WorldInspectorPlugin::default()
-                    .run_if(input_toggle_active(false, KeyCode::Escape)),
+                WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
             )
             .add(EditorGizmoConfigPlugin)
     }
@@ -202,7 +200,10 @@ impl Plugin for EditorSetsPlugin {
             PreUpdate,
             EditorSet::OnlyEditor.run_if(in_state(EditorState::Game)),
         );
-        app.configure_sets(Update, EditorSet::OnlyGame.run_if(in_state(EditorState::Game)));
+        app.configure_sets(
+            Update,
+            EditorSet::OnlyGame.run_if(in_state(EditorState::Game)),
+        );
         app.configure_sets(
             PostUpdate,
             EditorSet::OnlyGame.run_if(in_state(EditorState::Game)),
@@ -221,8 +222,10 @@ impl Plugin for EditorSetsPlugin {
             EditorSet::OnlyEditor.run_if(in_state(EditorState::Editor)),
         );
 
-
-        app.configure_sets(PreUpdate, EditorShowSet::Show.run_if(in_state(ShowEditorUi::Show)));
+        app.configure_sets(
+            PreUpdate,
+            EditorShowSet::Show.run_if(in_state(ShowEditorUi::Show)),
+        );
     }
 }
 

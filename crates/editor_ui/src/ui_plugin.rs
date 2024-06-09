@@ -100,12 +100,8 @@ impl Plugin for EditorUiCore {
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();
 
-        app.configure_sets(
-            Update,
-            UiSystemSet
-                .in_set(EditorShowSet::Show),
-        );
-
+        app.configure_sets(Update, UiSystemSet.in_set(EditorShowSet::Show));
+        app.init_resource::<EditorUi>();
         app.init_resource::<ScheduleEditorTabStorage>();
         app.add_systems(
             Update,
@@ -127,7 +123,7 @@ impl Plugin for EditorUiCore {
                 .run_if(has_window_changed)
                 .in_set(UiSystemSet),
         );
-        
+
         app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
         app.editor_tab_by_trait(GameViewTab::default());
 
@@ -169,10 +165,7 @@ impl Plugin for EditorUiCore {
         );
 
         if self.disable_no_editor_cams {
-            app.add_systems(
-                Update,
-                disable_no_editor_cams.in_set(EditorSet::OnlyEditor),
-            );
+            app.add_systems(Update, disable_no_editor_cams.in_set(EditorSet::OnlyEditor));
 
             app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
