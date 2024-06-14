@@ -42,8 +42,8 @@ getrandom = { version = "0.2", default-features = false, features = ["std"] }
 hashbrown = { version = "0.14", features = ["raw", "serde"] }
 log = { version = "0.4", default-features = false, features = ["std"] }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
-syn-dff4ba8e3ae991db = { package = "syn", version = "1", features = ["extra-traits", "full"] }
-syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["full", "visit"] }
+syn-dff4ba8e3ae991db = { package = "syn", version = "1", features = ["extra-traits", "full"] } # spellchecker:disable
+syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["full", "visit"] } # spellchecker:disable
 uuid = { version = "1", features = ["serde", "v4"] }
 
 ### END HAKARI SECTION
