@@ -2033,6 +2033,7 @@ version = "0.6.0"
 dependencies = [
  "bevy",
  "space_editor",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -2447,6 +2448,7 @@ dependencies = [
  "bevy",
  "space_bevy_xpbd_plugin",
  "space_prefab",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4373,6 +4375,7 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_xpbd_3d",
  "space_editor_ui",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4385,6 +4388,7 @@ dependencies = [
  "space_bevy_xpbd_plugin",
  "space_editor_ui",
  "space_prefab",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4400,6 +4404,7 @@ dependencies = [
  "space_prefab",
  "space_shared",
  "space_undo",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4407,11 +4412,11 @@ name = "space_editor_tabs"
 version = "0.6.0"
 dependencies = [
  "bevy",
- "bevy-inspector-egui",
  "bevy_egui",
  "convert_case 0.6.0",
  "egui_dock",
  "egui_extras",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4427,10 +4432,8 @@ dependencies = [
  "bevy_mod_billboard",
  "bevy_mod_picking",
  "bevy_panorbit_camera",
- "convert_case 0.6.0",
  "egui-gizmo",
  "egui_dock",
- "egui_extras",
  "pretty-type-name",
  "serde",
  "space_editor_core",
@@ -4439,6 +4442,7 @@ dependencies = [
  "space_prefab",
  "space_shared",
  "space_undo",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4448,6 +4452,7 @@ dependencies = [
  "bevy",
  "ron",
  "serde",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4462,6 +4467,7 @@ dependencies = [
  "serde",
  "space_shared",
  "space_undo",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4474,6 +4480,7 @@ dependencies = [
  "egui-toast",
  "egui_file",
  "image 0.24.9",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -4482,6 +4489,7 @@ version = "0.6.0"
 dependencies = [
  "bevy",
  "pretty-type-name",
+ "workspace-hakari",
 ]
 
 [[package]]
@@ -5703,6 +5711,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "workspace-hakari"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "bevy",
+ "bevy_internal",
+ "bevy_winit",
+ "bytemuck",
+ "crossbeam-utils",
+ "derive_more",
+ "ecolor",
+ "egui",
+ "either",
+ "emath",
+ "epaint",
+ "getrandom",
+ "glam",
+ "hashbrown",
+ "image 0.24.9",
+ "log",
+ "num-traits",
+ "serde",
+ "syn 1.0.109",
+ "syn 2.0.60",
+ "uuid",
+ "winit",
 ]
 
 [[package]]

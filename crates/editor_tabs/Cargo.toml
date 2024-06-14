@@ -15,7 +15,7 @@ bevy_egui.workspace = true
 egui_extras.workspace = true
 convert_case.workspace = true
 egui_dock.workspace = true
-bevy-inspector-egui.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [lints]
 workspace = true

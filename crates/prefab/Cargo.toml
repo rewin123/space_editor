@@ -24,6 +24,7 @@ bevy-inspector-egui.workspace = true
 
 serde = { workspace = true }
 ron.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [dev-dependencies]
 rand = { workspace = true }
