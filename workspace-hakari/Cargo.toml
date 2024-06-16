@@ -20,20 +20,20 @@ bevy_internal = { version = "0.13", default-features = false, features = ["andro
 bevy_winit = { version = "0.13", default-features = false, features = ["wayland", "x11"] }
 bytemuck = { version = "1", default-features = false, features = ["aarch64_simd", "derive", "extern_crate_alloc"] }
 crossbeam-utils = { version = "0.8" }
-ecolor = { version = "0.26", default-features = false, features = ["bytemuck", "serde"] }
-egui = { version = "0.26", features = ["bytemuck", "serde"] }
+ecolor = { version = "0.27", default-features = false, features = ["bytemuck", "serde"] }
+egui = { version = "0.27", features = ["bytemuck", "serde"] }
 either = { version = "1", default-features = false, features = ["use_std"] }
-emath = { version = "0.26", default-features = false, features = ["bytemuck", "serde"] }
-epaint = { version = "0.26", default-features = false, features = ["bytemuck", "default_fonts", "serde"] }
+emath = { version = "0.27", default-features = false, features = ["bytemuck", "serde"] }
+epaint = { version = "0.27", default-features = false, features = ["bytemuck", "default_fonts", "serde"] }
 getrandom = { version = "0.2", default-features = false, features = ["std"] }
-glam = { version = "0.25", features = ["bytemuck", "mint", "serde"] }
+glam = { version = "0.28", features = ["bytemuck", "mint", "serde"] }
 hashbrown = { version = "0.14", features = ["raw", "serde"] }
 image = { version = "0.24" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 num-traits = { version = "0.2", features = ["i128", "libm"] }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 uuid = { version = "1", features = ["serde", "v4"] }
-winit = { version = "0.29", default-features = false, features = ["rwh_06", "wayland", "wayland-csd-adwaita", "x11"] }
+winit = { version = "0.30", default-features = false, features = ["rwh_06", "wayland", "wayland-csd-adwaita", "x11"] }
 
 [build-dependencies]
 ahash = { version = "0.8", features = ["no-rng", "serde"] }
