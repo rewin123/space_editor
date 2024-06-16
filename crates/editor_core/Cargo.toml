@@ -23,6 +23,7 @@ egui_dock.workspace = true
 egui-toast.workspace = true
 
 bevy_mod_outline = {version = "0.7.0", optional = true}
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [features]
 default = ["persistence_editor", "bevy_mod_outline"]

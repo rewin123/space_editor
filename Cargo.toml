@@ -18,7 +18,8 @@ members = [
     "game",
     "crates/*",
     "modules/bevy_xpbd_plugin", 
-    "external/editor_as_plugin"
+    "external/editor_as_plugin", 
+    "workspace-hakari"
 ]
 
 resolver = "2"
@@ -92,6 +93,7 @@ game_app.workspace = true
 
 # Modules for external crates
 space_bevy_xpbd_plugin = { workspace = true, optional = true }
+workspace-hakari = { version = "0.1", path = "workspace-hakari" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 backtrace-on-stack-overflow = {version = "0.3", optional = true}
