@@ -25,6 +25,10 @@ pub struct MeshlessVisualizerPlugin;
 impl Plugin for MeshlessVisualizerPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+        use bevy_asset_loader::prelude::*;
+        
+        use toast::ToastMessage;
+
         if std::fs::metadata("assets/icons/").is_ok() {
             app.add_loading_state(
                 LoadingState::new(EditorState::Loading)

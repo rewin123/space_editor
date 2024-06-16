@@ -3,6 +3,9 @@ use bevy::{
     prelude::*,
 };
 
+#[cfg(feature = "bevy_mod_outline")]
+use bevy_mod_outline::{OutlinePlugin, OutlineVolume, OutlineBundle};
+
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
 pub struct Selected;
@@ -57,6 +60,7 @@ fn selected_entity_wireframe_update(
     del_wireframe: Query<Entity, (With<OutlineVolume>, Without<Selected>)>,
     need_wireframe: Query<Entity, (Without<OutlineVolume>, With<Selected>)>,
 ) {
+
     for e in del_wireframe.iter() {
         cmds.entity(e).remove::<OutlineBundle>();
     }

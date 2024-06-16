@@ -24,12 +24,14 @@ use crate::{
 use space_editor_tabs::prelude::*;
 
 use crate::colors::*;
+use crate::ShowEditorUi;
 
 pub struct CameraViewTabPlugin;
 
 impl Plugin for CameraViewTabPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+
         app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
         app.add_systems(
             PreUpdate,
