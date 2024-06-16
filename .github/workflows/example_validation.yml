@@ -222,7 +222,7 @@ jobs:
           example_name=`basename plaformer.ron`
           echo -n $example_name > last_example_run
           echo "running external_plugin - "`date`
-          time WGPU_BACKEND=dx12 TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo run --release --bin plugin_test --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
+          time WGPU_BACKEND=dx12 TRACE_CHROME=trace-external_plugin.json CI_TESTING_CONFIG=.github/example-run/external_plugin.ron cargo run --bin plugin_test --release --features "bevy/bevy_ci_testing,bevy/trace_chrome,bevy/trace"
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-external_plugin
