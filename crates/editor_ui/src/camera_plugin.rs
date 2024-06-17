@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub struct EditorDefaultCameraPlugin;
 
 impl Plugin for EditorDefaultCameraPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
@@ -69,7 +70,7 @@ pub fn change_camera_in_play(
     mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
     mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    #[cfg(feature = "editor")] mut toast: EventWriter<ToastMessage>,
+    mut toast: EventWriter<ToastMessage>,
 ) {
     if !play_cameras.is_empty() {
         editor_cameras.iter_mut().for_each(|mut cam| {
@@ -81,7 +82,6 @@ pub fn change_camera_in_play(
 
         let Ok(window) = primary_window.get_single() else {
             error!("Failed to get Primary Window");
-            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "Failed to get Primary Window",
                 space_shared::toast::ToastKind::Error,
@@ -90,7 +90,6 @@ pub fn change_camera_in_play(
         };
         let Ok(mut cam) = play_cameras.get_single_mut() else {
             error!("No play camera found");
-            #[cfg(feature = "editor")]
             toast.send(ToastMessage::new(
                 "No play camera found",
                 space_shared::toast::ToastKind::Error,
@@ -104,7 +103,6 @@ pub fn change_camera_in_play(
         });
     } else {
         error!("No play camera found");
-        #[cfg(feature = "editor")]
         toast.send(ToastMessage::new(
             "No play camera found",
             space_shared::toast::ToastKind::Error,
@@ -142,7 +140,7 @@ pub fn disable_no_editor_cams(
 pub struct NotShowCamera;
 
 pub fn draw_camera_gizmo(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     cameras: Query<
         (&GlobalTransform, &Projection),
         (

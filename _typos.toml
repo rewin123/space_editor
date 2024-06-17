@@ -1,0 +1,8 @@
+[default]
+extend-ignore-identifiers-re = [
+    "\\bTLS_[A-Z0-9_]+(_anon_[A-Z0-9_]+)?\\b"
+]
+extend-ignore-re = [
+    "(?Rm)^.*#\\s*spellchecker:disable$",
+    "(?Rm)^.*//\\s*spellchecker:disable$"
+]

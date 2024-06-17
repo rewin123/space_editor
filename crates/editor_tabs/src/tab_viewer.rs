@@ -1,40 +1,14 @@
-/// This module contains the implementation of the editor tabs
-use bevy::{prelude::*, utils::HashMap};
-use bevy_egui::egui::{self, WidgetText};
-use convert_case::{Case, Casing};
-
 use crate::{
-    colors::ERROR_COLOR,
-    sizing::{to_label, Sizing},
+    schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, to_label,
+    CollectedStyle, EditorTab, EditorUiReg,
 };
-
-use super::{EditorUiRef, EditorUiReg};
-
-pub trait EditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World);
-    fn title(&self) -> egui::WidgetText;
-}
-
-#[derive(Clone, Hash, PartialEq, Eq, Debug, PartialOrd, Ord)]
-pub enum EditorTabName {
-    CameraView,
-    EventDispatcher,
-    GameView,
-    Hierarchy,
-    Inspector,
-    Resource,
-    RuntimeAssets,
-    Settings,
-    ToolBox,
-    Other(String),
-}
-
-pub type EditorTabShowFn = Box<dyn Fn(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync>;
-pub type EditorTabGetTitleFn = Box<dyn Fn(&mut World) -> WidgetText + Send + Sync>;
+use bevy::{prelude::*, utils::HashMap};
+use bevy_egui::egui;
+use convert_case::{Case, Casing};
 
 pub enum EditorTabCommand {
     Add {
-        name: EditorTabName,
+        name: TabNameHolder,
         surface: egui_dock::SurfaceIndex,
         node: egui_dock::NodeIndex,
     },
@@ -43,13 +17,14 @@ pub enum EditorTabCommand {
 pub struct EditorTabViewer<'a, 'w, 's> {
     pub world: &'a mut World,
     pub commands: &'a mut Commands<'w, 's>,
-    pub registry: &'a mut HashMap<EditorTabName, EditorUiReg>,
-    pub visible: Vec<EditorTabName>,
+    pub registry: &'a mut HashMap<TabNameHolder, EditorUiReg>,
+    pub visible: Vec<TabNameHolder>,
     pub tab_commands: Vec<EditorTabCommand>,
+    pub style: CollectedStyle,
 }
 
 impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
-    type Tab = EditorTabName;
+    type Tab = TabNameHolder;
 
     fn ui(&mut self, ui: &mut egui::Ui, tab_name: &mut Self::Tab) {
         if let Some(reg) = self.registry.get_mut(tab_name) {
@@ -66,19 +41,21 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                             if let Some(tab) = storage.0.get_mut(tab_name) {
                                 tab.ui(ui, self.commands, world);
                             } else {
-                                ui.colored_label(ERROR_COLOR, "Not implemented schedule tab");
+                                ui.colored_label(
+                                    self.style.error_color,
+                                    "Not implemented schedule tab",
+                                );
                             }
                         },
                     );
                 }
             }
         } else {
-            ui.colored_label(ERROR_COLOR, "Not implemented panel");
+            ui.colored_label(self.style.error_color, "Not implemented panel");
         }
     }
 
     fn title(&mut self, tab: &mut Self::Tab) -> egui::WidgetText {
-        let sizing = self.world.resource::<Sizing>().clone();
         if let Some(reg) = self.registry.get(tab) {
             match reg {
                 EditorUiReg::ResourceBased {
@@ -91,17 +68,17 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
                     .0
                     .get(tab)
                     .map_or_else(
-                        || to_label(&format!("{tab:?}"), sizing.text).into(),
-                        |tab| to_label(tab.title.text(), sizing.text).into(),
+                        || to_label(&format!("{tab:?}"), self.style.text_size).into(),
+                        |tab| to_label(&tab.tab_name.title, self.style.text_size).into(),
                     ),
             }
         } else {
-            to_label(&format!("{tab:?}"), sizing.text).into()
+            to_label(&format!("{tab:?}"), self.style.text_size).into()
         }
     }
 
     fn clear_background(&self, window: &Self::Tab) -> bool {
-        !matches!(window, EditorTabName::GameView)
+        window.clear_background
     }
 
     fn add_popup(
@@ -113,19 +90,16 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         ui.set_min_width(200.0);
         ui.style_mut().visuals.button_frame = false;
         let mut counter = 0;
-        let mut tab_registry: Vec<(&EditorTabName, &EditorUiReg)> = self.registry.iter().collect();
+        let mut tab_registry: Vec<(&TabNameHolder, &EditorUiReg)> = self.registry.iter().collect();
         tab_registry.sort_by(|a, b| a.0.cmp(b.0));
 
         for registry in tab_registry.iter() {
             if !self.visible.contains(registry.0) {
-                let format_name;
-                if let EditorTabName::Other(name) = registry.0 {
-                    format_name = name.clone();
-                } else {
-                    format_name = format!("{:?}", registry.0)
-                        .from_case(Case::Pascal)
-                        .to_case(Case::Title);
-                }
+                let format_name = registry
+                    .0
+                    .title
+                    .from_case(Case::Pascal)
+                    .to_case(Case::Title);
 
                 if ui.button(format_name).clicked() {
                     self.tab_commands.push(EditorTabCommand::Add {
@@ -144,25 +118,3 @@ impl<'a, 'w, 's> egui_dock::TabViewer for EditorTabViewer<'a, 'w, 's> {
         }
     }
 }
-
-pub struct ScheduleEditorTab {
-    pub schedule: Schedule,
-    pub title: egui::WidgetText,
-}
-
-impl EditorTab for ScheduleEditorTab {
-    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
-        world.insert_non_send_resource(EditorUiRef(inner_ui));
-
-        self.schedule.run(world);
-        world.remove_non_send_resource::<EditorUiRef>();
-    }
-
-    fn title(&self) -> egui::WidgetText {
-        self.title.clone()
-    }
-}
-
-#[derive(Resource, Default)]
-pub struct ScheduleEditorTabStorage(pub HashMap<EditorTabName, ScheduleEditorTab>);
