@@ -4,7 +4,6 @@ use space_editor::prelude::*;
 /// This example shows how to create custom editor tabs
 /// space_editor allows to create tabs by implementing trait EditorTab
 /// or by using system based tabs
-
 fn main() {
     App::default()
         .add_plugins(DefaultPlugins)
@@ -42,8 +41,8 @@ impl TabName for CustomTabName {
     /// Return title of the tab
     fn title(&self) -> String {
         match self {
-            CustomTabName::TraitBased => String::from("Trait Based"),
-            CustomTabName::SystemBased => String::from("System Based"),
+            Self::TraitBased => String::from("Trait Based"),
+            Self::SystemBased => String::from("System Based"),
         }
     }
 }
