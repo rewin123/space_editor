@@ -132,9 +132,9 @@ pub fn update_collider(
             commands.entity(e).insert(RigidBodyPrefab::Static);
         }
 
-        // if transform.is_none() {
-        //     commands.entity(e).insert(TransformBundle::default());
-        // }
+        if transform.is_none() {
+            commands.entity(e).insert(TransformBundle::default());
+        }
     }
 
     for (e, collider, mesh) in updated_meshes.iter() {

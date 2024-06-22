@@ -72,18 +72,19 @@ impl Plugin for BevyXpbdPlugin {
                 .after(UiSystemSet)
                 .in_set(EditorShowSet::Show),
         );
-        // app.add_systems(
-        //     Update,
-        //     (sync_position_spawn, late_sync_position_spawn).in_set(EditorSet::EditorAndGame).after(UiSystemSet),
-        // );
-        // app.add_systems(
-        //     PreUpdate,
-        //     (sync_position_spawn, late_sync_position_spawn),
-        // );
-        // app.add_systems(
-        //     PostUpdate,
-        //     (late_sync_position_spawn, sync_position_spawn).chain().before(PhysicsSet::Prepare)
-        // );
+        app.add_systems(
+            Update,
+            (sync_position_spawn, late_sync_position_spawn)
+                .in_set(EditorShowSet::Show)
+                .after(UiSystemSet),
+        );
+        app.add_systems(PreUpdate, (sync_position_spawn, late_sync_position_spawn));
+        app.add_systems(
+            PostUpdate,
+            (late_sync_position_spawn, sync_position_spawn)
+                .chain()
+                .before(PhysicsSet::Prepare),
+        );
 
         if app.is_plugin_added::<space_editor_ui::ui_plugin::EditorUiCore>() {
             app.register_settings_block("Bevy XPBD 3D", |ui, _, world| {
@@ -180,12 +181,12 @@ fn force_rigidbody_type_change_in_editor(
 ) {
     for (e, tp, transform) in query.iter() {
         commands.entity(e).insert(tp.to_rigidbody_editor());
-        // if let Some(tr) = transform {
-        //     let tr = tr.compute_transform();
-        //     commands
-        //         .entity(e)
-        //         .insert((Position(tr.translation), Rotation(tr.rotation)));
-        // }
+        if let Some(tr) = transform {
+            let tr = tr.compute_transform();
+            commands
+                .entity(e)
+                .insert((Position(tr.translation), Rotation(tr.rotation)));
+        }
     }
 }
 
@@ -199,12 +200,12 @@ fn rigidbody_type_change_in_editor(
             .entity(e)
             .remove::<RigidBody>()
             .insert(tp.to_rigidbody_editor());
-        // if let Some(tr) = transform {
-        //     let tr = tr.compute_transform();
-        //     commands
-        //         .entity(e)
-        //         .insert((Position(tr.translation), Rotation(tr.rotation)));
-        // }
+        if let Some(tr) = transform {
+            let tr = tr.compute_transform();
+            commands
+                .entity(e)
+                .insert((Position(tr.translation), Rotation(tr.rotation)));
+        }
     }
 }
 

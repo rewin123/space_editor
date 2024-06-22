@@ -1,10 +1,11 @@
-use bevy::{
-    pbr::wireframe::{Wireframe, WireframePlugin},
-    prelude::*,
-};
+#[cfg(not(feature = "bevy_mod_outline"))]
+use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
+use bevy::prelude::*;
 
 #[cfg(feature = "bevy_mod_outline")]
 use bevy_mod_outline::{OutlineBundle, OutlinePlugin, OutlineVolume};
+
+use crate::ShowEditorUi;
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
@@ -28,7 +29,7 @@ impl Plugin for SelectedPlugin {
             }
         }
         app.add_systems(Update, selected_entity_wireframe_update);
-        // app.add_systems(OnEnter(ShowEditorUi::Hide), clear_wireframes);
+        app.add_systems(OnEnter(ShowEditorUi::Hide), clear_wireframes);
     }
 }
 

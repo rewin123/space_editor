@@ -478,7 +478,7 @@ mod tests {
             .query_filtered::<Entity, (Without<WantChildPath>, Without<Parent>, With<Children>)>();
         assert_eq!(parent_query.iter(&app.world).count(), 1);
 
-        let possibilities = vec![vec![0], vec![1], vec![0, 0], vec![1, 0], vec![]];
+        let possibilities = [vec![0], vec![1], vec![0, 0], vec![1, 0], vec![]];
         let mut child_paths = app.world.query::<&ChildPath>();
         child_paths
             .iter(&app.world)
@@ -520,11 +520,7 @@ mod tests {
         struct DespawnTestChild;
 
         let mut app = App::new();
-        app.add_plugins((
-            MinimalPlugins,
-            AssetPlugin::default(),
-            ScenePlugin::default(),
-        ));
+        app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
         app.add_systems(Startup, |mut commands: Commands| {
             let child = commands.spawn((SceneAutoChild, DespawnTestChild)).id();
             commands
@@ -556,11 +552,7 @@ mod tests {
     #[test]
     fn spawns_gltf_with_visibility_and_transform() {
         let mut app = App::new();
-        app.add_plugins((
-            MinimalPlugins,
-            AssetPlugin::default(),
-            ScenePlugin::default(),
-        ));
+        app.add_plugins((MinimalPlugins, AssetPlugin::default(), ScenePlugin));
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn((
                 GltfPrefab {

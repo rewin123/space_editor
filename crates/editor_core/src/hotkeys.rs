@@ -221,7 +221,7 @@ mod tests {
 
         {
             let input = app.world.resource::<ButtonInput<TestKey>>();
-            assert_eq!(input.pressed(TestKey::A), true);
+            assert!(input.pressed(TestKey::A));
         }
     }
 }

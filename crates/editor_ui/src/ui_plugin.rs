@@ -21,14 +21,6 @@ impl Default for EditorUiPlugin {
     }
 }
 
-/// State to determine if editor ui should be shown (or hidden for any reason)
-#[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
-pub enum ShowEditorUi {
-    #[default]
-    Show,
-    Hide,
-}
-
 #[derive(Default, Reflect, GizmoConfigGroup)]
 pub struct EditorGizmo;
 

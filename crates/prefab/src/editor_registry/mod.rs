@@ -543,10 +543,10 @@ mod tests {
             name: String,
         }
 
-        impl Into<Named> for Name {
-            fn into(self) -> Named {
-                Named {
-                    name: self.to_string(),
+        impl From<Name> for Named {
+            fn from(val: Name) -> Self {
+                Self {
+                    name: val.to_string(),
                 }
             }
         }

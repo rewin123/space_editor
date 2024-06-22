@@ -441,7 +441,7 @@ mod tests {
         let default_tool = GizmoTool::default();
 
         assert_eq!(default_tool.gizmo_mode, GizmoMode::Translate);
-        assert_eq!(default_tool.is_move_cloned_entities, false);
+        assert!(!default_tool.is_move_cloned_entities);
         assert_eq!(default_tool.name(), "Gizmo");
     }
 

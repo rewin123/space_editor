@@ -57,7 +57,7 @@ mod tests {
 
         assert_eq!(holder.value, "TestTabName(\"test\")");
         assert_eq!(holder.type_id, TypeId::of::<TestTabName>());
-        assert_eq!(holder.clear_background, false);
+        assert!(!holder.clear_background);
         assert_eq!(holder.title, "test");
     }
 }
