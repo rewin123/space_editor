@@ -4539,6 +4539,7 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_xpbd_3d",
  "space_editor_ui",
+ "space_shared",
  "workspace-hakari",
 ]
 

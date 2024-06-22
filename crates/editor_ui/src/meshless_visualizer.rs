@@ -25,49 +25,23 @@ pub struct MeshlessVisualizerPlugin;
 impl Plugin for MeshlessVisualizerPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        use bevy_asset_loader::prelude::*;
-        
-        use toast::ToastMessage;
-
-        if std::fs::metadata("assets/icons/").is_ok() {
-            app.add_loading_state(
-                LoadingState::new(EditorState::Loading)
-                    .continue_to_state(EditorState::Editor)
-                    .load_collection::<EditorIconAssets>()
-                    .register_dynamic_asset_collection::<EditorIconAssetCollection>()
-                    .with_dynamic_assets_file::<EditorIconAssetCollection>(
-                        "icons/editor.icons.ron",
-                    ),
+        app.add_systems(OnEnter(EditorState::Editor), register_assets)
+            .add_systems(
+                Startup,
+                |mut next_editor_state: ResMut<NextState<EditorState>>| {
+                    next_editor_state.set(EditorState::Editor);
+                },
             )
-            .add_plugins(RonAssetPlugin::<EditorIconAssetCollection>::new(&[
-                "icons.ron",
-            ]))
-        } else {
-            app.world.send_event(ToastMessage::new(
-                "Failed to dynamic load assets. Loading defaults from memory",
-                ToastKind::Error,
-            ));
-            error!("Failed to dynamic load assets. Loading defaults from memory");
-            app.add_systems(OnEnter(EditorState::Editor), register_assets)
-                .add_systems(
-                    Startup,
-                    |mut next_editor_state: ResMut<NextState<EditorState>>| {
-                        next_editor_state.set(EditorState::Editor);
-                    },
-                )
-        }
-        .insert_resource(RaycastBackendSettings {
-            raycast_visibility: RaycastVisibility::Ignore,
-            ..Default::default()
-        })
-        .add_plugins(BillboardPlugin)
-        .add_systems(
-            Update,
-            (visualize_meshless, visualize_custom_meshless)
-                .run_if(resource_exists::<EditorIconAssets>)
-                .in_set(EditorShowSet::Show),
-        )
-        .editor_registry::<CustomMeshless>();
+            .insert_resource(RaycastBackendSettings {
+                raycast_visibility: RaycastVisibility::Ignore,
+                ..Default::default()
+            })
+            .add_plugins(BillboardPlugin)
+            .add_systems(
+                Update,
+                (visualize_meshless, visualize_custom_meshless).in_set(EditorShowSet::Show),
+            )
+            .editor_registry::<CustomMeshless>();
     }
 }
 

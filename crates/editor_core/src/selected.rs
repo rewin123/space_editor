@@ -4,7 +4,7 @@ use bevy::{
 };
 
 #[cfg(feature = "bevy_mod_outline")]
-use bevy_mod_outline::{OutlinePlugin, OutlineVolume, OutlineBundle};
+use bevy_mod_outline::{OutlineBundle, OutlinePlugin, OutlineVolume};
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
@@ -60,7 +60,6 @@ fn selected_entity_wireframe_update(
     del_wireframe: Query<Entity, (With<OutlineVolume>, Without<Selected>)>,
     need_wireframe: Query<Entity, (Without<OutlineVolume>, With<Selected>)>,
 ) {
-
     for e in del_wireframe.iter() {
         cmds.entity(e).remove::<OutlineBundle>();
     }

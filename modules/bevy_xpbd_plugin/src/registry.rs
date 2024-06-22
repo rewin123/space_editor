@@ -6,6 +6,7 @@ use space_editor_ui::{
     settings::RegisterSettingsBlockExt,
     ui_plugin::UiSystemSet,
 };
+use space_shared::EditorShowSet;
 
 use crate::{
     collider::{self, ColliderPart, ColliderPrefabCompound, ColliderPrimitive},
@@ -65,7 +66,12 @@ impl Plugin for BevyXpbdPlugin {
             force_rigidbody_type_change_in_editor,
         );
         app.add_systems(OnEnter(EditorState::Game), force_rigidbody_type_change);
-        app.add_systems(Update, transform_changed.after(UiSystemSet).in_set(EditorSet::EditorAndGame));
+        app.add_systems(
+            Update,
+            transform_changed
+                .after(UiSystemSet)
+                .in_set(EditorShowSet::Show),
+        );
         // app.add_systems(
         //     Update,
         //     (sync_position_spawn, late_sync_position_spawn).in_set(EditorSet::EditorAndGame).after(UiSystemSet),
@@ -95,13 +101,15 @@ impl Plugin for BevyXpbdPlugin {
     }
 }
 
-
 fn transform_changed(
     mut commands: Commands,
     query: Query<(Entity, &GlobalTransform), Changed<GlobalTransform>>,
 ) {
     for (e, tr) in query.iter() {
-        commands.entity(e).insert((Position(tr.translation()), Rotation(tr.compute_transform().rotation)));
+        commands.entity(e).insert((
+            Position(tr.translation()),
+            Rotation(tr.compute_transform().rotation),
+        ));
     }
 }
 

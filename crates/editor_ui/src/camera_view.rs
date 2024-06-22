@@ -31,7 +31,6 @@ pub struct CameraViewTabPlugin;
 impl Plugin for CameraViewTabPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-
         app.editor_tab_by_trait(CameraViewTab::default());
         app.add_systems(
             PreUpdate,
