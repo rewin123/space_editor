@@ -8,8 +8,8 @@ pub mod task_storage;
 pub mod toast;
 
 pub mod prelude {
-    pub use super::*;
     pub use super::{hotkeys::*, load::*, selected::*, task_storage::*};
+    pub use crate::*;
     pub use space_undo;
 }
 
@@ -23,9 +23,18 @@ use space_shared::*;
 use space_undo::AppAutoUndo;
 use task_storage::{BackgroundTask, BackgroundTaskStorage, BackgroundTaskStoragePlugin};
 
+/// State to determine if editor ui should be shown (or hidden for any reason)
+#[derive(Hash, PartialEq, Eq, Debug, Clone, States, Default)]
+pub enum ShowEditorUi {
+    #[default]
+    Show,
+    Hide,
+}
+
 pub struct EditorCore;
 
 impl Plugin for EditorCore {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_plugins(gltf_unpack::UnpackGltfPlugin);
 
@@ -34,11 +43,12 @@ impl Plugin for EditorCore {
 
         app.add_plugins(BackgroundTaskStoragePlugin);
 
-        app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::Editor));
+        app.configure_sets(Update, EditorLoadSet.in_set(EditorSet::OnlyEditor));
 
         app.add_event::<EditorEvent>();
 
         app.init_resource::<PrefabMemoryCache>();
+        app.init_resource::<EditorLoader>();
 
         app.add_systems(
             Update,

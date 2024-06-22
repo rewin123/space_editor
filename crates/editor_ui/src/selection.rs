@@ -4,17 +4,20 @@ use bevy::prelude::*;
 pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
-        app.world
-            .resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
-            .require_markers = true;
+        if let Some(mut raycast_backend) =
+            app.world
+                .get_resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
+        {
+            raycast_backend.require_markers = true;
+        }
 
         app.add_systems(
             PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet))
-                .run_if(in_state(EditorState::Editor)),
+            (auto_add_picking, select_listener.after(UiSystemSet)).in_set(EditorSet::OnlyEditor),
         );
         app.add_systems(PostUpdate, auto_add_picking_dummy);
     }

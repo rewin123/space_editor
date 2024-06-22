@@ -18,6 +18,7 @@ pub struct DetectedAssets {
 pub struct AssetDetectorPlugin;
 
 impl Plugin for AssetDetectorPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<DetectedAssets>();
 

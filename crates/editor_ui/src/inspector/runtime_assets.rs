@@ -1,7 +1,6 @@
 use bevy::{asset::ReflectAsset, prelude::*, utils::HashMap};
 
 use bevy_egui::*;
-use space_shared::ext::bevy_inspector_egui;
 
 use crate::prelude::*;
 
@@ -15,8 +14,8 @@ impl EditorTab for RuntimeAssetsTab {
         inspect(ui, world, &mut self.open_assets);
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Runtime Assets".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::RuntimeAssets.into()
     }
 }
 

@@ -4,21 +4,25 @@ use egui_gizmo::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
 
+use crate::EditorGizmo;
+use crate::{colors::*, sizing::Sizing};
 use crate::{
-    colors::SELECTED_ITEM_COLOR,
     game_view::GameViewTab,
     icons::{rotation_icon, scale_icon, translate_icon},
     prelude::{CloneEvent, EditorTool},
-    sizing::Sizing,
     tool::ToolExt,
 };
+
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
 
-        app.world.resource_mut::<GameViewTab>().active_tool = Some(0);
+        if let Some(mut game_view_tab) = app.world.get_resource_mut::<GameViewTab>() {
+            game_view_tab.active_tool = Some(0);
+        }
         app.init_resource::<MultipleCenter>();
 
         app.editor_hotkey(GizmoHotkey::Translate, vec![KeyCode::KeyG]);
@@ -28,7 +32,7 @@ impl Plugin for GizmoToolPlugin {
         app.editor_hotkey(GizmoHotkey::Multiple, vec![KeyCode::ShiftLeft]);
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
 
-        app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
+        app.add_systems(Update, draw_lines_system.in_set(EditorSet::EditorAndGame));
     }
 }
 
@@ -95,6 +99,7 @@ impl EditorTool for GizmoTool {
         // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
         // All hotkeys can be changes in editor ui
 
+        // Not much we can do
         let sizing = world.resource::<Sizing>();
 
         ui.spacing();
@@ -119,7 +124,10 @@ impl EditorTool for GizmoTool {
             }
         });
 
-        let input = world.resource::<ButtonInput<GizmoHotkey>>();
+        let Some(input) = world.get_resource::<ButtonInput<GizmoHotkey>>() else {
+            warn!("Failed to retrieve gizmos hotkey button input");
+            return;
+        };
 
         let mut del = false;
         let mut clone_pressed = false;
@@ -158,11 +166,27 @@ impl EditorTool for GizmoTool {
 
         let (cam_transform, cam_proj) = {
             let mut cam_query =
-                world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
-            let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
-                return;
+                world.query_filtered::<(&GlobalTransform, &Projection, &Camera), With<EditorCameraMarker>>();
+            let Ok((ref_tr, ref_cam, ref_cam_state)) = cam_query.get_single(world) else {
+                return; //if we havent editor cameras in world, so its wrong using of space_editor
             };
-            (*ref_tr, ref_cam.clone())
+            if ref_cam_state.is_active {
+                (*ref_tr, ref_cam.clone()) //we have active editor camera
+            } else {
+                //if we havent, so its game mode and we can try to find active game camera
+                let mut cam_query = world.query::<(&GlobalTransform, &Projection, &Camera)>();
+                let mut ret = None;
+                for (ref_tr, ref_cam, ref_cam_state) in cam_query.iter(world) {
+                    if ref_cam_state.is_active {
+                        ret = Some((*ref_tr, ref_cam.clone()));
+                        break;
+                    }
+                }
+                if ret.is_none() {
+                    return;
+                }
+                ret.unwrap()
+            }
         };
 
         let selected = world
@@ -397,7 +421,7 @@ impl ToButton for GizmoMode {
 }
 
 fn draw_lines_system(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     mean_center: Res<MultipleCenter>,
     selected: Query<&GlobalTransform, With<Selected>>,
 ) {
@@ -417,7 +441,7 @@ mod tests {
         let default_tool = GizmoTool::default();
 
         assert_eq!(default_tool.gizmo_mode, GizmoMode::Translate);
-        assert_eq!(default_tool.is_move_cloned_entities, false);
+        assert!(!default_tool.is_move_cloned_entities);
         assert_eq!(default_tool.name(), "Gizmo");
     }
 

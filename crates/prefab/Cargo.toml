@@ -22,11 +22,12 @@ space_undo.workspace = true
 bevy-scene-hook.workspace = true
 bevy-inspector-egui.workspace = true
 
-serde = "1"
+serde = { workspace = true }
 ron.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [dev-dependencies]
-rand = "*"
+rand = { workspace = true }
 
 [lints]
 workspace = true

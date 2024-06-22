@@ -78,10 +78,13 @@ pub fn prepare_auto_scene(world: &mut World) {
         let scene_roots = scene_root_query.iter(cell.world()).collect::<Vec<_>>();
 
         for root_entity in scene_roots.iter() {
-            let registry = cell
+            let Some(registry) = cell
                 .world()
-                .resource::<crate::prelude::EditorRegistry>()
-                .clone();
+                .get_resource::<crate::prelude::EditorRegistry>()
+                .cloned()
+            else {
+                continue;
+            };
             let allow_types: Vec<TypeId> = registry
                 .registry
                 .read()
@@ -98,7 +101,10 @@ pub fn prepare_auto_scene(world: &mut World) {
             dyn_scene = recursive_extract(&cell, dyn_scene, *root_entity);
 
             let scene = dyn_scene.build();
-            let data = scene.serialize_ron(cell.world().resource::<AppTypeRegistry>());
+            let Some(app_registry) = cell.world().get_resource::<AppTypeRegistry>() else {
+                continue;
+            };
+            let data = scene.serialize_ron(app_registry);
 
             if let Ok(data) = data {
                 info!("serialized sub scene: {:?}", data);

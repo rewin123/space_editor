@@ -5,10 +5,8 @@ use bevy::{
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
     dynamic_asset::{DynamicAsset, DynamicAssetCollection},
-    loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt},
     prelude::DynamicAssetType,
 };
-use bevy_common_assets::ron::RonAssetPlugin;
 use bevy_mod_billboard::{
     prelude::BillboardPlugin, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
 };
@@ -18,52 +16,32 @@ use bevy_mod_picking::backends::raycast::{
 use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
-use crate::LAST_RENDER_LAYER;
+use crate::{EditorGizmo, LAST_RENDER_LAYER};
 use space_editor_core::selected::Selected;
-use space_shared::toast::*;
 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
 
 impl Plugin for MeshlessVisualizerPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        if std::fs::metadata("assets/icons/").is_ok() {
-            app.add_loading_state(
-                LoadingState::new(EditorState::Loading)
-                    .continue_to_state(EditorState::Editor)
-                    .load_collection::<EditorIconAssets>()
-                    .register_dynamic_asset_collection::<EditorIconAssetCollection>()
-                    .with_dynamic_assets_file::<EditorIconAssetCollection>(
-                        "icons/editor.icons.ron",
-                    ),
+        app.add_systems(OnEnter(EditorState::Editor), register_assets)
+            .add_systems(
+                Startup,
+                |mut next_editor_state: ResMut<NextState<EditorState>>| {
+                    next_editor_state.set(EditorState::Editor);
+                },
             )
-            .add_plugins(RonAssetPlugin::<EditorIconAssetCollection>::new(&[
-                "icons.ron",
-            ]))
-        } else {
-            app.world.send_event(ToastMessage::new(
-                "Failed to dynamic load assets. Loading defaults from memory",
-                ToastKind::Error,
-            ));
-            error!("Failed to dynamic load assets. Loading defaults from memory");
-            app.add_systems(OnEnter(EditorState::Editor), register_assets)
-                .add_systems(
-                    Startup,
-                    |mut next_editor_state: ResMut<NextState<EditorState>>| {
-                        next_editor_state.set(EditorState::Editor);
-                    },
-                )
-        }
-        .insert_resource(RaycastBackendSettings {
-            raycast_visibility: RaycastVisibility::Ignore,
-            ..Default::default()
-        })
-        .add_plugins(BillboardPlugin)
-        .add_systems(
-            Update,
-            (visualize_meshless, visualize_custom_meshless).in_set(EditorSet::Editor),
-        )
-        .editor_registry::<CustomMeshless>();
+            .insert_resource(RaycastBackendSettings {
+                raycast_visibility: RaycastVisibility::Ignore,
+                ..Default::default()
+            })
+            .add_plugins(BillboardPlugin)
+            .add_systems(
+                Update,
+                (visualize_meshless, visualize_custom_meshless).in_set(EditorShowSet::Show),
+            )
+            .editor_registry::<CustomMeshless>();
     }
 }
 
@@ -128,6 +106,7 @@ pub struct EditorIconAssets {
 fn register_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     use space_shared::asset_fs::*;
     let assets = EditorIconAssets {
+        // Unwraps are logged
         unknown: asset_server.add(
             create_unknown_image()
                 .inspect_err(|err| error!("failed to load image `Unknown`: {err}"))
@@ -410,7 +389,7 @@ pub fn clean_meshless(
 }
 
 pub fn draw_light_gizmo(
-    mut gizmos: Gizmos,
+    mut gizmos: Gizmos<EditorGizmo>,
     // make the gizmos only show up when the light is selected or toggled?
     lights: Query<(
         &GlobalTransform,

@@ -44,10 +44,20 @@ pub enum EditorState {
 /// Sets for separate game and editor logic
 #[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
 pub enum EditorSet {
-    /// Editor mode System Set
-    Editor,
-    /// Play mode System Set
-    Game,
+    /// For systems that only run in editor mode
+    OnlyEditor,
+    /// For systems that only run in playmode
+    OnlyGame,
+    /// For systems that run in both editor and playmode
+    EditorAndGame,
+}
+
+#[derive(SystemSet, Hash, Eq, PartialEq, Clone, Debug)]
+pub enum EditorShowSet {
+    /// For systems that only run when editor is shown
+    Show,
+    /// For systems that only run when editor is hidden
+    Hide,
 }
 
 #[derive(Resource, Default)]
