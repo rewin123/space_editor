@@ -6,7 +6,7 @@ mod tests;
 use bevy::{
     prelude::*,
     reflect::{
-        serde::{ReflectSerializer, UntypedReflectDeserializer},
+        serde::{ReflectDeserializer, ReflectSerializer},
         GetTypeRegistration,
     },
     utils::HashMap,
@@ -253,7 +253,7 @@ impl AppPersistenceExt for App {
     fn persistence_resource<T: Default + Reflect + FromReflect + Resource + GetTypeRegistration>(
         &mut self,
     ) -> &mut Self {
-        self.world
+        self.world_mut()
             .resource_mut::<PersistenceRegistry>()
             .target_count += 1;
 
@@ -276,7 +276,7 @@ impl AppPersistenceExt for App {
         &mut self,
         load_function: Box<dyn Fn(&mut T, T) + Send + Sync>,
     ) -> &mut Self {
-        self.world
+        self.world_mut()
             .resource_mut::<PersistenceRegistry>()
             .target_count += 1;
 
@@ -333,7 +333,7 @@ fn persistence_resource_system<
                     continue;
                 };
                 let type_registry = registry.read();
-                let deserializer = UntypedReflectDeserializer::new(&type_registry);
+                let deserializer = ReflectDeserializer::new(&type_registry);
                 let Ok(reflected_value) =
                     deserializer.deserialize(&mut ron::Deserializer::from_str(data).unwrap())
                 else {
