@@ -22,7 +22,7 @@ bevy_egui.workspace = true
 egui_dock.workspace = true
 egui-toast.workspace = true
 
-bevy_mod_outline = {version = "0.7.0", optional = true}
+bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", optional = true}
 workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [features]

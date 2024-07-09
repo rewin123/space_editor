@@ -12,7 +12,7 @@ homepage.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = "0.13.2"
+bevy = "0.14"
 space_editor = { path = "../../"}
 workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 

@@ -44,7 +44,7 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13.2"
+bevy = "0.14"
 
 # Editor Crates
 space_prefab = { version = "0.6.0", path = "crates/prefab" }
@@ -57,17 +57,17 @@ space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_asset_loader = "0.20"
-bevy_debug_grid = "0.5"
-bevy_egui = "0.25"
-bevy-inspector-egui = { version = "0.23", features = [
+bevy_asset_loader = "0.21"
+bevy_debug_grid = "0.6"
+bevy_egui = "0.28"
+bevy-inspector-egui = { version = "0.25", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
 bevy_mod_billboard = { git = "https://github.com/kulkalkul/bevy_mod_billboard", branch = "main" }
 bevy_mod_picking = { version = "0.18.2", default-features = false, features = ["backend_raycast",  "selection",] }
-bevy_panorbit_camera = { version = "0.16", default-features = false }
-bevy-scene-hook = "10"
+bevy_panorbit_camera = { version = "0.19", default-features = false }
+bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
 convert_case = "0.6"
 egui_dock = "0.11"
 egui_extras = { version = "0.26", features = ["all_loaders"] }
@@ -83,7 +83,7 @@ serde = "1"
 # Community Modules
 space_bevy_xpbd_plugin = { version = "0.6.0", path = "modules/bevy_xpbd_plugin"}
 game_app = { version = "0.1.0", path = "game" }
-bevy_xpbd_3d = { version = "0.4.2", default-features = false }
+avian3d = { version = "0.1.0", default-features = false }
 
 [dependencies]
 bevy.workspace = true

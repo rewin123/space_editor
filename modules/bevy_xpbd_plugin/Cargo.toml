@@ -11,7 +11,7 @@ description = "Space XPBD plugin for space_editor crate"
 [dependencies]
 bevy.workspace = true 
 space_editor_ui.workspace = true
-bevy_xpbd_3d = { workspace = true, features = ["3d", "f32", "collider-from-mesh", "debug-plugin", "default-collider", "parry-f32"] }
+avian3d = { workspace = true, features = ["3d", "f32", "collider-from-mesh", "debug-plugin", "default-collider", "parry-f32"] }
 bevy-inspector-egui.workspace = true 
 workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
