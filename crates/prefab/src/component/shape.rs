@@ -337,7 +337,7 @@ impl PlanePrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct Plane3dPrefab {
-    pub normal: Direction3d,
+    pub normal: Dir3,
     pub transform: Vec3,
 }
 
