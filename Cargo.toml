@@ -73,6 +73,7 @@ egui_dock = "0.13"
 egui_extras = { version = "0.28.1", features = ["all_loaders"] }
 egui_file = "0.18"
 transform-gizmo-egui = "0.3.0"
+transform-gizmo-bevy = "0.3.0"
 egui-toast = "0.14.0"
 image = {version = "0.25.1", feature = ["png"] }
 pretty-type-name = "1"

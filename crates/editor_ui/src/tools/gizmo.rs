@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use transform_gizmo_egui::GizmoMode;
+use transform_gizmo_egui::{Gizmo, GizmoMode};
 use space_editor_core::prelude::*;
 use space_shared::*;
 
@@ -94,14 +94,6 @@ impl EditorTool for GizmoTool {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-        // GIZMO DRAW
-        // Draw gizmo per entity to individual move
-        // If SHIFT pressed draw "mean" gizmo to move all selected entities together
-        // If ALT pressed, then entity will be cloned at interact
-        // If SHIFT+ALT pressed, then all selected entities will be cloned at interact
-        // All hotkeys can be changes in editor ui
-
-        // Not much we can do
         let sizing = world.resource::<Sizing>();
 
         ui.spacing();
@@ -180,7 +172,6 @@ impl EditorTool for GizmoTool {
             .iter(world)
             .collect::<Vec<_>>();
         let mut disable_pan_orbit = false;
-        let _gizmo_mode = GizmoMode::TranslateView;
 
         let cell = world.as_unsafe_world_cell();
 
@@ -203,7 +194,6 @@ impl EditorTool for GizmoTool {
 
             let mut global_mean = GlobalTransform::from(mean_transform);
 
-            //Set resource for draw lines from mean center to each entity
             unsafe {
                 cell.world_mut().insert_resource(MultipleCenter {
                     center: Some(global_mean.translation()),
@@ -223,20 +213,21 @@ impl EditorTool for GizmoTool {
 
             let mut gizmo_interacted = false;
 
-            if let Some(result) = transform_gizmo_egui::Gizmo::new(transform_gizmo_egui::GizmoConfig {
+            let gizmo_config = transform_gizmo_bevy::GizmoConfig {
                 projection_matrix: cam_proj.get_clip_from_view().to_cols_array_2d().into(),
                 view_matrix: view_matrix.to_cols_array_2d().into(),
+                modes: self.gizmo_mode.into(),
                 ..Default::default()
-            })
-                .model_matrix(mean_transform.compute_matrix().to_cols_array_2d().into())
-                .mode(self.gizmo_mode)
-                .interact(ui)
+            };
+
+            if let Some(result) = Gizmo::new(gizmo_config)
+                .interact(ui, &[mean_transform.into()])
             {
                 gizmo_interacted = true;
                 mean_transform = Transform {
-                    translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                    rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                    scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                    translation: Vec3::from(result.translation),
+                    rotation: Quat::from_array(result.rotation),
+                    scale: Vec3::from(result.scale),
                 };
                 disable_pan_orbit = true;
             }
@@ -290,47 +281,37 @@ impl EditorTool for GizmoTool {
                 let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
                     continue;
                 };
+
+                let gizmo_config = GizmoConfig {
+                    projection_matrix: cam_proj.get_clip_from_view().to_cols_array_2d().into(),
+                    view_matrix: view_matrix.to_cols_array_2d().into(),
+                    ..Default::default()
+                };
+
                 if let Some(parent) = unsafe { ecell.get::<Parent>() } {
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                if let Some(result) =
-                                    egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                                        .projection_matrix(
-                                            cam_proj
-                                                .get_clip_from_view()
-                                                .to_cols_array_2d()
-                                                .into(),
-                                        )
-                                        .view_matrix(view_matrix.to_cols_array_2d().into())
-                                        .model_matrix(
-                                            global.compute_matrix().to_cols_array_2d().into(),
-                                        )
-                                        .mode(self.gizmo_mode)
-                                        .interact(ui)
+                                if let Some(result) = Gizmo::new(gizmo_config)
+                                    .model_matrix(global.compute_matrix().to_cols_array_2d().into())
+                                    .mode(self.gizmo_mode)
+                                    .interact(ui, &[global.compute_transform().into()])
                                 {
                                     disable_pan_orbit = true;
                                     let new_transform = Transform {
-                                        translation: Vec3::from(<[f32; 3]>::from(
-                                            result.translation,
-                                        )),
-                                        rotation: Quat::from_array(<[f32; 4]>::from(
-                                            result.rotation,
-                                        )),
-                                        scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                                        translation: Vec3::from(result.translation),
+                                        rotation: Quat::from_array(result.rotation),
+                                        scale: Vec3::from(result.scale),
                                     };
 
                                     if clone_pressed {
                                         if self.is_move_cloned_entities {
-                                            let new_transform =
-                                                GlobalTransform::from(new_transform);
+                                            let new_transform = GlobalTransform::from(new_transform);
                                             *transform = new_transform.reparented_to(parent_global);
                                             transform.set_changed();
                                             disable_pan_orbit = true;
                                         } else {
-                                            unsafe {
-                                                cell.world_mut().send_event(CloneEvent { id: *e })
-                                            };
+                                            unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
                                             self.is_move_cloned_entities = true;
                                         }
                                     } else {
@@ -344,19 +325,18 @@ impl EditorTool for GizmoTool {
                         }
                     }
                 }
-                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                    .projection_matrix(cam_proj.get_clip_from_view().to_cols_array_2d().into())
-                    .view_matrix(view_matrix.to_cols_array_2d().into())
+
+                if let Some(result) = Gizmo::new(gizmo_config)
                     .model_matrix(transform.compute_matrix().to_cols_array_2d().into())
                     .mode(self.gizmo_mode)
-                    .interact(ui)
+                    .interact(ui, &[(*transform).into()])
                 {
                     if clone_pressed {
                         if self.is_move_cloned_entities {
                             *transform = Transform {
-                                translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                                rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                                scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                                translation: Vec3::from(result.translation),
+                                rotation: Quat::from_array(result.rotation),
+                                scale: Vec3::from(result.scale),
                             };
                             transform.set_changed();
                         } else {
@@ -365,9 +345,9 @@ impl EditorTool for GizmoTool {
                         }
                     } else {
                         *transform = Transform {
-                            translation: Vec3::from(<[f32; 3]>::from(result.translation)),
-                            rotation: Quat::from_array(<[f32; 4]>::from(result.rotation)),
-                            scale: Vec3::from(<[f32; 3]>::from(result.scale)),
+                            translation: Vec3::from(result.translation),
+                            rotation: Quat::from_array(result.rotation),
+                            scale: Vec3::from(result.scale),
                         };
                         transform.set_changed();
                     }
@@ -375,6 +355,7 @@ impl EditorTool for GizmoTool {
                 }
             }
         }
+
         if ui.ctx().wants_pointer_input() {
             disable_pan_orbit = true;
         }

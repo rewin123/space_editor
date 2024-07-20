@@ -45,7 +45,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
             .add(SpaceInspectorPlugin)
-            .add(GizmoToolPlugin)
+            //.add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
             .add(settings::SettingsWindowPlugin);
 

@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-use bevy_xpbd_3d::math::Vector;
-use bevy_xpbd_3d::{math::Quaternion, prelude::*};
+use avian3d::{math::{Quaternion, Vector}, spatial_query::{RayCaster, ShapeCaster}};
+use bevy::{math::Direction3d, prelude::*};
 use space_editor_ui::{ext::bevy_inspector_egui::prelude::*, prelude::*};
 
 use crate::collider::ColliderPrimitive;
