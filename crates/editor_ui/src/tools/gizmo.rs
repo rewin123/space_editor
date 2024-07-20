@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use egui_gizmo::GizmoMode;
+use transform_gizmo_egui::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
 
@@ -69,23 +69,23 @@ pub struct GizmoTool {
 impl Default for GizmoTool {
     fn default() -> Self {
         Self {
-            gizmo_mode: GizmoMode::Translate,
+            gizmo_mode: GizmoMode::TranslateView,
             is_move_cloned_entities: false,
         }
     }
 }
 
 const MODE_TO_NAME: [(GizmoMode, &str); 3] = [
-    (GizmoMode::Translate, "Translate"),
-    (GizmoMode::Rotate, "Rotate"),
-    (GizmoMode::Scale, "Scale"),
+    (GizmoMode::TranslateView, "Translate"),
+    (GizmoMode::RotateView, "Rotate"),
+    (GizmoMode::ScaleUniform, "Scale"),
 ];
 
 //hot keys. Blender keys prefer
 const MODE_TO_KEY: [(GizmoMode, GizmoHotkey); 3] = [
-    (GizmoMode::Translate, GizmoHotkey::Translate),
-    (GizmoMode::Rotate, GizmoHotkey::Rotate),
-    (GizmoMode::Scale, GizmoHotkey::Scale),
+    (GizmoMode::TranslateView, GizmoHotkey::Translate),
+    (GizmoMode::RotateView, GizmoHotkey::Rotate),
+    (GizmoMode::ScaleUniform, GizmoHotkey::Scale),
 ];
 
 impl EditorTool for GizmoTool {
@@ -180,7 +180,7 @@ impl EditorTool for GizmoTool {
             .iter(world)
             .collect::<Vec<_>>();
         let mut disable_pan_orbit = false;
-        let _gizmo_mode = GizmoMode::Translate;
+        let _gizmo_mode = GizmoMode::TranslateView;
 
         let cell = world.as_unsafe_world_cell();
 
@@ -223,9 +223,11 @@ impl EditorTool for GizmoTool {
 
             let mut gizmo_interacted = false;
 
-            if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
-                .projection_matrix(cam_proj.get_clip_from_view().to_cols_array_2d().into())
-                .view_matrix(view_matrix.to_cols_array_2d().into())
+            if let Some(result) = transform_gizmo_egui::Gizmo::new(transform_gizmo_egui::GizmoConfig {
+                projection_matrix: cam_proj.get_clip_from_view().to_cols_array_2d().into(),
+                view_matrix: view_matrix.to_cols_array_2d().into(),
+                ..Default::default()
+            })
                 .model_matrix(mean_transform.compute_matrix().to_cols_array_2d().into())
                 .mode(self.gizmo_mode)
                 .interact(ui)
@@ -399,9 +401,26 @@ trait ToButton {
 impl ToButton for GizmoMode {
     fn to_button(&self, size: &Sizing) -> egui::Button {
         match self {
-            Self::Rotate => rotation_icon(size.gizmos.to_size(), ""),
-            Self::Translate => translate_icon(size.gizmos.to_size(), ""),
-            Self::Scale => scale_icon(size.gizmos.to_size(), ""),
+            Self::RotateView => rotation_icon(size.gizmos.to_size(), ""),
+            Self::TranslateView => translate_icon(size.gizmos.to_size(), ""),
+            Self::ScaleUniform => scale_icon(size.gizmos.to_size(), ""),
+            GizmoMode::RotateX => todo!(),
+            GizmoMode::RotateY => todo!(),
+            GizmoMode::RotateZ => todo!(),
+            GizmoMode::TranslateX => todo!(),
+            GizmoMode::TranslateY => todo!(),
+            GizmoMode::TranslateZ => todo!(),
+            GizmoMode::TranslateXY => todo!(),
+            GizmoMode::TranslateXZ => todo!(),
+            GizmoMode::TranslateYZ => todo!(),
+            GizmoMode::ScaleX => todo!(),
+            GizmoMode::ScaleY => todo!(),
+            GizmoMode::ScaleZ => todo!(),
+            GizmoMode::ScaleXY => todo!(),
+            GizmoMode::ScaleXZ => todo!(),
+            GizmoMode::ScaleYZ => todo!(),
+            GizmoMode::Arcball => todo!(),
+        
         }
     }
 }
@@ -426,7 +445,7 @@ mod tests {
     fn test_default_gizmo_tool() {
         let default_tool = GizmoTool::default();
 
-        assert_eq!(default_tool.gizmo_mode, GizmoMode::Translate);
+        assert_eq!(default_tool.gizmo_mode, GizmoMode::TranslateView);
         assert_eq!(default_tool.is_move_cloned_entities, false);
         assert_eq!(default_tool.name(), "Gizmo");
     }

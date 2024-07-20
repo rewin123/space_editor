@@ -61,7 +61,9 @@ pub mod sizing;
 
 pub mod icons;
 
-use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
+use std::char::MAX;
+
+use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -106,7 +108,17 @@ use ui_plugin::*;
 
 use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};
 
-pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
+pub const MAX_RENDER_LAYERS: u8 = 32; // Or however many layers you need
+
+pub const DEFAULT_GRID_ALPHA: f32 = 0.5_f32;
+
+pub fn all_render_layers() -> RenderLayers {
+    (0..MAX_RENDER_LAYERS).fold(RenderLayers::none(), |layers, layer| {
+        layers.with(layer.into())
+    })
+}
+
+pub const LAST_RENDER_LAYER: u8 = MAX_RENDER_LAYERS - 1;
 
 pub mod prelude {
     pub use super::{
@@ -377,7 +389,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         Name::from("Editor Camera"),
         PickableBundle::default(),
         RaycastPickable,
-        RenderLayers::all(),
+        all_render_layers(),
     ));
 }
 
@@ -408,7 +420,7 @@ pub fn game_mode_changed(
                 Name::from("Editor Camera"),
                 PickableBundle::default(),
                 RaycastPickable,
-                RenderLayers::all(),
+                all_render_layers(),
             ));
         } else {
             // 2D camera
@@ -424,7 +436,7 @@ pub fn game_mode_changed(
                 Name::from("Editor 2D Camera"),
                 PickableBundle::default(),
                 RaycastPickable,
-                RenderLayers::all(),
+                all_render_layers(),
             ));
         }
     }

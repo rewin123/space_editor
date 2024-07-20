@@ -2090,6 +2090,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.20.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f63b86c8a8826a49b8c21f08a2d07338eec8d900540f8630dc76284be802989"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.20.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95133861a8032aaea082871032f5815eb9e98cef03fa916ab4500513994df9e5"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.20.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
+dependencies = [
+ "darling_core",
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
 name = "dasp_sample"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2168,12 +2202,6 @@ dependencies = [
 
 [[package]]
 name = "ecolor"
-version = "0.26.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03cfe80b1890e1a8cdbffc6044d6872e814aaf6011835a2a5e2db0e5c5c4ef4e"
-
-[[package]]
-name = "ecolor"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "20930a432bbd57a6d55e07976089708d4893f3d556cf42a0d79e9e321fa73b10"
@@ -2204,17 +2232,6 @@ dependencies = [
 
 [[package]]
 name = "egui"
-version = "0.26.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "180f595432a5b615fc6b74afef3955249b86cfea72607b40740a4cd60d5297d0"
-dependencies = [
- "ahash",
- "epaint 0.26.2",
- "nohash-hasher",
-]
-
-[[package]]
-name = "egui"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "584c5d1bf9a67b25778a3323af222dbe1a1feb532190e103901187f92c7fe29a"
@@ -2238,17 +2255,6 @@ dependencies = [
  "epaint 0.28.1",
  "nohash-hasher",
  "serde",
-]
-
-[[package]]
-name = "egui-gizmo"
-version = "0.16.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65371711037f6f256024371f21fd8f8c5fa2ce5221469a5fb1efc670f205f740"
-dependencies = [
- "egui 0.26.2",
- "glam 0.25.0",
- "mint",
 ]
 
 [[package]]
@@ -2316,12 +2322,6 @@ name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
-
-[[package]]
-name = "emath"
-version = "0.26.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6916301ecf80448f786cdf3eb51d9dbdd831538732229d49119e2d4312eaaf09"
 
 [[package]]
 name = "emath"
@@ -2397,6 +2397,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "enum_dispatch"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd"
+dependencies = [
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.70",
+]
+
+[[package]]
 name = "enumn"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2408,17 +2420,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "epaint"
-version = "0.26.2"
+name = "enumset"
+version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77b9fdf617dd7f58b0c8e6e9e4a1281f730cde0831d40547da446b2bb76a47af"
+checksum = "226c0da7462c13fb57e5cc9e0dc8f0635e7d27f276a3a7fd30054647f669007d"
 dependencies = [
- "ab_glyph",
- "ahash",
- "ecolor 0.26.2",
- "emath 0.26.2",
- "nohash-hasher",
- "parking_lot",
+ "enumset_derive",
+]
+
+[[package]]
+name = "enumset_derive"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e08b6c6ab82d70f08844964ba10c7babb716de2ecaeab9be5717918a5177d3af"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.70",
 ]
 
 [[package]]
@@ -2770,15 +2789,6 @@ dependencies = [
 
 [[package]]
 name = "glam"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "151665d9be52f9bb40fc7966565d39666f2d1e69233571b71b87791c7e0528b3"
-dependencies = [
- "mint",
-]
-
-[[package]]
-name = "glam"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e05e7e6723e3455f4818c7b26e855439f7546cf617ef669d1adedb8669e5cb9"
@@ -3019,6 +3029,12 @@ checksum = "e3d1354bf6b7235cb4a0576c2619fd4ed18183f689b12b006a0ee7329eeff9a5"
 dependencies = [
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
@@ -5007,7 +5023,6 @@ dependencies = [
  "bevy_mod_billboard",
  "bevy_mod_picking",
  "bevy_panorbit_camera",
- "egui-gizmo",
  "egui_dock",
  "pretty-type-name",
  "serde",
@@ -5017,6 +5032,7 @@ dependencies = [
  "space_prefab",
  "space_shared",
  "space_undo",
+ "transform-gizmo-egui",
  "workspace-hakari",
 ]
 
@@ -5408,6 +5424,32 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "transform-gizmo"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b43a029251c55e00d44930e24b78f5b471b3e75fa9c88c30ecb816db08646b93"
+dependencies = [
+ "ahash",
+ "ecolor 0.28.1",
+ "emath 0.28.1",
+ "enum_dispatch",
+ "enumset",
+ "epaint 0.28.1",
+ "glam 0.28.0",
+ "mint",
+]
+
+[[package]]
+name = "transform-gizmo-egui"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4cfc506918b7eb43be700be7261d8878cc197bf572689c465efe60f5b3110ccc"
+dependencies = [
+ "egui 0.28.1",
+ "transform-gizmo",
 ]
 
 [[package]]
