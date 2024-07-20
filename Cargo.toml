@@ -65,15 +65,15 @@ bevy-inspector-egui = { version = "0.25", features = [
     "highlight_changes",
 ] }
 bevy_mod_billboard = { git = "https://github.com/rewin123/bevy_mod_billboard.git", branch = "bevy-0.14" }
-bevy_mod_picking = { version = "0.18.2", default-features = false, features = ["backend_raycast",  "selection",] }
+bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
 bevy_panorbit_camera = { version = "0.19", default-features = false }
 bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
 convert_case = "0.6"
-egui_dock = "0.11"
-egui_extras = { version = "0.26", features = ["all_loaders"] }
-egui_file = "0.15"
+egui_dock = "0.13"
+egui_extras = { version = "0.28.1", features = ["all_loaders"] }
+egui_file = "0.18"
 egui-gizmo = "0.16.1"
-egui-toast = "0.12.1"
+egui-toast = "0.14.0"
 image = {version = "0.25.1", feature = ["png"] }
 pretty-type-name = "1"
 rand = "*"

@@ -13,7 +13,7 @@ pub struct ScheduleEditorTab {
 
 impl EditorTab for ScheduleEditorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout());
+        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout(), None);
         world.insert_non_send_resource(EditorUiRef(inner_ui));
 
         self.schedule.run(world);

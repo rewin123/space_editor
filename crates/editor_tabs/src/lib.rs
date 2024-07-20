@@ -8,7 +8,7 @@ pub mod tab_viewer;
 
 use std::fmt::Display;
 
-use bevy::{ecs::system::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{ecs::world::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
 
 use bevy_egui::{egui, EguiContext};
 
@@ -231,7 +231,7 @@ impl EditorUiAppExt for App {
             }),
         };
 
-        if let Some(mut editor) = self.world.get_resource_mut::<EditorUi>() {
+        if let Some(mut editor) = self.world_mut().get_resource_mut::<EditorUi>() {
             editor.registry.insert(tab_name, reg);
         };
         self
@@ -252,11 +252,11 @@ impl EditorUiAppExt for App {
         tab.schedule.add_systems(tab_systems);
 
         // Not much we can do here
-        self.world
+        self.world_mut()
             .resource_mut::<ScheduleEditorTabStorage>()
             .0
             .insert(tab_name_holder.clone(), tab);
-        if let Some(mut editor) = self.world.get_resource_mut::<EditorUi>() {
+        if let Some(mut editor) = self.world_mut().get_resource_mut::<EditorUi>() {
             editor
                 .registry
                 .insert(tab_name_holder, EditorUiReg::Schedule);

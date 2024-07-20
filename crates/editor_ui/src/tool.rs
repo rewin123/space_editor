@@ -38,7 +38,7 @@ impl ToolExt for App {
     where
         T: EditorTool + Send + Sync + 'static,
     {
-        if let Some(mut game_view) = self.world.get_resource_mut::<GameViewTab>() {
+        if let Some(mut game_view) = self.world_mut().get_resource_mut::<GameViewTab>() {
             game_view.tools.push(Box::new(tool));
         } else {
             error!("Game View tab not loaded");
