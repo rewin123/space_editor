@@ -75,7 +75,7 @@ impl MaterialPrefab {
         StandardMaterial {
             base_color: self.base_color,
             base_color_texture,
-            emissive: self.emissive,
+            emissive: self.emissive.into(),
             emissive_texture,
             perceptual_roughness: self.perceptual_roughness,
             metallic: self.metallic,
@@ -148,7 +148,7 @@ mod tests {
             ImagePlugin::default(),
         ));
 
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         assert!(try_image(&String::new(), server).is_none());
     }
@@ -163,7 +163,7 @@ mod tests {
         ));
 
         let path = "test_asset.png";
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         assert!(try_image(&String::from(path), server).is_some());
     }
@@ -178,7 +178,7 @@ mod tests {
         ));
 
         let path = "fake_asset.png";
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         assert!(try_image(&String::from(path), server).is_none());
     }
@@ -196,7 +196,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let color = prefab.to_material(server);
 
@@ -217,7 +217,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let color = prefab.to_material(server);
 
@@ -243,7 +243,7 @@ mod tests {
                 let material = query.single();
                 let material = material.to_material(&server);
                 assert_eq!(material.base_color, Color::rgb(1.0, 1.0, 1.0));
-                assert_eq!(material.emissive, Color::BLACK);
+                assert_eq!(material.emissive, Color::BLACK.into());
                 assert_eq!(material.emissive_texture, None);
                 assert_eq!(material.alpha_mode, AlphaMode::Opaque);
                 assert_eq!(material.perceptual_roughness, 0.5);

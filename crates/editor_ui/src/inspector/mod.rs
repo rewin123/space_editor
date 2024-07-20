@@ -7,7 +7,7 @@ pub mod runtime_assets;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, system::CommandQueue},
+    ecs::{change_detection::MutUntyped, world::CommandQueue},
     prelude::*,
     ptr::PtrMut,
     reflect::ReflectFromPtr,

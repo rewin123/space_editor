@@ -26,6 +26,7 @@ impl From<&ToastMessage> for Toast {
                 .show_icon(true)
                 .duration_in_seconds(duration)
                 .show_progress(false),
+            style: default(),
         }
     }
 }

@@ -242,7 +242,7 @@ impl Plugin for EditorGizmoConfigPlugin {
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
     gizmos_config.config_mut::<EditorGizmo>().0.render_layers =
-        RenderLayers::layer(LAST_RENDER_LAYER)
+        RenderLayers::layer(LAST_RENDER_LAYER.into())
 }
 
 fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
@@ -334,17 +334,20 @@ pub fn simple_editor_setup(mut commands: Commands) {
     ));
 
     // grid
-    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
+    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER.into());
+    let silver = Color::srgb(0.75, 0.75, 0.75);
+    let grey = Color::srgb(0.5, 0.5, 0.5);
+
     commands.spawn((
         Grid {
             spacing: 10.0_f32,
             count: 16,
-            color: Color::SILVER.with_a(DEFAULT_GRID_ALPHA),
+            color: silver.with_alpha(DEFAULT_GRID_ALPHA),
             alpha_mode: AlphaMode::Blend,
         },
         SubGrid {
             count: 9,
-            color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
+            color: grey.with_alpha(DEFAULT_GRID_ALPHA),
         },
         // Darker grid to make it easier to see entity gizmos when Transform (0, 0, 0)
         GridAxis {

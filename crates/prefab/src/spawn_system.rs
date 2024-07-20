@@ -438,7 +438,7 @@ mod tests {
         let mut query = app
             .world_mut()
             .query::<(Entity, &PlayerStart, Option<&Children>)>();
-        let mut iter = query.iter(&app.world_mut());
+        let mut iter = query.iter(&app.world());
         assert!(iter.next().unwrap().2.is_some());
     }
 
@@ -542,7 +542,7 @@ mod tests {
             .world_mut()
             .query::<(&Handle<Scene>, &SceneAutoRoot, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world_mut());
+        let s = query.single(&app.world());
 
         assert_eq!(
             s.0.path().unwrap().to_string(),
@@ -579,7 +579,7 @@ mod tests {
             .world_mut()
             .query::<(&Handle<Scene>, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world_mut());
+        let s = query.single(&app.world());
 
         assert_eq!(s.1, Visibility::Hidden);
         assert_eq!(s.2, &Transform::IDENTITY);

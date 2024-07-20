@@ -1,6 +1,6 @@
 use bevy::{
     asset::{AssetPath, LoadState},
-    ecs::system::CommandQueue,
+    ecs::world::CommandQueue,
     gltf::{Gltf, GltfMesh, GltfNode},
     prelude::*,
     utils::HashMap,

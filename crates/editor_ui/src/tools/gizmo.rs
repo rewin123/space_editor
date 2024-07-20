@@ -4,6 +4,8 @@ use egui_gizmo::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
 
+
+
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
 use crate::{
@@ -20,7 +22,7 @@ impl Plugin for GizmoToolPlugin {
     fn build(&self, app: &mut App) {
         app.editor_tool(GizmoTool::default());
 
-        if let Some(mut game_view_tab) = app.world.get_resource_mut::<GameViewTab>() {
+        if let Some(mut game_view_tab) = app.world_mut().get_resource_mut::<GameViewTab>() {
             game_view_tab.active_tool = Some(0);
         }
         app.init_resource::<MultipleCenter>();
@@ -222,7 +224,7 @@ impl EditorTool for GizmoTool {
             let mut gizmo_interacted = false;
 
             if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
-                .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
+                .projection_matrix(cam_proj.get_clip_from_view().to_cols_array_2d().into())
                 .view_matrix(view_matrix.to_cols_array_2d().into())
                 .model_matrix(mean_transform.compute_matrix().to_cols_array_2d().into())
                 .mode(self.gizmo_mode)
@@ -294,7 +296,7 @@ impl EditorTool for GizmoTool {
                                     egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
                                         .projection_matrix(
                                             cam_proj
-                                                .get_projection_matrix()
+                                                .get_clip_from_view()
                                                 .to_cols_array_2d()
                                                 .into(),
                                         )
@@ -341,7 +343,7 @@ impl EditorTool for GizmoTool {
                     }
                 }
                 if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
+                    .projection_matrix(cam_proj.get_clip_from_view().to_cols_array_2d().into())
                     .view_matrix(view_matrix.to_cols_array_2d().into())
                     .model_matrix(transform.compute_matrix().to_cols_array_2d().into())
                     .mode(self.gizmo_mode)
