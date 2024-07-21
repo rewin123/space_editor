@@ -1,6 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self, RichText, Widget};
-use egui_gizmo::GizmoMode;
+use transform_gizmo_egui::GizmoMode;
 use space_undo::UndoRedo;
 
 use space_shared::*;
@@ -33,7 +33,7 @@ impl Default for GameViewTab {
     fn default() -> Self {
         Self {
             viewport_rect: None,
-            gizmo_mode: GizmoMode::Translate,
+            gizmo_mode: GizmoMode::TranslateView,
             smoothed_dt: 0.0,
             tools: vec![],
             active_tool: None,
@@ -208,7 +208,7 @@ mod tests {
         let default_tab = GameViewTab::default();
 
         assert_eq!(default_tab.viewport_rect, None);
-        assert_eq!(default_tab.gizmo_mode, GizmoMode::Translate);
+        assert_eq!(default_tab.gizmo_mode, GizmoMode::TranslateView);
         assert_eq!(default_tab.smoothed_dt, 0.0);
         assert_eq!(default_tab.tools.len(), 0);
         assert_eq!(default_tab.active_tool, None);

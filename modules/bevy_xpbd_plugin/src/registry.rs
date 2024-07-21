@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_xpbd_3d::prelude::*;
+use avian3d::prelude::*;
 use collider::ColliderPrefab;
 use space_editor_ui::{
     prelude::{EditorRegistryExt, EditorState, PrefabSet},
@@ -11,8 +11,8 @@ use crate::{
     spatial_query::register_xpbd_spatial_types,
 };
 
-pub type Vector = bevy_xpbd_3d::math::Vector;
-pub type Scalar = bevy_xpbd_3d::math::Scalar;
+pub type Vector = avian3d::math::Vector;
+pub type Scalar = avian3d::math::Scalar;
 
 pub struct BevyXpbdPlugin;
 
@@ -20,7 +20,7 @@ impl Plugin for BevyXpbdPlugin {
     fn build(&self, app: &mut App) {
         println!("BevyXpbdPlugin::build");
         app.add_plugins(PhysicsPlugins::default());
-        app.add_plugins(bevy_xpbd_3d::plugins::PhysicsDebugPlugin::default());
+        app.add_plugins(avian3d::debug_render::PhysicsDebugPlugin::default());
 
         app.editor_registry::<collider::ColliderPrefab>()
             .editor_registry::<RigidBodyPrefab>()
