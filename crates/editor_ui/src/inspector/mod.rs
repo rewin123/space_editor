@@ -164,10 +164,10 @@ impl EditorTab for InspectorTab {
                 if let Some(name_struct) = unsafe { e.get::<Name>() } {
                     name = name_struct.as_str().to_string();
                     if name.is_empty() {
-                        name = format!("{:?} (empty name)", e.id());
+                        name = format!("{} (empty name)", e.id());
                     }
                 } else {
-                    name = format!("{:?}", e.id());
+                    name = format!("{}", e.id());
                 }
                 ui.heading(&name);
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
