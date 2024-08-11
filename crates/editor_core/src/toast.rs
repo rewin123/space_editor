@@ -1,5 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::EguiContext;
+use bevy_egui::{EguiContext, EguiContexts};
 use egui_dock::egui::{self, Align2};
 use space_shared::toast::ToastMessage;
 
@@ -9,7 +9,7 @@ pub struct ToastUiPlugin;
 impl Plugin for ToastUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(ToastBasePlugin)
-            .add_systems(PostUpdate, show_toast);
+            .add_systems(Update, show_toast);
     }
 }
 
@@ -129,12 +129,9 @@ fn clear_toasts(mut events: EventReader<ClearToastMessage>, mut storage: ResMut<
 
 fn show_toast(
     mut storage: ResMut<ToastStorage>,
-    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
+    mut ctxs: EguiContexts,
 ) {
-    let Ok(mut ctx) = ctxs.get_single_mut() else {
-        return;
-    };
-    storage.toasts.show(ctx.get_mut());
+    storage.toasts.show(ctxs.ctx_mut());
 }
 
 #[cfg(test)]
