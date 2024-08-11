@@ -5,7 +5,6 @@ use bevy::{
     ecs::{entity::MapEntities, reflect::ReflectMapEntities},
     prelude::*,
 };
-use space_editor::prelude::bevy_xpbd_3d::prelude::*;
 use space_editor::prelude::*;
 
 fn main() {
@@ -19,8 +18,8 @@ fn main() {
         .editor_relation::<PlayerController, RayCasterPrefab>()
         .editor_registry::<FollowCamera>()
         .editor_relation::<FollowCamera, Camera3d>()
-        .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
-        .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
+        // .add_systems(Update, move_player.run_if(in_state(EditorState::Game)))
+        // .add_systems(Update, camera_follow.run_if(in_state(EditorState::Game)))
         .run();
 }
 

@@ -1,6 +1,7 @@
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 use meshless_visualizer::draw_light_gizmo;
+use crate::tools::gizmo::*;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
 
@@ -45,7 +46,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
             .add(SpaceInspectorPlugin)
-            //.add(GizmoToolPlugin)
+            .add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
             .add(settings::SettingsWindowPlugin);
 

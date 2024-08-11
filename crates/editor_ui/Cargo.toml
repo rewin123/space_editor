@@ -27,7 +27,6 @@ serde.workspace = true
 pretty-type-name.workspace = true
 bevy_egui.workspace = true
 transform-gizmo-egui.workspace = true
-transform-gizmo-bevy.workspace = true
 egui_dock.workspace = true
 bevy_debug_grid.workspace = true
 bevy-inspector-egui.workspace = true

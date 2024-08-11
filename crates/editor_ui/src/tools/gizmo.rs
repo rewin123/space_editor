@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use transform_gizmo_egui::{Gizmo, GizmoMode};
+use transform_gizmo_egui::{Gizmo, GizmoExt, GizmoMode};
 use space_editor_core::prelude::*;
 use space_shared::*;
 
@@ -213,9 +213,9 @@ impl EditorTool for GizmoTool {
 
             let mut gizmo_interacted = false;
 
-            let gizmo_config = transform_gizmo_bevy::GizmoConfig {
-                projection_matrix: cam_proj.get_clip_from_view().to_cols_array_2d().into(),
-                view_matrix: view_matrix.to_cols_array_2d().into(),
+            let gizmo_config = transform_gizmo_egui::GizmoConfig {
+                projection_matrix: cam_proj.get_clip_from_view().into(),
+                view_matrix: view_matrix.into(),
                 modes: self.gizmo_mode.into(),
                 ..Default::default()
             };

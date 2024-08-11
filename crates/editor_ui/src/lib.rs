@@ -34,7 +34,7 @@ pub mod settings;
 pub mod tool;
 
 /// This module contains IMPLEMENTATIONS for existed tools (like Gizmo manipulation tool)
-// pub mod tools;
+pub mod tools;
 
 /// This module contains methods for bundle registration
 pub mod ui_registration;
