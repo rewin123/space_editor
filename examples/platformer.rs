@@ -6,6 +6,7 @@ use bevy::{
     prelude::*,
 };
 use space_editor::prelude::*;
+use avian3d::prelude::*;
 
 fn main() {
     App::default()

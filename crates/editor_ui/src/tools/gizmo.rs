@@ -1,6 +1,7 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use transform_gizmo_egui::{Gizmo, GizmoExt, GizmoMode};
+use transform_gizmo_egui::mint::RowMatrix4;
+use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
 use space_editor_core::prelude::*;
 use space_shared::*;
 
@@ -62,31 +63,68 @@ impl Hotkey for GizmoHotkey {
 }
 
 pub struct GizmoTool {
-    pub gizmo_mode: GizmoMode,
+    pub gizmo_mode: EnumSet<GizmoMode>,
     pub is_move_cloned_entities: bool,
 }
 
 impl Default for GizmoTool {
     fn default() -> Self {
         Self {
-            gizmo_mode: GizmoMode::TranslateView,
+            gizmo_mode: GizmoMode::all_translate(),
             is_move_cloned_entities: false,
         }
     }
 }
 
-const MODE_TO_NAME: [(GizmoMode, &str); 3] = [
-    (GizmoMode::TranslateView, "Translate"),
-    (GizmoMode::RotateView, "Rotate"),
-    (GizmoMode::ScaleUniform, "Scale"),
+const MODE_TO_NAME: [(EnumSet<GizmoMode>, &str); 3] = [
+    (GizmoMode::all_translate(), "Translate"),
+    (GizmoMode::all_rotate(), "Rotate"),
+    (GizmoMode::all_scale(), "Scale"),
 ];
 
 //hot keys. Blender keys prefer
-const MODE_TO_KEY: [(GizmoMode, GizmoHotkey); 3] = [
-    (GizmoMode::TranslateView, GizmoHotkey::Translate),
-    (GizmoMode::RotateView, GizmoHotkey::Rotate),
-    (GizmoMode::ScaleUniform, GizmoHotkey::Scale),
+const MODE_TO_KEY: [(EnumSet<GizmoMode>, GizmoHotkey); 3] = [
+    (GizmoMode::all_translate(), GizmoHotkey::Translate),
+    (GizmoMode::all_rotate(), GizmoHotkey::Rotate),
+    (GizmoMode::all_scale(), GizmoHotkey::Scale),
 ];
+
+fn bevy_to_gizmo_transform(transform: &Transform) -> transform_gizmo_egui::math::Transform {
+    transform_gizmo_egui::math::Transform {
+        scale: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(&transform.scale.as_dvec3().to_array()),
+        rotation: transform_gizmo_egui::mint::Quaternion::<f64> {
+            v: transform_gizmo_egui::mint::Vector3::<f64> {
+                x : transform.rotation.x as f64,
+                y : transform.rotation.y as f64,
+                z : transform.rotation.z as f64,
+            },
+            s: transform.rotation.w as f64,
+        },
+        translation: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(&transform.translation.as_dvec3().to_array()),
+    }
+}
+
+fn gizmo_to_bevy_transform(transform: &transform_gizmo_egui::math::Transform) -> Transform {
+    Transform {
+        scale: Vec3::new(
+            transform.scale.x as f32,
+            transform.scale.y as f32,
+            transform.scale.z as f32,
+        ),
+        translation: Vec3::new(
+            transform.translation.x as f32,
+            transform.translation.y as f32,
+            transform.translation.z as f32,
+        ),
+        rotation: Quat::from_xyzw(
+            transform.rotation.v.x as f32,
+            transform.rotation.v.y as f32,
+            transform.rotation.v.z as f32,
+            transform.rotation.s as f32,
+        ),
+        ..Default::default()
+    }
+}
 
 impl EditorTool for GizmoTool {
     fn name(&self) -> &str {
@@ -213,22 +251,33 @@ impl EditorTool for GizmoTool {
 
             let mut gizmo_interacted = false;
 
+            let proj_mat = cam_proj.get_clip_from_view();
+            let proj_mat = transform_gizmo_egui::math::DMat4 {
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.x_axis.as_dvec4().to_array()),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.y_axis.as_dvec4().to_array()),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.z_axis.as_dvec4().to_array()),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.w_axis.as_dvec4().to_array()),
+            };
+
+            let view_matrix = transform_gizmo_egui::math::DMat4 {
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.x_axis.as_dvec4().to_array()),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.y_axis.as_dvec4().to_array()),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.z_axis.as_dvec4().to_array()),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.w_axis.as_dvec4().to_array()),
+            };
+
             let gizmo_config = transform_gizmo_egui::GizmoConfig {
-                projection_matrix: cam_proj.get_clip_from_view().into(),
+                projection_matrix: proj_mat.into(),
                 view_matrix: view_matrix.into(),
                 modes: self.gizmo_mode.into(),
                 ..Default::default()
             };
 
-            if let Some(result) = Gizmo::new(gizmo_config)
-                .interact(ui, &[mean_transform.into()])
+            if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
             {
                 gizmo_interacted = true;
-                mean_transform = Transform {
-                    translation: Vec3::from(result.translation),
-                    rotation: Quat::from_array(result.rotation),
-                    scale: Vec3::from(result.scale),
-                };
+                mean_transform = gizmo_to_bevy_transform(&transforms[0]);
                 disable_pan_orbit = true;
             }
 
@@ -282,9 +331,26 @@ impl EditorTool for GizmoTool {
                     continue;
                 };
 
-                let gizmo_config = GizmoConfig {
-                    projection_matrix: cam_proj.get_clip_from_view().to_cols_array_2d().into(),
-                    view_matrix: view_matrix.to_cols_array_2d().into(),
+                let proj_mat = cam_proj.get_clip_from_view();
+                let proj_mat = transform_gizmo_egui::math::DMat4 {
+                    x_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.x_axis.as_dvec4().to_array()),
+                    y_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.y_axis.as_dvec4().to_array()),
+                    z_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.z_axis.as_dvec4().to_array()),
+                    w_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.w_axis.as_dvec4().to_array()),
+                };
+
+                let view_matrix = transform_gizmo_egui::math::DMat4 {
+                    x_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.x_axis.as_dvec4().to_array()),
+                    y_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.y_axis.as_dvec4().to_array()),
+                    z_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.z_axis.as_dvec4().to_array()),
+                    w_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.w_axis.as_dvec4().to_array()),
+                };
+
+                let gizmo_config = transform_gizmo_egui::GizmoConfig {
+                    projection_matrix: proj_mat.into(),
+                    view_matrix: view_matrix.into(),
+                    modes: self.gizmo_mode.into(),
+                    viewport: ui.clip_rect(),
                     ..Default::default()
                 };
 
@@ -292,17 +358,11 @@ impl EditorTool for GizmoTool {
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                if let Some(result) = Gizmo::new(gizmo_config)
-                                    .model_matrix(global.compute_matrix().to_cols_array_2d().into())
-                                    .mode(self.gizmo_mode)
-                                    .interact(ui, &[global.compute_transform().into()])
+                                if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                                    .interact(ui, &[bevy_to_gizmo_transform(&global.compute_transform())])
                                 {
                                     disable_pan_orbit = true;
-                                    let new_transform = Transform {
-                                        translation: Vec3::from(result.translation),
-                                        rotation: Quat::from_array(result.rotation),
-                                        scale: Vec3::from(result.scale),
-                                    };
+                                    let new_transform = gizmo_to_bevy_transform(&transforms[0]);
 
                                     if clone_pressed {
                                         if self.is_move_cloned_entities {
@@ -326,29 +386,19 @@ impl EditorTool for GizmoTool {
                     }
                 }
 
-                if let Some(result) = Gizmo::new(gizmo_config)
-                    .model_matrix(transform.compute_matrix().to_cols_array_2d().into())
-                    .mode(self.gizmo_mode)
-                    .interact(ui, &[(*transform).into()])
+                if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                    .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
                     if clone_pressed {
                         if self.is_move_cloned_entities {
-                            *transform = Transform {
-                                translation: Vec3::from(result.translation),
-                                rotation: Quat::from_array(result.rotation),
-                                scale: Vec3::from(result.scale),
-                            };
+                            *transform = gizmo_to_bevy_transform(&transforms[0]);
                             transform.set_changed();
                         } else {
                             unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
                             self.is_move_cloned_entities = true;
                         }
                     } else {
-                        *transform = Transform {
-                            translation: Vec3::from(result.translation),
-                            rotation: Quat::from_array(result.rotation),
-                            scale: Vec3::from(result.scale),
-                        };
+                        *transform = gizmo_to_bevy_transform(&transforms[0]);
                         transform.set_changed();
                     }
                     disable_pan_orbit = true;
@@ -379,30 +429,18 @@ trait ToButton {
     fn to_button(&self, size: &Sizing) -> egui::Button;
 }
 
-impl ToButton for GizmoMode {
+impl ToButton for EnumSet<GizmoMode> {
     fn to_button(&self, size: &Sizing) -> egui::Button {
-        match self {
-            Self::RotateView => rotation_icon(size.gizmos.to_size(), ""),
-            Self::TranslateView => translate_icon(size.gizmos.to_size(), ""),
-            Self::ScaleUniform => scale_icon(size.gizmos.to_size(), ""),
-            GizmoMode::RotateX => todo!(),
-            GizmoMode::RotateY => todo!(),
-            GizmoMode::RotateZ => todo!(),
-            GizmoMode::TranslateX => todo!(),
-            GizmoMode::TranslateY => todo!(),
-            GizmoMode::TranslateZ => todo!(),
-            GizmoMode::TranslateXY => todo!(),
-            GizmoMode::TranslateXZ => todo!(),
-            GizmoMode::TranslateYZ => todo!(),
-            GizmoMode::ScaleX => todo!(),
-            GizmoMode::ScaleY => todo!(),
-            GizmoMode::ScaleZ => todo!(),
-            GizmoMode::ScaleXY => todo!(),
-            GizmoMode::ScaleXZ => todo!(),
-            GizmoMode::ScaleYZ => todo!(),
-            GizmoMode::Arcball => todo!(),
-        
+
+        if *self == GizmoMode::all_translate() {
+            return translate_icon(size.gizmos.to_size(), "");
+        } else if *self == GizmoMode::all_scale() {
+            return scale_icon(size.gizmos.to_size(), "");
+        } else if *self == GizmoMode::all_rotate() {
+            return rotation_icon(size.gizmos.to_size(), "");
         }
+
+        return translate_icon(size.gizmos.to_size(), "");
     }
 }
 
