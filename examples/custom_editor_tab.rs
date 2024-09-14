@@ -42,8 +42,8 @@ impl TabName for CustomTabName {
     /// Return title of the tab
     fn title(&self) -> String {
         match self {
-            CustomTabName::TraitBased => String::from("Trait Based"),
-            CustomTabName::SystemBased => String::from("System Based"),
+            Self::TraitBased => String::from("Trait Based"),
+            Self::SystemBased => String::from("System Based"),
         }
     }
 }

@@ -160,10 +160,6 @@ default = [
     "space_prefab/editor", 
 ]
 
-[[example]]
-name = "platformer"
-required-features = ["bevy_xpbd_3d"]
-
 
 [[example]]
 name = "spawn_prefab_with_physics"
