@@ -7,12 +7,12 @@ fn save_on_close_triggers_event() {
         .add_event::<PersistenceEvent>()
         .add_event::<WindowCloseRequested>()
         .add_systems(PreUpdate, persistence_save_on_close);
-    app.world.send_event(WindowCloseRequested {
+    app.world_mut().send_event(WindowCloseRequested {
         window: Entity::PLACEHOLDER,
     });
     app.update();
 
-    let event = app.world.get_resource::<Events<PersistenceEvent>>();
+    let event = app.world_mut().get_resource::<Events<PersistenceEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 1);
@@ -28,12 +28,12 @@ fn save_on_close_false_doesnt_triggers_event() {
     .add_event::<PersistenceEvent>()
     .add_event::<WindowCloseRequested>()
     .add_systems(PreUpdate, persistence_save_on_close);
-    app.world.send_event(WindowCloseRequested {
+    app.world_mut().send_event(WindowCloseRequested {
         window: Entity::PLACEHOLDER,
     });
     app.update();
 
-    let event = app.world.get_resource::<Events<PersistenceEvent>>();
+    let event = app.world_mut().get_resource::<Events<PersistenceEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 0);
@@ -47,7 +47,7 @@ fn load_on_startup_triggers_event() {
         .add_systems(Update, persistence_startup_load);
     app.update();
 
-    let events = app.world.get_resource::<Events<PersistenceEvent>>();
+    let events = app.world_mut().get_resource::<Events<PersistenceEvent>>();
     assert!(events.is_some());
     assert_eq!(events.unwrap().len(), 1);
 }
@@ -63,7 +63,7 @@ fn not_load_on_startup_triggers_event() {
     .add_systems(Update, persistence_startup_load);
     app.update();
 
-    let events = app.world.get_resource::<Events<PersistenceEvent>>();
+    let events = app.world_mut().get_resource::<Events<PersistenceEvent>>();
     assert!(events.is_some());
     assert_eq!(events.unwrap().len(), 0);
 }
@@ -76,17 +76,17 @@ fn persistence_starts_on_save() {
         .add_event::<PersistenceResourceBroadcastEvent>()
         .add_systems(PreUpdate, persistence_start);
 
-    app.world.send_event(PersistenceEvent::Save);
+    app.world_mut().send_event(PersistenceEvent::Save);
     app.update();
 
     let event = app
-        .world
+        .world_mut()
         .get_resource::<Events<PersistenceResourceBroadcastEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 1);
 
-    let persistence = app.world.get_resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().get_resource::<PersistenceRegistry>();
 
     assert!(persistence.is_some());
     let reg = persistence.unwrap();
@@ -105,17 +105,17 @@ fn persistence_starts_on_load_mem() {
     .add_event::<PersistenceResourceBroadcastEvent>()
     .add_systems(PreUpdate, persistence_start);
 
-    app.world.send_event(PersistenceEvent::Load);
+    app.world_mut().send_event(PersistenceEvent::Load);
     app.update();
 
     let event = app
-        .world
+        .world_mut()
         .get_resource::<Events<PersistenceResourceBroadcastEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 1);
 
-    let persistence = app.world.get_resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().get_resource::<PersistenceRegistry>();
 
     assert!(persistence.is_some());
     let reg = persistence.unwrap();
@@ -134,17 +134,17 @@ fn persistence_starts_on_load_file() {
     .add_event::<PersistenceResourceBroadcastEvent>()
     .add_systems(PreUpdate, persistence_start);
 
-    app.world.send_event(PersistenceEvent::Load);
+    app.world_mut().send_event(PersistenceEvent::Load);
     app.update();
 
     let event = app
-        .world
+        .world_mut()
         .get_resource::<Events<PersistenceResourceBroadcastEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 1);
 
-    let persistence = app.world.get_resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().get_resource::<PersistenceRegistry>();
 
     assert!(persistence.is_some());
     let reg = persistence.unwrap();
@@ -166,16 +166,16 @@ fn persistence_starts_on_file_not_found() {
     .add_event::<PersistenceResourceBroadcastEvent>()
     .add_systems(PreUpdate, persistence_start);
 
-    app.world.send_event(PersistenceEvent::Load);
+    app.world_mut().send_event(PersistenceEvent::Load);
     app.update();
 
     let event = app
-        .world
+        .world_mut()
         .get_resource::<Events<PersistenceResourceBroadcastEvent>>();
 
     assert_eq!(event.unwrap().len(), 0);
 
-    let persistence = app.world.get_resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().get_resource::<PersistenceRegistry>();
     let reg = persistence.unwrap();
     assert_eq!(reg.mode, PersistenceMode::None);
     assert!(reg.data.is_empty());
@@ -192,17 +192,17 @@ fn persistence_starts_on_load_from_memory() {
     .add_event::<PersistenceResourceBroadcastEvent>()
     .add_systems(PreUpdate, persistence_start);
 
-    app.world.send_event(PersistenceEvent::Load);
+    app.world_mut().send_event(PersistenceEvent::Load);
     app.update();
 
     let event = app
-        .world
+        .world_mut()
         .get_resource::<Events<PersistenceResourceBroadcastEvent>>();
 
     assert!(event.is_some());
     assert_eq!(event.unwrap().len(), 1);
 
-    let persistence = app.world.get_resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().get_resource::<PersistenceRegistry>();
 
     assert!(persistence.is_some());
     let reg = persistence.unwrap();
@@ -232,7 +232,7 @@ fn persistence_end_from_loading() {
 
     app.update();
 
-    let persistence = app.world.resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().resource::<PersistenceRegistry>();
     assert_eq!(persistence.mode, PersistenceMode::None);
 }
 
@@ -248,7 +248,7 @@ fn persistence_end_from_saving_mem() {
 
     app.update();
 
-    let persistence = app.world.resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().resource::<PersistenceRegistry>();
     assert_eq!(persistence.mode, PersistenceMode::None);
 }
 
@@ -265,7 +265,7 @@ fn persistence_end_from_saving_file() {
 
     app.update();
 
-    let persistence = app.world.resource::<PersistenceRegistry>();
+    let persistence = app.world_mut().resource::<PersistenceRegistry>();
     assert_eq!(persistence.mode, PersistenceMode::None);
 
     assert!(std::fs::metadata("../../target/fake_editor.ron").is_ok());
@@ -294,12 +294,12 @@ fn persistence_system_unpack() {
     );
     app.persistence_resource::<PersistenceSettings>();
     app.update();
-    app.world
+    app.world_mut()
         .send_event(PersistenceResourceBroadcastEvent::Unpack);
     app.update();
 
-    let settings = app.world.resource::<PersistenceSettings>();
-    let count = app.world.resource::<PersistenceRegistry>();
+    let settings = app.world().resource::<PersistenceSettings>();
+    let count = app.world().resource::<PersistenceRegistry>();
 
     assert_eq!(count.target_count, 1);
     assert_eq!(count.load_counter, 1);
@@ -331,10 +331,10 @@ fn persistence_system_pack() {
     );
     app.persistence_resource::<PersistenceSettings>();
     app.update();
-    app.world
+    app.world_mut()
         .send_event(PersistenceResourceBroadcastEvent::Pack);
     app.update();
 
-    let reg = app.world.resource::<PersistenceRegistry>();
+    let reg = app.world_mut().resource::<PersistenceRegistry>();
     assert_eq!(reg.save_counter, 1)
 }

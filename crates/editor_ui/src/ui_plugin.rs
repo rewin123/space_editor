@@ -1,5 +1,6 @@
+use crate::tools::gizmo::*;
 use crate::*;
-use bevy::prelude::*;
+use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 use meshless_visualizer::draw_light_gizmo;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
@@ -94,9 +95,14 @@ impl Default for EditorUiCore {
     }
 }
 
+#[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
+struct AfterStateTransition;
+
 impl Plugin for EditorUiCore {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+        use bevy::app::MainScheduleOrder;
+
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();
 
@@ -141,10 +147,21 @@ impl Plugin for EditorUiCore {
 
         app.insert_resource(EditorCameraEnabled(true));
 
-        app.add_systems(
-            Startup,
-            (set_start_state, apply_state_transition::<EditorState>).chain(),
-        );
+        //app.add_systems(
+        //    Startup,
+        //    (set_start_state, apply_state_transition::<EditorState>).chain(),
+        //);
+
+        // Create a new schedule for systems that need to run after state transition
+        let after_state_transition = Schedule::new(AfterStateTransition);
+        app.add_schedule(after_state_transition);
+
+        // Modify the schedule order to make this run after `StateTransition`
+        app.world_mut()
+            .resource_mut::<MainScheduleOrder>()
+            .insert_after(StateTransition, AfterStateTransition);
+
+        app.add_systems(Startup, (set_start_state, apply_deferred).chain());
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);

@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use bevy::{
-    math::primitives as math_shapes,
+    math::{primitives as math_shapes, Direction3d},
     prelude::*,
     render::view::RenderLayers,
     utils::HashMap,
@@ -174,8 +174,7 @@ impl DynamicAsset for EditorIconAssetType {
         &self,
         world: &mut World,
     ) -> Result<bevy_asset_loader::dynamic_asset::DynamicAssetType, anyhow::Error> {
-        let cell = world.cell();
-        let asset_server = cell
+        let asset_server = world
             .get_resource::<AssetServer>()
             .ok_or_else(|| anyhow!("Failed to get the AssetServer"))?;
         match self {
@@ -184,7 +183,7 @@ impl DynamicAsset for EditorIconAssetType {
                 Ok(DynamicAssetType::Single(handle.untyped()))
             }
             Self::Quad { size } => {
-                let mut meshes = cell
+                let mut meshes = world
                     .get_resource_mut::<Assets<Mesh>>()
                     .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
@@ -195,7 +194,7 @@ impl DynamicAsset for EditorIconAssetType {
                 Ok(DynamicAssetType::Single(handle))
             }
             Self::Sphere { radius } => {
-                let mut meshes = cell
+                let mut meshes = world
                     .get_resource_mut::<Assets<Mesh>>()
                     .ok_or_else(|| anyhow!("Failed to get Mesh Assets"))?;
                 let handle = meshes
@@ -252,7 +251,7 @@ pub fn visualize_meshless(
                         texture: BillboardTextureHandle(image.clone()),
                         ..default()
                     },
-                    RenderLayers::layer(LAST_RENDER_LAYER),
+                    RenderLayers::layer(LAST_RENDER_LAYER.into()),
                     Name::from("Billboard Texture"),
                 ))
                 .with_children(|adult| {
@@ -283,7 +282,7 @@ pub fn visualize_meshless(
                         texture: BillboardTextureHandle(editor_icons.camera.clone()),
                         ..default()
                     },
-                    RenderLayers::layer(LAST_RENDER_LAYER),
+                    RenderLayers::layer(LAST_RENDER_LAYER.into()),
                     Name::from("Billboard Texture"),
                 ))
                 .with_children(|adult| {
@@ -336,7 +335,7 @@ pub fn visualize_custom_meshless(
                                 ..default()
                             },
                             Name::from("Billboard Texture"),
-                            RenderLayers::layer(LAST_RENDER_LAYER),
+                            RenderLayers::layer(LAST_RENDER_LAYER.into()),
                         ))
                         .with_children(|adult| {
                             adult.spawn((
@@ -364,7 +363,7 @@ pub fn visualize_custom_meshless(
                             ..default()
                         },
                         SelectParent { parent: entity },
-                        RenderLayers::layer(LAST_RENDER_LAYER),
+                        RenderLayers::layer(LAST_RENDER_LAYER.into()),
                         Name::from("Meshless Object"),
                     ))
                     .id(),
@@ -415,7 +414,7 @@ pub fn draw_light_gizmo(
                     gizmos.ray(
                         transform.translation,
                         dir * 3.5,
-                        directional.color.with_a(1.0),
+                        directional.color.with_alpha(1.0),
                     );
                     let dirs = vec![
                         (transform.up().normalize(), transform.down().normalize()),
@@ -428,13 +427,13 @@ pub fn draw_light_gizmo(
                         gizmos.ray(
                             transform.translation + dir * 3.5,
                             a,
-                            directional.color.with_a(1.0),
+                            directional.color.with_alpha(1.0),
                         );
                         // angle
                         gizmos.ray(
                             transform.translation + dir * 3.5 + a,
                             dir * 1.5 + b,
-                            directional.color.with_a(1.0),
+                            directional.color.with_alpha(1.0),
                         );
                     }
                 }
@@ -443,7 +442,7 @@ pub fn draw_light_gizmo(
                     let range = transform.forward().normalize() * spot.range;
 
                     // center of the light direction
-                    gizmos.ray(transform.translation, range, spot.color.with_a(1.0));
+                    gizmos.ray(transform.translation, range, spot.color.with_alpha(1.0));
 
                     let outer_rad = range.length() * spot.outer_angle.tan();
                     let inner_rad = range.length() * spot.inner_angle.tan();
@@ -451,15 +450,15 @@ pub fn draw_light_gizmo(
                     // circle at the end of the light range at both angles
                     gizmos.circle(
                         transform.translation + range,
-                        Dir3::new_unchecked(transform.back().normalize()),
+                        Direction3d::new_unchecked(transform.back().normalize()),
                         outer_rad,
-                        spot.color.with_a(1.0),
+                        spot.color.with_alpha(1.0),
                     );
                     gizmos.circle(
                         transform.translation + range,
-                        Dir3::new_unchecked(transform.back().normalize()),
+                        Direction3d::new_unchecked(transform.back().normalize()),
                         inner_rad,
-                        spot.color.with_a(1.0),
+                        spot.color.with_alpha(1.0),
                     );
 
                     // amount of lines to draw around the "cone" that the light creates
@@ -481,8 +480,16 @@ pub fn draw_light_gizmo(
                                 * (transform.right().normalize() * angle_inner.cos()
                                     + transform.up().normalize() * angle_inner.sin());
 
-                        gizmos.line(transform.translation, outer_point, spot.color.with_a(1.0));
-                        gizmos.line(transform.translation, inner_point, spot.color.with_a(1.0));
+                        gizmos.line(
+                            transform.translation,
+                            outer_point,
+                            spot.color.with_alpha(1.0),
+                        );
+                        gizmos.line(
+                            transform.translation,
+                            inner_point,
+                            spot.color.with_alpha(1.0),
+                        );
                     }
                 }
                 (_, _, Some(point)) => {
@@ -490,7 +497,7 @@ pub fn draw_light_gizmo(
                         transform.translation,
                         Quat::IDENTITY,
                         point.range,
-                        point.color.with_a(1.0),
+                        point.color.with_alpha(1.0),
                     );
                 }
                 _ => unreachable!(),
@@ -516,7 +523,7 @@ mod tests {
         app.add_systems(PreUpdate, register_assets);
         app.update();
 
-        let icons = app.world.get_resource::<EditorIconAssets>();
+        let icons = app.world().get_resource::<EditorIconAssets>();
 
         assert!(icons.is_some());
     }
@@ -533,8 +540,8 @@ mod tests {
         app.add_systems(Update, clean_meshless);
         app.update();
 
-        let mut query = app.world.query::<Entity>();
+        let mut query = app.world_mut().query::<Entity>();
 
-        assert_eq!(query.iter(&app.world).count(), 2);
+        assert_eq!(query.iter(&app.world()).count(), 2);
     }
 }

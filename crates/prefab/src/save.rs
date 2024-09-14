@@ -153,7 +153,7 @@ pub fn serialize_scene(world: &mut World) {
         error!("App Registry not initialized");
         return;
     };
-    let res = scene.serialize_ron(app_registry);
+    let res = scene.serialize(&app_registry.read());
 
     if let Ok(str) = res {
         // Write the scene RON data to file
@@ -236,7 +236,7 @@ mod tests {
 
         app.update();
 
-        serialize_scene(&mut app.world);
+        serialize_scene(&mut app.world_mut());
 
         // Delay for 0.2 second for IOTaskPool to finish
         std::thread::sleep(std::time::Duration::from_secs_f32(0.2));
@@ -279,9 +279,9 @@ mod tests {
 
         app.update();
 
-        serialize_scene(&mut app.world);
+        serialize_scene(&mut app.world_mut());
         assert!(app
-            .world
+            .world_mut()
             .resource_mut::<PrefabMemoryCache>()
             .scene
             .is_some());
@@ -299,8 +299,10 @@ mod tests {
         .add_systems(Update, prepare_children);
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
-        assert_eq!(query.iter(&app.world).count(), 1);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
     #[test]
@@ -320,8 +322,10 @@ mod tests {
         .add_systems(Update, delete_prepared_children);
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
-        assert_eq!(query.iter(&app.world).count(), 0);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
     #[test]
@@ -357,9 +361,9 @@ mod tests {
 
         app.update();
 
-        serialize_scene(&mut app.world);
+        serialize_scene(&mut app.world_mut());
         let events = app
-            .world
+            .world_mut()
             .resource::<Events<space_shared::toast::ToastMessage>>();
 
         let mut iter = events.get_reader();
@@ -384,7 +388,9 @@ mod tests {
         .add_systems(Update, prepare_children);
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<ChildrenPrefab>>();
-        assert_eq!(query.iter(&app.world).count(), 1);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 }

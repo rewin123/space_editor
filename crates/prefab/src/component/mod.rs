@@ -176,12 +176,12 @@ mod tests {
 
         app.update();
 
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world_mut().resource::<AssetServer>();
         let prefab = AutoStruct::<TestAuto>::new(&TestAuto { value: false }, server);
 
         app.update();
 
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world_mut().resource::<AssetServer>();
         assert_eq!(prefab.get_data(server), TestAuto { value: false });
     }
 }

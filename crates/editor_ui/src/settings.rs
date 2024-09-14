@@ -135,7 +135,7 @@ impl RegisterSettingsBlockExt for App {
         name: &str,
         block: impl FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static,
     ) {
-        self.world
+        self.world_mut()
             .get_resource_mut::<SettingsWindow>()
             .map(|mut settings| {
                 settings

@@ -142,11 +142,22 @@ impl TextureAtlasPrefab {
         self.texture = Some(texture_handle);
 
         let texture_layout = TextureAtlasLayout::from_grid(
-            self.tile_size,
-            self.columns,
-            self.rows,
-            self.padding,
-            self.offset,
+            //self.tile_size,
+            UVec2 {
+                x: self.tile_size.x.round() as u32,
+                y: self.tile_size.y.round() as u32,
+            },
+            self.columns as u32,
+            self.rows as u32,
+            Some(UVec2 {
+                x: self.padding.unwrap().x.round() as u32,
+                y: self.padding.unwrap().y.round() as u32,
+            }),
+            //self.offset,
+            Some(UVec2 {
+                x: self.offset.unwrap().x.round() as u32,
+                y: self.offset.unwrap().y.round() as u32,
+            }),
         );
         Some(texture_layout_assets.add(texture_layout))
     }
@@ -194,7 +205,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let sprite = prefab.to_sprite(server);
 
@@ -215,7 +226,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let sprite = prefab.to_sprite(server);
 
@@ -234,7 +245,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let sprite = prefab.to_texture(server);
 
@@ -255,7 +266,7 @@ mod tests {
             AssetPlugin::default(),
             ImagePlugin::default(),
         ));
-        let server = app.world.resource::<AssetServer>();
+        let server = app.world().resource::<AssetServer>();
 
         let sprite = prefab.to_texture(server);
 
@@ -300,8 +311,8 @@ mod tests {
         ))
         .init_asset::<TextureAtlasLayout>();
 
-        let asset_server = app.world.resource::<AssetServer>().clone();
-        let mut texture_atlas = app.world.resource_mut::<Assets<TextureAtlasLayout>>();
+        let asset_server = app.world().resource::<AssetServer>().clone();
+        let mut texture_atlas = app.world_mut().resource_mut::<Assets<TextureAtlasLayout>>();
 
         let sprite = prefab.to_texture_atlas(&sprite_prefab, &mut texture_atlas, &asset_server);
 
@@ -335,9 +346,9 @@ mod tests {
             .add_systems(Update, animate_sprite);
 
         app.update();
-        let mut query = app.world.query::<&TextureAtlas>();
+        let mut query = app.world_mut().query::<&TextureAtlas>();
 
-        let atlas = query.single(&app.world);
+        let atlas = query.single(&app.world());
 
         assert_eq!(atlas.index, 0);
     }

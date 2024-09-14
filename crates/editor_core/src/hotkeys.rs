@@ -107,16 +107,16 @@ pub trait HotkeyAppExt {
 
 impl HotkeyAppExt for App {
     fn editor_hotkey<T: Hotkey>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self {
-        if !self.world.contains_resource::<AllHotkeys>() {
+        if !self.world().contains_resource::<AllHotkeys>() {
             self.insert_resource(AllHotkeys::default());
         }
 
-        if !self.world.contains_resource::<HotkeySet<T>>() {
+        if !self.world().contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<ButtonInput<T>>();
             #[cfg(feature = "persistence_editor")]
             {
-                if self.world.contains_resource::<PersistenceRegistry>() {
+                if self.world().contains_resource::<PersistenceRegistry>() {
                     self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
                         |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
                             dst.bindings.extend(src.bindings);
@@ -129,7 +129,7 @@ impl HotkeyAppExt for App {
             self.register_type::<HotkeySet<T>>();
             self.register_type::<HashMap<T, Vec<KeyCode>>>();
             self.register_type::<T>();
-            self.world
+            self.world_mut()
                 // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .mappers
@@ -141,7 +141,7 @@ impl HotkeyAppExt for App {
                     });
                 }));
 
-            self.world
+            self.world_mut()
                 // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .global_mapper
@@ -152,7 +152,7 @@ impl HotkeyAppExt for App {
                 }))
         }
 
-        let Some(mut set) = self.world.get_resource_mut::<HotkeySet<T>>() else {
+        let Some(mut set) = self.world_mut().get_resource_mut::<HotkeySet<T>>() else {
             return self;
         };
         set.bindings.insert(key, binding);
@@ -213,14 +213,14 @@ mod tests {
 
         app.update();
         {
-            let mut input = app.world.resource_mut::<ButtonInput<KeyCode>>();
+            let mut input = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
             input.press(KeyCode::KeyA);
             assert!(input.pressed(KeyCode::KeyA));
         }
         app.update();
 
         {
-            let input = app.world.resource::<ButtonInput<TestKey>>();
+            let input = app.world().resource::<ButtonInput<TestKey>>();
             assert_eq!(input.pressed(TestKey::A), true);
         }
     }

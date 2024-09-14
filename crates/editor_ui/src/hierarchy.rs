@@ -152,8 +152,8 @@ fn draw_entity<F: QueryFilter>(
     };
 
     let entity_name = name.map_or_else(
-        || format!("Entity ({:?})", entity),
-        |name| format!("{} ({:?})", name.as_str(), entity),
+        || format!("Entity ({})", entity),
+        |name| format!("{} ({})", name.as_str(), entity),
     );
 
     let is_selected = selected.contains(entity);

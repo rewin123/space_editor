@@ -9,7 +9,7 @@ impl Plugin for EditorPickingPlugin {
         app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
         if let Some(mut raycast_backend) =
-            app.world
+            app.world_mut()
                 .get_resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
         {
             raycast_backend.require_markers = true;

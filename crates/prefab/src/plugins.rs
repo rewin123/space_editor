@@ -67,8 +67,8 @@ impl Plugin for BasePrefabPlugin {
 
         app.register_type::<EntityLink>();
 
-        app.register_type::<Direction3d>();
-        app.register_type::<Direction2d>();
+        app.register_type::<Dir3>();
+        app.register_type::<Dir2>();
 
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
@@ -372,9 +372,9 @@ mod test {
         app.update();
 
         let mut query = app
-            .world
+            .world_mut()
             .query_filtered::<Entity, With<CameraRenderGraph>>();
-        assert_eq!(query.iter(&app.world).count(), 1);
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
     #[test]
@@ -389,9 +389,9 @@ mod test {
         app.update();
 
         let mut query = app
-            .world
+            .world_mut()
             .query_filtered::<Entity, (Without<Transform>, With<GlobalTransform>)>();
-        assert_eq!(query.iter(&app.world).count(), 0);
+        assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
     #[test]
@@ -407,13 +407,15 @@ mod test {
 
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<ViewVisibility>>();
-        assert_eq!(query.iter(&app.world).count(), 3);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 3);
 
-        let mut query = app.world.query::<&InheritedVisibility>();
+        let mut query = app.world_mut().query::<&InheritedVisibility>();
         assert_eq!(
             query
-                .iter(&app.world)
+                .iter(&app.world_mut())
                 .filter(|v| v == &&InheritedVisibility::VISIBLE)
                 .count(),
             2
@@ -433,8 +435,10 @@ mod test {
 
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<ViewVisibility>>();
-        assert_eq!(query.iter(&app.world).count(), 1);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
     #[test]
@@ -453,8 +457,8 @@ mod test {
         app.update();
 
         let mut query = app
-            .world
+            .world_mut()
             .query_filtered::<Entity, (With<Transform>, With<GlobalTransform>)>();
-        assert_eq!(query.iter(&app.world).count(), 4);
+        assert_eq!(query.iter(&app.world_mut()).count(), 4);
     }
 }

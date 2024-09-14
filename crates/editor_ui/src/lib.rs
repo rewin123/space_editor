@@ -61,6 +61,8 @@ pub mod sizing;
 
 pub mod icons;
 
+use std::char::MAX;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
@@ -104,14 +106,32 @@ use ui_registration::BundleReg;
 use camera_plugin::*;
 use ui_plugin::*;
 
-use self::{mouse_check::MouseCheck, tools::gizmo::GizmoToolPlugin};
+use self::mouse_check::MouseCheck; // , tools::gizmo::GizmoToolPlugin};
 
-pub const LAST_RENDER_LAYER: u8 = RenderLayers::TOTAL_LAYERS as u8 - 1;
+pub const MAX_RENDER_LAYERS: u8 = 32; // Or however many layers you need
+
+pub const DEFAULT_GRID_ALPHA: f32 = 0.5_f32;
+
+pub fn all_render_layers() -> RenderLayers {
+    (0..MAX_RENDER_LAYERS).fold(RenderLayers::none(), |layers, layer| {
+        layers.with(layer.into())
+    })
+}
+
+pub const LAST_RENDER_LAYER: u8 = MAX_RENDER_LAYERS - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, change_chain::*, debug_panels::*, game_view::*, hierarchy::*,
-        inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*, tools::*,
+        asset_inspector::*,
+        change_chain::*,
+        debug_panels::*,
+        game_view::*,
+        hierarchy::*,
+        inspector::*,
+        menu_toolbars::*,
+        meshless_visualizer::*,
+        settings::*,
+        tool::*, //tools::*,
         ui_registration::*,
     };
 
@@ -242,7 +262,7 @@ impl Plugin for EditorGizmoConfigPlugin {
 
 fn editor_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
     gizmos_config.config_mut::<EditorGizmo>().0.render_layers =
-        RenderLayers::layer(LAST_RENDER_LAYER)
+        RenderLayers::layer(LAST_RENDER_LAYER.into())
 }
 
 fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
@@ -334,23 +354,26 @@ pub fn simple_editor_setup(mut commands: Commands) {
     ));
 
     // grid
-    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER);
+    let grid_render_layer = RenderLayers::layer(LAST_RENDER_LAYER.into());
+    let silver = Color::srgb(0.75, 0.75, 0.75);
+    let grey = Color::srgb(0.5, 0.5, 0.5);
+
     commands.spawn((
         Grid {
             spacing: 10.0_f32,
             count: 16,
-            color: Color::SILVER.with_a(DEFAULT_GRID_ALPHA),
+            color: silver.with_alpha(DEFAULT_GRID_ALPHA),
             alpha_mode: AlphaMode::Blend,
         },
         SubGrid {
             count: 9,
-            color: Color::GRAY.with_a(DEFAULT_GRID_ALPHA),
+            color: grey.with_alpha(DEFAULT_GRID_ALPHA),
         },
         // Darker grid to make it easier to see entity gizmos when Transform (0, 0, 0)
         GridAxis {
-            x: Some(Color::linear_rgb(0.9, 0.1, 0.1)),
-            y: Some(Color::linear_rgb(0.1, 0.9, 0.1)),
-            z: Some(Color::linear_rgb(0.1, 0.1, 0.9)),
+            x: Some(Color::rgb(0.9, 0.1, 0.1)),
+            y: Some(Color::rgb(0.1, 0.9, 0.1)),
+            z: Some(Color::rgb(0.1, 0.1, 0.9)),
         },
         TrackedGrid::default(),
         TransformBundle::default(),
@@ -374,7 +397,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         Name::from("Editor Camera"),
         PickableBundle::default(),
         RaycastPickable,
-        RenderLayers::all(),
+        all_render_layers(),
     ));
 }
 
@@ -405,7 +428,7 @@ pub fn game_mode_changed(
                 Name::from("Editor Camera"),
                 PickableBundle::default(),
                 RaycastPickable,
-                RenderLayers::all(),
+                all_render_layers(),
             ));
         } else {
             // 2D camera
@@ -421,7 +444,7 @@ pub fn game_mode_changed(
                 Name::from("Editor 2D Camera"),
                 PickableBundle::default(),
                 RaycastPickable,
-                RenderLayers::all(),
+                all_render_layers(),
             ));
         }
     }

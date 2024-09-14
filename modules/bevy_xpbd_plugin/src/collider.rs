@@ -1,7 +1,11 @@
+use avian3d::*;
 use bevy::prelude::*;
-use bevy_xpbd_3d::math::*;
-use bevy_xpbd_3d::prelude::*;
+use bevy::reflect;
 
+use collision::Collider;
+use math::Quaternion;
+use math::Scalar;
+use math::Vector;
 use space_editor_ui::ext::bevy_inspector_egui::prelude::*;
 use space_editor_ui::prelude::MeshPrimitive3dPrefab;
 
@@ -92,10 +96,10 @@ impl ColliderPrimitive {
         match self {
             Self::Cuboid(bbox) => Collider::cuboid(bbox.x, bbox.y, bbox.z),
             Self::Capsule { height, radius } => Collider::capsule(*height, *radius),
-            Self::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*a, *b, *radius),
+            Self::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*radius, *a, *b),
             Self::Cone { height, radius } => Collider::cone(*height, *radius),
             Self::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
-            Self::Halfspace { outward_normal } => Collider::halfspace(*outward_normal),
+            Self::Halfspace { outward_normal } => Collider::half_space(*outward_normal),
             Self::Triangle { a, b, c } => Collider::triangle(*a, *b, *c),
             Self::Ball(radius) => Collider::sphere(*radius),
             Self::Segment { a, b } => Collider::segment(*a, *b),

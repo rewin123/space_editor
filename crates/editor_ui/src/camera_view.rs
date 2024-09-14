@@ -359,7 +359,7 @@ fn set_camera_viewport(
 
     local.0 = Some(viewport_rect);
 
-    let Some(image_data) = images.get(target_handle) else {
+    let Some(image_data) = images.get(target_handle.id()) else {
         error!("Could not get image data");
         return;
     };

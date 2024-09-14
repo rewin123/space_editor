@@ -27,5 +27,5 @@ pub mod prelude {
     pub use crate::registry::*;
     pub use crate::spatial_query::*;
     pub use crate::XpbdPlugin;
-    pub use bevy_xpbd_3d;
+    //pub use bevy_xpbd_3d;
 }

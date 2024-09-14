@@ -44,7 +44,7 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13.2"
+bevy = "0.14"
 
 # Editor Crates
 space_prefab = { version = "0.6.0", path = "crates/prefab" }
@@ -57,24 +57,25 @@ space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_asset_loader = "0.20"
-bevy_debug_grid = "0.5"
-bevy_egui = "0.25"
-bevy-inspector-egui = { version = "0.23", features = [
+bevy_asset_loader = "0.21"
+bevy_debug_grid = "0.6"
+bevy_egui = "0.28"
+bevy-inspector-egui = { version = "0.25", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
-bevy_mod_billboard = { git = "https://github.com/kulkalkul/bevy_mod_billboard", branch = "main" }
-bevy_mod_picking = { version = "0.18.2", default-features = false, features = ["backend_raycast",  "selection",] }
-bevy_panorbit_camera = { version = "0.16", default-features = false }
-bevy-scene-hook = "10"
+bevy_mod_billboard = { git = "https://github.com/rewin123/bevy_mod_billboard.git", branch = "bevy-0.14" }
+bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
+bevy_panorbit_camera = { version = "0.19", default-features = false }
+bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
 convert_case = "0.6"
-egui_dock = "0.11"
-egui_extras = { version = "0.26", features = ["all_loaders"] }
-egui_file = "0.15"
-egui-gizmo = "0.16.1"
-egui-toast = "0.12.1"
-image = {version = "0.24.8", feature = ["png"] }
+egui_dock = "0.13"
+egui_extras = { version = "0.28.1", features = ["all_loaders"] }
+egui_file = "0.18"
+transform-gizmo-egui = "0.3.0"
+transform-gizmo-bevy = "0.3.0"
+egui-toast = "0.14.0"
+image = {version = "0.25.1", feature = ["png"] }
 pretty-type-name = "1"
 rand = "*"
 ron = "0.8"
@@ -83,7 +84,7 @@ serde = "1"
 # Community Modules
 space_bevy_xpbd_plugin = { version = "0.6.0", path = "modules/bevy_xpbd_plugin"}
 game_app = { version = "0.1.0", path = "game" }
-bevy_xpbd_3d = { version = "0.4.2", default-features = false }
+avian3d = { version = "0.1.0", default-features = false }
 
 [dependencies]
 bevy.workspace = true
@@ -158,10 +159,6 @@ default = [
     "persistence_editor", 
     "space_prefab/editor", 
 ]
-
-[[example]]
-name = "platformer"
-required-features = ["bevy_xpbd_3d"]
 
 
 [[example]]
