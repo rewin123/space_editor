@@ -272,10 +272,13 @@ impl EditorTool for GizmoTool {
                 projection_matrix: proj_mat.into(),
                 view_matrix: view_matrix.into(),
                 modes: self.gizmo_mode.into(),
+                viewport: ui.clip_rect(),
                 ..Default::default()
             };
 
             self.gizmo.update_config(gizmo_config);
+
+            info!("{:?}", &mean_transform);
 
             if let Some((result, transforms)) = self.gizmo
                 .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
@@ -395,7 +398,6 @@ impl EditorTool for GizmoTool {
                 if let Some((result, transforms)) = self.gizmo
                     .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
-                    info!("interact");
                     if clone_pressed {
                         if self.is_move_cloned_entities {
                             *transform = gizmo_to_bevy_transform(&transforms[0]);
