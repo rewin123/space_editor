@@ -1,11 +1,9 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
-use transform_gizmo_egui::mint::RowMatrix4;
-use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
 use space_editor_core::prelude::*;
 use space_shared::*;
-
-
+use transform_gizmo_egui::mint::RowMatrix4;
+use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
 
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
@@ -65,7 +63,7 @@ impl Hotkey for GizmoHotkey {
 pub struct GizmoTool {
     pub gizmo_mode: EnumSet<GizmoMode>,
     pub is_move_cloned_entities: bool,
-    pub gizmo: Gizmo
+    pub gizmo: Gizmo,
 }
 
 impl Default for GizmoTool {
@@ -93,16 +91,20 @@ const MODE_TO_KEY: [(EnumSet<GizmoMode>, GizmoHotkey); 3] = [
 
 fn bevy_to_gizmo_transform(transform: &Transform) -> transform_gizmo_egui::math::Transform {
     transform_gizmo_egui::math::Transform {
-        scale: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(&transform.scale.as_dvec3().to_array()),
+        scale: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(
+            &transform.scale.as_dvec3().to_array(),
+        ),
         rotation: transform_gizmo_egui::mint::Quaternion::<f64> {
             v: transform_gizmo_egui::mint::Vector3::<f64> {
-                x : transform.rotation.x as f64,
-                y : transform.rotation.y as f64,
-                z : transform.rotation.z as f64,
+                x: transform.rotation.x as f64,
+                y: transform.rotation.y as f64,
+                z: transform.rotation.z as f64,
             },
             s: transform.rotation.w as f64,
         },
-        translation: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(&transform.translation.as_dvec3().to_array()),
+        translation: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(
+            &transform.translation.as_dvec3().to_array(),
+        ),
     }
 }
 
@@ -255,17 +257,33 @@ impl EditorTool for GizmoTool {
 
             let proj_mat = cam_proj.get_clip_from_view();
             let proj_mat = transform_gizmo_egui::math::DMat4 {
-                x_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.x_axis.as_dvec4().to_array()),
-                y_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.y_axis.as_dvec4().to_array()),
-                z_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.z_axis.as_dvec4().to_array()),
-                w_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.w_axis.as_dvec4().to_array()),
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.x_axis.as_dvec4().to_array(),
+                ),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.y_axis.as_dvec4().to_array(),
+                ),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.z_axis.as_dvec4().to_array(),
+                ),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.w_axis.as_dvec4().to_array(),
+                ),
             };
 
             let view_matrix = transform_gizmo_egui::math::DMat4 {
-                x_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.x_axis.as_dvec4().to_array()),
-                y_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.y_axis.as_dvec4().to_array()),
-                z_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.z_axis.as_dvec4().to_array()),
-                w_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.w_axis.as_dvec4().to_array()),
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.x_axis.as_dvec4().to_array(),
+                ),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.y_axis.as_dvec4().to_array(),
+                ),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.z_axis.as_dvec4().to_array(),
+                ),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.w_axis.as_dvec4().to_array(),
+                ),
             };
 
             let gizmo_config = transform_gizmo_egui::GizmoConfig {
@@ -280,7 +298,8 @@ impl EditorTool for GizmoTool {
 
             info!("{:?}", &mean_transform);
 
-            if let Some((result, transforms)) = self.gizmo
+            if let Some((result, transforms)) = self
+                .gizmo
                 .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
             {
                 gizmo_interacted = true;
@@ -340,17 +359,33 @@ impl EditorTool for GizmoTool {
 
                 let proj_mat = cam_proj.get_clip_from_view();
                 let proj_mat = transform_gizmo_egui::math::DMat4 {
-                    x_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.x_axis.as_dvec4().to_array()),
-                    y_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.y_axis.as_dvec4().to_array()),
-                    z_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.z_axis.as_dvec4().to_array()),
-                    w_axis: transform_gizmo_egui::math::DVec4::from_array(proj_mat.w_axis.as_dvec4().to_array()),
+                    x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        proj_mat.x_axis.as_dvec4().to_array(),
+                    ),
+                    y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        proj_mat.y_axis.as_dvec4().to_array(),
+                    ),
+                    z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        proj_mat.z_axis.as_dvec4().to_array(),
+                    ),
+                    w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        proj_mat.w_axis.as_dvec4().to_array(),
+                    ),
                 };
 
                 let view_matrix = transform_gizmo_egui::math::DMat4 {
-                    x_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.x_axis.as_dvec4().to_array()),
-                    y_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.y_axis.as_dvec4().to_array()),
-                    z_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.z_axis.as_dvec4().to_array()),
-                    w_axis: transform_gizmo_egui::math::DVec4::from_array(view_matrix.w_axis.as_dvec4().to_array()),
+                    x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        view_matrix.x_axis.as_dvec4().to_array(),
+                    ),
+                    y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        view_matrix.y_axis.as_dvec4().to_array(),
+                    ),
+                    z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        view_matrix.z_axis.as_dvec4().to_array(),
+                    ),
+                    w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                        view_matrix.w_axis.as_dvec4().to_array(),
+                    ),
                 };
 
                 let gizmo_config = transform_gizmo_egui::GizmoConfig {
@@ -366,19 +401,25 @@ impl EditorTool for GizmoTool {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
                                 if let Some((result, transforms)) = Gizmo::new(gizmo_config)
-                                    .interact(ui, &[bevy_to_gizmo_transform(&global.compute_transform())])
+                                    .interact(
+                                        ui,
+                                        &[bevy_to_gizmo_transform(&global.compute_transform())],
+                                    )
                                 {
                                     disable_pan_orbit = true;
                                     let new_transform = gizmo_to_bevy_transform(&transforms[0]);
 
                                     if clone_pressed {
                                         if self.is_move_cloned_entities {
-                                            let new_transform = GlobalTransform::from(new_transform);
+                                            let new_transform =
+                                                GlobalTransform::from(new_transform);
                                             *transform = new_transform.reparented_to(parent_global);
                                             transform.set_changed();
                                             disable_pan_orbit = true;
                                         } else {
-                                            unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
+                                            unsafe {
+                                                cell.world_mut().send_event(CloneEvent { id: *e })
+                                            };
                                             self.is_move_cloned_entities = true;
                                         }
                                     } else {
@@ -395,7 +436,8 @@ impl EditorTool for GizmoTool {
 
                 self.gizmo.update_config(gizmo_config);
 
-                if let Some((result, transforms)) = self.gizmo
+                if let Some((result, transforms)) = self
+                    .gizmo
                     .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
                     if clone_pressed {
@@ -440,7 +482,6 @@ trait ToButton {
 
 impl ToButton for EnumSet<GizmoMode> {
     fn to_button(&self, size: &Sizing) -> egui::Button {
-
         if *self == GizmoMode::all_translate() {
             return translate_icon(size.gizmos.to_size(), "");
         } else if *self == GizmoMode::all_scale() {

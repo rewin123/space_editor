@@ -299,7 +299,9 @@ mod tests {
         .add_systems(Update, prepare_children);
         app.update();
 
-        let mut query = app.world_mut().query_filtered::<Entity, With<ChildrenPrefab>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -320,7 +322,9 @@ mod tests {
         .add_systems(Update, delete_prepared_children);
         app.update();
 
-        let mut query = app.world_mut().query_filtered::<Entity, With<ChildrenPrefab>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -384,7 +388,9 @@ mod tests {
         .add_systems(Update, prepare_children);
         app.update();
 
-        let mut query = app.world_mut().query_filtered::<Entity, With<ChildrenPrefab>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ChildrenPrefab>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 }

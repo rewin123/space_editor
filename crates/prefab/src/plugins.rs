@@ -407,7 +407,9 @@ mod test {
 
         app.update();
 
-        let mut query = app.world_mut().query_filtered::<Entity, With<ViewVisibility>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 3);
 
         let mut query = app.world_mut().query::<&InheritedVisibility>();
@@ -433,7 +435,9 @@ mod test {
 
         app.update();
 
-        let mut query = app.world_mut().query_filtered::<Entity, With<ViewVisibility>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 

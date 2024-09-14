@@ -152,9 +152,8 @@ pub fn draw_camera_gizmo(
     >,
 ) {
     for (transform, _projection) in cameras.iter() {
-        
         let pink = Color::srgb(1.0, 0.41, 0.71);
-        
+
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
         gizmos.cuboid(cuboid_transform, pink);

@@ -1,4 +1,7 @@
-use avian3d::{math::{Quaternion, Vector}, spatial_query::{RayCaster, ShapeCaster}};
+use avian3d::{
+    math::{Quaternion, Vector},
+    spatial_query::{RayCaster, ShapeCaster},
+};
 use bevy::prelude::*;
 use space_editor_ui::{ext::bevy_inspector_egui::prelude::*, prelude::*};
 
@@ -30,10 +33,7 @@ impl Default for RayCasterPrefab {
 
 impl From<RayCasterPrefab> for RayCaster {
     fn from(val: RayCasterPrefab) -> Self {
-        Self::new(
-            val.origin,
-            Dir3::new_unchecked(val.direction.normalize()),
-        )
+        Self::new(val.origin, Dir3::new_unchecked(val.direction.normalize()))
     }
 }
 

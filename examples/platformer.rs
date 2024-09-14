@@ -1,3 +1,4 @@
+use avian3d::prelude::*;
 /// Simple platformer example
 /// Run command:
 /// cargo run --example platformer --features bevy_xpbd_3d
@@ -6,7 +7,6 @@ use bevy::{
     prelude::*,
 };
 use space_editor::prelude::*;
-use avian3d::prelude::*;
 
 fn main() {
     App::default()

@@ -1,6 +1,9 @@
 use anyhow::anyhow;
 use bevy::{
-    math::{primitives as math_shapes, Direction3d}, prelude::*, render::view::RenderLayers, utils::HashMap,
+    math::{primitives as math_shapes, Direction3d},
+    prelude::*,
+    render::view::RenderLayers,
+    utils::HashMap,
 };
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
@@ -477,8 +480,16 @@ pub fn draw_light_gizmo(
                                 * (transform.right().normalize() * angle_inner.cos()
                                     + transform.up().normalize() * angle_inner.sin());
 
-                        gizmos.line(transform.translation, outer_point, spot.color.with_alpha(1.0));
-                        gizmos.line(transform.translation, inner_point, spot.color.with_alpha(1.0));
+                        gizmos.line(
+                            transform.translation,
+                            outer_point,
+                            spot.color.with_alpha(1.0),
+                        );
+                        gizmos.line(
+                            transform.translation,
+                            inner_point,
+                            spot.color.with_alpha(1.0),
+                        );
                     }
                 }
                 (_, _, Some(point)) => {

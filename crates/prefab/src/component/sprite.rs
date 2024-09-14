@@ -157,7 +157,7 @@ impl TextureAtlasPrefab {
             Some(UVec2 {
                 x: self.offset.unwrap().x.round() as u32,
                 y: self.offset.unwrap().y.round() as u32,
-            })
+            }),
         );
         Some(texture_layout_assets.add(texture_layout))
     }

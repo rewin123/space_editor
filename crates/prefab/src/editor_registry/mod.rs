@@ -485,7 +485,11 @@ mod tests {
         }
 
         assert_eq!(
-            app.world_mut().entity(new_e_id).get::<Name>().unwrap().as_str(),
+            app.world_mut()
+                .entity(new_e_id)
+                .get::<Name>()
+                .unwrap()
+                .as_str(),
             name
         );
     }

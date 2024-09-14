@@ -265,7 +265,9 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        let mut query = app
+            .world_mut()
+            .query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -300,7 +302,9 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        let mut query = app
+            .world_mut()
+            .query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -338,7 +342,9 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        let mut query = app
+            .world_mut()
+            .query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
@@ -350,7 +356,9 @@ mod tests {
             .remove::<MeshPrimitive2dPrefab>();
 
         app.update();
-        let mut query = app.world_mut().query_filtered::<Entity, With<Mesh2dHandle>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<Mesh2dHandle>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -367,7 +375,9 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        let mut query = app
+            .world_mut()
+            .query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
@@ -379,7 +389,9 @@ mod tests {
             .remove::<MeshPrimitive3dPrefab>();
 
         app.update();
-        let mut query = app.world_mut().query_filtered::<Entity, With<Handle<Mesh>>>();
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<Handle<Mesh>>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -473,9 +485,11 @@ mod tests {
 
         app.update();
 
-        let mut parent_query = app
-            .world_mut()
-            .query_filtered::<Entity, (Without<WantChildPath>, Without<Parent>, With<Children>)>();
+        let mut parent_query = app.world_mut().query_filtered::<Entity, (
+            Without<WantChildPath>,
+            Without<Parent>,
+            With<Children>,
+        )>();
         assert_eq!(parent_query.iter(&app.world_mut()).count(), 1);
 
         let possibilities = vec![vec![0], vec![1], vec![0, 0], vec![1, 0], vec![]];

@@ -1,7 +1,7 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::egui::{self, RichText, Widget};
-use transform_gizmo_egui::GizmoMode;
 use space_undo::UndoRedo;
+use transform_gizmo_egui::GizmoMode;
 
 use space_shared::*;
 

@@ -96,7 +96,7 @@ impl ColliderPrimitive {
         match self {
             Self::Cuboid(bbox) => Collider::cuboid(bbox.x, bbox.y, bbox.z),
             Self::Capsule { height, radius } => Collider::capsule(*height, *radius),
-            Self::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*radius,*a, *b),
+            Self::CapsuleEndpoints { a, b, radius } => Collider::capsule_endpoints(*radius, *a, *b),
             Self::Cone { height, radius } => Collider::cone(*height, *radius),
             Self::Cylinder { height, radius } => Collider::cylinder(*height, *radius),
             Self::Halfspace { outward_normal } => Collider::half_space(*outward_normal),

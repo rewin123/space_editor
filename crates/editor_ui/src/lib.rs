@@ -106,7 +106,7 @@ use ui_registration::BundleReg;
 use camera_plugin::*;
 use ui_plugin::*;
 
-use self::{mouse_check::MouseCheck}; // , tools::gizmo::GizmoToolPlugin};
+use self::mouse_check::MouseCheck; // , tools::gizmo::GizmoToolPlugin};
 
 pub const MAX_RENDER_LAYERS: u8 = 32; // Or however many layers you need
 
@@ -122,8 +122,16 @@ pub const LAST_RENDER_LAYER: u8 = MAX_RENDER_LAYERS - 1;
 
 pub mod prelude {
     pub use super::{
-        asset_inspector::*, change_chain::*, debug_panels::*, game_view::*, hierarchy::*,
-        inspector::*, menu_toolbars::*, meshless_visualizer::*, settings::*, tool::*, //tools::*,
+        asset_inspector::*,
+        change_chain::*,
+        debug_panels::*,
+        game_view::*,
+        hierarchy::*,
+        inspector::*,
+        menu_toolbars::*,
+        meshless_visualizer::*,
+        settings::*,
+        tool::*, //tools::*,
         ui_registration::*,
     };
 

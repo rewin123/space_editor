@@ -32,21 +32,33 @@ fn test_undo() {
         .entity_mut(test_id)
         .insert(Name::default())
         .insert(UndoMarker);
-    app.world_mut().get_mut::<Name>(test_id).unwrap().set_changed();
+    app.world_mut()
+        .get_mut::<Name>(test_id)
+        .unwrap()
+        .set_changed();
     repeat_update(&mut app, 10);
     assert!(app.world_mut().get_entity(test_id).is_some());
 
     app.world_mut().get_mut::<Name>(test_id).unwrap().set("foo");
     repeat_update(&mut app, 10);
-    assert_eq!(app.world_mut().get::<Name>(test_id).unwrap().to_string(), "foo");
+    assert_eq!(
+        app.world_mut().get::<Name>(test_id).unwrap().to_string(),
+        "foo"
+    );
 
     app.world_mut().send_event(UndoRedo::Undo);
     repeat_update(&mut app, 2);
-    assert_eq!(app.world_mut().get::<Name>(test_id).unwrap().to_string(), "");
+    assert_eq!(
+        app.world_mut().get::<Name>(test_id).unwrap().to_string(),
+        ""
+    );
 
     app.world_mut().send_event(UndoRedo::Redo);
     repeat_update(&mut app, 4);
-    assert_eq!(app.world_mut().get::<Name>(test_id).unwrap().to_string(), "foo");
+    assert_eq!(
+        app.world_mut().get::<Name>(test_id).unwrap().to_string(),
+        "foo"
+    );
     app.world_mut().send_event(UndoRedo::Undo);
     repeat_update(&mut app, 2);
 
@@ -90,14 +102,20 @@ fn test_reflected_undo() {
     repeat_update(&mut app, 10);
     assert!(app.world_mut().get_entity(test_id).is_some());
 
-    app.world_mut().get_mut::<Transform>(test_id).unwrap().translation = Vec3::X;
+    app.world_mut()
+        .get_mut::<Transform>(test_id)
+        .unwrap()
+        .translation = Vec3::X;
     app.world_mut()
         .get_mut::<Transform>(test_id)
         .unwrap()
         .set_changed();
     repeat_update(&mut app, 10);
     assert_eq!(
-        app.world_mut().get::<Transform>(test_id).unwrap().translation,
+        app.world_mut()
+            .get::<Transform>(test_id)
+            .unwrap()
+            .translation,
         Vec3::X
     );
     assert_eq!(app.world_mut().resource::<ChangeChain>().changes.len(), 3);
@@ -105,14 +123,20 @@ fn test_reflected_undo() {
     app.world_mut().send_event(UndoRedo::Undo);
     repeat_update(&mut app, 2);
     assert_eq!(
-        app.world_mut().get::<Transform>(test_id).unwrap().translation,
+        app.world_mut()
+            .get::<Transform>(test_id)
+            .unwrap()
+            .translation,
         Vec3::ZERO
     );
 
     app.world_mut().send_event(UndoRedo::Redo);
     repeat_update(&mut app, 4);
     assert_eq!(
-        app.world_mut().get::<Transform>(test_id).unwrap().translation,
+        app.world_mut()
+            .get::<Transform>(test_id)
+            .unwrap()
+            .translation,
         Vec3::X
     );
     app.world_mut().send_event(UndoRedo::Undo);
@@ -190,7 +214,10 @@ fn test_redo() {
         .entity_mut(test_id)
         .insert(Name::default())
         .insert(UndoMarker);
-    app.world_mut().get_mut::<Name>(test_id).unwrap().set_changed();
+    app.world_mut()
+        .get_mut::<Name>(test_id)
+        .unwrap()
+        .set_changed();
     repeat_update(&mut app, 10);
     assert!(app.world_mut().get_entity(test_id).is_some());
 

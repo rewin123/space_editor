@@ -1,7 +1,7 @@
+use crate::tools::gizmo::*;
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 use meshless_visualizer::draw_light_gizmo;
-use crate::tools::gizmo::*;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
 
@@ -98,7 +98,6 @@ impl Default for EditorUiCore {
 #[derive(ScheduleLabel, Debug, Hash, PartialEq, Eq, Clone)]
 struct AfterStateTransition;
 
-
 impl Plugin for EditorUiCore {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
@@ -162,10 +161,7 @@ impl Plugin for EditorUiCore {
             .resource_mut::<MainScheduleOrder>()
             .insert_after(StateTransition, AfterStateTransition);
 
-        app.add_systems(
-            Startup,
-            (set_start_state, apply_deferred).chain(),
-        );
+        app.add_systems(Startup, (set_start_state, apply_deferred).chain());
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);

@@ -127,10 +127,7 @@ fn clear_toasts(mut events: EventReader<ClearToastMessage>, mut storage: ResMut<
     events.clear();
 }
 
-fn show_toast(
-    mut storage: ResMut<ToastStorage>,
-    mut ctxs: EguiContexts,
-) {
+fn show_toast(mut storage: ResMut<ToastStorage>, mut ctxs: EguiContexts) {
     storage.toasts.show(ctxs.ctx_mut());
 }
 
