@@ -2,7 +2,6 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use space_editor_core::prelude::*;
 use space_shared::*;
-use transform_gizmo_egui::mint::RowMatrix4;
 use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
 
 use crate::EditorGizmo;

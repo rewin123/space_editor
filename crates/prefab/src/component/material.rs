@@ -34,7 +34,7 @@ pub struct MaterialPrefab {
 impl Default for MaterialPrefab {
     fn default() -> Self {
         Self {
-            base_color: Color::rgb(1.0, 1.0, 1.0),
+            base_color: Color::linear_rgb(1.0, 1.0, 1.0),
             base_color_texture: String::default(),
             emissive: Color::BLACK,
             emissive_texture: String::default(),
@@ -110,7 +110,7 @@ pub struct ColorMaterialPrefab {
 impl Default for ColorMaterialPrefab {
     fn default() -> Self {
         Self {
-            color: Color::rgb(1.0, 1.0, 1.0),
+            color: Color::linear_rgb(1.0, 1.0, 1.0),
             texture: String::default(),
         }
     }
@@ -201,7 +201,7 @@ mod tests {
         let color = prefab.to_material(server);
 
         assert!(color.texture.is_some());
-        assert_eq!(color.color, Color::rgb(1.0, 1.0, 1.0));
+        assert_eq!(color.color, Color::linear_rgb(1.0, 1.0, 1.0));
     }
 
     #[test]
@@ -242,7 +242,7 @@ mod tests {
             |server: Res<AssetServer>, query: Query<&MaterialPrefab>| {
                 let material = query.single();
                 let material = material.to_material(&server);
-                assert_eq!(material.base_color, Color::rgb(1.0, 1.0, 1.0));
+                assert_eq!(material.base_color, Color::linear_rgb(1.0, 1.0, 1.0));
                 assert_eq!(material.emissive, Color::BLACK.into());
                 assert_eq!(material.emissive_texture, None);
                 assert_eq!(material.alpha_mode, AlphaMode::Opaque);

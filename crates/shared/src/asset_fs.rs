@@ -1,6 +1,5 @@
 use anyhow::Result;
 use bevy::prelude::*;
-use image::DynamicImage;
 
 use crate::gizmos::{
     CAMERA_GIZMO, DIRECTION_LIGHT_GIZMO, POINT_LIGHT_GIZMO, SPOT_LIGHT_GIZMO, UNKNOWN,

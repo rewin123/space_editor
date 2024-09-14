@@ -306,7 +306,7 @@ impl EditorTab for InspectorTab {
         egui::Window::new("Add component")
             .open(&mut state.show_add_component_window)
             .resizable(true)
-            .scroll2([false, true])
+            .scroll([false, true])
             .default_width(120.)
             .default_height(300.)
             .default_pos(components_area.inner_rect.center_bottom())
