@@ -686,11 +686,12 @@ pub trait AppAutoUndo {
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
-        if !self.world.contains_resource::<ChangeChain>() {
+        if !self.world_mut().contains_resource::<ChangeChain>() {
             return self;
         }
 
-        self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.world_mut()
+            .insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 
         self.add_systems(
@@ -711,11 +712,12 @@ impl AppAutoUndo for App {
     }
 
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
-        if !self.world.contains_resource::<ChangeChain>() {
+        if !self.world_mut().contains_resource::<ChangeChain>() {
             return self;
         }
 
-        self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.world_mut()
+            .insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 
         self.add_systems(

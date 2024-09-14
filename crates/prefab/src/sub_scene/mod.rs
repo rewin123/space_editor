@@ -1,8 +1,8 @@
 use std::any::TypeId;
 
 use bevy::{
-    ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, scene::serde::SceneDeserializer,
-    utils::HashSet,
+    ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, reflect::TypeRegistryArc,
+    scene::serde::SceneDeserializer, utils::HashSet,
 };
 use serde::de::DeserializeSeed;
 #[cfg(feature = "editor")]
@@ -101,10 +101,13 @@ pub fn prepare_auto_scene(world: &mut World) {
             dyn_scene = recursive_extract(&cell, dyn_scene, *root_entity);
 
             let scene = dyn_scene.build();
-            let Some(app_registry) = cell.world().get_resource::<AppTypeRegistry>() else {
-                continue;
-            };
-            let data = scene.serialize_ron(app_registry);
+            //let Some(app_registry) = cell.world().get_resource::<AppTypeRegistry>() else {
+            //    continue;
+            //};
+
+            let type_registry_arc: &TypeRegistryArc = &**cell.world().resource::<AppTypeRegistry>();
+            let type_registry = type_registry_arc.read();
+            let data = scene.serialize(&type_registry);
 
             if let Ok(data) = data {
                 info!("serialized sub scene: {:?}", data);
@@ -284,9 +287,9 @@ mod tests {
         app.update();
         app.update();
 
-        let mut query = app.world.query::<&CollapsedSubScene>();
+        let mut query = app.world_mut().query::<&CollapsedSubScene>();
 
-        assert_eq!(query.iter(&app.world).count(), 0);
+        assert_eq!(query.iter(&app.world()).count(), 0);
     }
 
     #[test]
@@ -313,7 +316,7 @@ mod tests {
         app.add_systems(Update, decompress_scene);
         app.update();
 
-        let events = app.world.resource::<Events<ToastMessage>>();
+        let events = app.world().resource::<Events<ToastMessage>>();
 
         let mut iter = events.get_reader();
         let iter = iter.read(events);

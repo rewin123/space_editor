@@ -152,9 +152,11 @@ pub fn draw_camera_gizmo(
     >,
 ) {
     for (transform, _projection) in cameras.iter() {
+        let pink = Color::srgb(1.0, 0.41, 0.71);
+
         let transform = transform.compute_transform();
         let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
-        gizmos.cuboid(cuboid_transform, Color::PINK);
+        gizmos.cuboid(cuboid_transform, pink);
 
         let scale = 1.5;
 
@@ -164,26 +166,26 @@ pub fn draw_camera_gizmo(
                 + transform.forward() * scale
                 + transform.up() * scale
                 + transform.right() * scale,
-            Color::PINK,
+            pink,
         );
         gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale - transform.up() * scale
                 + transform.right() * scale,
-            Color::PINK,
+            pink,
         );
         gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale + transform.up() * scale
                 - transform.right() * scale,
-            Color::PINK,
+            pink,
         );
         gizmos.line(
             transform.translation,
             transform.translation + transform.forward() * scale
                 - transform.up() * scale
                 - transform.right() * scale,
-            Color::PINK,
+            pink,
         );
 
         let rect_transform = Transform::from_xyz(0.0, 0.0, -scale);
@@ -193,7 +195,7 @@ pub fn draw_camera_gizmo(
             rect_transform.translation,
             rect_transform.rotation,
             Vec2::splat(scale * 2.0),
-            Color::PINK,
+            pink,
         );
     }
 }

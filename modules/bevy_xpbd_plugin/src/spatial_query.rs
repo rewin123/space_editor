@@ -1,6 +1,8 @@
+use avian3d::{
+    math::{Quaternion, Vector},
+    spatial_query::{RayCaster, ShapeCaster},
+};
 use bevy::prelude::*;
-use bevy_xpbd_3d::math::Vector;
-use bevy_xpbd_3d::{math::Quaternion, prelude::*};
 use space_editor_ui::{ext::bevy_inspector_egui::prelude::*, prelude::*};
 
 use crate::collider::ColliderPrimitive;
@@ -31,10 +33,7 @@ impl Default for RayCasterPrefab {
 
 impl From<RayCasterPrefab> for RayCaster {
     fn from(val: RayCasterPrefab) -> Self {
-        Self::new(
-            val.origin,
-            Direction3d::new_unchecked(val.direction.normalize()),
-        )
+        Self::new(val.origin, Dir3::new_unchecked(val.direction.normalize()))
     }
 }
 
@@ -54,7 +53,7 @@ impl From<ShapeCasterPrefab> for ShapeCaster {
             val.shape.to_collider(),
             val.origin,
             val.shape_rotation,
-            Direction3d::new_unchecked(val.direction.normalize()),
+            Dir3::new_unchecked(val.direction.normalize()),
         )
         .with_ignore_origin_penetration(true)
     }

@@ -166,11 +166,13 @@ mod test {
         app.update();
 
         let mut query = app
-            .world
+            .world_mut()
             .query_filtered::<Entity, (With<PrefabAutoChild>, With<PrefabMarker>)>();
-        assert_eq!(query.iter(&app.world).count(), 0);
+        assert_eq!(query.iter(&app.world()).count(), 0);
 
-        let mut query = app.world.query_filtered::<Entity, With<PrefabAutoChild>>();
-        assert_eq!(query.iter(&app.world).count(), 2);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<PrefabAutoChild>>();
+        assert_eq!(query.iter(&app.world()).count(), 2);
     }
 }

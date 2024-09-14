@@ -15,9 +15,8 @@ publish = false
 ### BEGIN HAKARI SECTION
 [dependencies]
 ahash = { version = "0.8", features = ["no-rng", "serde"] }
-bevy = { version = "0.13", features = ["wayland"] }
-bevy_internal = { version = "0.13", default-features = false, features = ["android_shared_stdcxx", "animation", "bevy_asset", "bevy_debug_stepping", "bevy_gilrs", "bevy_gizmos", "bevy_gltf", "bevy_pbr", "bevy_scene", "bevy_sprite", "bevy_text", "bevy_ui", "default_font", "hdr", "ktx2", "multi-threaded", "png", "tonemapping_luts", "vorbis", "wayland", "webgl", "x11", "zstd"] }
-bevy_winit = { version = "0.13", default-features = false, features = ["wayland", "x11"] }
+bevy = { version = "0.14", features = ["wayland"] }
+bevy_winit = { version = "0.14", default-features = false, features = ["wayland", "x11"] }
 bytemuck = { version = "1", default-features = false, features = ["aarch64_simd", "derive", "extern_crate_alloc"] }
 crossbeam-utils = { version = "0.8" }
 ecolor = { version = "0.27", default-features = false, features = ["bytemuck", "serde"] }

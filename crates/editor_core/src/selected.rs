@@ -73,7 +73,7 @@ fn selected_entity_wireframe_update(
         cmds.entity(e).insert(OutlineBundle {
             outline: OutlineVolume {
                 visible: true,
-                colour: Color::YELLOW,
+                colour: Color::srgb(1.0, 1.0, 0.0),
                 width: 2.0,
             },
             mode: bevy_mod_outline::OutlineMode::RealVertex,

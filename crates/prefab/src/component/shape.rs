@@ -337,7 +337,7 @@ impl PlanePrefab {
 #[derive(Reflect, Clone)]
 #[reflect(Default)]
 pub struct Plane3dPrefab {
-    pub normal: Direction3d,
+    pub normal: Dir3,
     pub transform: Vec3,
 }
 
@@ -355,6 +355,7 @@ impl Plane3dPrefab {
     pub fn to_mesh(&self) -> Mesh {
         let data = math_shapes::Plane3d {
             normal: self.normal,
+            half_size: Vec2 { x: 0.5, y: 0.5 },
         };
         Mesh::from(data)
     }
@@ -362,6 +363,7 @@ impl Plane3dPrefab {
     pub const fn to_plane3d(&self) -> Plane3d {
         math_shapes::Plane3d {
             normal: self.normal,
+            half_size: Vec2 { x: 0.5, y: 0.5 },
         }
     }
 }
@@ -549,14 +551,20 @@ mod tests {
     #[test]
     fn plane_3d_prefab_to_plane3d() {
         let prefab = Plane3dPrefab::default();
-        let plane3d = math_shapes::Plane3d::new(Vec3::Y);
+        let plane3d = math_shapes::Plane3d {
+            normal: Dir3::try_from(Vec3::Y).unwrap(),
+            half_size: Vec2 { x: 0.5, y: 0.5 },
+        };
         assert_eq!(prefab.to_plane3d(), plane3d);
     }
 
     #[test]
     fn plane_multipoint_prefab_to_plane3d() {
         let prefab = PlaneMultiPointPrefab::default();
-        let plane3d = math_shapes::Plane3d::new(Vec3::Y);
+        let plane3d = math_shapes::Plane3d {
+            normal: Dir3::try_from(Vec3::Y).unwrap(),
+            half_size: Vec2 { x: 0.5, y: 0.5 },
+        };
         assert_eq!(prefab.to_plane3d(), plane3d);
     }
 }
