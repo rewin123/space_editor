@@ -3,6 +3,7 @@ use bevy_egui::egui::{self, Key};
 use egui_gizmo::GizmoMode;
 use space_editor_core::prelude::*;
 use space_shared::*;
+use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
 
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
@@ -221,12 +222,52 @@ impl EditorTool for GizmoTool {
 
             let mut gizmo_interacted = false;
 
-            if let Some(result) = egui_gizmo::Gizmo::new("Selected gizmo mean global".to_string())
-                .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
-                .view_matrix(view_matrix.to_cols_array_2d().into())
-                .model_matrix(mean_transform.compute_matrix().to_cols_array_2d().into())
-                .mode(self.gizmo_mode)
-                .interact(ui)
+            let proj_mat = cam_proj.get_clip_from_view();
+            let proj_mat = transform_gizmo_egui::math::DMat4 {
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.x_axis.as_dvec4().to_array(),
+                ),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.y_axis.as_dvec4().to_array(),
+                ),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.z_axis.as_dvec4().to_array(),
+                ),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    proj_mat.w_axis.as_dvec4().to_array(),
+                ),
+            };
+
+            let view_matrix = transform_gizmo_egui::math::DMat4 {
+                x_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.x_axis.as_dvec4().to_array(),
+                ),
+                y_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.y_axis.as_dvec4().to_array(),
+                ),
+                z_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.z_axis.as_dvec4().to_array(),
+                ),
+                w_axis: transform_gizmo_egui::math::DVec4::from_array(
+                    view_matrix.w_axis.as_dvec4().to_array(),
+                ),
+            };
+
+            let gizmo_config = transform_gizmo_egui::GizmoConfig {
+                projection_matrix: proj_mat.into(),
+                view_matrix: view_matrix.into(),
+                modes: self.gizmo_mode.into(),
+                viewport: ui.clip_rect(),
+                ..Default::default()
+            };
+
+            self.gizmo.update_config(gizmo_config);
+
+            info!("{:?}", &mean_transform);
+
+            if let Some((_, transforms)) = self
+                .gizmo
+                .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
             {
                 gizmo_interacted = true;
                 mean_transform = Transform {
@@ -290,20 +331,11 @@ impl EditorTool for GizmoTool {
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                if let Some(result) =
-                                    egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                                        .projection_matrix(
-                                            cam_proj
-                                                .get_projection_matrix()
-                                                .to_cols_array_2d()
-                                                .into(),
-                                        )
-                                        .view_matrix(view_matrix.to_cols_array_2d().into())
-                                        .model_matrix(
-                                            global.compute_matrix().to_cols_array_2d().into(),
-                                        )
-                                        .mode(self.gizmo_mode)
-                                        .interact(ui)
+                                if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                                    .interact(
+                                        ui,
+                                        &[bevy_to_gizmo_transform(&global.compute_transform())],
+                                    )
                                 {
                                     disable_pan_orbit = true;
                                     let new_transform = Transform {
@@ -340,12 +372,12 @@ impl EditorTool for GizmoTool {
                         }
                     }
                 }
-                if let Some(result) = egui_gizmo::Gizmo::new(format!("Selected gizmo {:?}", *e))
-                    .projection_matrix(cam_proj.get_projection_matrix().to_cols_array_2d().into())
-                    .view_matrix(view_matrix.to_cols_array_2d().into())
-                    .model_matrix(transform.compute_matrix().to_cols_array_2d().into())
-                    .mode(self.gizmo_mode)
-                    .interact(ui)
+
+                self.gizmo.update_config(gizmo_config);
+
+                if let Some((_, transforms)) = self
+                    .gizmo
+                    .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
                     if clone_pressed {
                         if self.is_move_cloned_entities {

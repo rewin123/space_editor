@@ -120,7 +120,7 @@ fn in_game_menu(
                 ui.add_space(60.);
                 if egui::DragValue::new(&mut frame_speed_mult.ratio)
                     .suffix(" x")
-                    .clamp_range((0.)..=5.)
+                    .range((0.)..=5.)
                     .speed(1. / 60.)
                     .fixed_decimals(2)
                     .ui(ui)

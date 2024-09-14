@@ -61,7 +61,7 @@ pub mod sizing;
 
 pub mod icons;
 
-use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid, DEFAULT_GRID_ALPHA};
+use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 use bevy_mod_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -348,9 +348,9 @@ pub fn simple_editor_setup(mut commands: Commands) {
         },
         // Darker grid to make it easier to see entity gizmos when Transform (0, 0, 0)
         GridAxis {
-            x: Some(Color::rgb(0.9, 0.1, 0.1)),
-            y: Some(Color::rgb(0.1, 0.9, 0.1)),
-            z: Some(Color::rgb(0.1, 0.1, 0.9)),
+            x: Some(Color::linear_rgb(0.9, 0.1, 0.1)),
+            y: Some(Color::linear_rgb(0.1, 0.9, 0.1)),
+            z: Some(Color::linear_rgb(0.1, 0.1, 0.9)),
         },
         TrackedGrid::default(),
         TransformBundle::default(),

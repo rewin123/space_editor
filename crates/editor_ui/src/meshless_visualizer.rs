@@ -1,6 +1,9 @@
 use anyhow::anyhow;
 use bevy::{
-    math::primitives as math_shapes, prelude::*, render::view::RenderLayers, utils::HashMap,
+    math::primitives as math_shapes,
+    prelude::*,
+    render::view::RenderLayers,
+    utils::HashMap,
 };
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
@@ -448,13 +451,13 @@ pub fn draw_light_gizmo(
                     // circle at the end of the light range at both angles
                     gizmos.circle(
                         transform.translation + range,
-                        Direction3d::new_unchecked(transform.back().normalize()),
+                        Dir3::new_unchecked(transform.back().normalize()),
                         outer_rad,
                         spot.color.with_a(1.0),
                     );
                     gizmos.circle(
                         transform.translation + range,
-                        Direction3d::new_unchecked(transform.back().normalize()),
+                        Dir3::new_unchecked(transform.back().normalize()),
                         inner_rad,
                         spot.color.with_a(1.0),
                     );
