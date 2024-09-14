@@ -65,6 +65,7 @@ impl Hotkey for GizmoHotkey {
 pub struct GizmoTool {
     pub gizmo_mode: EnumSet<GizmoMode>,
     pub is_move_cloned_entities: bool,
+    pub gizmo: Gizmo
 }
 
 impl Default for GizmoTool {
@@ -72,6 +73,7 @@ impl Default for GizmoTool {
         Self {
             gizmo_mode: GizmoMode::all_translate(),
             is_move_cloned_entities: false,
+            gizmo: Gizmo::default(),
         }
     }
 }
@@ -273,7 +275,9 @@ impl EditorTool for GizmoTool {
                 ..Default::default()
             };
 
-            if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+            self.gizmo.update_config(gizmo_config);
+
+            if let Some((result, transforms)) = self.gizmo
                 .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
             {
                 gizmo_interacted = true;
@@ -386,9 +390,12 @@ impl EditorTool for GizmoTool {
                     }
                 }
 
-                if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                self.gizmo.update_config(gizmo_config);
+
+                if let Some((result, transforms)) = self.gizmo
                     .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
+                    info!("interact");
                     if clone_pressed {
                         if self.is_move_cloned_entities {
                             *transform = gizmo_to_bevy_transform(&transforms[0]);
