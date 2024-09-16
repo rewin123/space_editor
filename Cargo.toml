@@ -17,7 +17,6 @@ default-run = "space_editor"
 members = [
     "game",
     "crates/*",
-    "modules/bevy_xpbd_plugin", 
     "external/editor_as_plugin", 
     "workspace-hakari"
 ]
@@ -27,7 +26,6 @@ resolver = "2"
 [[bin]]
 name = "game_app"
 path = "game/src/main.rs"
-required-features = ["bevy_xpbd_3d"]
 
 [[bin]]
 name = "plugin_test"
@@ -82,9 +80,7 @@ ron = "0.8"
 serde = "1"
 
 # Community Modules
-space_bevy_xpbd_plugin = { version = "0.6.0", path = "modules/bevy_xpbd_plugin"}
 game_app = { version = "0.1.0", path = "game" }
-avian3d = { version = "0.1.0", default-features = false }
 
 [dependencies]
 bevy.workspace = true
@@ -93,7 +89,6 @@ space_prefab.workspace = true
 game_app.workspace = true
 
 # Modules for external crates
-space_bevy_xpbd_plugin = { workspace = true, optional = true }
 workspace-hakari = { version = "0.1", path = "workspace-hakari" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -104,6 +99,7 @@ backtrace-on-stack-overflow = {version = "0.3", optional = true}
 future-incompatible = "warn"
 nonstandard_style = "deny"
 non_local_definitions = { level = "allow", priority = 2 }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tarpaulin_include)'] }
 
 [workspace.lints.clippy]
 nursery = { level = "deny", priority = -1 }
@@ -125,6 +121,7 @@ too_many_arguments = { level = "allow", priority = 2 }
 
 [lints]
 workspace = true
+
 
 [profile.dev]
 opt-level = 1
@@ -151,16 +148,9 @@ lto = "thin"
 
 [features]
 backtrace = ["backtrace-on-stack-overflow"]
-bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
 default = [
-    "bevy_xpbd_3d", 
     "persistence_editor", 
     "space_prefab/editor", 
 ]
-
-
-[[example]]
-name = "spawn_prefab_with_physics"
-required-features = ["bevy_xpbd_3d"]

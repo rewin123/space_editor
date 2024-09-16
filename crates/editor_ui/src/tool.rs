@@ -11,8 +11,6 @@ pub trait EditorTool {
 pub enum ToolName {
     #[default]
     Gizmo,
-    #[cfg(feature = "floor_plan")]
-    FloorMap,
     Other(String),
 }
 
@@ -20,8 +18,6 @@ impl ToolName {
     pub fn as_str(&self) -> &str {
         match self {
             Self::Gizmo => "gizmo",
-            #[cfg(feature = "floor_plan")]
-            Self::FloorMap => "floor map",
             Self::Other(name) => name,
         }
     }

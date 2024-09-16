@@ -222,7 +222,7 @@ mod tests {
         let color = prefab.to_material(server);
 
         assert!(color.texture.is_none());
-        assert_eq!(color.color, Color::rgb(1.0, 1.0, 1.0));
+        assert_eq!(color.color, Color::linear_rgb(1.0, 1.0, 1.0));
     }
 
     #[test]

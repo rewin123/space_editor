@@ -1,5 +1,5 @@
-use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::{EguiContext, EguiContexts};
+use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 use egui_dock::egui::{self, Align2};
 use space_shared::toast::ToastMessage;
 

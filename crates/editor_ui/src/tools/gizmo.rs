@@ -297,7 +297,7 @@ impl EditorTool for GizmoTool {
 
             info!("{:?}", &mean_transform);
 
-            if let Some((result, transforms)) = self
+            if let Some((_, transforms)) = self
                 .gizmo
                 .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
             {
@@ -399,7 +399,7 @@ impl EditorTool for GizmoTool {
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                if let Some((result, transforms)) = Gizmo::new(gizmo_config)
+                                if let Some((_, transforms)) = Gizmo::new(gizmo_config)
                                     .interact(
                                         ui,
                                         &[bevy_to_gizmo_transform(&global.compute_transform())],
@@ -435,7 +435,7 @@ impl EditorTool for GizmoTool {
 
                 self.gizmo.update_config(gizmo_config);
 
-                if let Some((result, transforms)) = self
+                if let Some((_, transforms)) = self
                     .gizmo
                     .interact(ui, &[bevy_to_gizmo_transform(&transform)])
                 {
