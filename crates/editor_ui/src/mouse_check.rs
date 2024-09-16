@@ -51,7 +51,7 @@ pub fn update_mouse_context(
 ) {
     if let Some(window_id) = pointer_ctx.primary_window {
         pointer_ctx.pointer_is_valid = !egui_ctxs
-            .ctx_for_window_mut(window_id)
+            .ctx_for_entity_mut(window_id)
             .wants_pointer_input();
     }
 }
