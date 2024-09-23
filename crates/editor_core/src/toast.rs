@@ -1,5 +1,5 @@
-use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::EguiContext;
+use bevy::prelude::*;
+use bevy_egui::EguiContexts;
 use egui_dock::egui::{self, Align2};
 use space_shared::toast::ToastMessage;
 
@@ -9,7 +9,7 @@ pub struct ToastUiPlugin;
 impl Plugin for ToastUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(ToastBasePlugin)
-            .add_systems(PostUpdate, show_toast);
+            .add_systems(Update, show_toast);
     }
 }
 
@@ -127,14 +127,8 @@ fn clear_toasts(mut events: EventReader<ClearToastMessage>, mut storage: ResMut<
     events.clear();
 }
 
-fn show_toast(
-    mut storage: ResMut<ToastStorage>,
-    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
-) {
-    let Ok(mut ctx) = ctxs.get_single_mut() else {
-        return;
-    };
-    storage.toasts.show(ctx.get_mut());
+fn show_toast(mut storage: ResMut<ToastStorage>, mut ctxs: EguiContexts) {
+    storage.toasts.show(ctxs.ctx_mut());
 }
 
 #[cfg(test)]
@@ -148,26 +142,26 @@ mod tests {
 
         app.update();
         assert!(!app
-            .world
+            .world()
             .get_resource::<ToastStorage>()
             .unwrap()
             .has_toasts());
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
         app.update();
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
         app.update();
 
-        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        let storage: &ToastStorage = app.world().get_resource::<ToastStorage>().unwrap();
         assert_eq!(storage.toasts_per_kind.error.len(), 3);
         assert_eq!(storage.toasts_per_kind.warning.len(), 3);
         assert!(storage.has_toasts());
@@ -180,30 +174,30 @@ mod tests {
 
         app.update();
         assert!(!app
-            .world
+            .world()
             .get_resource::<ToastStorage>()
             .unwrap()
             .has_toasts());
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
         app.update();
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.update();
-
-        app.world.send_event(ClearToastMessage::error(1));
-        app.world.send_event(ClearToastMessage::warn(1));
         app.update();
 
-        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        app.world_mut().send_event(ClearToastMessage::error(1));
+        app.world_mut().send_event(ClearToastMessage::warn(1));
+        app.update();
+
+        let storage: &ToastStorage = app.world().get_resource::<ToastStorage>().unwrap();
         assert_eq!(storage.toasts_per_kind.error.len(), 2);
         assert_eq!(storage.toasts_per_kind.warning.len(), 2);
     }
@@ -215,29 +209,29 @@ mod tests {
 
         app.update();
         assert!(!app
-            .world
+            .world()
             .get_resource::<ToastStorage>()
             .unwrap()
             .has_toasts());
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Error));
         app.update();
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Warning));
-        app.update();
-
-        app.world.send_event(ClearToastMessage::all());
         app.update();
 
-        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        app.world_mut().send_event(ClearToastMessage::all());
+        app.update();
+
+        let storage: &ToastStorage = app.world().get_resource::<ToastStorage>().unwrap();
         assert!(!storage.has_toasts());
     }
 
@@ -248,15 +242,15 @@ mod tests {
 
         app.update();
         assert!(!app
-            .world
+            .world()
             .get_resource::<ToastStorage>()
             .unwrap()
             .has_toasts());
-        app.world
+        app.world_mut()
             .send_event(ToastMessage::new("Test message", ToastKind::Info));
         app.update();
 
-        let storage: &ToastStorage = app.world.get_resource::<ToastStorage>().unwrap();
+        let storage: &ToastStorage = app.world().get_resource::<ToastStorage>().unwrap();
         assert!(!storage.has_toasts());
     }
 }

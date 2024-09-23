@@ -3,6 +3,7 @@ use bevy::{asset::LoadState, prelude::*};
 pub struct BackgroundTaskStoragePlugin;
 
 impl Plugin for BackgroundTaskStoragePlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<BackgroundTaskStorage>();
 
@@ -28,7 +29,7 @@ fn update_storage(mut storage: ResMut<BackgroundTaskStorage>, assets: Res<AssetS
                 let load_state = assets.get_load_state(handle.id());
                 if load_state == Some(LoadState::Loaded)
                     || load_state.is_none()
-                    || load_state == Some(LoadState::Failed)
+                    || matches!(load_state, Some(LoadState::Failed(_)))
                 {
                     need_remove_task = true;
                 }
@@ -63,9 +64,15 @@ mod tests {
             ))
             .add_systems(Update, update_storage);
 
-        assert_eq!(app.world.resource::<BackgroundTaskStorage>().tasks.len(), 1);
+        assert_eq!(
+            app.world().resource::<BackgroundTaskStorage>().tasks.len(),
+            1
+        );
         app.update();
 
-        assert_eq!(app.world.resource::<BackgroundTaskStorage>().tasks.len(), 0);
+        assert_eq!(
+            app.world().resource::<BackgroundTaskStorage>().tasks.len(),
+            0
+        );
     }
 }

@@ -39,7 +39,31 @@ To run the editor, use the following command:
 To run platformer example, use the following command:
 > cargo run run --example platformer --features bevy_xpbd_3d
 
-## Usage - Game
+## Usage
+
+Space editor comes with 2 binaries:
+
+1. `space_editor`, the default application, which can be executed with `cargo run -r`. This is the game editor for bevy engine.
+2. `game_app`, a simple game that can be used to generate your own game application. This can be executed with `cargo run -r --bin game_app`. All the logic for this is located in folder `game/`.
+
+> Add all your game logic to the game folder `lib.rs`, under `GamePlugin` plugin to have it reflected in **space_editor**.
+
+### Forking strategy
+
+To allow users to get latest updates from `space_editor`, the suggested workflow is:
+1. Fork the project.
+2. Rename `game_app` to your projects name and configure `space_editor` as you prefer.
+3. Create a branch for `space_editor`'s downstream.
+4. Regularly sync the changes from your desired `space_editor` branch.
+5. Sync your downstream branch with your local main branch.
+6. Code your game in `game/` folder.
+7. Store your assets in the `assets` folder.
+
+### Upstream to `space_editor`
+
+If you have made some nice new feature, fixed a bug on space editor or any other contribution that you feel might be relevant, all PRs are welcomed!
+
+## Usage - As Game Plugin
 
 The following explains how to integrate `space_editor` as a game plugin to use the created prefabs in your game.
 
@@ -48,10 +72,6 @@ The following explains how to integrate `space_editor` as a game plugin to use t
 Add this line to your Cargo.toml file
 ```toml
 space_editor = {git = "https://github.com/rewin123/space_editor.git"}
-
-# For now it is recomendended to use the following patches of the libraries we are using
-[patch.crates-io]
-bevy-inspector-egui ={ git = "https://github.com/naomijub/bevy-inspector-egui.git" }
 ```
 
 ### Prefab spawn system
@@ -64,34 +84,11 @@ App::default()
 
 For spawning, use the PrefabBundle:
 ```rs
- commands.spawn(PrefabBundle::new("tile.scn.ron"))
+ commands.spawn(PrefabBundle::new("cube.scn.ron"))
         .insert(Name::new("Prefab"));
 ```
 
 (More code at examples/spawn_prefab.rs)
-
-
-## Usage - Editor
-The editor is a ready to use executable that can be used and altered at your own necessity. It's base configuration is as follows, with `simple_editor_setup`:
-
-```rs
-fn main() {
-    App::default()
-        .add_plugins(DefaultPlugins)
-        .add_plugins(SpaceEditorPlugin)
-        .add_systems(Startup, simple_editor_setup)
-        .run();
-}
-```
-
-(Code from main.rs)
-
-### Editor usage strategy
-
-* Fork this repo.
-* Create a branch to keep up to date with project updates and addressed bugs.
-* Editor is executed with `editor` feature.
-* Feel free to upstream your examples and community modules to enrich space-editor
 
 ## Customization
 

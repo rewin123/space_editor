@@ -12,9 +12,9 @@ use space_undo::{AddedEntity, NewChange, RemovedEntity, UndoSet};
 
 use space_shared::*;
 
-use super::{editor_tab::EditorTabName, EditorUiAppExt, EditorUiRef};
+use space_editor_tabs::prelude::*;
 
-pub const WARN_COLOR: egui::Color32 = egui::Color32::from_rgb(225, 206, 67);
+use crate::{colors::WARN_COLOR, editor_tab_name::EditorTabName};
 
 /// Event to clone entity with clone all registered components
 #[derive(Event)]
@@ -27,9 +27,10 @@ pub struct CloneEvent {
 pub struct SpaceHierarchyPlugin {}
 
 impl Plugin for SpaceHierarchyPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<HierarchyTabState>();
-        app.editor_tab(EditorTabName::Hierarchy, "Hierarchy".into(), show_hierarchy);
+        app.editor_tab(EditorTabName::Hierarchy, show_hierarchy);
 
         // app.add_systems(Update, show_hierarchy.before(crate::editor::ui_camera_block).in_set(EditorSet::Editor));
         app.add_systems(Update, clone_enitites.in_set(EditorSet::Editor));
@@ -151,8 +152,8 @@ fn draw_entity<F: QueryFilter>(
     };
 
     let entity_name = name.map_or_else(
-        || format!("Entity ({:?})", entity),
-        |name| format!("{} ({:?})", name.as_str(), entity),
+        || format!("Entity ({})", entity),
+        |name| format!("{} ({})", name.as_str(), entity),
     );
 
     let is_selected = selected.contains(entity);
@@ -211,6 +212,7 @@ fn draw_entity<F: QueryFilter>(
             }
         })
         .body(|ui| {
+            // already checked that children is some
             for child in children.unwrap().iter() {
                 draw_entity(
                     commands,

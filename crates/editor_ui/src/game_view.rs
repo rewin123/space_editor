@@ -1,19 +1,22 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::egui::{self};
-use egui_gizmo::GizmoMode;
+use bevy_egui::egui::{self, RichText, Widget};
 use space_undo::UndoRedo;
+use transform_gizmo_egui::GizmoMode;
 
 use space_shared::*;
 
-use crate::{colors::TEXT_COLOR, prelude::EditorTabName, EditorUiAppExt};
+use crate::editor_tab_name::EditorTabName;
 
-use super::{editor_tab::EditorTab, tool::EditorTool};
+use super::tool::EditorTool;
+use space_editor_tabs::prelude::*;
+
+use crate::colors::*;
 
 pub struct GameViewPlugin;
 
 impl Plugin for GameViewPlugin {
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::GameView, GameViewTab::default());
+        app.editor_tab_by_trait(GameViewTab::default());
     }
 }
 
@@ -30,7 +33,7 @@ impl Default for GameViewTab {
     fn default() -> Self {
         Self {
             viewport_rect: None,
-            gizmo_mode: GizmoMode::Translate,
+            gizmo_mode: GizmoMode::TranslateView,
             smoothed_dt: 0.0,
             tools: vec![],
             active_tool: None,
@@ -87,14 +90,33 @@ impl EditorTab for GameViewTab {
 
             ui.spacing();
             //Draw FPS
-            let dt = world.get_resource::<Time>().unwrap().delta_seconds();
-            self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
-            ui.colored_label(TEXT_COLOR, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
+            if let Some(dt) = world.get_resource::<Time>() {
+                let dt = dt.delta_seconds();
+                self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
+                ui.colored_label(TEXT_COLOR, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
+            }
+
+            #[cfg(debug_assertions)]
+            {
+                // spacing = available_width - button_widt - margin
+                let button_distance = ui.available_width() - 92.0 - 8.0;
+                ui.add_space(button_distance);
+                warn_if_debug_build(ui);
+            }
         });
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
-        "Game view".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::GameView.into()
+    }
+}
+
+pub fn warn_if_debug_build(ui: &mut egui::Ui) {
+    if cfg!(debug_assertions) {
+        egui::Button::new(RichText::new("⚠ Debug build").color(SPECIAL_BG_COLOR))
+            .fill(WARN_COLOR)
+            .ui(ui)
+            .on_hover_text("space_editor was compiled with debug assertions enabled.");
     }
 }
 
@@ -186,7 +208,7 @@ mod tests {
         let default_tab = GameViewTab::default();
 
         assert_eq!(default_tab.viewport_rect, None);
-        assert_eq!(default_tab.gizmo_mode, GizmoMode::Translate);
+        assert_eq!(default_tab.gizmo_mode, GizmoMode::TranslateView);
         assert_eq!(default_tab.smoothed_dt, 0.0);
         assert_eq!(default_tab.tools.len(), 0);
         assert_eq!(default_tab.active_tool, None);

@@ -66,11 +66,15 @@ pub trait EditorUiExt {
 
 impl EditorUiExt for App {
     fn editor_bundle<T: Bundle + Clone>(&mut self, category: &str, name: &str, bundle: T) {
-        let mut reg = if let Some(reg) = self.world.get_resource_mut::<BundleReg>() {
+        let mut reg = if let Some(reg) = self.world_mut().get_resource_mut::<BundleReg>() {
             reg
         } else {
             self.init_resource::<BundleReg>();
-            self.world.get_resource_mut::<BundleReg>().unwrap()
+            if let Some(reg) = self.world_mut().get_resource_mut::<BundleReg>() {
+                reg
+            } else {
+                return;
+            }
         };
 
         reg.add_bundle(EditorBundle {
@@ -81,6 +85,7 @@ impl EditorUiExt for App {
     }
 }
 
+#[cfg(not(tarpaulin_include))]
 pub fn register_light_editor_bundles(app: &mut App) {
     app.editor_bundle(
         "🔆 Light",
@@ -352,7 +357,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             SpriteBundle {
                 sprite: Sprite {
-                    color: Color::BLUE,
+                    color: bevy::prelude::Color::Srgba(bevy::color::palettes::css::BLUE),
                     custom_size: Some(Vec2::new(100.0, 100.0)),
                     ..default()
                 },

@@ -22,8 +22,13 @@ bevy_egui.workspace = true
 egui_dock.workspace = true
 egui-toast.workspace = true
 
+bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", optional = true}
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
+
 [features]
+default = ["persistence_editor", "bevy_mod_outline"]
 persistence_editor = []
+bevy_mod_outline = ["dep:bevy_mod_outline"]
 
 [lints]
 workspace = true

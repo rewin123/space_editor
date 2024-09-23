@@ -1,0 +1,21 @@
+[package]
+name = "space_editor_tabs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+bevy.workspace = true
+bevy_egui.workspace = true
+egui_extras.workspace = true
+convert_case.workspace = true
+egui_dock.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
+
+[lints]
+workspace = true

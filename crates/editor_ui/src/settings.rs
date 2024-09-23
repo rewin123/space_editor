@@ -1,4 +1,4 @@
-use std::fmt;
+use std::fmt::Display;
 
 use bevy::{
     prelude::*,
@@ -12,26 +12,21 @@ use space_undo::ChangeChainSettings;
 #[cfg(feature = "persistence_editor")]
 use space_persistence::*;
 
-use crate::sizing::{IconSize, Sizing};
+use space_editor_tabs::prelude::*;
 
-use super::{
-    editor_tab::{EditorTab, EditorTabName},
-    EditorUiAppExt,
+use crate::{
+    editor_tab_name::EditorTabName,
+    sizing::{IconSize, Sizing},
 };
-
-const TAB_MODES: [NewTabBehaviour; 3] = [
-    NewTabBehaviour::Pop,
-    NewTabBehaviour::SameNode,
-    NewTabBehaviour::SplitNode,
-];
 
 const GAME_MODES: [GameMode; 2] = [GameMode::Game2D, GameMode::Game3D];
 
 pub struct SettingsWindowPlugin;
 
 impl Plugin for SettingsWindowPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::Settings, SettingsWindow::default());
+        app.editor_tab_by_trait(SettingsWindow::default());
         app.register_type::<GameMode>()
             .init_resource::<GameModeSettings>()
             .init_resource::<Sizing>()
@@ -56,16 +51,12 @@ pub enum GameMode {
     Game3D,
 }
 
-impl fmt::Display for GameMode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Game2D => "2D",
-                Self::Game3D => "3D",
-            }
-        )
+impl Display for GameMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Game2D => write!(f, "2D"),
+            Self::Game3D => write!(f, "3D"),
+        }
     }
 }
 
@@ -118,52 +109,7 @@ impl GameModeSettings {
     }
 }
 
-#[derive(Default, Reflect, PartialEq, Eq, Clone)]
-pub enum NewTabBehaviour {
-    Pop,
-    #[default]
-    SameNode,
-    SplitNode,
-}
-
-impl fmt::Display for NewTabBehaviour {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Pop => "New window",
-                Self::SameNode => "Same Node",
-                Self::SplitNode => "Splits Node",
-            }
-        )
-    }
-}
-
-#[derive(Default, Resource, Reflect)]
-#[reflect(Resource)]
-pub struct NewWindowSettings {
-    pub new_tab: NewTabBehaviour,
-}
-
-impl NewWindowSettings {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        egui::ComboBox::new("new_tab", "")
-            .selected_text(self.new_tab.to_string())
-            .show_ui(ui, |ui| {
-                for mode in TAB_MODES.into_iter() {
-                    if ui
-                        .selectable_label(self.new_tab == mode, mode.to_string())
-                        .clicked()
-                    {
-                        self.new_tab = mode;
-                    }
-                }
-            });
-    }
-}
-
-#[derive(Default, Resource)]
+#[derive(Resource, Default)]
 pub struct SettingsWindow {
     read_input_for_hotkey: Option<String>,
     all_pressed_hotkeys: HashSet<KeyCode>,
@@ -189,16 +135,22 @@ impl RegisterSettingsBlockExt for App {
         name: &str,
         block: impl FnMut(&mut egui::Ui, &mut Commands, &mut World) + Send + Sync + 'static,
     ) {
-        self.world
-            .resource_mut::<SettingsWindow>()
-            .sub_blocks
-            .insert(name.to_string(), Box::new(block));
+        self.world_mut()
+            .get_resource_mut::<SettingsWindow>()
+            .map(|mut settings| {
+                settings
+                    .sub_blocks
+                    .insert(name.to_string(), Box::new(block))
+            });
     }
 }
 
 impl EditorTab for SettingsWindow {
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-        let game_mode_setting = &world.resource::<GameModeSettings>();
+        let Some(game_mode_setting) = &world.get_resource::<GameModeSettings>() else {
+            error!("Game Mode settings not available");
+            return;
+        };
         if let Some(new_game_mode) = game_mode_setting.ui(ui) {
             info!("Game Mode changed: {:?}", new_game_mode);
             *world.resource_mut::<GameModeSettings>() = new_game_mode;
@@ -214,8 +166,11 @@ impl EditorTab for SettingsWindow {
 
         ui.add_space(12.);
         ui.heading("New Tab Behaviour");
-        let new_window_settings = &mut world.resource_mut::<NewWindowSettings>();
-        new_window_settings.ui(ui);
+        if let Some(new_window_settings) = &mut world.get_resource_mut::<NewWindowSettings>() {
+            new_window_settings.ui(ui);
+        } else {
+            error!("New window settings not available");
+        }
 
         ui.add_space(12.);
         ui.heading("Default Sizing");
@@ -310,7 +265,7 @@ impl EditorTab for SettingsWindow {
         }
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Settings".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::Settings.into()
     }
 }

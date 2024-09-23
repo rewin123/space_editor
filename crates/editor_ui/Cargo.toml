@@ -12,7 +12,6 @@ homepage.workspace = true
 
 [features]
 persistence_editor = []
-editor = []
 
 [dependencies]
 bevy.workspace = true
@@ -22,11 +21,12 @@ space_prefab.workspace = true
 space_undo.workspace = true
 space_persistence.workspace = true
 space_shared.workspace = true
+space_editor_tabs.workspace = true
 
 serde.workspace = true
 pretty-type-name.workspace = true
 bevy_egui.workspace = true
-egui-gizmo.workspace = true
+transform-gizmo-egui.workspace = true
 egui_dock.workspace = true
 bevy_debug_grid.workspace = true
 bevy-inspector-egui.workspace = true
@@ -34,13 +34,8 @@ bevy_mod_picking.workspace = true
 bevy_asset_loader.workspace = true
 bevy_panorbit_camera.workspace = true
 bevy_mod_billboard.workspace = true
-convert_case.workspace = true
 anyhow.workspace = true
-bevy_common_assets.workspace = true
-egui_extras.workspace = true
-
-[patch.crates-io]
-egui-gizmo = { git = "https://github.com/naomijub/egui-gizmo.git" }
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [lints]
 workspace = true

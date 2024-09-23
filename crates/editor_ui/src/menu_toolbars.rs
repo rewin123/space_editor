@@ -5,28 +5,32 @@ use bevy_egui::{
     egui::{Align, Align2, Margin, Pos2, Stroke, Widget},
     *,
 };
+use bevy_panorbit_camera::PanOrbitCamera;
 use egui_dock::egui::RichText;
 use space_editor_core::{
     prelude::*,
     toast::{ClearToastMessage, ToastStorage},
 };
+use space_editor_tabs::prelude::*;
 use space_prefab::{component::GltfPrefab, load::PrefabBundle, plugins::PrefabPlugin};
 use space_shared::{ext::egui_file, *};
 use space_undo::{AddedEntity, NewChange, RemovedEntity};
 
 use crate::{
-    colors::*,
     hierarchy::{HierarchyQueryIter, HierarchyTabState},
     icons::{add_bundle_icon, add_entity_icon, delete_entity_icon, prefab_icon},
-    sizing::{to_colored_richtext, to_label, to_richtext, Sizing},
+    sizing::{to_colored_richtext, to_richtext},
     ui_registration::{BundleReg, EditorBundleUntyped},
     ShowEditorUi,
 };
+
+use crate::{colors::*, sizing::Sizing};
 
 /// Plugin to activate bottom menu in editor UI
 pub struct BottomMenuPlugin;
 
 impl Plugin for BottomMenuPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         if !app.is_plugin_added::<PrefabPlugin>() {
             app.add_plugins(PrefabPlugin);
@@ -34,6 +38,7 @@ impl Plugin for BottomMenuPlugin {
 
         app.init_resource::<EditorLoader>();
         app.init_resource::<MenuToolbarState>();
+
 
         app.add_systems(
             Update,
@@ -116,7 +121,7 @@ fn in_game_menu(
                 ui.add_space(60.);
                 if egui::DragValue::new(&mut frame_speed_mult.ratio)
                     .suffix(" x")
-                    .clamp_range((0.)..=5.)
+                    .range((0.)..=5.)
                     .speed(1. / 60.)
                     .fixed_decimals(2)
                     .ui(ui)
@@ -157,6 +162,7 @@ pub fn bottom_menu(
     ui_reg: Res<BundleReg>,
     menu_state: Res<MenuToolbarState>,
     sizing: Res<Sizing>,
+    q_pan_cam: Query<&PanOrbitCamera>,
 ) {
     let ctx = ctxs.ctx_mut();
     egui::TopBottomPanel::bottom("bottom_menu")
@@ -241,6 +247,15 @@ pub fn bottom_menu(
                                             let button = egui::Button::new(name).ui(ui);
                                             if button.clicked() {
                                                 let entity = dyn_bundle.spawn(&mut commands);
+                                                if let Ok(pan_cam) = q_pan_cam.get_single() {
+                                                    commands.entity(entity).insert(
+                                                        SpatialBundle::from_transform(
+                                                            Transform::from_translation(
+                                                                pan_cam.focus,
+                                                            ),
+                                                        ),
+                                                    );
+                                                }
                                                 changes.send(NewChange {
                                                     change: Arc::new(AddedEntity { entity }),
                                                 });
@@ -565,7 +580,7 @@ pub fn top_menu(
                                     for (index, warning) in
                                         toasts.toasts_per_kind.warning.iter().enumerate()
                                     {
-                                        ui.label(RichText::new("WARN ").color(WARM_COLOR));
+                                        ui.label(RichText::new("WARN ").color(WARN_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
                                             clear_toast.send(ClearToastMessage::warn(index));
@@ -579,7 +594,7 @@ pub fn top_menu(
                         .button(
                             RichText::new(format!("⚠ {}", toasts.toasts_per_kind.warning.len()))
                                 .color(if toasts.has_toasts() {
-                                    WARM_COLOR
+                                    WARN_COLOR
                                 } else {
                                     STROKE_COLOR
                                 }),

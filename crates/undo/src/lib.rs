@@ -377,7 +377,8 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedComponentCh
         let e = get_entity_with_remap(self.entity, entity_remap);
 
         world.entity_mut(e).insert((
-            <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            <T as FromReflect>::from_reflect(&self.old_value)
+                .ok_or(format!("Failed to revert reflected entity `{:?}`", e))?,
             OneFrameUndoIgnore::default(),
         ));
         world.send_event(UndoRedoApplied::<T> {
@@ -568,7 +569,10 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         );
 
         world.entity_mut(dst).insert((
-            <T as FromReflect>::from_reflect(&self.old_value).unwrap(),
+            <T as FromReflect>::from_reflect(&self.old_value).ok_or(format!(
+                "Failed to revert to destination entity `{:?}`",
+                dst
+            ))?,
             OneFrameUndoIgnore::default(),
         ));
         world.send_event(UndoRedoApplied::<T> {
@@ -682,11 +686,12 @@ pub trait AppAutoUndo {
 
 impl AppAutoUndo for App {
     fn auto_undo<T: Component + Clone>(&mut self) -> &mut Self {
-        if !self.world.contains_resource::<ChangeChain>() {
+        if !self.world_mut().contains_resource::<ChangeChain>() {
             return self;
         }
 
-        self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.world_mut()
+            .insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 
         self.add_systems(
@@ -707,11 +712,12 @@ impl AppAutoUndo for App {
     }
 
     fn auto_reflected_undo<T: Component + Reflect + FromReflect>(&mut self) -> &mut Self {
-        if !self.world.contains_resource::<ChangeChain>() {
+        if !self.world_mut().contains_resource::<ChangeChain>() {
             return self;
         }
 
-        self.world.insert_resource(AutoUndoStorage::<T>::default());
+        self.world_mut()
+            .insert_resource(AutoUndoStorage::<T>::default());
         self.add_event::<UndoRedoApplied<T>>();
 
         self.add_systems(

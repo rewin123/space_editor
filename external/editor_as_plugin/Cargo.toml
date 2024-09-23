@@ -1,0 +1,20 @@
+[package]
+name = "editor_as_plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.14"
+space_editor = { path = "../../"}
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
+
+[lints]
+workspace = true

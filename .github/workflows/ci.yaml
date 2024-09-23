@@ -33,22 +33,17 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev 
+      - name: Compile
+        run: cargo test --no-run --locked --release
       - name: Run cargo test
         run: cargo test --workspace --no-default-features --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
     
   test_all:
     name: Test all features
@@ -57,22 +52,38 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
+      - name: Compile
+        run: cargo test --no-run --locked --release
       - name: Run cargo test
         run: cargo test --workspace --all-features --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
+  
+  test_all_macos_n_windows:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    name: Test ${{ matrix.os }} all features
+    timeout-minutes: 120
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Install stable@stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Compile
+        run: cargo test --no-run --locked --release
+      - name: Run cargo test
+        run: cargo test --workspace --all-features --release
+        env:
+          RUSTFLAGS: "-C debuginfo=0"
+
 
   # Run cargo clippy -- -D warnings
   clippy_check:
@@ -82,24 +93,16 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo_${{ hashFiles('**/Cargo.toml') }}
       - name: Install stable@stable toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
+      - uses: Swatinem/rust-cache@v2
       - name: Install Dependencies
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev libwayland-dev
       - name: Run clippy
         run: cargo clippy --all-features -- -D warnings
+
 
   # Run cargo fmt --all -- --check
   format:

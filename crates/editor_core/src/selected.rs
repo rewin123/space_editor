@@ -1,9 +1,12 @@
-use bevy::{
-    pbr::wireframe::{Wireframe, WireframePlugin},
-    prelude::*,
-};
+use bevy::prelude::*;
+
+#[cfg(not(feature = "bevy_mod_outline"))]
+use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
 
 use space_shared::{EditorSet, EditorState};
+
+#[cfg(feature = "bevy_mod_outline")]
+use bevy_mod_outline::{OutlineBundle, OutlinePlugin, OutlineVolume};
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
@@ -14,8 +17,17 @@ pub struct SelectedPlugin;
 
 impl Plugin for SelectedPlugin {
     fn build(&self, app: &mut App) {
-        if !app.is_plugin_added::<WireframePlugin>() {
-            app.add_plugins(WireframePlugin);
+        #[cfg(not(feature = "bevy_mod_outline"))]
+        {
+            if !app.is_plugin_added::<WireframePlugin>() {
+                app.add_plugins(WireframePlugin);
+            }
+        }
+        #[cfg(feature = "bevy_mod_outline")]
+        {
+            if !app.is_plugin_added::<OutlinePlugin>() {
+                app.add_plugins(OutlinePlugin);
+            }
         }
         app.add_systems(
             Update,
@@ -25,6 +37,7 @@ impl Plugin for SelectedPlugin {
     }
 }
 
+#[cfg(not(feature = "bevy_mod_outline"))]
 fn selected_entity_wireframe_update(
     mut cmds: Commands,
     del_wireframe: Query<Entity, (With<Wireframe>, Without<Selected>)>,
@@ -39,13 +52,45 @@ fn selected_entity_wireframe_update(
     }
 }
 
+#[cfg(not(feature = "bevy_mod_outline"))]
 fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<Wireframe>>) {
     for e in del_wireframe.iter() {
         cmds.entity(e).remove::<Wireframe>();
     }
 }
 
+#[cfg(feature = "bevy_mod_outline")]
+fn selected_entity_wireframe_update(
+    mut cmds: Commands,
+    del_wireframe: Query<Entity, (With<OutlineVolume>, Without<Selected>)>,
+    need_wireframe: Query<Entity, (Without<OutlineVolume>, With<Selected>)>,
+) {
+    for e in del_wireframe.iter() {
+        cmds.entity(e).remove::<OutlineBundle>();
+    }
+
+    for e in need_wireframe.iter() {
+        cmds.entity(e).insert(OutlineBundle {
+            outline: OutlineVolume {
+                visible: true,
+                colour: Color::srgb(1.0, 1.0, 0.0),
+                width: 2.0,
+            },
+            mode: bevy_mod_outline::OutlineMode::RealVertex,
+            ..Default::default()
+        });
+    }
+}
+
+#[cfg(feature = "bevy_mod_outline")]
+fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<OutlineVolume>>) {
+    for e in del_wireframe.iter() {
+        cmds.entity(e).remove::<OutlineBundle>();
+    }
+}
+
 #[cfg(test)]
+#[cfg(not(feature = "bevy_mod_outline"))]
 mod tests {
     use super::*;
 

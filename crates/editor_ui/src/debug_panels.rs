@@ -1,7 +1,8 @@
-use super::editor_tab::*;
 use bevy::prelude::*;
 use bevy_egui::egui;
-use space_shared::ext::bevy_inspector_egui;
+use space_editor_tabs::prelude::*;
+
+use crate::editor_tab_name::EditorTabName;
 
 #[derive(Resource)]
 pub struct DebugWorldInspector {}
@@ -11,7 +12,7 @@ impl EditorTab for DebugWorldInspector {
         bevy_inspector_egui::bevy_inspector::ui_for_world(world, ui);
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Debug World Inspector".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::DebugWorldInspector.into()
     }
 }

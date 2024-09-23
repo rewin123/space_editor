@@ -6,6 +6,7 @@ use space_shared::toast::*;
 pub struct MouseCheck;
 
 impl Plugin for MouseCheck {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<PointerContextCheck>()
             .add_systems(Startup, initialize_mouse_context)
@@ -50,7 +51,7 @@ pub fn update_mouse_context(
 ) {
     if let Some(window_id) = pointer_ctx.primary_window {
         pointer_ctx.pointer_is_valid = !egui_ctxs
-            .ctx_for_window_mut(window_id)
+            .ctx_for_entity_mut(window_id)
             .wants_pointer_input();
     }
 }

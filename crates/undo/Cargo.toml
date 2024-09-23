@@ -13,6 +13,7 @@ homepage.workspace = true
 [dependencies]
 bevy.workspace = true
 pretty-type-name.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [lints]
 workspace = true

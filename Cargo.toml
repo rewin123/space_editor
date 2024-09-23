@@ -11,20 +11,28 @@ description = "Prefab editor for bevy game engine. Make levels/object templates 
 readme = "README.md"
 homepage = "https://github.com/rewin123/space_editor"
 repository = "https://github.com/rewin123/space_editor"
+default-run = "space_editor"
 
 [workspace]
 members = [
-    "crates/prefab", 
-    "crates/shared", 
-    "crates/undo", 
-    "crates/persistence",
-    "crates/editor_core", 
-    "crates/editor_ui", 
-    "modules/bevy_xpbd_plugin"
+    "game",
+    "crates/*",
+    "external/editor_as_plugin", 
+    "workspace-hakari"
 ]
 
+resolver = "2"
+
+[[bin]]
+name = "game_app"
+path = "game/src/main.rs"
+
+[[bin]]
+name = "plugin_test"
+path = "external/editor_as_plugin/src/main.rs"
+
 [workspace.package]
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
@@ -34,64 +42,76 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.13.1"
+bevy = "0.14"
 
 # Editor Crates
-space_prefab = { version = "0.5.0", path = "crates/prefab" }
-space_shared = { version = "0.5.0", path = "crates/shared" }
-space_undo = { version = "0.5.0", path = "crates/undo" }
-space_persistence = { version = "0.5.0", path = "crates/persistence"}
-space_editor_core = { version = "0.5.0", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.5.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_prefab = { version = "0.6.0", path = "crates/prefab" }
+space_shared = { version = "0.6.0", path = "crates/shared" }
+space_undo = { version = "0.6.0", path = "crates/undo" }
+space_persistence = { version = "0.6.0", path = "crates/persistence"}
+space_editor_core = { version = "0.6.0", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "0.6.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_asset_loader = "0.20"
-bevy_common_assets = { version = "0.10", features = ["ron"] }
-bevy_debug_grid = "0.5"
-bevy_egui = "0.25"
-bevy-inspector-egui = { version = "0.23", features = [
+bevy_asset_loader = "0.21"
+bevy_debug_grid = "0.6"
+bevy_egui = "0.29"
+bevy-inspector-egui = { version = "0.25", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
-bevy_mod_billboard = {version = "0.6", git = "https://github.com/kulkalkul/bevy_mod_billboard", branch = "main" }
-bevy_mod_picking = { version = "0.18.1", default-features = false, features = [
-    "backend_raycast",
-    "selection",
-] }
-bevy_panorbit_camera = {version = "0.16", default-features = false}
-bevy-scene-hook = "10"
+bevy_mod_billboard = { git = "https://github.com/rewin123/bevy_mod_billboard.git", branch = "bevy-0.14" }
+bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
+bevy_panorbit_camera = { version = "0.19", default-features = false }
+bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
 convert_case = "0.6"
-egui_dock = "0.11"
-egui_extras = { version = "0.26", features = ["all_loaders"] }
-egui_file = "0.15"
-egui-gizmo = "0.16.1"
-egui-toast = "0.12.1"
-image = {version = "0.24.8", feature = ["png"] }
-
+egui_dock = "0.13"
+egui_extras = { version = "0.28.1", features = ["all_loaders"] }
+egui_file = "0.18"
+transform-gizmo-egui = "0.3.0"
+transform-gizmo-bevy = "0.3.0"
+egui-toast = "0.14.0"
+image = {version = "0.25.1", feature = ["png"] }
 pretty-type-name = "1"
+rand = "*"
 ron = "0.8"
 serde = "1"
 
 # Community Modules
-space_bevy_xpbd_plugin = { version = "0.5.0", path = "modules/bevy_xpbd_plugin"}
+game_app = { version = "0.1.0", path = "game" }
 
 [dependencies]
 bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
+game_app.workspace = true
 
 # Modules for external crates
-space_bevy_xpbd_plugin = { workspace = true, optional = true }
+workspace-hakari = { version = "0.1", path = "workspace-hakari" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+backtrace-on-stack-overflow = {version = "0.3", optional = true}
 
 # For versions 1.74+
 [workspace.lints.rust]
 future-incompatible = "warn"
 nonstandard_style = "deny"
+non_local_definitions = { level = "allow", priority = 2 }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tarpaulin_include)'] }
 
 [workspace.lints.clippy]
-nursery = { level = "deny", priority = 0 }
-all = { level = "deny", priority = 1 }
+nursery = { level = "deny", priority = -1 }
+all = { level = "deny", priority = -1 }
+# Restricted
+get_unwrap = { level = "deny", priority = -1 }
+manual_while_let_some = { level = "deny", priority = -1 }
+panicking_unwrap = { level = "deny", priority = -1 }
+unnecessary_unwrap = { level = "deny", priority = -1 }
+unnecessary_literal_unwrap = { level = "deny", priority = -1 }
+unwrap_in_result = { level = "deny", priority = -1 }
+
 # Bevy Related
 cognitive_complexity = { level = "allow", priority = 2 }
 needless_pass_by_ref_mut = { level = "allow", priority = 2 }
@@ -102,21 +122,35 @@ too_many_arguments = { level = "allow", priority = 2 }
 [lints]
 workspace = true
 
-[profile.dev.package.bevy_xpbd_3d]
+
+[profile.dev]
+opt-level = 1
+overflow-checks = false 
+incremental = true # works well when target/ is stored
+
+[profile.dev.package."*"]
 opt-level = 3
 
+[profile.release-fast]
+inherits = "release"
+debug = 0
+strip = "debuginfo"
+lto = false
+incremental = false
+
+[profile.retail]
+inherits = "release"
+lto = true
+
+[profile.release-lto]
+inherits = "release"
+lto = "thin"
+
 [features]
-bevy_xpbd_3d = ["dep:space_bevy_xpbd_plugin"]
+backtrace = ["backtrace-on-stack-overflow"]
 persistence_editor = []
 no_event_registration = ["space_prefab/no_event_registration"]
-editor = ["space_prefab/editor", "space_editor_ui/editor"]
-default = ["bevy_xpbd_3d", "persistence_editor", "editor"]
-
-[[example]]
-name = "platformer"
-required-features = ["bevy_xpbd_3d"]
-
-
-[[example]]
-name = "spawn_prefab_with_physics"
-required-features = ["bevy_xpbd_3d"]
+default = [
+    "persistence_editor", 
+    "space_prefab/editor", 
+]

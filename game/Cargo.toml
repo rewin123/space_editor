@@ -1,0 +1,19 @@
+[package]
+name = "game_app"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
+description = "Your game description"
+
+[lib]
+name = "game_lib"
+path = "src/lib.rs"
+required-features = ["bevy_xpbd_3d"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy.workspace = true
+space_prefab.workspace = true
+workspace-hakari = { version = "0.1", path = "../workspace-hakari" }

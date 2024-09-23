@@ -12,7 +12,6 @@ use bevy::{
     },
 };
 use bevy_scene_hook::HookPlugin;
-#[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
 use space_shared::{LightAreaToggle, PrefabMarker};
 
@@ -39,6 +38,7 @@ impl Plugin for PrefabPlugin {
 pub struct BasePrefabPlugin;
 
 impl Plugin for BasePrefabPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_state::<EditorState>();
 
@@ -67,8 +67,8 @@ impl Plugin for BasePrefabPlugin {
 
         app.register_type::<EntityLink>();
 
-        app.register_type::<Direction3d>();
-        app.register_type::<Direction2d>();
+        app.register_type::<Dir3>();
+        app.register_type::<Dir2>();
 
         app.editor_registry::<Transform>();
         app.editor_registry::<Name>();
@@ -197,7 +197,6 @@ impl Plugin for BasePrefabPlugin {
 
         app.editor_registry::<PlaymodeLight>();
 
-        #[cfg(feature = "editor")]
         app.add_event::<ToastMessage>();
 
         app.add_systems(OnEnter(EditorState::Game), spawn_player_start);
@@ -296,12 +295,15 @@ fn remove_global_transform(
 
 fn add_computed_visibility(
     mut commands: Commands,
-    query: Query<Entity, (With<Visibility>, Without<ViewVisibility>)>,
+    query: Query<(Entity, &Visibility), Without<ViewVisibility>>,
 ) {
-    for e in query.iter() {
-        commands
-            .entity(e)
-            .insert((InheritedVisibility::VISIBLE, ViewVisibility::default()));
+    for (e, vis) in query.iter() {
+        let mut ent = commands.entity(e);
+        if vis != Visibility::Hidden {
+            ent.insert((InheritedVisibility::VISIBLE, ViewVisibility::default()));
+        } else {
+            ent.insert((InheritedVisibility::HIDDEN, ViewVisibility::HIDDEN));
+        }
     }
 }
 
@@ -351,5 +353,112 @@ fn sync_asset_material(
         if let Some(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Handle<StandardMaterial>>();
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn adds_camera_render_graph_to_prefab_camera() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn((Camera::default(), Camera3d::default(), PrefabMarker));
+        })
+        .add_systems(Update, camera_render_graph_creation);
+
+        app.update();
+
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<CameraRenderGraph>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
+    }
+
+    #[test]
+    fn removes_global_transform_from_untransformed_entities() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(GlobalTransform::default());
+        })
+        .add_systems(Update, remove_global_transform);
+
+        app.update();
+
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, (Without<Transform>, With<GlobalTransform>)>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 0);
+    }
+
+    #[test]
+    fn adds_visibility_bundle() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Visibility::Visible);
+            commands.spawn(Visibility::Hidden);
+            commands.spawn((Visibility::Inherited, InheritedVisibility::VISIBLE));
+        })
+        .add_systems(Update, add_computed_visibility);
+
+        app.update();
+
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 3);
+
+        let mut query = app.world_mut().query::<&InheritedVisibility>();
+        assert_eq!(
+            query
+                .iter(&app.world_mut())
+                .filter(|v| v == &&InheritedVisibility::VISIBLE)
+                .count(),
+            2
+        );
+    }
+
+    #[test]
+    fn removes_computed_visibility() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(ViewVisibility::default());
+            commands.spawn(VisibilityBundle::default());
+            commands.spawn((ViewVisibility::default(), InheritedVisibility::VISIBLE));
+        })
+        .add_systems(Update, remove_computed_visibility);
+
+        app.update();
+
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, With<ViewVisibility>>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 1);
+    }
+
+    #[test]
+    fn adds_global_transforms_to_entities() {
+        let mut app = App::new();
+
+        app.add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(GlobalTransform::default());
+            commands.spawn(Transform::default());
+            let child = commands.spawn(Transform::default()).id();
+            commands.spawn(TransformBundle::default()).add_child(child);
+            commands.spawn(TransformBundle::default());
+        })
+        .add_systems(Update, (add_global_transform, remove_global_transform));
+
+        app.update();
+
+        let mut query = app
+            .world_mut()
+            .query_filtered::<Entity, (With<Transform>, With<GlobalTransform>)>();
+        assert_eq!(query.iter(&app.world_mut()).count(), 4);
     }
 }

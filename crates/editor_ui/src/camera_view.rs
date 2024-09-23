@@ -18,18 +18,19 @@ use space_prefab::component::PlaymodeCamera;
 use space_shared::{toast::ToastMessage, *};
 
 use crate::{
-    colors::ERROR_COLOR,
-    prelude::{EditorTabName, GameModeSettings},
-    DisableCameraSkip, EditorUiAppExt, RenderLayers,
+    editor_tab_name::EditorTabName, prelude::GameModeSettings, DisableCameraSkip, RenderLayers,
 };
 
-use super::editor_tab::EditorTab;
+use space_editor_tabs::prelude::*;
+
+use crate::colors::*;
 
 pub struct CameraViewTabPlugin;
 
 impl Plugin for CameraViewTabPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        app.editor_tab_by_trait(EditorTabName::CameraView, CameraViewTab::default());
+        app.editor_tab_by_trait(CameraViewTab::default());
         app.add_systems(PreUpdate, set_camera_viewport.in_set(EditorSet::Editor));
         app.add_systems(OnEnter(EditorState::Game), clean_camera_view_tab);
     }
@@ -75,7 +76,10 @@ fn create_camera_image(width: u32, height: u32) -> Image {
 impl EditorTab for CameraViewTab {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World) {
         if self.real_camera.is_none() {
-            if world.resource::<GameModeSettings>().is_3d() {
+            if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_3d())
+            {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -95,7 +99,10 @@ impl EditorTab for CameraViewTab {
                         ))
                         .id(),
                 );
-            } else if world.resource::<GameModeSettings>().is_2d() {
+            } else if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_2d())
+            {
                 self.real_camera = Some(
                     commands
                         .spawn((
@@ -152,7 +159,10 @@ impl EditorTab for CameraViewTab {
             ui.spacing();
             ui.separator();
             ui.spacing();
-            if world.resource::<GameModeSettings>().is_3d() {
+            if world
+                .get_resource::<GameModeSettings>()
+                .map_or(false, |mode| mode.is_3d())
+            {
                 ui.spacing();
                 if ui.button("Add 3D Playmode Camera").clicked() {
                     commands.spawn((
@@ -191,12 +201,18 @@ impl EditorTab for CameraViewTab {
         let mut need_recreate_texture = false;
 
         if self.target_image.is_none() {
-            let handle = world
-                .resource_mut::<Assets<Image>>()
-                .add(create_camera_image(
+            let Some(handle) = world.get_resource_mut::<Assets<Image>>().map(|mut assets| {
+                assets.add(create_camera_image(
                     clipped.width() as u32,
                     clipped.height() as u32,
+                ))
+            }) else {
+                world.send_event(ToastMessage::new(
+                    "No camera image target found.",
+                    toast::ToastKind::Error,
                 ));
+                return;
+            };
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
             let msg = format!(
@@ -206,7 +222,10 @@ impl EditorTab for CameraViewTab {
             );
             world.send_event(ToastMessage::new(&msg, toast::ToastKind::Success));
         } else if let Some(handle) = &self.target_image {
-            if let Some(image) = world.resource::<Assets<Image>>().get(handle) {
+            if let Some(image) = world
+                .get_resource::<Assets<Image>>()
+                .and_then(|asset| asset.get(handle))
+            {
                 if image.texture_descriptor.size.width != clipped.width() as u32
                     || image.texture_descriptor.size.height != clipped.height() as u32
                 {
@@ -220,12 +239,18 @@ impl EditorTab for CameraViewTab {
         }
 
         if need_recreate_texture {
-            let handle = world
-                .resource_mut::<Assets<Image>>()
-                .add(create_camera_image(
+            let Some(handle) = world.get_resource_mut::<Assets<Image>>().map(|mut assets| {
+                assets.add(create_camera_image(
                     clipped.width() as u32,
                     clipped.height() as u32,
+                ))
+            }) else {
+                world.send_event(ToastMessage::new(
+                    "No camera image target found.",
+                    toast::ToastKind::Error,
                 ));
+                return;
+            };
 
             self.target_image = Some(handle);
             self.need_reinit_egui_tex = true;
@@ -239,8 +264,8 @@ impl EditorTab for CameraViewTab {
         }
     }
 
-    fn title(&self) -> bevy_egui::egui::WidgetText {
-        "Camera view".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        EditorTabName::CameraView.into()
     }
 }
 
@@ -294,8 +319,8 @@ fn set_camera_viewport(
         ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image.clone()));
     }
 
-    if ui_state.need_reinit_egui_tex {
-        ctxs.remove_image(&ui_state.egui_tex_id.as_ref().unwrap().1);
+    if let (Some((_tx_id, handle)), true) = (&ui_state.egui_tex_id, ui_state.need_reinit_egui_tex) {
+        ctxs.remove_image(handle);
         ui_state.egui_tex_id = Some((ctxs.add_image(target_image.clone()), target_image));
         ui_state.need_reinit_egui_tex = false;
     }
@@ -334,7 +359,11 @@ fn set_camera_viewport(
 
     local.0 = Some(viewport_rect);
 
-    let image_data = images.get(target_handle).unwrap();
+    let Some(image_data) = images.get(target_handle.id()) else {
+        error!("Could not get image data");
+        return;
+    };
+
     let image_rect = Rect::new(
         0.0,
         0.0,

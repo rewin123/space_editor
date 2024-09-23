@@ -11,8 +11,6 @@ pub trait EditorTool {
 pub enum ToolName {
     #[default]
     Gizmo,
-    #[cfg(feature = "floor_plan")]
-    FloorMap,
     Other(String),
 }
 
@@ -20,8 +18,6 @@ impl ToolName {
     pub fn as_str(&self) -> &str {
         match self {
             Self::Gizmo => "gizmo",
-            #[cfg(feature = "floor_plan")]
-            Self::FloorMap => "floor map",
             Self::Other(name) => name,
         }
     }
@@ -38,9 +34,10 @@ impl ToolExt for App {
     where
         T: EditorTool + Send + Sync + 'static,
     {
-        self.world
-            .resource_mut::<GameViewTab>()
-            .tools
-            .push(Box::new(tool));
+        if let Some(mut game_view) = self.world_mut().get_resource_mut::<GameViewTab>() {
+            game_view.tools.push(Box::new(tool));
+        } else {
+            error!("Game View tab not loaded");
+        }
     }
 }

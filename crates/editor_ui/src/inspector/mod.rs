@@ -7,7 +7,7 @@ pub mod runtime_assets;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, system::CommandQueue},
+    ecs::{change_detection::MutUntyped, world::CommandQueue},
     prelude::*,
     ptr::PtrMut,
     reflect::ReflectFromPtr,
@@ -18,15 +18,15 @@ use bevy_egui::{egui::TextEdit, *};
 
 use space_editor_core::prelude::*;
 use space_prefab::{component::EntityLink, editor_registry::EditorRegistry};
-use space_shared::ext::bevy_inspector_egui::{
-    self, inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+use space_shared::{
+    ext::bevy_inspector_egui::{
+        inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
+    },
+    toast::{ToastKind, ToastMessage},
 };
 
-use crate::{
-    colors::DEFAULT_BG_COLOR,
-    icons::add_component_icon,
-    sizing::{to_label, Sizing},
-};
+use crate::{editor_tab_name::EditorTabName, icons::add_component_icon};
+use space_editor_tabs::prelude::*;
 
 use self::{
     components_order::{ComponentsOrder, ComponentsPriority},
@@ -35,11 +35,7 @@ use self::{
     resources::ResourceTab,
     runtime_assets::RuntimeAssetsTab,
 };
-
-use super::{
-    editor_tab::{EditorTab, EditorTabName},
-    EditorUiAppExt,
-};
+use crate::{colors::*, sizing::Sizing};
 
 /// Entities with this marker will be skipped in inspector
 #[derive(Component)]
@@ -49,6 +45,7 @@ pub struct SkipInspector;
 pub struct SpaceInspectorPlugin;
 
 impl Plugin for SpaceInspectorPlugin {
+    #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
         app.init_resource::<InspectState>();
         app.init_resource::<FilterComponentState>();
@@ -56,13 +53,10 @@ impl Plugin for SpaceInspectorPlugin {
         app.editor_component_priority::<Name>(0);
         app.editor_component_priority::<Transform>(1);
 
-        app.editor_tab_by_trait(EditorTabName::Inspector, InspectorTab::default());
-        app.editor_tab_by_trait(EditorTabName::Resource, ResourceTab::default());
-        app.editor_tab_by_trait(
-            EditorTabName::EventDispatcher,
-            EventDispatcherTab::default(),
-        );
-        app.editor_tab_by_trait(EditorTabName::RuntimeAssets, RuntimeAssetsTab::default());
+        app.editor_tab_by_trait(InspectorTab::default());
+        app.editor_tab_by_trait(ResourceTab::default());
+        app.editor_tab_by_trait(EventDispatcherTab::default());
+        app.editor_tab_by_trait(RuntimeAssetsTab::default());
 
         app.add_systems(Update, execute_inspect_command);
 
@@ -78,7 +72,8 @@ pub struct InspectorTab {
 
 impl EditorTab for InspectorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let sizing = world.resource::<Sizing>().clone();
+        // Defaults in case it is missing
+        let sizing = world.get_resource::<Sizing>().cloned().unwrap_or_default();
         let selected_entity = world
             .query_filtered::<Entity, With<Selected>>()
             .get_single(world);
@@ -95,8 +90,12 @@ impl EditorTab for InspectorTab {
         let app_registry = app_registry_handle.read();
         let mut disable_pan_orbit = false;
 
-        //Collet data about all components
-        let components_priority = world.resource::<ComponentsOrder>().clone().components;
+        //Collet data about all components | empty if missing
+        let components_priority = world
+            .get_resource::<ComponentsOrder>()
+            .cloned()
+            .unwrap_or_default()
+            .components;
         let mut components_id = Vec::new();
         if self.show_all_components {
             for reg in app_registry.iter() {
@@ -124,7 +123,14 @@ impl EditorTab for InspectorTab {
         });
 
         let cell = world.as_unsafe_world_cell();
-        let mut state = unsafe { cell.get_resource_mut::<InspectState>().unwrap() };
+        let Some(mut state) = (unsafe { cell.get_resource_mut::<InspectState>() }) else {
+            error!("Failed to load inspect state");
+            world.send_event(ToastMessage::new(
+                "Failed to load inspect state",
+                ToastKind::Error,
+            ));
+            return;
+        };
 
         let mut commands: Vec<InspectCommand> = vec![];
         let mut queue = CommandQueue::default();
@@ -158,10 +164,10 @@ impl EditorTab for InspectorTab {
                 if let Some(name_struct) = unsafe { e.get::<Name>() } {
                     name = name_struct.as_str().to_string();
                     if name.is_empty() {
-                        name = format!("{:?} (empty name)", e.id());
+                        name = format!("{} (empty name)", e.id());
                     }
                 } else {
-                    name = format!("{:?}", e.id());
+                    name = format!("{}", e.id());
                 }
                 ui.heading(&name);
                 let mut state = unsafe { cell.get_resource_mut::<FilterComponentState>().unwrap() };
@@ -300,7 +306,7 @@ impl EditorTab for InspectorTab {
         egui::Window::new("Add component")
             .open(&mut state.show_add_component_window)
             .resizable(true)
-            .scroll2([false, true])
+            .scroll([false, true])
             .default_width(120.)
             .default_height(300.)
             .default_pos(components_area.inner_rect.center_bottom())
@@ -352,13 +358,18 @@ impl EditorTab for InspectorTab {
 
         state.commands = commands;
 
-        if disable_pan_orbit {
-            world.resource_mut::<crate::EditorCameraEnabled>().0 = false;
+        if let (Some(mut editor_camera_enabled), true) = (
+            world.get_resource_mut::<crate::EditorCameraEnabled>(),
+            disable_pan_orbit,
+        ) {
+            editor_camera_enabled.0 = false;
+        } else {
+            // error!("Failed to get editor camera config");
         }
     }
 
-    fn title(&self) -> egui::WidgetText {
-        "Inspector".into()
+    fn tab_name(&self) -> space_editor_tabs::tab_name::TabNameHolder {
+        space_editor_tabs::tab_name::TabNameHolder::new(EditorTabName::Inspector)
     }
 }
 

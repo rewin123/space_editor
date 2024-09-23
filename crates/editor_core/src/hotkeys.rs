@@ -7,6 +7,7 @@ use bevy::utils::HashMap;
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::AppPersistenceExt;
+use space_persistence::PersistenceRegistry;
 
 pub trait Hotkey:
     Send
@@ -106,27 +107,30 @@ pub trait HotkeyAppExt {
 
 impl HotkeyAppExt for App {
     fn editor_hotkey<T: Hotkey>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self {
-        if !self.world.contains_resource::<AllHotkeys>() {
+        if !self.world().contains_resource::<AllHotkeys>() {
             self.insert_resource(AllHotkeys::default());
         }
 
-        if !self.world.contains_resource::<HotkeySet<T>>() {
+        if !self.world().contains_resource::<HotkeySet<T>>() {
             self.insert_resource(HotkeySet::<T>::default());
             self.init_resource::<ButtonInput<T>>();
             #[cfg(feature = "persistence_editor")]
             {
-                self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
-                    |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
-                        dst.bindings.extend(src.bindings);
-                    },
-                ));
+                if self.world().contains_resource::<PersistenceRegistry>() {
+                    self.persistence_resource_with_fn::<HotkeySet<T>>(Box::new(
+                        |dst: &mut HotkeySet<T>, src: HotkeySet<T>| {
+                            dst.bindings.extend(src.bindings);
+                        },
+                    ));
+                }
             }
             self.add_systems(PreUpdate, hotkey_mapper::<T>);
             self.register_type::<Vec<KeyCode>>();
             self.register_type::<HotkeySet<T>>();
             self.register_type::<HashMap<T, Vec<KeyCode>>>();
             self.register_type::<T>();
-            self.world
+            self.world_mut()
+                // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .mappers
                 .push(Box::new(|w, map_fun| {
@@ -137,7 +141,8 @@ impl HotkeyAppExt for App {
                     });
                 }));
 
-            self.world
+            self.world_mut()
+                // Safe, was injected in this function
                 .resource_mut::<AllHotkeys>()
                 .global_mapper
                 .push(Box::new(|w, map_fun| {
@@ -147,7 +152,9 @@ impl HotkeyAppExt for App {
                 }))
         }
 
-        let mut set = self.world.get_resource_mut::<HotkeySet<T>>().unwrap();
+        let Some(mut set) = self.world_mut().get_resource_mut::<HotkeySet<T>>() else {
+            return self;
+        };
         set.bindings.insert(key, binding);
         self
     }
@@ -172,6 +179,49 @@ fn hotkey_mapper<T>(
             hotkeys.press(*key);
         } else {
             hotkeys.release(*key);
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bevy::input::InputPlugin;
+
+    use super::*;
+
+    #[derive(Reflect, Hash, PartialEq, Eq, Clone, Copy, Debug)]
+    enum TestKey {
+        A,
+        B,
+    }
+
+    impl Hotkey for TestKey {
+        fn name(&self) -> String {
+            format!("{:?}", self)
+        }
+    }
+
+    #[test]
+    fn hotkey_tester() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.add_plugins(InputPlugin);
+
+        app.editor_hotkey(TestKey::A, vec![KeyCode::KeyA]);
+        app.editor_hotkey(TestKey::B, vec![KeyCode::KeyB]);
+        assert_eq!(TestKey::A.name(), "A");
+
+        app.update();
+        {
+            let mut input = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
+            input.press(KeyCode::KeyA);
+            assert!(input.pressed(KeyCode::KeyA));
+        }
+        app.update();
+
+        {
+            let input = app.world().resource::<ButtonInput<TestKey>>();
+            assert_eq!(input.pressed(TestKey::A), true);
         }
     }
 }
