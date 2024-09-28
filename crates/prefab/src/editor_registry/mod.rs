@@ -287,8 +287,12 @@ impl EditorRegistryExt for App {
         &mut self,
     ) -> &mut Self {
         if let Some(mut registry) = self.world_mut().get_resource_mut::<EditorRegistry>() {
-            registry.register::<T>()
-        }
+            registry.register::<T>();
+            if registry.registry.read().get_type_data::<ReflectComponent>(T::get_type_registration().type_id()).is_none() {
+                warn!("Component {} has no #[reflect(Component)] attribute. It will not allow to be saved in prefab", std::any::type_name::<T>());
+            }
+        };
+
         self.world_mut().init_component::<T>();
         self.register_type::<T>();
         self.auto_reflected_undo::<T>();
