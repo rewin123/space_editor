@@ -513,7 +513,7 @@ mod tests {
     fn test_default_gizmo_tool() {
         let default_tool = GizmoTool::default();
 
-        assert_eq!(default_tool.gizmo_mode, GizmoMode::TranslateView);
+        assert_eq!(default_tool.gizmo_mode, GizmoMode::all_translate());
         assert_eq!(default_tool.is_move_cloned_entities, false);
         assert_eq!(default_tool.name(), "Gizmo");
     }
