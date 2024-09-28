@@ -303,7 +303,7 @@ impl EditorRegistryExt for App {
         if let Some(mut registry) = self.world_mut().get_resource_mut::<EditorRegistry>() {
             registry.only_clone_register::<T>()
         }
-        self.register_type::<T>();
+        self.editor_registry::<T>();
         self
     }
 
