@@ -156,6 +156,10 @@ pub fn serialize_scene(world: &mut World) {
         error!("App Registry not initialized");
         return;
     };
+
+    //print all type in apptyperegistry
+    info!("Savig with app types: {:?}", app_registry.read().iter().map(|a| a.type_info().type_path()).collect::<Vec<_>>());
+
     let res = scene.serialize(&app_registry.read());
 
     if let Ok(str) = res {
