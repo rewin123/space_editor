@@ -135,6 +135,9 @@ pub fn serialize_scene(world: &mut World) {
         .iter()
         .map(|a| a.type_id())
         .collect();
+
+    info!("Savig with types: {:?}", registry.registry.read().iter().map(|a| a.type_info().type_path()).collect::<Vec<_>>());
+
     let mut builder = DynamicSceneBuilder::from_world(world);
     builder = builder
         .allow_all()
