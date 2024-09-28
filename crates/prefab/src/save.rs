@@ -133,7 +133,7 @@ pub fn serialize_scene(world: &mut World) {
         .registry
         .read()
         .iter()
-        .map(|a| a.type_id())
+        .map(|a| a.type_info().type_id())
         .collect();
 
     info!("Savig with types: {:?}", registry.registry.read().iter().map(|a| a.type_info().type_path()).collect::<Vec<_>>());
