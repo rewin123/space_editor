@@ -3,7 +3,7 @@ use std::sync::Arc;
 use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,
-    reflect::{GetTypeRegistration, TypeRegistryArc},
+    reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc},
     utils::{HashMap, HashSet},
 };
 use space_shared::*;
@@ -145,7 +145,11 @@ impl EditorRegistry {
     >(
         &mut self,
     ) {
-        self.registry.write().register::<T>();
+        info!("Registering component: {}", std::any::type_name::<T>());
+        // self.registry.write().register::<T>();
+        self.registry
+            .write()
+            .add_registration(T::get_type_registration());
         self.spawn_components.insert(
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>(),
@@ -163,7 +167,13 @@ impl EditorRegistry {
     >(
         &mut self,
     ) {
-        self.registry.write().register::<T>();
+        info!(
+            "Silent registering component: {}",
+            std::any::type_name::<T>()
+        );
+        self.registry
+            .write()
+            .add_registration(T::get_type_registration());
         self.spawn_components.insert(
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>(),

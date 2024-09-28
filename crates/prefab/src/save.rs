@@ -71,7 +71,7 @@ pub struct SaveConfig {
 
 /// State system using to enable slow logic of saving
 #[cfg(not(tarpaulin_include))]
-#[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
+#[derive(States, Debug, Clone, Copy, Default, Eq, PartialEq, Hash)]
 pub enum SaveState {
     Save,
     #[default]
@@ -258,8 +258,9 @@ mod tests {
             path: Some(EditorPrefabPath::MemoryCache),
         };
         let mut app = App::new();
+        app.add_plugins(MinimalPlugins);
+        app.init_state::<SaveState>();
         app.add_plugins((
-            MinimalPlugins,
             AssetPlugin::default(),
             ImagePlugin::default(),
             bevy::scene::ScenePlugin,
