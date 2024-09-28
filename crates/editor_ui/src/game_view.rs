@@ -171,7 +171,7 @@ pub fn set_camera_viewport(
     local.0 = Some(viewport_rect);
 
     let scale_factor = window.scale_factor();
-    info!(
+    debug!(
         "Window scale factor: {} egui scale factor: {}",
         scale_factor, egui_settings.scale_factor
     );

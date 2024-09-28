@@ -136,8 +136,6 @@ pub fn serialize_scene(world: &mut World) {
         .map(|a| a.type_info().type_id())
         .collect();
 
-    info!("Savig with types: {:?}", registry.registry.read().iter().map(|a| a.type_info().type_path()).collect::<Vec<_>>());
-
     let mut builder = DynamicSceneBuilder::from_world(world);
     builder = builder
         .allow_all()
@@ -156,9 +154,6 @@ pub fn serialize_scene(world: &mut World) {
         error!("App Registry not initialized");
         return;
     };
-
-    //print all type in apptyperegistry
-    info!("Savig with app types: {:?}", app_registry.read().iter().map(|a| a.type_info().type_path()).collect::<Vec<_>>());
 
     let res = scene.serialize(&app_registry.read());
 

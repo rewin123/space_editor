@@ -995,7 +995,7 @@ fn auto_undo_system<T: Component + Clone>(
                         entity: e,
                     }),
                 });
-                info!("Auto undo change for entity {:?}", e);
+                debug!("Auto undo change for entity {:?}", e);
             }
 
             storage.storage.insert(e, data.clone());
@@ -1026,7 +1026,7 @@ fn auto_undo_reflected_system<T: Component + Reflect + FromReflect>(
                         entity: e,
                     }),
                 });
-                info!("Auto undo change for entity {:?}", e);
+                debug!("Auto undo change for entity {:?}", e);
             }
 
             storage
