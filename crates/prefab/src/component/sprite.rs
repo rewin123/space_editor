@@ -150,13 +150,13 @@ impl TextureAtlasPrefab {
             self.columns as u32,
             self.rows as u32,
             Some(UVec2 {
-                x: self.padding.unwrap().x.round() as u32,
-                y: self.padding.unwrap().y.round() as u32,
+                x: self.padding.unwrap_or_default().x.round() as u32,
+                y: self.padding.unwrap_or_default().y.round() as u32,
             }),
             //self.offset,
             Some(UVec2 {
-                x: self.offset.unwrap().x.round() as u32,
-                y: self.offset.unwrap().y.round() as u32,
+                x: self.offset.unwrap_or_default().x.round() as u32,
+                y: self.offset.unwrap_or_default().y.round() as u32,
             }),
         );
         Some(texture_layout_assets.add(texture_layout))
