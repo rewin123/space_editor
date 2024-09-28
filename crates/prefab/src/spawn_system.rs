@@ -207,14 +207,17 @@ pub fn sync_spritesheet(
             texture_atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server)
         {
             if let Some(clip) = clips.clips.get(&clip_name.name) {
-                commands.entity(e).insert(SpriteBundle {
-                    texture: texture_atlas.clone().texture.unwrap_or_default(),
-                    transform: Transform::from_scale(Vec3::splat(6.0)),
-                    ..default()
-                }).insert(TextureAtlas {
-                    layout: atlas,
-                    index: clip.first,
-                });
+                commands
+                    .entity(e)
+                    .insert(SpriteBundle {
+                        texture: texture_atlas.clone().texture.unwrap_or_default(),
+                        transform: Transform::from_scale(Vec3::splat(6.0)),
+                        ..default()
+                    })
+                    .insert(TextureAtlas {
+                        layout: atlas,
+                        index: clip.first,
+                    });
             };
         }
     }

@@ -39,7 +39,6 @@ impl Plugin for BottomMenuPlugin {
         app.init_resource::<EditorLoader>();
         app.init_resource::<MenuToolbarState>();
 
-
         app.add_systems(
             Update,
             bottom_menu

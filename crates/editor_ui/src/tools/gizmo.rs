@@ -399,12 +399,10 @@ impl EditorTool for GizmoTool {
                     if let Some(parent) = cell.get_entity(parent.get()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                if let Some((_, transforms)) = Gizmo::new(gizmo_config)
-                                    .interact(
-                                        ui,
-                                        &[bevy_to_gizmo_transform(&global.compute_transform())],
-                                    )
-                                {
+                                if let Some((_, transforms)) = Gizmo::new(gizmo_config).interact(
+                                    ui,
+                                    &[bevy_to_gizmo_transform(&global.compute_transform())],
+                                ) {
                                     disable_pan_orbit = true;
                                     let new_transform = gizmo_to_bevy_transform(&transforms[0]);
 
