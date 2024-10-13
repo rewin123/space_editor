@@ -271,7 +271,7 @@ impl EditorTab for CameraViewTab {
 
 fn clean_camera_view_tab(
     mut ui_state: ResMut<CameraViewTab>,
-    mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
+    mut cameras: Query<(&mut Camera, &mut GlobalTransform), Without<EditorCameraMarker>>,
 ) {
     let Some(real_cam_entity) = ui_state.real_camera else {
         return;
@@ -298,7 +298,7 @@ fn set_camera_viewport(
     mut local: Local<LastCamTabRect>,
     mut ui_state: ResMut<CameraViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    mut cameras: Query<(&mut Camera, &mut Transform), Without<EditorCameraMarker>>,
+    mut cameras: Query<(&mut Camera, &mut GlobalTransform), Without<EditorCameraMarker>>,
     mut ctxs: EguiContexts,
     images: Res<Assets<Image>>,
 ) {
