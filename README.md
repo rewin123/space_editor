@@ -145,6 +145,7 @@ Game mode can be changed between 3D and 2D in `settings > GameMode`. This change
 
 |bevy|space_editor crates|
 |---|---|
+|0.14| 0.6|
 |0.13| 0.5|
 |0.12| 0.3 - 0.4|
 
@@ -162,8 +163,7 @@ Any pull request is welcome too:)
 ### License
 MIT - https://choosealicense.com/licenses/mit/
 
-
 ### Project naming
 
-Space_editor started as part of my prototype space game, which I feel could be useful in development, so I thought I'd share my inbuilt editor. Since the game is about space and the name of the editor starts with space_*:)
+Space_editor started as part of my prototype space game, which I feel could be useful in development, so I thought I'd share my inbuilt editor. Since the game is about space and the name of the editor starts with space_*:) 
 
