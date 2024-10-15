@@ -328,9 +328,8 @@ fn set_camera_viewport(
         ui_state.need_reinit_egui_tex = false;
     }
 
-    let Ok(
-        [(mut real_cam, _, mut real_cam_local_transform), (watch_cam, camera_transform, _)],
-    ) = cameras.get_many_mut([real_cam_entity, camera_entity])
+    let Ok([(mut real_cam, _, mut real_cam_local_transform), (watch_cam, camera_transform, _)]) =
+        cameras.get_many_mut([real_cam_entity, camera_entity])
     else {
         if let Ok((mut real_cam, _, _)) = cameras.get_mut(real_cam_entity) {
             real_cam.is_active = false;
