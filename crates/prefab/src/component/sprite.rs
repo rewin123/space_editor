@@ -170,7 +170,7 @@ pub fn animate_sprite(
         &AnimationIndicesSpriteSheet,
         &AnimationClipName,
         &mut AnimationTimerSpriteSheet,
-        &mut TextureAtlas,
+        &mut Handle<TextureAtlas>,
     )>,
 ) {
     for (sheet_indices, name, mut timer, mut atlas) in &mut query {

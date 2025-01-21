@@ -1,6 +1,7 @@
 use std::fs;
 
 use crate::ext::*;
+use bevy::sprite::AlphaMode2d;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
@@ -123,6 +124,7 @@ impl ColorMaterialPrefab {
         ColorMaterial {
             color: self.color,
             texture,
+            alpha_mode: AlphaMode2d::Opaque, 
         }
     }
 }

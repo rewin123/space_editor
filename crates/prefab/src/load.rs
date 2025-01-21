@@ -113,7 +113,7 @@ fn load_prefab(
             .insert(PrefabAutoChild)
             .id();
 
-        commands.entity(e).push_children(&[id]);
+        commands.entity(e).add_children(&[id]);
     }
 }
 

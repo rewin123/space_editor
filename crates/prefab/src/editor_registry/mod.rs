@@ -298,7 +298,7 @@ impl EditorRegistryExt for App {
             }
         };
 
-        self.world_mut().init_component::<T>();
+        self.world_mut().register_component::<T>();
         self.register_type::<T>();
         self.auto_reflected_undo::<T>();
         self

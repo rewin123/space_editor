@@ -32,7 +32,7 @@ name = "plugin_test"
 path = "external/editor_as_plugin/src/main.rs"
 
 [workspace.package]
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
@@ -42,38 +42,38 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.14.2"
+bevy = "0.15.1"
 
 # Editor Crates
-space_prefab = { version = "0.6.0", path = "crates/prefab" }
-space_shared = { version = "0.6.0", path = "crates/shared" }
-space_undo = { version = "0.6.0", path = "crates/undo" }
-space_persistence = { version = "0.6.0", path = "crates/persistence"}
-space_editor_core = { version = "0.6.0", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.6.0", path = "crates/editor_ui", features = ["persistence_editor"] }
-space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
+space_prefab = { version = "0.7.0", path = "crates/prefab" }
+space_shared = { version = "0.7.0", path = "crates/shared" }
+space_undo = { version = "0.7.0", path = "crates/undo" }
+space_persistence = { version = "0.7.0", path = "crates/persistence"}
+space_editor_core = { version = "0.7.0", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "0.7.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_editor_tabs = { version = "0.7.0", path = "crates/editor_tabs" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_asset_loader = "0.21"
+bevy_asset_loader = "0.22.0"
 bevy_debug_grid = "0.6"
-bevy_egui = "0.29"
-bevy-inspector-egui = { version = "0.25", features = [
+bevy_egui = "0.32.0"
+bevy-inspector-egui = { version = "0.28.1", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
 bevy_mod_billboard = { version = "0.7.0" }
 bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
-bevy_panorbit_camera = { version = "0.19", default-features = false }
+bevy_panorbit_camera = { version = "0.21.2", default-features = false }
 bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
-convert_case = "0.6"
-egui_dock = "0.13"
-egui_extras = { version = "0.28.1", features = ["all_loaders"] }
-egui_file = "0.18"
-transform-gizmo-egui = "0.3.0"
-transform-gizmo-bevy = "0.3.0"
-egui-toast = "0.14.0"
-image = {version = "0.25.1", feature = ["png"] }
+convert_case = "0.7.1"
+egui_dock = "0.15.0"
+egui_extras = { version = "0.30.0", features = ["all_loaders"] }
+egui_file = "0.21.0"
+transform-gizmo-egui = "0.4.0"
+transform-gizmo-bevy = "0.4.0"
+egui-toast = "0.16.0"
+image = {version = "0.25.5", feature = ["png"] }
 pretty-type-name = "1"
 rand = "*"
 ron = "0.8"
