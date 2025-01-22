@@ -19,7 +19,7 @@ bevy.workspace = true
 space_shared.workspace = true
 space_undo.workspace = true
 
-# bevy-scene-hook.workspace = true
+bevy-scene-hook.workspace = true
 bevy-inspector-egui.workspace = true
 
 serde = { workspace = true }

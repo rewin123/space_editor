@@ -43,7 +43,7 @@ pub fn load_listener(world: &mut World) {
         .collect();
     for (entity, name) in mark_to_delete {
         let mut despawned = false;
-        if let Some(e) = world.get_entity_mut(entity) {
+        if let Some(e) = world.get_entity_mut(entity).ok() {
             e.despawn_recursive();
             despawned = true;
         }

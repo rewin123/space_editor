@@ -14,7 +14,7 @@ fn main() {
             title: "Your Game".into(),
             resolution: WindowResolution::new(1600., 900.),
             visible: true,
-            mode: WindowMode::Fullscreen,
+            mode: WindowMode::Fullscreen(MonitorSelection::Current),
             ..default()
         }),
         ..default()

@@ -64,7 +64,7 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() && assets.get_load_state(&queue.0[0]) == Some(LoadState::Loaded) {
+    if !queue.0.is_empty() && matches!(assets.get_load_state(&queue.0[0]), Some(LoadState::Loaded)) {
         events.send(GltfLoaded(queue.0.remove(0)));
     }
 }
@@ -74,6 +74,7 @@ struct UnpackContext<'a> {
     mesh_map: &'a HashMap<Handle<GltfMesh>, usize>,
     gltf_meshs: &'a Assets<GltfMesh>,
     gltf_path: &'a AssetPath<'a>,
+    gltf_nodes: &'a Assets<GltfNode>,
 }
 
 fn unpack_gltf(world: &mut World) {
@@ -159,9 +160,7 @@ fn unpack_gltf(world: &mut World) {
                         if let Some(name) = scene.world.entity(*child).get::<Name>() {
                             info!("Name: {:?}", &name);
                             if let Some(node_handle) = gltf.named_nodes.get(name.as_str()) {
-                                if let Some(node) = gltf_nodes.get(node_handle) {
-                                    roots.push(node.clone());
-                                }
+                                roots.push(node_handle.clone())
                             }
                         }
                     }
@@ -175,11 +174,14 @@ fn unpack_gltf(world: &mut World) {
                 mesh_map: &mesh_map,
                 gltf_meshs,
                 gltf_path: &gltf_path,
+                gltf_nodes: &gltf_nodes,
             };
 
             for root in roots.iter() {
                 spawn_node(&mut commands, root, gltf, &ctx);
             }
+            
+            
         }
 
         break;
@@ -190,10 +192,20 @@ fn unpack_gltf(world: &mut World) {
 
 fn spawn_node(
     commands: &mut Commands,
-    node: &GltfNode,
+    node_handle: &Handle<GltfNode>,
     _gltf: &Gltf,
     ctx: &UnpackContext<'_>,
 ) -> Entity {
+
+    let gltf_nodes = ctx.gltf_nodes;
+    let node = match gltf_nodes.get(node_handle) {
+        Some(node) => node,
+        None => {
+            error!("Failed to get GltfNode for handle: {:?}", node_handle);
+            return commands.spawn_empty().id();
+        }
+    };
+
     let id = commands
         .spawn((
             SpatialBundle {

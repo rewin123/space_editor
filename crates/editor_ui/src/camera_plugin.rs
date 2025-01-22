@@ -192,8 +192,7 @@ pub fn draw_camera_gizmo(
         let rect_transform = transform.mul_transform(rect_transform);
 
         gizmos.rect(
-            rect_transform.translation,
-            rect_transform.rotation,
+            Isometry3d::new(rect_transform.translation, rect_transform.rotation),
             Vec2::splat(scale * 2.0),
             pink,
         );

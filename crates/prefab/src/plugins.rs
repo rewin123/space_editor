@@ -217,7 +217,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.add_systems(
             Update,
-            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange),
+            (sync_3d_mesh, sync_3d_material).in_set(PrefabSet::DetectPrefabChange),
         );
         app.add_systems(
             Update,
