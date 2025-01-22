@@ -99,14 +99,19 @@ impl EditorUi {
                     tabs,
                     active: _,
                     scroll: _,
+                    collapsed: _,
                 } => visible.extend(tabs.clone()),
                 egui_dock::Node::Vertical {
                     rect: _,
                     fraction: _,
+                    collapsed_leaf_count: _,
+                    fully_collapsed: _,
                 } => {}
                 egui_dock::Node::Horizontal {
                     rect: _,
                     fraction: _,
+                    collapsed_leaf_count: _,
+                    fully_collapsed: _,
                 } => {}
                 
             }

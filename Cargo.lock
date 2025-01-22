@@ -550,14 +550,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy-scene-hook"
-version = "11.0.0"
-source = "git+https://github.com/stargazing-dino/bevy-scene-hook.git?branch=update-14.0#c29f2d579e0ba1cd195065e59f1f763e0f933468"
-dependencies = [
- "bevy 0.14.2",
-]
-
-[[package]]
 name = "bevy_a11y"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6455,7 +6447,6 @@ version = "0.7.0"
 dependencies = [
  "bevy 0.15.1",
  "bevy-inspector-egui",
- "bevy-scene-hook",
  "rand",
  "ron",
  "serde",

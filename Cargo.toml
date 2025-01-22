@@ -65,7 +65,7 @@ bevy-inspector-egui = { version = "0.28.1", features = [
 bevy_mod_billboard = { version = "0.7.0" }
 bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
 bevy_panorbit_camera = { version = "0.21.2", default-features = false }
-bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
+# bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
 convert_case = "0.7.1"
 egui_dock = "0.15.0"
 egui_extras = { version = "0.30.0", features = ["all_loaders"] }
