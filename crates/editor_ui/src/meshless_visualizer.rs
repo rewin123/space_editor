@@ -8,11 +8,9 @@ use bevy_asset_loader::{
     prelude::DynamicAssetType,
 };
 use bevy_mod_billboard::{
-    prelude::BillboardPlugin, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
+    prelude::BillboardPlugin
 };
-use bevy_mod_picking::backends::raycast::{
-    bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
-};
+
 use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 

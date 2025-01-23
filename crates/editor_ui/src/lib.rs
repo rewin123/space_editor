@@ -342,15 +342,12 @@ pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
     // light
     commands.spawn((
-        DirectionalLightBundle {
-            directional_light: DirectionalLight {
-                shadows_enabled: true,
-                ..default()
-            },
-            transform: Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-            cascade_shadow_config: CascadeShadowConfigBuilder::default().into(),
+        DirectionalLight {
+            shadows_enabled: true,
             ..default()
         },
+        Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
+        CascadeShadowConfigBuilder::default().into(),
         Name::from("Editor Level Light"),
     ));
 
@@ -377,22 +374,19 @@ pub fn simple_editor_setup(mut commands: Commands) {
             z: Some(Color::linear_rgb(0.1, 0.1, 0.9)),
         },
         TrackedGrid::default(),
-        TransformBundle::default(),
-        VisibilityBundle::default(),
+        Transform::default(),
+        Visibility::default(),
         Name::from("Debug Grid"),
         grid_render_layer,
     ));
 
     // camera
     commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            camera: Camera {
-                order: 100,
-                ..default()
-            },
+        Camera {
+            order: 100,
             ..default()
         },
+        Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         bevy_panorbit_camera::PanOrbitCamera::default(),
         EditorCameraMarker,
         Name::from("Editor Camera"),
@@ -415,36 +409,30 @@ pub fn game_mode_changed(
         if mode.is_3d() {
             // 3D camera
             commands.spawn((
-                Camera3dBundle {
-                    transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-                    camera: Camera {
-                        // We had too many editor cameras at order 0
-                        order: 100,
-                        ..default()
-                    },
+                Camera {
+                    // We had too many editor cameras at order 0
+                    order: 100,
                     ..default()
                 },
+                Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
                 bevy_panorbit_camera::PanOrbitCamera::default(),
                 EditorCameraMarker,
                 Name::from("Editor Camera"),
                 PickableBundle::default(),
-                RaycastPickable,
+                RayCastPickable,
                 all_render_layers(),
             ));
         } else {
             // 2D camera
             commands.spawn((
-                Camera2dBundle {
-                    camera: Camera {
-                        order: 100,
-                        ..default()
-                    },
+                Camera {
+                    order: 100,
                     ..default()
                 },
                 EditorCameraMarker,
                 Name::from("Editor 2D Camera"),
                 PickableBundle::default(),
-                RaycastPickable,
+                RayCastPickable,
                 all_render_layers(),
             ));
         }

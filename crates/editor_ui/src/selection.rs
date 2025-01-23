@@ -1,12 +1,14 @@
 use crate::*;
 use bevy::prelude::*;
 
+bevy::picking::backend::ray::r
+
 pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
+        app.add_plugins(MeshPickingPlugin);
 
         if let Some(mut raycast_backend) =
             app.world_mut()
