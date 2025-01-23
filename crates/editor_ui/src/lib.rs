@@ -62,7 +62,9 @@ pub mod sizing;
 pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
-use bevy_mod_picking::{
+
+/* 
+use bevy_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
     picking_core::Pickable,
@@ -70,6 +72,8 @@ use bevy_mod_picking::{
     prelude::*,
     PickableBundle,
 };
+*/
+
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use space_editor_core::prelude::*;
@@ -151,7 +155,6 @@ pub mod prelude {
 /// External dependencies for editor crate
 pub mod ext {
     pub use bevy_egui;
-    pub use bevy_mod_picking;
     pub use bevy_panorbit_camera;
     pub use space_shared::ext::*;
 }
@@ -394,7 +397,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         EditorCameraMarker,
         Name::from("Editor Camera"),
         PickableBundle::default(),
-        RaycastPickable,
+        RayCastPickable,
         all_render_layers(),
     ));
 }

@@ -86,7 +86,7 @@ fn in_game_menu(
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
-                *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
+                *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_secs() * 0.02);
             }
             let layout = egui::Layout::left_to_right(Align::Center).with_main_align(Align::Center);
             ui.with_layout(layout, |ui| {

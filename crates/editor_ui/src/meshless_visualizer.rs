@@ -446,8 +446,8 @@ pub fn draw_light_gizmo(
 
                     // circle at the end of the light range at both angles
                     gizmos.circle(
-                        transform.translation + range,
-                        Dir3::new_unchecked(transform.back().normalize()),
+                        Isometry3d::new(transform.translation + range,
+                        Dir3::new_unchecked(transform.back().normalize())),
                         outer_rad,
                         spot.color.with_alpha(1.0),
                     );

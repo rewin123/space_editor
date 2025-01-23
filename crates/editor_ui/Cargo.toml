@@ -30,7 +30,6 @@ transform-gizmo-egui.workspace = true
 egui_dock.workspace = true
 bevy_debug_grid.workspace = true
 bevy-inspector-egui.workspace = true
-bevy_mod_picking.workspace = true
 bevy_asset_loader.workspace = true
 bevy_panorbit_camera.workspace = true
 bevy_mod_billboard.workspace = true

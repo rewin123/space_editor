@@ -1130,30 +1130,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_eventlistener"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63aff74ac1477b88b57ff2f82fc711a7931414be7ee7d0e96aeea45b6d4a7cb6"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_eventlistener_derive",
- "bevy_hierarchy 0.14.2",
- "bevy_utils 0.14.2",
-]
-
-[[package]]
-name = "bevy_eventlistener_derive"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fc779559aa23b81da2b14fba90586755d225983c5b6d3154658e42fc088de7f"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.96",
-]
-
-[[package]]
 name = "bevy_gilrs"
 version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1635,48 +1611,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_mod_picking"
-version = "0.20.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e290b8ad3e72dc621da7a9c21129da10540d78290ef8857353190e0213cac692"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_core 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_eventlistener",
- "bevy_math 0.14.2",
- "bevy_picking_core",
- "bevy_picking_highlight",
- "bevy_picking_input",
- "bevy_picking_raycast",
- "bevy_picking_selection",
- "bevy_reflect 0.14.2",
- "bevy_render 0.14.2",
- "bevy_utils 0.14.2",
- "bevy_window 0.14.2",
-]
-
-[[package]]
-name = "bevy_mod_raycast"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9e4ff45885c4716771a9f55977d8ce69596502a5241da55bf608d7cd71a9cb3"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_asset 0.14.2",
- "bevy_color 0.14.3",
- "bevy_derive 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_math 0.14.2",
- "bevy_reflect 0.14.2",
- "bevy_render 0.14.2",
- "bevy_transform 0.14.2",
- "bevy_utils 0.14.2",
- "bevy_window 0.14.2",
- "crossbeam-channel",
-]
-
-[[package]]
 name = "bevy_panorbit_camera"
 version = "0.21.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1763,90 +1697,6 @@ dependencies = [
  "bevy_window 0.15.1",
  "crossbeam-channel",
  "uuid",
-]
-
-[[package]]
-name = "bevy_picking_core"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "020b6cf6079927a1e6a3dd883986546632d8d09ab77840997f4936a74eade722"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_derive 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_eventlistener",
- "bevy_math 0.14.2",
- "bevy_reflect 0.14.2",
- "bevy_render 0.14.2",
- "bevy_transform 0.14.2",
- "bevy_utils 0.14.2",
- "bevy_window 0.14.2",
- "uuid",
-]
-
-[[package]]
-name = "bevy_picking_highlight"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ba45161608da1bb58cbc55fd83cf5e529e616a180778c394733c85056cd2b76"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_asset 0.14.2",
- "bevy_color 0.14.3",
- "bevy_ecs 0.14.2",
- "bevy_picking_core",
- "bevy_picking_selection",
- "bevy_reflect 0.14.2",
-]
-
-[[package]]
-name = "bevy_picking_input"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ba8cf67c68a5e150c066366744f9a44006ead9ad280de1c9ca69a6a13c5e283"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_hierarchy 0.14.2",
- "bevy_input 0.14.2",
- "bevy_math 0.14.2",
- "bevy_picking_core",
- "bevy_picking_selection",
- "bevy_reflect 0.14.2",
- "bevy_render 0.14.2",
- "bevy_utils 0.14.2",
- "bevy_window 0.14.2",
-]
-
-[[package]]
-name = "bevy_picking_raycast"
-version = "0.20.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b024e7b0a6062aafd5daa746e5298a1b726c6409de11e35e0b574b712ebda3d"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_mod_raycast",
- "bevy_picking_core",
- "bevy_reflect 0.14.2",
- "bevy_render 0.14.2",
- "bevy_transform 0.14.2",
- "bevy_window 0.14.2",
-]
-
-[[package]]
-name = "bevy_picking_selection"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf0769d84e944fbc09b0475f068e5232a8a4be15339796539aecd747413ededd"
-dependencies = [
- "bevy_app 0.14.2",
- "bevy_ecs 0.14.2",
- "bevy_eventlistener",
- "bevy_input 0.14.2",
- "bevy_picking_core",
- "bevy_reflect 0.14.2",
- "bevy_utils 0.14.2",
 ]
 
 [[package]]
@@ -6333,7 +6183,6 @@ dependencies = [
  "bevy_debug_grid",
  "bevy_egui",
  "bevy_mod_billboard",
- "bevy_mod_picking",
  "bevy_panorbit_camera",
  "egui_dock",
  "pretty-type-name",

@@ -32,7 +32,7 @@ pub fn auto_add_picking(
         commands.entity(e).insert((
             PickableBundle::default(),
             On::<Pointer<Down>>::send_event::<SelectEvent>(),
-            RaycastPickable,
+            RayCastPickable,
         ));
     }
 }

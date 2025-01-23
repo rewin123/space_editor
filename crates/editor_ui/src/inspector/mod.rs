@@ -451,7 +451,7 @@ fn execute_inspect_command(
         match c {
             InspectCommand::AddComponent(e, id) => {
                 info!("inspector adding component {:?} to entity {:?}", id, e);
-                commands.entity(*e).add(registration.get_spawn_command(id));
+                commands.entity(*e).queue(registration.get_spawn_command(id));
             }
             InspectCommand::RemoveComponent(e, id) => {
                 registration.remove_by_id(&mut commands.entity(*e), id);

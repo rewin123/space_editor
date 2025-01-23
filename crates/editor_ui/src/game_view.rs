@@ -1,5 +1,5 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::egui::{self, RichText, Widget};
+use bevy_egui::{egui::{self, RichText, Widget}, render_systems::ExtractedEguiSettings};
 use space_undo::UndoRedo;
 use transform_gizmo_egui::GizmoMode;
 
@@ -149,7 +149,7 @@ pub fn set_camera_viewport(
     mut local: Local<LastGameTabRect>,
     ui_state: Res<GameViewTab>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
+    egui_settings: Res<ExtractedEguiSettings>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
 ) {
     let Ok(mut cam) = cameras.get_single_mut() else {
