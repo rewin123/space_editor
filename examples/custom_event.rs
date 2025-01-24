@@ -40,7 +40,7 @@ fn setup(mut commands: Commands) {
 fn spin_entities(mut query: Query<(&mut Transform, &Spin)>, time: Res<Time>) {
     for (mut transform, spin) in query.iter_mut() {
         if spin.0 {
-            transform.rotate(Quat::from_rotation_y(spin.1 * time.delta_seconds()));
+            transform.rotate(Quat::from_rotation_y(spin.1 * time.delta_secs()));
         }
     }
 }

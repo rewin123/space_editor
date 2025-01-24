@@ -249,13 +249,12 @@ pub fn bottom_menu(
                                             if button.clicked() {
                                                 let entity = dyn_bundle.spawn(&mut commands);
                                                 if let Ok(pan_cam) = q_pan_cam.get_single() {
-                                                    commands.entity(entity).insert(
-                                                        SpatialBundle::from_transform(
-                                                            Transform::from_translation(
-                                                                pan_cam.focus,
-                                                            ),
+                                                    commands.entity(entity).insert((
+                                                        Transform::from_translation(
+                                                            pan_cam.focus,
                                                         ),
-                                                    );
+                                                        Visibility::default(),
+                                                    ));
                                                 }
                                                 changes.send(NewChange {
                                                     change: Arc::new(AddedEntity { entity }),

@@ -166,6 +166,7 @@ impl Plugin for EditorUiCore {
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         // clean up meshless children on entering the game state
+        
         //app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),
@@ -186,7 +187,7 @@ impl Plugin for EditorUiCore {
                 //draw_light_gizmo,
                 //selection::delete_selected,
             )
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         if self.disable_no_editor_cams {
