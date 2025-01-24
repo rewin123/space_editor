@@ -17,6 +17,10 @@ use space_shared::*;
 use crate::{EditorGizmo, LAST_RENDER_LAYER};
 use space_editor_core::selected::Selected;
 
+
+
+
+/* 
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
 
@@ -540,3 +544,5 @@ mod tests {
         assert_eq!(query.iter(&app.world()).count(), 2);
     }
 }
+
+*/

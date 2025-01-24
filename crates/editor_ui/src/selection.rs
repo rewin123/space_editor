@@ -1,8 +1,8 @@
 use crate::*;
 use bevy::prelude::*;
 
-bevy::picking::backend::ray::r
 
+/* 
 pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
@@ -99,6 +99,27 @@ pub fn select_listener(
     }
 }
 
+
+
+impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
+    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
+        Self {
+            e: value.target(),
+            event: value,
+        }
+    }
+}
+
+
+
+/// This event used for selecting entities
+#[derive(Event, Clone, EntityEvent)]
+pub struct SelectEvent {
+    #[target]
+    e: Entity,
+    event: ListenerInput<Pointer<Down>>,
+}
+
 pub fn delete_selected(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
@@ -115,20 +136,4 @@ pub fn delete_selected(
         }
     }
 }
-
-impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        Self {
-            e: value.target(),
-            event: value,
-        }
-    }
-}
-
-/// This event used for selecting entities
-#[derive(Event, Clone, EntityEvent)]
-pub struct SelectEvent {
-    #[target]
-    e: Entity,
-    event: ListenerInput<Pointer<Down>>,
-}
+*/

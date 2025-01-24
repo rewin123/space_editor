@@ -91,10 +91,19 @@ use bevy_egui::{egui, EguiContext};
 use space_editor_tabs::prelude::*;
 
 use game_view::{has_window_changed, GameViewPlugin};
+
+/* 
 use prelude::{
     clean_meshless, reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
     MeshlessVisualizerPlugin, SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
+*/
+
+use prelude::{
+    reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
+    SpaceHierarchyPlugin, SpaceInspectorPlugin,
+};
+
 use space_editor_core::toast::ToastUiPlugin;
 use space_prefab::prelude::*;
 use space_shared::{
@@ -187,11 +196,11 @@ impl PluginGroup for EditorPluginGroup {
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
             .add(bevy_egui::EguiPlugin)
-            .add(EventListenerPlugin::<selection::SelectEvent>::default())
+            //.add(EventListenerPlugin::<selection::SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
         res.add(PanOrbitCameraPlugin)
-            .add(selection::EditorPickingPlugin)
+            //.add(selection::EditorPickingPlugin)
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
                 WorldInspectorPlugin::default()
@@ -270,12 +279,14 @@ fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
     gizmos_config.config_mut::<EditorGizmo>().0.render_layers = RenderLayers::layer(0)
 }
 
+/* 
 type AutoAddQueryFilter = (
     Without<PrefabMarker>,
     Without<Pickable>,
     With<Parent>,
     Changed<Handle<Mesh>>,
 );
+*/
 
 #[derive(Default, Reflect, GizmoConfigGroup)]
 pub struct EditorGizmo;
@@ -347,7 +358,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
             ..default()
         },
         Transform::from_xyz(4.0, 8.0, 4.0).looking_at(Vec3::ZERO, Vec3::Y),
-        CascadeShadowConfigBuilder::default().into(),
+        CascadeShadowConfigBuilder::default().build(),
         Name::from("Editor Level Light"),
     ));
 
@@ -390,11 +401,12 @@ pub fn simple_editor_setup(mut commands: Commands) {
         bevy_panorbit_camera::PanOrbitCamera::default(),
         EditorCameraMarker,
         Name::from("Editor Camera"),
-        PickableBundle::default(),
+        //PickableBundle::default(),
         RayCastPickable,
         all_render_layers(),
     ));
 }
+
 
 pub fn game_mode_changed(
     mut commands: Commands,
@@ -418,7 +430,7 @@ pub fn game_mode_changed(
                 bevy_panorbit_camera::PanOrbitCamera::default(),
                 EditorCameraMarker,
                 Name::from("Editor Camera"),
-                PickableBundle::default(),
+                //PickableBundle::default(),
                 RayCastPickable,
                 all_render_layers(),
             ));
@@ -431,7 +443,7 @@ pub fn game_mode_changed(
                 },
                 EditorCameraMarker,
                 Name::from("Editor 2D Camera"),
-                PickableBundle::default(),
+                //PickableBundle::default(),
                 RayCastPickable,
                 all_render_layers(),
             ));

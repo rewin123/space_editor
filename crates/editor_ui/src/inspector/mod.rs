@@ -1,3 +1,4 @@
+
 pub mod components_order;
 pub mod events_dispatcher;
 pub mod refl_impl;
@@ -373,6 +374,7 @@ impl EditorTab for InspectorTab {
     }
 }
 
+
 impl InspectorTab {
     fn show_component(
         &mut self,
@@ -389,9 +391,10 @@ impl InspectorTab {
                 .default_open(*self.open_components.get(name).unwrap_or(&default))
                 .show(ui, |ui| {
                     ui.push_id(format!("content-{:?}-{}", &e.id(), &name), |ui| {
-                        if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
-                            (set_changed)();
-                        }
+                        //if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                        //    (set_changed)();
+                        //}
+                        ui.label("show component function error");
                     });
                 });
             if header.header_response.clicked() {
