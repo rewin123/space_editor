@@ -7,7 +7,6 @@ use bevy::{
     utils::{HashMap, HashSet},
 };
 
-
 use space_shared::*;
 
 use space_undo::AppAutoUndo;
@@ -147,7 +146,7 @@ impl EditorRegistry {
     >(
         &mut self,
     ) {
-        info!("Registering component: {}", std::any::type_name::<T>());
+        debug!("Registering component: {}", std::any::type_name::<T>());
         // self.registry.write().register::<T>();
         self.registry
             .write()
@@ -357,8 +356,6 @@ impl EditorRegistryExt for App {
             + TypePath
             + Typed,
     {
-
-
         self.editor_silent_registry::<AutoStruct<T>>();
         self.editor_registry::<T>();
 

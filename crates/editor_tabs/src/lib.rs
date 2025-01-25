@@ -37,10 +37,13 @@ pub mod prelude {
 /// This system use to show all egui editor ui on primary window
 /// Will be useful in some specific cases to ad new system before/after this system
 pub fn show_editor_ui(world: &mut World) {
+    // info!("show_editor_ui");
+
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
         .get_single(world)
     else {
+        info!("show_editor_ui: no egui context");
         return;
     };
     let mut egui_context = egui_context.clone();
@@ -57,6 +60,8 @@ pub fn show_editor_ui(world: &mut World) {
         world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
             editor_ui.ui(world, ctx);
         });
+    } else {
+        info!("show_editor_ui: no editor ui");
     }
 }
 
@@ -113,7 +118,6 @@ impl EditorUi {
                     collapsed_leaf_count: _,
                     fully_collapsed: _,
                 } => {}
-                
             }
         }
 

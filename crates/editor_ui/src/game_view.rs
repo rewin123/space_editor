@@ -1,5 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::{egui::{self, RichText, Widget}, render_systems::ExtractedEguiSettings, EguiContextSettings};
+use bevy_egui::{
+    egui::{self, RichText, Widget},
+    render_systems::ExtractedEguiSettings,
+    EguiContextSettings,
+};
 use space_undo::UndoRedo;
 use transform_gizmo_egui::GizmoMode;
 
@@ -156,12 +160,11 @@ pub fn set_camera_viewport(
         return;
     };
 
-    let Ok((entity,window)) = primary_window.get_single() else {
+    let Ok((entity, window)) = primary_window.get_single() else {
         return;
     };
 
-    let Ok(context_settings) = 
-    egui_settings.get_mut(entity) else {
+    let Ok(context_settings) = egui_settings.get_mut(entity) else {
         return;
     };
 

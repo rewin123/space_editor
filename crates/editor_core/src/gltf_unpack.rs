@@ -64,7 +64,8 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() && matches!(assets.get_load_state(&queue.0[0]), Some(LoadState::Loaded)) {
+    if !queue.0.is_empty() && matches!(assets.get_load_state(&queue.0[0]), Some(LoadState::Loaded))
+    {
         events.send(GltfLoaded(queue.0.remove(0)));
     }
 }
@@ -180,8 +181,6 @@ fn unpack_gltf(world: &mut World) {
             for root in roots.iter() {
                 spawn_node(&mut commands, root, gltf, &ctx);
             }
-            
-            
         }
 
         break;
@@ -196,7 +195,6 @@ fn spawn_node(
     _gltf: &Gltf,
     ctx: &UnpackContext<'_>,
 ) -> Entity {
-
     let gltf_nodes = ctx.gltf_nodes;
     let node = match gltf_nodes.get(node_handle) {
         Some(node) => node,

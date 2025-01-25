@@ -103,6 +103,8 @@ impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         use bevy::app::MainScheduleOrder;
 
+        info!("EditorUiCore build");
+
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();
 
@@ -110,7 +112,7 @@ impl Plugin for EditorUiCore {
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -166,7 +168,7 @@ impl Plugin for EditorUiCore {
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         // clean up meshless children on entering the game state
-        
+
         //app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),

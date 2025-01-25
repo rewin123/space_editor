@@ -804,9 +804,9 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::Map(s) => {
                 for field_idx in 0..s.len() {
                     apply_for_every_typed_field(
-                        s.try_as_reflect_mut().unwrap(), 
-                        applyer, 
-                        max_recursion - 1
+                        s.try_as_reflect_mut().unwrap(),
+                        applyer,
+                        max_recursion - 1,
                     );
                 }
             }
@@ -819,10 +819,10 @@ fn apply_for_every_typed_field<D: Reflect>(
                     );
                 }
             }
-            bevy::reflect::ReflectMut::Set(s) => {},
-            bevy::reflect::ReflectMut::Opaque(s) => {},
+            bevy::reflect::ReflectMut::Set(s) => {}
+            bevy::reflect::ReflectMut::Opaque(s) => {}
             //bevy::reflect::ReflectMut::Value(_v) => {
-                //do nothing. Value was checked before
+            //do nothing. Value was checked before
             //}
         }
     }

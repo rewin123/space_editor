@@ -1,4 +1,3 @@
-
 pub mod components_order;
 pub mod events_dispatcher;
 pub mod refl_impl;
@@ -374,7 +373,6 @@ impl EditorTab for InspectorTab {
     }
 }
 
-
 impl InspectorTab {
     fn show_component(
         &mut self,
@@ -454,7 +452,9 @@ fn execute_inspect_command(
         match c {
             InspectCommand::AddComponent(e, id) => {
                 info!("inspector adding component {:?} to entity {:?}", id, e);
-                commands.entity(*e).queue(registration.get_spawn_command(id));
+                commands
+                    .entity(*e)
+                    .queue(registration.get_spawn_command(id));
             }
             InspectCommand::RemoveComponent(e, id) => {
                 registration.remove_by_id(&mut commands.entity(*e), id);

@@ -13,7 +13,7 @@ use space_shared::ext::bevy_inspector_egui::{
 use space_prefab::component::EntityLink;
 
 /// Method from `bevy_inspector_egui` to make dummy reflection ui
-/* 
+/*
 pub fn many_unimplemented<T: Any>(
     _ui: &mut egui::Ui,
     _options: &dyn Any,
