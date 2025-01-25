@@ -68,8 +68,9 @@ fn selected_entity_wireframe_update(
     use bevy_mod_outline::OutlineMode;
 
     for e in del_wireframe.iter() {
-        cmds.entity(e).remove::<OutlineVolume>().remove::<OutlineMode>();
-
+        cmds.entity(e)
+            .remove::<OutlineVolume>()
+            .remove::<OutlineMode>();
     }
 
     for e in need_wireframe.iter() {
@@ -89,7 +90,9 @@ fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<Outlin
     use bevy_mod_outline::OutlineMode;
 
     for e in del_wireframe.iter() {
-        cmds.entity(e).remove::<OutlineVolume>().remove::<OutlineMode>();
+        cmds.entity(e)
+            .remove::<OutlineVolume>()
+            .remove::<OutlineMode>();
     }
 }
 

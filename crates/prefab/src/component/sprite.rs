@@ -26,7 +26,6 @@ impl SpriteTexture {
     }
 }
 
-
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions, Default)]
 #[reflect(Default, Component, InspectorOptions)]
@@ -224,11 +223,10 @@ mod tests {
         // Extract the `image` handle from the sprite
         let sprite = sprite.unwrap();
         let sprite_image_handle = sprite.0.image;
-        
+
         // Assert that the handles are the same
         assert_eq!(image_handle, sprite_image_handle);
     }
-
 
     #[test]
     fn sprite_texture_to_sprite_with_fake_path() {
@@ -347,11 +345,7 @@ mod tests {
 
     #[test]
     fn animate_sprite_over_time() {
-        let setup = |
-            mut commands: Commands,
-            asset_server: Res<AssetServer>,
-        | {
-
+        let setup = |mut commands: Commands, asset_server: Res<AssetServer>| {
             let atlas_handle = asset_server.load("icons/GameraGizmo.png");
             commands.spawn((
                 AnimationIndicesSpriteSheet::default(),

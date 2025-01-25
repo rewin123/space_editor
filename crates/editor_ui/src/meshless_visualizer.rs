@@ -7,9 +7,7 @@ use bevy_asset_loader::{
     dynamic_asset::{DynamicAsset, DynamicAssetCollection},
     prelude::DynamicAssetType,
 };
-use bevy_mod_billboard::{
-    prelude::BillboardPlugin
-};
+use bevy_mod_billboard::prelude::BillboardPlugin;
 
 use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
@@ -17,10 +15,7 @@ use space_shared::*;
 use crate::{EditorGizmo, LAST_RENDER_LAYER};
 use space_editor_core::selected::Selected;
 
-
-
-
-/* 
+/*
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
 

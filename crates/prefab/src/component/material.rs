@@ -124,7 +124,7 @@ impl ColorMaterialPrefab {
         ColorMaterial {
             color: self.color,
             texture,
-            alpha_mode: AlphaMode2d::Opaque, 
+            alpha_mode: AlphaMode2d::Opaque,
         }
     }
 }

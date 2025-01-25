@@ -63,7 +63,7 @@ pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 
-/* 
+/*
 use bevy_picking::{
     backends::raycast::RaycastPickable,
     events::{Down, Pointer},
@@ -92,7 +92,7 @@ use space_editor_tabs::prelude::*;
 
 use game_view::{has_window_changed, GameViewPlugin};
 
-/* 
+/*
 use prelude::{
     clean_meshless, reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
     MeshlessVisualizerPlugin, SpaceHierarchyPlugin, SpaceInspectorPlugin,
@@ -279,7 +279,7 @@ fn game_gizmos(mut gizmos_config: ResMut<GizmoConfigStore>) {
     gizmos_config.config_mut::<EditorGizmo>().0.render_layers = RenderLayers::layer(0)
 }
 
-/* 
+/*
 type AutoAddQueryFilter = (
     Without<PrefabMarker>,
     Without<Pickable>,
@@ -351,6 +351,10 @@ pub trait FlatPluginList {
 /// This method prepare default lights and camera for editor UI. You can create own conditions for your editor and use this method how example
 pub fn simple_editor_setup(mut commands: Commands) {
     commands.insert_resource(bevy::pbr::DirectionalLightShadowMap { size: 4096 });
+
+    // By default EditorState is Game. Set it to Editor to show editor ui
+    commands.set_state(EditorState::Editor);
+
     // light
     commands.spawn((
         DirectionalLight {
@@ -406,7 +410,6 @@ pub fn simple_editor_setup(mut commands: Commands) {
         all_render_layers(),
     ));
 }
-
 
 pub fn game_mode_changed(
     mut commands: Commands,

@@ -43,7 +43,9 @@ pub fn spawn_scene(
 
         commands
             .entity(e)
-            .insert(SceneRoot(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene))))
+            .insert(SceneRoot(
+                asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)),
+            ))
             .insert(SceneHook::new(move |e, cmd| {
                 if e.contains::<SceneAutoRoot>() {
                     cmd.insert(WantChildPath);
@@ -207,7 +209,8 @@ pub fn sync_spritesheet(
             texture_atlas.to_texture_atlas(prefab, &mut texture_atlases, &asset_server)
         {
             if let Some(clip) = clips.clips.get(&clip_name.name) {
-                commands.entity(e)
+                commands
+                    .entity(e)
                     .insert(Sprite {
                         image: texture_atlas.texture.clone().unwrap_or_default(), // Set the texture image
                         texture_atlas: Some(TextureAtlas {
@@ -215,18 +218,16 @@ pub fn sync_spritesheet(
                             index: clip.first,
                         }),
                         custom_size: Some(Vec2::splat(6.0)), // Scale the sprite
-                        color: Color::WHITE,                // Default color or adjust as needed
+                        color: Color::WHITE,                 // Default color or adjust as needed
                         flip_x: false,
                         flip_y: false,
-                        rect: None,                         // Optional: Define a sub-region if needed
-                        anchor: Anchor::Center,             // Default anchor or adjust
+                        rect: None,             // Optional: Define a sub-region if needed
+                        anchor: Anchor::Center, // Default anchor or adjust
                         image_mode: SpriteImageMode::default(), // Default or customized mode
                     })
                     .insert(Transform::default())
                     .insert(Visibility::default());
             }
-            
-            
         }
     }
 }
@@ -249,7 +250,9 @@ pub fn spawn_player_start(
         ));
         info!(msg);
         let child = commands
-            .spawn(DynamicSceneRoot(asset_server.load(prefab.prefab.to_string())))
+            .spawn(DynamicSceneRoot(
+                asset_server.load(prefab.prefab.to_string()),
+            ))
             .id();
         commands.entity(e).add_child(child);
     }
@@ -272,9 +275,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -309,9 +310,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -349,9 +348,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
@@ -363,9 +360,7 @@ mod tests {
             .remove::<MeshPrimitive2dPrefab>();
 
         app.update();
-        let mut query = app
-            .world_mut()
-            .query_filtered::<Entity, With<Mesh2d>>();
+        let mut query = app.world_mut().query_filtered::<Entity, With<Mesh2d>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -382,9 +377,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
@@ -396,9 +389,7 @@ mod tests {
             .remove::<MeshPrimitive3dPrefab>();
 
         app.update();
-        let mut query = app
-            .world_mut()
-            .query_filtered::<Entity, With<Mesh3d>>();
+        let mut query = app.world_mut().query_filtered::<Entity, With<Mesh3d>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 

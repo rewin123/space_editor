@@ -1,3 +1,4 @@
+use bevy::utils::info;
 use bevy_egui::egui;
 use egui_dock::egui::WidgetText;
 
@@ -140,7 +141,9 @@ pub fn translate_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
 
 pub fn add_bundle_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     let image = egui::Image::from_bytes("add_bundle.svg", crate::icons::ADD_BUNDLE.as_bytes())
-        .fit_to_exact_size(bevy_egui::egui::vec2(size, size));
+        .fit_to_exact_size(bevy_egui::egui::vec2(size, size))
+        .maintain_aspect_ratio(true)
+        .texture_options(egui::TextureOptions::NEAREST);
     if text.is_empty() {
         egui::Button::image(image)
     } else {
@@ -148,9 +151,12 @@ pub fn add_bundle_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
     }
 }
 
-pub fn add_entity_icon<'a>(size: f32, text: &str) -> egui::Button<'a> {
+pub fn add_entity_icon<'a>(size: f32, text: impl Into<WidgetText>) -> egui::Button<'a> {
+    let text = text.into();
     let image = egui::Image::from_bytes("add_entity.svg", crate::icons::ADD_ENTITY.as_bytes())
-        .fit_to_exact_size(bevy_egui::egui::vec2(size, size));
+        .fit_to_exact_size(bevy_egui::egui::vec2(size, size))
+        .maintain_aspect_ratio(true)
+        .texture_options(egui::TextureOptions::NEAREST);
     if text.is_empty() {
         egui::Button::image(image)
     } else {
