@@ -389,9 +389,10 @@ impl InspectorTab {
                 .default_open(*self.open_components.get(name).unwrap_or(&default))
                 .show(ui, |ui| {
                     ui.push_id(format!("content-{:?}-{}", &e.id(), &name), |ui| {
-                        if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
-                            (set_changed)();
-                        }
+                        //if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                        //    (set_changed)();
+                        //}
+                        ui.label("show component function error");
                     });
                 });
             if header.header_response.clicked() {
@@ -451,7 +452,9 @@ fn execute_inspect_command(
         match c {
             InspectCommand::AddComponent(e, id) => {
                 info!("inspector adding component {:?} to entity {:?}", id, e);
-                commands.entity(*e).add(registration.get_spawn_command(id));
+                commands
+                    .entity(*e)
+                    .queue(registration.get_spawn_command(id));
             }
             InspectCommand::RemoveComponent(e, id) => {
                 registration.remove_by_id(&mut commands.entity(*e), id);

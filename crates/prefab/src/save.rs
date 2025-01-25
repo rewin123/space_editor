@@ -139,7 +139,7 @@ pub fn serialize_scene(world: &mut World) {
     let mut builder = DynamicSceneBuilder::from_world(world);
     builder = builder
         .allow_all()
-        .with_filter(SceneFilter::Allowlist(HashSet::from_iter(
+        .with_resource_filter(SceneFilter::Allowlist(HashSet::from_iter(
             allow_types.iter().cloned(),
         )))
         .extract_entities(entities.iter().copied());

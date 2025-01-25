@@ -1,12 +1,13 @@
 use crate::*;
 use bevy::prelude::*;
 
+/*
 pub struct EditorPickingPlugin;
 
 impl Plugin for EditorPickingPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
+        app.add_plugins(MeshPickingPlugin);
 
         if let Some(mut raycast_backend) =
             app.world_mut()
@@ -32,7 +33,7 @@ pub fn auto_add_picking(
         commands.entity(e).insert((
             PickableBundle::default(),
             On::<Pointer<Down>>::send_event::<SelectEvent>(),
-            RaycastPickable,
+            RayCastPickable,
         ));
     }
 }
@@ -97,6 +98,27 @@ pub fn select_listener(
     }
 }
 
+
+
+impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
+    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
+        Self {
+            e: value.target(),
+            event: value,
+        }
+    }
+}
+
+
+
+/// This event used for selecting entities
+#[derive(Event, Clone, EntityEvent)]
+pub struct SelectEvent {
+    #[target]
+    e: Entity,
+    event: ListenerInput<Pointer<Down>>,
+}
+
 pub fn delete_selected(
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
@@ -113,20 +135,4 @@ pub fn delete_selected(
         }
     }
 }
-
-impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        Self {
-            e: value.target(),
-            event: value,
-        }
-    }
-}
-
-/// This event used for selecting entities
-#[derive(Event, Clone, EntityEvent)]
-pub struct SelectEvent {
-    #[target]
-    e: Entity,
-    event: ListenerInput<Pointer<Down>>,
-}
+*/

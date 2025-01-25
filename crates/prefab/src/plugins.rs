@@ -142,14 +142,14 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Camera3d>();
         app.editor_registry::<Camera2d>();
         app.editor_registry::<Projection>();
-        app.editor_registry::<OrthographicProjection>();
+        //app.editor_registry::<OrthographicProjection>();
         app.editor_registry::<PlaymodeCamera>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
 
         app.editor_relation::<Camera2d, Camera>();
-        app.editor_relation::<Camera2d, OrthographicProjection>();
+        //app.editor_relation::<Camera2d, OrthographicProjection>();
         app.editor_relation::<Camera3d, Camera>();
         app.editor_relation::<Camera3d, Projection>();
         app.editor_relation::<Camera3d, ColorGrading>();
@@ -217,7 +217,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.add_systems(
             Update,
-            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange),
+            (sync_3d_mesh, sync_3d_material).in_set(PrefabSet::DetectPrefabChange),
         );
         app.add_systems(
             Update,
@@ -326,12 +326,14 @@ fn sync_asset_mesh(
     assets: Res<AssetServer>,
 ) {
     for (e, mesh) in changed.iter() {
-        commands.entity(e).insert(assets.load::<Mesh>(&mesh.path));
+        commands
+            .entity(e)
+            .insert(Mesh3d(assets.load::<Mesh>(&mesh.path)));
     }
 
     for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>();
+            cmd.remove::<Mesh3d>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -344,14 +346,14 @@ fn sync_asset_material(
     assets: Res<AssetServer>,
 ) {
     for (e, material) in changed.iter() {
-        commands
-            .entity(e)
-            .insert(assets.load::<StandardMaterial>(&material.path));
+        commands.entity(e).insert(MeshMaterial3d(
+            assets.load::<StandardMaterial>(&material.path),
+        ));
     }
 
     for e in deleted.read() {
         if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<StandardMaterial>>();
+            cmd.remove::<MeshMaterial3d<StandardMaterial>>();
         }
     }
 }

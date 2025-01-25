@@ -1,5 +1,9 @@
 use bevy::{prelude::*, window::PrimaryWindow};
-use bevy_egui::egui::{self, RichText, Widget};
+use bevy_egui::{
+    egui::{self, RichText, Widget},
+    render_systems::ExtractedEguiSettings,
+    EguiContextSettings,
+};
 use space_undo::UndoRedo;
 use transform_gizmo_egui::GizmoMode;
 
@@ -91,7 +95,7 @@ impl EditorTab for GameViewTab {
             ui.spacing();
             //Draw FPS
             if let Some(dt) = world.get_resource::<Time>() {
-                let dt = dt.delta_seconds();
+                let dt = dt.delta_secs();
                 self.smoothed_dt = self.smoothed_dt.mul_add(0.98, dt * 0.02);
                 ui.colored_label(TEXT_COLOR, format!("FPS: {:.0}", 1.0 / self.smoothed_dt));
             }
@@ -148,15 +152,19 @@ pub struct LastGameTabRect(Option<egui::Rect>);
 pub fn set_camera_viewport(
     mut local: Local<LastGameTabRect>,
     ui_state: Res<GameViewTab>,
-    primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    egui_settings: Res<bevy_egui::EguiSettings>,
+    primary_window: Query<(Entity, &mut Window), With<PrimaryWindow>>,
+    mut egui_settings: Query<&mut EguiContextSettings>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
 ) {
     let Ok(mut cam) = cameras.get_single_mut() else {
         return;
     };
 
-    let Ok(window) = primary_window.get_single() else {
+    let Ok((entity, window)) = primary_window.get_single() else {
+        return;
+    };
+
+    let Ok(context_settings) = egui_settings.get_mut(entity) else {
         return;
     };
 
@@ -173,7 +181,7 @@ pub fn set_camera_viewport(
     let scale_factor = window.scale_factor();
     debug!(
         "Window scale factor: {} egui scale factor: {}",
-        scale_factor, egui_settings.scale_factor
+        scale_factor, context_settings.scale_factor
     );
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;

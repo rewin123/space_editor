@@ -3,9 +3,10 @@ use std::sync::Arc;
 use bevy::{
     ecs::system::{EntityCommand, EntityCommands},
     prelude::*,
-    reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc},
+    reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc, Typed},
     utils::{HashMap, HashSet},
 };
+
 use space_shared::*;
 
 use space_undo::AppAutoUndo;
@@ -145,7 +146,7 @@ impl EditorRegistry {
     >(
         &mut self,
     ) {
-        info!("Registering component: {}", std::any::type_name::<T>());
+        debug!("Registering component: {}", std::any::type_name::<T>());
         // self.registry.write().register::<T>();
         self.registry
             .write()
@@ -270,7 +271,8 @@ pub trait EditorRegistryExt {
             + Clone
             + 'static
             + GetTypeRegistration
-            + TypePath;
+            + TypePath
+            + Typed;
 
     /// register new event in editor UI
     fn editor_registry_event<
@@ -298,7 +300,7 @@ impl EditorRegistryExt for App {
             }
         };
 
-        self.world_mut().init_component::<T>();
+        self.world_mut().register_component::<T>();
         self.register_type::<T>();
         self.auto_reflected_undo::<T>();
         self
@@ -351,7 +353,8 @@ impl EditorRegistryExt for App {
             + Clone
             + 'static
             + GetTypeRegistration
-            + TypePath,
+            + TypePath
+            + Typed,
     {
         self.editor_silent_registry::<AutoStruct<T>>();
         self.editor_registry::<T>();

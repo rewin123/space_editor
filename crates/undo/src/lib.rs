@@ -296,7 +296,7 @@ impl EditorChange for RemovedEntity {
         remap: &HashMap<Entity, Entity>,
     ) -> Result<ChangeResult, String> {
         if let Some(e) = remap.get(&self.entity) {
-            if world.get_entity(*e).is_none() {
+            if world.get_entity(*e).is_err() {
                 let id = world
                     .spawn_empty()
                     .insert((UndoMarker, OneFrameUndoIgnore::default()))
@@ -423,7 +423,7 @@ impl<T: Component + Clone> EditorChange for AddedComponent<T> {
     ) -> Result<ChangeResult, String> {
         let e = get_entity_with_remap(self.entity, entity_remap);
         let mut add_to_ignore = false;
-        if let Some(mut e) = world.get_entity_mut(e) {
+        if let Ok(mut e) = world.get_entity_mut(e) {
             e.remove::<T>().insert(OneFrameUndoIgnore::default());
             add_to_ignore = true;
         }
@@ -465,7 +465,7 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedAddedCompon
         let dst = entity_remap
             .get(&self.entity)
             .map_or(self.entity, |remapped| *remapped);
-        if let Some(mut e) = world.get_entity_mut(dst) {
+        if let Ok(mut e) = world.get_entity_mut(dst) {
             e.remove::<T>().insert(OneFrameUndoIgnore::default());
         }
         world
@@ -511,7 +511,7 @@ impl<T: Component + Clone> EditorChange for RemovedComponent<T> {
         let mut remap = vec![];
         let dst = entity_remap.get(&self.entity).map_or_else(
             || {
-                if world.get_entity(self.entity).is_some() {
+                if world.get_entity(self.entity).is_ok() {
                     self.entity
                 } else {
                     let id = world.spawn_empty().id();
@@ -557,7 +557,7 @@ impl<T: Component + Reflect + FromReflect> EditorChange for ReflectedRemovedComp
         let mut remap = vec![];
         let dst = entity_remap.get(&self.entity).map_or_else(
             || {
-                if world.get_entity(self.entity).is_some() {
+                if world.get_entity(self.entity).is_ok() {
                     self.entity
                 } else {
                     let id = world.spawn_empty().id();
@@ -759,7 +759,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::Struct(s) => {
                 for field_idx in 0..s.field_len() {
                     apply_for_every_typed_field(
-                        s.field_at_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     );
@@ -768,7 +768,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::TupleStruct(s) => {
                 for field_idx in 0..s.field_len() {
                     apply_for_every_typed_field(
-                        s.field_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     );
@@ -777,7 +777,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::Tuple(s) => {
                 for field_idx in 0..s.field_len() {
                     apply_for_every_typed_field(
-                        s.field_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     );
@@ -786,7 +786,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::List(s) => {
                 for field_idx in 0..s.len() {
                     apply_for_every_typed_field(
-                        s.get_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     )
@@ -795,7 +795,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             bevy::reflect::ReflectMut::Array(s) => {
                 for field_idx in 0..s.len() {
                     apply_for_every_typed_field(
-                        s.get_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     );
@@ -803,22 +803,27 @@ fn apply_for_every_typed_field<D: Reflect>(
             }
             bevy::reflect::ReflectMut::Map(s) => {
                 for field_idx in 0..s.len() {
-                    let (_key, value) = s.get_at_mut(field_idx).unwrap();
-                    apply_for_every_typed_field(value, applyer, max_recursion - 1);
-                }
-            }
-            bevy::reflect::ReflectMut::Enum(s) => {
-                for field_idx in 0..s.field_len() {
                     apply_for_every_typed_field(
-                        s.field_at_mut(field_idx).unwrap(),
+                        s.try_as_reflect_mut().unwrap(),
                         applyer,
                         max_recursion - 1,
                     );
                 }
             }
-            bevy::reflect::ReflectMut::Value(_v) => {
-                //do nothing. Value was checked before
+            bevy::reflect::ReflectMut::Enum(s) => {
+                for field_idx in 0..s.field_len() {
+                    apply_for_every_typed_field(
+                        s.try_as_reflect_mut().unwrap(),
+                        applyer,
+                        max_recursion - 1,
+                    );
+                }
             }
+            bevy::reflect::ReflectMut::Set(s) => {}
+            bevy::reflect::ReflectMut::Opaque(s) => {}
+            //bevy::reflect::ReflectMut::Value(_v) => {
+            //do nothing. Value was checked before
+            //}
         }
     }
 }
@@ -831,6 +836,7 @@ fn auto_remap_undo_redo<T: Component + Reflect>(
     for event in undoredo_applied.read() {
         println!("remapping {:?}", event.entity);
         if let Ok(mut data) = query.get_mut(event.entity) {
+            //let reflect = data.as_reflect_mut();
             let reflect = data.as_reflect_mut();
 
             apply_for_every_typed_field::<Entity>(

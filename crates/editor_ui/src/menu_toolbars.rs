@@ -86,7 +86,7 @@ fn in_game_menu(
         .show(ctxs.ctx_mut(), |ui| {
             let frame_duration = time.delta();
             if !time.is_paused() {
-                *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_seconds() * 0.02);
+                *smoothed_dt = (*smoothed_dt).mul_add(0.98, time.delta_secs() * 0.02);
             }
             let layout = egui::Layout::left_to_right(Align::Center).with_main_align(Align::Center);
             ui.with_layout(layout, |ui| {
@@ -173,7 +173,8 @@ pub fn bottom_menu(
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
 
                 if ui
-                    .add(
+                    .add_sized(
+                        egui::vec2(sizing.icon.to_size(), sizing.icon.to_size()),
                         delete_entity_icon(sizing.icon.to_size(), "")
                             .stroke(stroke_default_color()),
                     )
@@ -188,8 +189,12 @@ pub fn bottom_menu(
                         });
                     }
                 }
+
                 if ui
-                    .add(add_entity_icon(sizing.icon.to_size(), "").stroke(stroke_default_color()))
+                    .add_sized(
+                        egui::vec2(sizing.icon.to_size(), sizing.icon.to_size()),
+                        add_entity_icon(sizing.icon.to_size(), "").stroke(stroke_default_color()),
+                    )
                     .on_hover_text("Add new entity")
                     .clicked()
                 {
@@ -198,14 +203,22 @@ pub fn bottom_menu(
                         change: Arc::new(AddedEntity { entity: id }),
                     });
                 }
-                let spawnable_button =
-                    add_bundle_icon(sizing.icon.to_size(), "").stroke(stroke_default_color());
 
-                let spawnables = ui.add(if state.show_spawnable_bundles {
-                    spawnable_button.fill(SELECTED_ITEM_COLOR)
-                } else {
-                    spawnable_button
-                });
+                let spawnable_button = add_bundle_icon(sizing.icon.to_size(), "")
+                    .stroke(stroke_default_color())
+                    .min_size(egui::Vec2::new(
+                        sizing.icon.to_size(),
+                        sizing.icon.to_size(),
+                    ));
+
+                let spawnables = ui.add_sized(
+                    egui::vec2(sizing.icon.to_size(), sizing.icon.to_size()),
+                    if state.show_spawnable_bundles {
+                        spawnable_button.fill(SELECTED_ITEM_COLOR)
+                    } else {
+                        spawnable_button
+                    },
+                );
                 let spawnable_pos = Pos2 {
                     x: 16.,
                     y: spawnables.rect.right_top().y - 4.,
@@ -247,13 +260,10 @@ pub fn bottom_menu(
                                             if button.clicked() {
                                                 let entity = dyn_bundle.spawn(&mut commands);
                                                 if let Ok(pan_cam) = q_pan_cam.get_single() {
-                                                    commands.entity(entity).insert(
-                                                        SpatialBundle::from_transform(
-                                                            Transform::from_translation(
-                                                                pan_cam.focus,
-                                                            ),
-                                                        ),
-                                                    );
+                                                    commands.entity(entity).insert((
+                                                        Transform::from_translation(pan_cam.focus),
+                                                        Visibility::default(),
+                                                    ));
                                                 }
                                                 changes.send(NewChange {
                                                     change: Arc::new(AddedEntity { entity }),

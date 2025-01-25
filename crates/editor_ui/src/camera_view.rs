@@ -83,13 +83,11 @@ impl EditorTab for CameraViewTab {
                 self.real_camera = Some(
                     commands
                         .spawn((
-                            Camera3dBundle {
-                                camera: Camera {
-                                    is_active: true,
-                                    order: 2,
-                                    clear_color: bevy::render::camera::ClearColorConfig::Default,
-                                    ..default()
-                                },
+                            Camera3d::default(),
+                            Camera {
+                                is_active: true,
+                                order: 2,
+                                clear_color: bevy::render::camera::ClearColorConfig::Default,
                                 ..default()
                             },
                             RenderLayers::layer(0),
@@ -106,13 +104,11 @@ impl EditorTab for CameraViewTab {
                 self.real_camera = Some(
                     commands
                         .spawn((
-                            Camera2dBundle {
-                                camera: Camera {
-                                    is_active: false,
-                                    order: 2,
-                                    clear_color: bevy::render::camera::ClearColorConfig::Default,
-                                    ..default()
-                                },
+                            Camera2d::default(),
+                            Camera {
+                                is_active: false,
+                                order: 2,
+                                clear_color: bevy::render::camera::ClearColorConfig::Default,
                                 ..default()
                             },
                             RenderLayers::layer(0),
@@ -172,7 +168,7 @@ impl EditorTab for CameraViewTab {
                         Projection::Perspective(PerspectiveProjection::default()),
                         Name::new("Camera3d".to_string()),
                         Transform::default(),
-                        VisibilityBundle::default(),
+                        Visibility::default(),
                         PlaymodeCamera::default(),
                         PrefabMarker,
                         CameraRenderGraph::new(bevy::core_pipeline::core_3d::graph::Core3d),
@@ -183,7 +179,7 @@ impl EditorTab for CameraViewTab {
                     Camera2d {},
                     Name::new("Camera2d".to_string()),
                     Transform::default(),
-                    VisibilityBundle::default(),
+                    Visibility::default(),
                     PlaymodeCamera::default(),
                     CameraRenderGraph::new(bevy::core_pipeline::core_2d::graph::Core2d),
                     PrefabMarker,

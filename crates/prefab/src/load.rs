@@ -106,14 +106,14 @@ fn load_prefab(
         let scene: Handle<DynamicScene> = assets.load(&l.path);
 
         let id = commands
-            .spawn(DynamicSceneBundle { scene, ..default() })
+            .spawn(DynamicSceneRoot(scene))
             .insert(SceneHook::new(move |_e, cmd| {
                 cmd.insert(PrefabAutoChild);
             }))
             .insert(PrefabAutoChild)
             .id();
 
-        commands.entity(e).push_children(&[id]);
+        commands.entity(e).add_children(&[id]);
     }
 }
 

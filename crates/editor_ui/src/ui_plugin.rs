@@ -1,7 +1,7 @@
 use crate::tools::gizmo::*;
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
-use meshless_visualizer::draw_light_gizmo;
+//use meshless_visualizer::draw_light_gizmo;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
 
@@ -38,7 +38,7 @@ impl FlatPluginList for EditorUiPlugin {
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
         let mut res = group
             .add(SelectedPlugin)
-            .add(MeshlessVisualizerPlugin)
+            //.add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
             .add(menu_toolbars::BottomMenuPlugin)
@@ -103,6 +103,8 @@ impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         use bevy::app::MainScheduleOrder;
 
+        info!("EditorUiCore build");
+
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();
 
@@ -110,7 +112,7 @@ impl Plugin for EditorUiCore {
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -166,7 +168,8 @@ impl Plugin for EditorUiCore {
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         // clean up meshless children on entering the game state
-        app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
+
+        //app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),
             to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
@@ -183,10 +186,10 @@ impl Plugin for EditorUiCore {
             Update,
             (
                 draw_camera_gizmo,
-                draw_light_gizmo,
-                selection::delete_selected,
+                //draw_light_gizmo,
+                //selection::delete_selected,
             )
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         if self.disable_no_editor_cams {
@@ -198,7 +201,7 @@ impl Plugin for EditorUiCore {
             app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
 
-        app.add_event::<selection::SelectEvent>();
+        //app.add_event::<selection::SelectEvent>();
 
         app.init_resource::<BundleReg>();
     }

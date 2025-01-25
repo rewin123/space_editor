@@ -94,7 +94,7 @@ pub fn prepare_auto_scene(world: &mut World) {
 
             let mut dyn_scene = DynamicSceneBuilder::from_world(cell.world())
                 .allow_all()
-                .with_filter(SceneFilter::Allowlist(HashSet::from_iter(
+                .with_resource_filter(SceneFilter::Allowlist(HashSet::from_iter(
                     allow_types.iter().cloned(),
                 )));
 
@@ -188,13 +188,13 @@ fn decompress_scene(
 
 fn apply_compressed_scenes(
     mut commands: Commands,
-    mut roots: Query<(Entity, &mut DecompressedScene, &Handle<Scene>, &Children)>,
+    mut roots: Query<(Entity, &mut DecompressedScene, &SceneRoot, &Children)>,
     child_tree: Query<(Entity, Option<&Children>, Option<&ChildPath>)>,
     editor_registry: Res<EditorRegistry>,
     asset_server: Res<AssetServer>,
 ) {
     for (root_entity, mut scene, base_scene, children) in roots.iter_mut() {
-        if asset_server.load_state(base_scene) != bevy::asset::LoadState::Loaded {
+        if asset_server.load_state(&base_scene.0).is_loaded() {
             continue;
         }
 
