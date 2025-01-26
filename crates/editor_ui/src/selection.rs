@@ -10,7 +10,7 @@ pub fn plugin(app: &mut App) {
 
     app.add_systems(
         Update,
-        (delete_selected, reemit_pointer_click)
+        (delete_selected, reemit_pointer_click, auto_add_markers)
     );
 
     app.add_systems(
@@ -18,12 +18,49 @@ pub fn plugin(app: &mut App) {
         draw_mesh_intersections.run_if(in_state(EditorState::Editor))
     );
 
+    app.add_event::<AddMarkersEvent>();
+
     app.add_observer(select_listener);
+    app.add_observer(recursive_add_markers);
 
     app.insert_resource(MeshPickingSettings {
-        require_markers: false,
-        ray_cast_visibility: RayCastVisibility::Any
+        require_markers: true,
+        ray_cast_visibility: RayCastVisibility::VisibleInView
     });
+}
+
+fn auto_add_markers(
+    mut commands: Commands,
+    q_prefabs: Query<Entity, (With<PrefabMarker>, Without<RayCastPickable>)>,
+    q_cameras: Query<Entity, (With<Camera3d>, Without<RayCastPickable>)>,
+) {
+    for entity in q_prefabs.iter() {
+        commands.trigger_targets(AddMarkersEvent, entity);
+    }
+
+    for entity in q_cameras.iter() {
+        commands.entity(entity).insert(RayCastPickable);
+    }
+}
+
+#[derive(Event, Clone)]
+struct AddMarkersEvent;
+
+fn recursive_add_markers(
+    trigger: Trigger<AddMarkersEvent>,
+    q_children: Query<&Children>,
+    q_meshes: Query<Entity, With<Mesh3d>>,
+    mut commands: Commands,
+) {
+    if q_meshes.contains(trigger.entity()) {
+        commands.entity(trigger.entity()).insert(RayCastPickable);
+    }
+
+    if let Ok(children) = q_children.get(trigger.entity()) {
+        for child in children.iter() {
+            commands.trigger_targets(AddMarkersEvent, *child);
+        }
+    }
 }
 
 /// From bevy examples
