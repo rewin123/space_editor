@@ -1,5 +1,5 @@
 use crate::*;
-use bevy::prelude::*;
+use bevy::{color::palettes::tailwind::{PINK_100, RED_500}, picking::pointer::PointerInteraction, prelude::*};
 
 
 
@@ -7,20 +7,52 @@ use bevy::prelude::*;
 pub fn plugin(app: &mut App) {
     app.add_plugins(MeshPickingPlugin);
 
+
     app.add_systems(
         Update,
-        delete_selected
+        (delete_selected, reemit_pointer_click)
+    );
+
+    app.add_systems(
+        Update,
+        draw_mesh_intersections.run_if(in_state(EditorState::Editor))
     );
 
     app.add_observer(select_listener);
-    app.add_observer(reemit_pointer_click);
+
+    app.insert_resource(MeshPickingSettings {
+        require_markers: false,
+        ray_cast_visibility: RayCastVisibility::Any
+    });
 }
 
+/// From bevy examples
+/// A system that draws hit indicators for every pointer.
+fn draw_mesh_intersections(pointers: Query<&PointerInteraction>, mut gizmos: Gizmos) {
+    for (point, normal) in pointers
+        .iter()
+        .filter_map(|interaction| interaction.get_nearest_hit())
+        .filter_map(|(_entity, hit)| hit.position.zip(hit.normal))
+    {
+        gizmos.sphere(point, 0.05, RED_500);
+        gizmos.arrow(point, point + normal.normalize() * 0.5, PINK_100);
+    }
+}
+
+/// Reemits the pointer click event to the entity that is being clicked on
+/// Its not a good solution, but it works for now
 fn reemit_pointer_click(
-    mut trigger: Trigger<Pointer<Down>>,
+    pointers: Query<&PointerInteraction>,
     mut commands: Commands,
+    q_meshes: Query<Entity, With<Mesh3d>>,
 ) {
-    commands.trigger_targets(SelectEvent, trigger.entity());
+    for pointer in pointers.iter() {
+        if let Some((e, _)) = pointer.get_nearest_hit() {
+            if q_meshes.contains(*e) {
+                commands.trigger_targets(SelectEvent, *e);
+            }
+        }
+    }
 }
 
 pub fn select_listener(
