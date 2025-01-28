@@ -211,7 +211,8 @@ impl EditorTab for InspectorTab {
                                 {
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                                    let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                                    let value_reflect = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                                    let value = value_reflect.as_partial_reflect_mut();
 
                                     if is_editor_component {
                                         if !editor_registry_resource
@@ -380,7 +381,7 @@ impl InspectorTab {
         e: bevy::ecs::world::unsafe_world_cell::UnsafeEntityCell<'_>,
         name: &String,
         env: &mut InspectorUi<'_, '_>,
-        value: &mut dyn Reflect,
+        value: &mut dyn PartialReflect,
         set_changed: &mut impl FnMut(),
     ) {
         ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
@@ -389,10 +390,10 @@ impl InspectorTab {
                 .default_open(*self.open_components.get(name).unwrap_or(&default))
                 .show(ui, |ui| {
                     ui.push_id(format!("content-{:?}-{}", &e.id(), &name), |ui| {
-                        //if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
-                        //    (set_changed)();
-                        //}
-                        ui.label("show component function error");
+                        if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
+                            (set_changed)();
+                        }
+                        //ui.label("show component function error");
                     });
                 });
             if header.header_response.clicked() {
