@@ -58,7 +58,7 @@ anyhow = "1.0"
 bevy_asset_loader = "0.22.0"
 bevy_debug_grid = { git = "https://github.com/romenjelly/bevy_debug_grid.git"}
 bevy_egui = "0.32.0"
-bevy-inspector-egui = { git = "https://github.com/MiniMinerX/bevy-inspector-egui.git", branch = "space_edit", features = [
+bevy-inspector-egui = { version = "0.29.1", features = [
     "bevy_pbr",
     "highlight_changes",
 ] }
