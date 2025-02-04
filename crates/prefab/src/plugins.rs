@@ -187,7 +187,7 @@ impl Plugin for BasePrefabPlugin {
         //app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
         //app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
         //app.editor_relation::<DirectionalLight, Transform>();
-        /app.editor_relation::<DirectionalLight, Visibility>();
+        //app.editor_relation::<DirectionalLight, Visibility>();
 
         app.editor_registry::<SpotLight>();
         //app.editor_relation::<SpotLight, VisibleEntities>();
