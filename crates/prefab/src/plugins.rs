@@ -80,13 +80,13 @@ impl Plugin for BasePrefabPlugin {
 
         app.editor_registry::<Sprite>();
         app.editor_registry::<SpriteTexture>();
-        app.editor_relation::<SpriteTexture, Transform>();
-        app.editor_relation::<SpriteTexture, Visibility>();
+        //app.editor_relation::<SpriteTexture, Transform>();
+        //app.editor_relation::<SpriteTexture, Visibility>();
 
         // Spritesheet bundle
         app.editor_registry::<SpritesheetTexture>();
-        app.editor_relation::<SpritesheetTexture, Transform>();
-        app.editor_relation::<SpritesheetTexture, Visibility>();
+        //app.editor_relation::<SpritesheetTexture, Transform>();
+        //app.editor_relation::<SpritesheetTexture, Visibility>();
         app.editor_registry::<AnimationIndicesSpriteSheet>();
         app.editor_registry::<AnimationClipName>();
         app.editor_registry::<AvailableAnimationClips>();
@@ -95,14 +95,14 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<TextureAtlasPrefab>();
 
         app.editor_registry::<MeshPrimitive3dPrefab>();
-        app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
-        app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
-        app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
 
         app.editor_registry::<MeshPrimitive2dPrefab>();
-        app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
-        app.editor_relation::<MeshPrimitive2dPrefab, Visibility>();
-        app.editor_relation::<MeshPrimitive2dPrefab, ColorMaterialPrefab>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, Visibility>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, ColorMaterialPrefab>();
 
         //shape registration
         app.register_type::<SpherePrefab>();
@@ -148,52 +148,52 @@ impl Plugin for BasePrefabPlugin {
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
 
-        app.editor_relation::<Camera2d, Camera>();
+        //app.editor_relation::<Camera2d, Camera>();
         //app.editor_relation::<Camera2d, OrthographicProjection>();
-        app.editor_relation::<Camera3d, Camera>();
-        app.editor_relation::<Camera3d, Projection>();
-        app.editor_relation::<Camera3d, ColorGrading>();
-        app.editor_relation::<Camera3d, Exposure>();
-        app.editor_relation::<Camera, VisibleEntities>();
-        app.editor_relation::<Camera, Frustum>();
-        app.editor_relation::<Camera, Transform>();
-        app.editor_relation::<Camera, Tonemapping>();
-        app.editor_relation::<Camera, DebandDither>();
-        app.editor_relation::<Camera, CameraMainTextureUsages>();
+        //app.editor_relation::<Camera3d, Camera>();
+        //app.editor_relation::<Camera3d, Projection>();
+        //app.editor_relation::<Camera3d, ColorGrading>();
+        //app.editor_relation::<Camera3d, Exposure>();
+        //app.editor_relation::<Camera, VisibleEntities>();
+        //app.editor_relation::<Camera, Frustum>();
+        //app.editor_relation::<Camera, Transform>();
+        //app.editor_relation::<Camera, Tonemapping>();
+        //app.editor_relation::<Camera, DebandDither>();
+        //app.editor_relation::<Camera, CameraMainTextureUsages>();
 
         app.add_systems(Update, camera_render_graph_creation);
 
         app.editor_registry::<PlayerStart>();
-        app.editor_relation::<PlayerStart, Transform>();
-        app.editor_relation::<PlayerStart, GlobalTransform>();
-        app.editor_relation::<PlayerStart, Visibility>();
-        app.editor_relation::<PlayerStart, ViewVisibility>();
-        app.editor_relation::<PlayerStart, InheritedVisibility>();
+        //app.editor_relation::<PlayerStart, Transform>();
+        //app.editor_relation::<PlayerStart, GlobalTransform>();
+        //app.editor_relation::<PlayerStart, Visibility>();
+        //app.editor_relation::<PlayerStart, ViewVisibility>();
+        //app.editor_relation::<PlayerStart, InheritedVisibility>();
 
-        app.editor_relation::<Transform, GlobalTransform>();
+        //app.editor_relation::<Transform, GlobalTransform>();
 
         //Light
         app.editor_registry::<LightAreaToggle>();
 
         app.editor_registry::<PointLight>();
-        app.editor_relation::<PointLight, CubemapVisibleEntities>();
-        app.editor_relation::<PointLight, CubemapFrusta>();
-        app.editor_relation::<PointLight, Transform>();
-        app.editor_relation::<PointLight, Visibility>();
+        //app.editor_relation::<PointLight, CubemapVisibleEntities>();
+        //app.editor_relation::<PointLight, CubemapFrusta>();
+        //app.editor_relation::<PointLight, Transform>();
+        //app.editor_relation::<PointLight, Visibility>();
 
         app.editor_registry::<DirectionalLight>();
-        app.editor_relation::<DirectionalLight, CascadesFrusta>();
-        app.editor_relation::<DirectionalLight, Cascades>();
-        app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
-        app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
-        app.editor_relation::<DirectionalLight, Transform>();
-        app.editor_relation::<DirectionalLight, Visibility>();
+        //app.editor_relation::<DirectionalLight, CascadesFrusta>();
+        //app.editor_relation::<DirectionalLight, Cascades>();
+        //app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
+        //app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
+        //app.editor_relation::<DirectionalLight, Transform>();
+        /app.editor_relation::<DirectionalLight, Visibility>();
 
         app.editor_registry::<SpotLight>();
-        app.editor_relation::<SpotLight, VisibleEntities>();
-        app.editor_relation::<SpotLight, Frustum>();
-        app.editor_relation::<SpotLight, Transform>();
-        app.editor_relation::<SpotLight, Visibility>();
+        //app.editor_relation::<SpotLight, VisibleEntities>();
+        //app.editor_relation::<SpotLight, Frustum>();
+        //app.editor_relation::<SpotLight, Transform>();
+        //app.editor_relation::<SpotLight, Visibility>();
 
         app.editor_registry::<PlaymodeLight>();
 
