@@ -63,7 +63,7 @@ bevy-inspector-egui = { branch = "space_edit", git = "https://github.com/MiniMin
     "highlight_changes",
 ] }
 bevy_mod_billboard = { branch = "migrate-0.15", git = "https://github.com/MiniMinerX/bevy_mod_billboard.git"}
-bevy_panorbit_camera = { version = "0.22", default-features = false }
+bevy_panorbit_camera = { version = "0.21", default-features = false }
 bevy-scene-hook = {git = "https://github.com/MiniMinerX/bevy-scene-hook.git", branch= "update-15.1"}
 convert_case = "0.7.1"
 egui_dock = "0.15.0"
