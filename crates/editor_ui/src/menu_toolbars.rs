@@ -147,7 +147,7 @@ pub struct MenuToolbarState {
     pub save_dialog: Option<egui_file::FileDialog>,
     pub load_dialog: Option<egui_file::FileDialog>,
     pub subscene_dialog: Option<egui_file::FileDialog>,
-    show_toasts: bool,
+    pub show_toasts: bool,
     pub path: String,
 }
 
