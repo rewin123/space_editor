@@ -26,7 +26,7 @@ bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", op
 workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
 
 [features]
-default = ["persistence_editor", "bevy_mod_outline"]
+default = ["persistence_editor"]
 persistence_editor = []
 bevy_mod_outline = ["dep:bevy_mod_outline"]
 

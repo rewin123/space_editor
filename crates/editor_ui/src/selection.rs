@@ -79,17 +79,25 @@ fn draw_mesh_intersections(pointers: Query<&PointerInteraction>, mut gizmos: Giz
 /// Reemits the pointer click event to the entity that is being clicked on
 /// Its not a good solution, but it works for now
 fn reemit_pointer_click(
+    mut is_pressed: Local<bool>,
     pointers: Query<&PointerInteraction>,
     mut commands: Commands,
     q_meshes: Query<Entity, With<Mesh3d>>,
+
 ) {
     for pointer in pointers.iter() {
         if let Some((e, _)) = pointer.get_nearest_hit() {
             if q_meshes.contains(*e) {
+                if *is_pressed {
+                    return;
+                }
                 commands.trigger_targets(SelectEvent, *e);
+                *is_pressed = true;
+                return;
             }
         }
     }
+    *is_pressed = false;
 }
 
 pub fn select_listener(
@@ -102,9 +110,9 @@ pub fn select_listener(
     pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
+    trigger.propagate(false);
 
     if !pan_orbit_state.0 {
-        trigger.propagate(false);
         return;
     }
 

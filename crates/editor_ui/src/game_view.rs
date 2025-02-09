@@ -5,9 +5,9 @@ use bevy_egui::{
     EguiContextSettings,
 };
 use space_undo::UndoRedo;
-use transform_gizmo_egui::GizmoMode;
 
 use space_shared::*;
+use transform_gizmo_bevy::GizmoMode;
 
 use crate::editor_tab_name::EditorTabName;
 
