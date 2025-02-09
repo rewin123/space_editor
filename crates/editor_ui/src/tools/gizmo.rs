@@ -2,7 +2,7 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use space_editor_core::prelude::*;
 use space_shared::*;
-use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoMode};
+use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoMode, GizmoTarget};
 
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
@@ -18,7 +18,10 @@ pub struct GizmoToolPlugin;
 impl Plugin for GizmoToolPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+        use transform_gizmo_bevy::GizmoOptions;
+
         app.editor_tool(GizmoTool::default());
+        app.add_plugins(transform_gizmo_bevy::TransformGizmoPlugin);
 
         if let Some(mut game_view_tab) = app.world_mut().get_resource_mut::<GameViewTab>() {
             game_view_tab.active_tool = Some(0);
@@ -33,8 +36,26 @@ impl Plugin for GizmoToolPlugin {
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
 
         app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
+
+        app.add_systems(Update, toggle_picking_enabled.in_set(EditorSet::Editor));
+        app.insert_resource(GizmoOptions {
+            hotkeys: Some(transform_gizmo_bevy::GizmoHotkeys::default()),
+            ..Default::default()
+        });
     }
 }
+
+fn toggle_picking_enabled(
+    gizmo_targets: Query<&GizmoTarget>,
+    mut picking_settings: ResMut<PickingPlugin>,
+) {
+    // Picking is disabled when any of the gizmos is focused or active.
+
+    picking_settings.is_enabled = gizmo_targets
+        .iter()
+        .all(|target| !target.is_focused() && !target.is_active());
+}
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum GizmoHotkey {
@@ -94,8 +115,6 @@ impl EditorTool for GizmoTool {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
-
-        return;
 
         let sizing = world.resource::<Sizing>();
 
@@ -162,6 +181,33 @@ impl EditorTool for GizmoTool {
             return;
         }
 
+
+        let selected;
+        {
+            let mut q_selected = world.query_filtered::<Entity, With<Selected>>();
+            selected = q_selected.iter(&world).collect::<Vec<_>>();
+        }
+
+        let has_gizmo_targets;
+        {
+            let mut q_gizmo_targets = world.query_filtered::<Entity, With<GizmoTarget>>();
+            has_gizmo_targets = q_gizmo_targets.iter(&world).collect::<Vec<_>>();
+        }
+
+        // Add gizmo targets to the selected without gizmo targets
+        for s in selected.iter() {
+            if !has_gizmo_targets.contains(s) {
+                info!("Adding gizmo target to {:?}", s);
+                commands.entity(*s).insert(GizmoTarget::default());
+            }
+        }
+        // Remove gizmo targets from the gizmo which are not selected
+        for s in has_gizmo_targets.iter() {
+            if !selected.contains(s) {
+                info!("Removing gizmo target from {:?}", s);
+                commands.entity(*s).remove::<GizmoTarget>();
+            }
+        }
 
 
         if ui.ctx().wants_pointer_input() {
