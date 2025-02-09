@@ -63,17 +63,6 @@ pub mod icons;
 
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 
-/*
-use bevy_picking::{
-    backends::raycast::RaycastPickable,
-    events::{Down, Pointer},
-    picking_core::Pickable,
-    pointer::PointerButton,
-    prelude::*,
-    PickableBundle,
-};
-*/
-
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
 use camera_view::CameraViewTabPlugin;
 use space_editor_core::prelude::*;
@@ -200,7 +189,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
         res.add(PanOrbitCameraPlugin)
-            //.add(selection::EditorPickingPlugin)
+            .add(selection::plugin)
             .add(bevy_debug_grid::DebugGridPlugin::without_floor_grid())
             .add(
                 WorldInspectorPlugin::default()

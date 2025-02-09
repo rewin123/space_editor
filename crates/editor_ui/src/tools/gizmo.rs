@@ -2,7 +2,7 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use space_editor_core::prelude::*;
 use space_shared::*;
-use transform_gizmo_egui::{EnumSet, Gizmo, GizmoExt, GizmoMode};
+use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoMode, GizmoTarget};
 
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
@@ -18,7 +18,10 @@ pub struct GizmoToolPlugin;
 impl Plugin for GizmoToolPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+        use transform_gizmo_bevy::GizmoOptions;
+
         app.editor_tool(GizmoTool::default());
+        app.add_plugins(transform_gizmo_bevy::TransformGizmoPlugin);
 
         if let Some(mut game_view_tab) = app.world_mut().get_resource_mut::<GameViewTab>() {
             game_view_tab.active_tool = Some(0);
@@ -33,8 +36,26 @@ impl Plugin for GizmoToolPlugin {
         app.editor_hotkey(GizmoHotkey::Clone, vec![KeyCode::AltLeft]);
 
         app.add_systems(Update, draw_lines_system.in_set(EditorSet::Editor));
+
+        app.add_systems(Update, toggle_picking_enabled.in_set(EditorSet::Editor));
+        app.insert_resource(GizmoOptions {
+            hotkeys: Some(transform_gizmo_bevy::GizmoHotkeys::default()),
+            ..Default::default()
+        });
     }
 }
+
+fn toggle_picking_enabled(
+    gizmo_targets: Query<&GizmoTarget>,
+    mut picking_settings: ResMut<PickingPlugin>,
+) {
+    // Picking is disabled when any of the gizmos is focused or active.
+
+    picking_settings.is_enabled = gizmo_targets
+        .iter()
+        .all(|target| !target.is_focused() && !target.is_active());
+}
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum GizmoHotkey {
@@ -88,53 +109,13 @@ const MODE_TO_KEY: [(EnumSet<GizmoMode>, GizmoHotkey); 3] = [
     (GizmoMode::all_scale(), GizmoHotkey::Scale),
 ];
 
-fn bevy_to_gizmo_transform(transform: &Transform) -> transform_gizmo_egui::math::Transform {
-    transform_gizmo_egui::math::Transform {
-        scale: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(
-            &transform.scale.as_dvec3().to_array(),
-        ),
-        rotation: transform_gizmo_egui::mint::Quaternion::<f64> {
-            v: transform_gizmo_egui::mint::Vector3::<f64> {
-                x: transform.rotation.x as f64,
-                y: transform.rotation.y as f64,
-                z: transform.rotation.z as f64,
-            },
-            s: transform.rotation.w as f64,
-        },
-        translation: transform_gizmo_egui::mint::Vector3::<f64>::from_slice(
-            &transform.translation.as_dvec3().to_array(),
-        ),
-    }
-}
-
-fn gizmo_to_bevy_transform(transform: &transform_gizmo_egui::math::Transform) -> Transform {
-    Transform {
-        scale: Vec3::new(
-            transform.scale.x as f32,
-            transform.scale.y as f32,
-            transform.scale.z as f32,
-        ),
-        translation: Vec3::new(
-            transform.translation.x as f32,
-            transform.translation.y as f32,
-            transform.translation.z as f32,
-        ),
-        rotation: Quat::from_xyzw(
-            transform.rotation.v.x as f32,
-            transform.rotation.v.y as f32,
-            transform.rotation.v.z as f32,
-            transform.rotation.s as f32,
-        ),
-        ..Default::default()
-    }
-}
-
 impl EditorTool for GizmoTool {
     fn name(&self) -> &str {
         "Gizmo"
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, commands: &mut Commands, world: &mut World) {
+
         let sizing = world.resource::<Sizing>();
 
         ui.spacing();
@@ -167,6 +148,7 @@ impl EditorTool for GizmoTool {
         let mut del = false;
         let mut clone_pressed = false;
         let mut multiple_pressed = false;
+        let mut disable_pan_orbit = false;
 
         for (mode, key) in MODE_TO_KEY {
             if input.just_pressed(key) {
@@ -199,262 +181,34 @@ impl EditorTool for GizmoTool {
             return;
         }
 
-        let (cam_transform, cam_proj) = {
-            let mut cam_query =
-                world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
-            let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
-                return;
-            };
-            (*ref_tr, ref_cam.clone())
-        };
 
-        let selected = world
-            .query_filtered::<Entity, With<Selected>>()
-            .iter(world)
-            .collect::<Vec<_>>();
-        let mut disable_pan_orbit = false;
+        let selected;
+        {
+            let mut q_selected = world.query_filtered::<Entity, With<Selected>>();
+            selected = q_selected.iter(&world).collect::<Vec<_>>();
+        }
 
-        let cell = world.as_unsafe_world_cell();
+        let has_gizmo_targets;
+        {
+            let mut q_gizmo_targets = world.query_filtered::<Entity, With<GizmoTarget>>();
+            has_gizmo_targets = q_gizmo_targets.iter(&world).collect::<Vec<_>>();
+        }
 
-        let view_matrix = Mat4::from(cam_transform.affine().inverse());
-        if multiple_pressed {
-            let mut mean_transform = Transform::IDENTITY;
-            for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
-                    continue;
-                };
-                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
-                    continue;
-                };
-                let tr = global_transform.compute_transform();
-                mean_transform.translation += tr.translation;
-                mean_transform.scale += tr.scale;
-            }
-            mean_transform.translation /= selected.len() as f32;
-            mean_transform.scale /= selected.len() as f32;
-
-            let mut global_mean = GlobalTransform::from(mean_transform);
-
-            unsafe {
-                cell.world_mut().insert_resource(MultipleCenter {
-                    center: Some(global_mean.translation()),
-                });
-            }
-
-            let mut loc_transform = vec![];
-            for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
-                    continue;
-                };
-                let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
-                    continue;
-                };
-                loc_transform.push(global_transform.reparented_to(&global_mean));
-            }
-
-            let mut gizmo_interacted = false;
-
-            let proj_mat = cam_proj.get_clip_from_view();
-            let proj_mat = transform_gizmo_egui::math::DMat4 {
-                x_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    proj_mat.x_axis.as_dvec4().to_array(),
-                ),
-                y_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    proj_mat.y_axis.as_dvec4().to_array(),
-                ),
-                z_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    proj_mat.z_axis.as_dvec4().to_array(),
-                ),
-                w_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    proj_mat.w_axis.as_dvec4().to_array(),
-                ),
-            };
-
-            let view_matrix = transform_gizmo_egui::math::DMat4 {
-                x_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    view_matrix.x_axis.as_dvec4().to_array(),
-                ),
-                y_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    view_matrix.y_axis.as_dvec4().to_array(),
-                ),
-                z_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    view_matrix.z_axis.as_dvec4().to_array(),
-                ),
-                w_axis: transform_gizmo_egui::math::DVec4::from_array(
-                    view_matrix.w_axis.as_dvec4().to_array(),
-                ),
-            };
-
-            let gizmo_config = transform_gizmo_egui::GizmoConfig {
-                projection_matrix: proj_mat.into(),
-                view_matrix: view_matrix.into(),
-                modes: self.gizmo_mode.into(),
-                viewport: ui.clip_rect(),
-                ..Default::default()
-            };
-
-            self.gizmo.update_config(gizmo_config);
-
-            info!("{:?}", &mean_transform);
-
-            if let Some((_, transforms)) = self
-                .gizmo
-                .interact(ui, &[bevy_to_gizmo_transform(&mean_transform)])
-            {
-                gizmo_interacted = true;
-                mean_transform = gizmo_to_bevy_transform(&transforms[0]);
-                disable_pan_orbit = true;
-            }
-
-            global_mean = GlobalTransform::from(mean_transform);
-
-            if gizmo_interacted && clone_pressed {
-                if self.is_move_cloned_entities {
-                } else {
-                    for e in selected.iter() {
-                        unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
-                    }
-                    self.is_move_cloned_entities = true;
-                    return;
-                }
-            }
-
-            if gizmo_interacted {
-                for (idx, e) in selected.iter().enumerate() {
-                    let Some(ecell) = cell.get_entity(*e) else {
-                        continue;
-                    };
-                    let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
-                        continue;
-                    };
-
-                    let new_global = global_mean.mul_transform(loc_transform[idx]);
-
-                    if let Some(parent) = unsafe { ecell.get::<Parent>() } {
-                        if let Some(parent) = cell.get_entity(parent.get()) {
-                            if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() }
-                            {
-                                *transform = new_global.reparented_to(parent_global);
-                            }
-                        }
-                    } else {
-                        *transform = new_global.compute_transform();
-                    }
-                }
-            }
-        } else {
-            unsafe {
-                cell.world_mut()
-                    .insert_resource(MultipleCenter { center: None });
-            }
-
-            for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
-                    continue;
-                };
-                let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
-                    continue;
-                };
-
-                let proj_mat = cam_proj.get_clip_from_view();
-                let proj_mat = transform_gizmo_egui::math::DMat4 {
-                    x_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        proj_mat.x_axis.as_dvec4().to_array(),
-                    ),
-                    y_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        proj_mat.y_axis.as_dvec4().to_array(),
-                    ),
-                    z_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        proj_mat.z_axis.as_dvec4().to_array(),
-                    ),
-                    w_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        proj_mat.w_axis.as_dvec4().to_array(),
-                    ),
-                };
-
-                let view_matrix = transform_gizmo_egui::math::DMat4 {
-                    x_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        view_matrix.x_axis.as_dvec4().to_array(),
-                    ),
-                    y_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        view_matrix.y_axis.as_dvec4().to_array(),
-                    ),
-                    z_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        view_matrix.z_axis.as_dvec4().to_array(),
-                    ),
-                    w_axis: transform_gizmo_egui::math::DVec4::from_array(
-                        view_matrix.w_axis.as_dvec4().to_array(),
-                    ),
-                };
-
-                let gizmo_config = transform_gizmo_egui::GizmoConfig {
-                    projection_matrix: proj_mat.into(),
-                    view_matrix: view_matrix.into(),
-                    modes: self.gizmo_mode.into(),
-                    viewport: ui.clip_rect(),
-                    ..Default::default()
-                };
-
-                if let Some(parent) = unsafe { ecell.get::<Parent>() } {
-                    if let Some(parent) = cell.get_entity(parent.get()) {
-                        if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
-                            if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
-                                self.gizmo.update_config(gizmo_config);
-
-                                if let Some((_, transforms)) = self.gizmo.interact(
-                                    ui,
-                                    &[bevy_to_gizmo_transform(&global.compute_transform())],
-                                ) {
-                                    disable_pan_orbit = true;
-                                    let new_transform = gizmo_to_bevy_transform(&transforms[0]);
-
-                                    if clone_pressed {
-                                        if self.is_move_cloned_entities {
-                                            let new_transform =
-                                                GlobalTransform::from(new_transform);
-                                            *transform = new_transform.reparented_to(parent_global);
-                                            transform.set_changed();
-                                            disable_pan_orbit = true;
-                                        } else {
-                                            unsafe {
-                                                cell.world_mut().send_event(CloneEvent { id: *e })
-                                            };
-                                            self.is_move_cloned_entities = true;
-                                        }
-                                    } else {
-                                        let new_transform = GlobalTransform::from(new_transform);
-                                        *transform = new_transform.reparented_to(parent_global);
-                                        transform.set_changed();
-                                    }
-                                }
-                                continue;
-                            }
-                        }
-                    }
-                }
-
-                self.gizmo.update_config(gizmo_config);
-
-                if let Some((_, transforms)) = self
-                    .gizmo
-                    .interact(ui, &[bevy_to_gizmo_transform(&transform)])
-                {
-                    if clone_pressed {
-                        if self.is_move_cloned_entities {
-                            *transform = gizmo_to_bevy_transform(&transforms[0]);
-                            transform.set_changed();
-                        } else {
-                            unsafe { cell.world_mut().send_event(CloneEvent { id: *e }) };
-                            self.is_move_cloned_entities = true;
-                        }
-                    } else {
-                        *transform = gizmo_to_bevy_transform(&transforms[0]);
-                        transform.set_changed();
-                    }
-                    disable_pan_orbit = true;
-                }
+        // Add gizmo targets to the selected without gizmo targets
+        for s in selected.iter() {
+            if !has_gizmo_targets.contains(s) {
+                info!("Adding gizmo target to {:?}", s);
+                commands.entity(*s).insert(GizmoTarget::default());
             }
         }
+        // Remove gizmo targets from the gizmo which are not selected
+        for s in has_gizmo_targets.iter() {
+            if !selected.contains(s) {
+                info!("Removing gizmo target from {:?}", s);
+                commands.entity(*s).remove::<GizmoTarget>();
+            }
+        }
+
 
         if ui.ctx().wants_pointer_input() {
             disable_pan_orbit = true;
@@ -462,7 +216,7 @@ impl EditorTool for GizmoTool {
 
         if disable_pan_orbit {
             unsafe {
-                cell.get_resource_mut::<crate::EditorCameraEnabled>()
+                world.get_resource_mut::<crate::EditorCameraEnabled>()
                     .unwrap()
                     .0 = false
             };

@@ -5030,7 +5030,7 @@ dependencies = [
  "space_prefab",
  "space_shared",
  "space_undo",
- "transform-gizmo-egui",
+ "transform-gizmo-bevy",
  "workspace-hakari",
 ]
 
@@ -5465,8 +5465,8 @@ dependencies = [
 
 [[package]]
 name = "transform-gizmo"
-version = "0.4.0"
-source = "git+https://github.com/MiniMinerX/transform-gizmo.git#dc2727027145a671ea727cb47aeac7f7b01ec71e"
+version = "0.5.1"
+source = "git+https://github.com/UnderbudgetGames/transform-gizmo.git#41a0ee91067fb7a10bc7a08ad17742e0ec12463f"
 dependencies = [
  "ahash",
  "ecolor",
@@ -5479,12 +5479,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "transform-gizmo-egui"
-version = "0.4.0"
-source = "git+https://github.com/MiniMinerX/transform-gizmo.git#dc2727027145a671ea727cb47aeac7f7b01ec71e"
+name = "transform-gizmo-bevy"
+version = "0.5.1"
+source = "git+https://github.com/UnderbudgetGames/transform-gizmo.git#41a0ee91067fb7a10bc7a08ad17742e0ec12463f"
 dependencies = [
- "egui",
+ "bevy_app",
+ "bevy_asset",
+ "bevy_core",
+ "bevy_core_pipeline",
+ "bevy_derive",
+ "bevy_ecs",
+ "bevy_image",
+ "bevy_input",
+ "bevy_log",
+ "bevy_math",
+ "bevy_pbr",
+ "bevy_picking",
+ "bevy_reflect",
+ "bevy_render",
+ "bevy_transform",
+ "bevy_utils",
+ "bevy_window",
+ "bytemuck",
  "transform-gizmo",
+ "uuid",
 ]
 
 [[package]]

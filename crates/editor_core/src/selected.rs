@@ -112,8 +112,8 @@ mod tests {
         });
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<Wireframe>>();
-        assert_eq!(0, query.iter(&app.world).count());
+        let mut query = app.world_mut().query_filtered::<Entity, With<Wireframe>>();
+        assert_eq!(0, query.iter(&app.world_mut()).count());
     }
 
     #[test]
@@ -127,8 +127,8 @@ mod tests {
         });
         app.update();
 
-        let mut query = app.world.query_filtered::<Entity, With<Wireframe>>();
-        assert_eq!(0, query.iter(&app.world).count());
+        let mut query = app.world_mut().query_filtered::<Entity, With<Wireframe>>();
+        assert_eq!(0, query.iter(&app.world_mut()).count());
     }
 
     #[test]
@@ -143,8 +143,8 @@ mod tests {
         app.update();
 
         let mut query = app
-            .world
+            .world_mut()
             .query_filtered::<Entity, (With<Wireframe>, With<Selected>)>();
-        assert_eq!(2, query.iter(&app.world).count());
+        assert_eq!(2, query.iter(&app.world_mut()).count());
     }
 }
