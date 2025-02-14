@@ -142,7 +142,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Camera3d>();
         app.editor_registry::<Camera2d>();
         app.editor_registry::<Projection>();
-        //app.editor_registry::<OrthographicProjection>();
+        app.editor_registry::<OrthographicProjection>();
         app.editor_registry::<PlaymodeCamera>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
