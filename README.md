@@ -17,7 +17,7 @@ Aspires to be editor for bevy while there is no official editor.
 
 * Project Lead:         rewin <rewin1996@gmail.com>
 * Developer Experience: Julia Naomi <jnboeira@outlook.com>
-* UX Designer:          Jay Kim <jaykim9419@gmail.com>
+* UX Designer:          Jay Kim <uxjaykim@gmail.com>
 
 ## Main features
 
