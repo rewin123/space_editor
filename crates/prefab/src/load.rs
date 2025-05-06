@@ -90,14 +90,14 @@ fn load_prefab(
                 .insert((Transform::default(), GlobalTransform::default()));
         }
         if vis.is_none() {
-            commands.entity(e).insert(VisibilityBundle::default());
+            commands.entity(e).insert(Visibility::default());
         }
 
         //remove old scene
         if let Some(children) = children {
             for child in children {
                 if auto_children.contains(*child) {
-                    commands.entity(*child).despawn_recursive();
+                    commands.entity(*child).despawn();
                 }
             }
             commands.entity(e).clear_children();

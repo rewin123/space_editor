@@ -1,8 +1,5 @@
 use bevy::{
-    ecs::{entity::MapEntities, reflect::ReflectMapEntities},
-    prelude::*,
-    tasks::IoTaskPool,
-    utils::HashSet,
+    ecs::{entity::MapEntities, reflect::ReflectMapEntities}, platform::collections::HashSet, prelude::*, tasks::IoTaskPool
 };
 use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
@@ -53,7 +50,7 @@ impl Plugin for SavePrefabPlugin {
             OnEnter(SaveState::Save),
             (
                 prepare_children,
-                apply_deferred,
+                ApplyDeferred,
                 serialize_scene,
                 delete_prepared_children,
             )
@@ -338,7 +335,7 @@ mod tests {
         world.spawn(PrefabMarker).add_child(child);
 
         let mut query = world.query::<&Children>();
-        let children = query.single(&world);
+        let children = query.single(&world).unwrap();
         let prefab = ChildrenPrefab::from_children(children);
 
         assert_eq!(prefab.0.len(), 1);
@@ -369,7 +366,7 @@ mod tests {
             .world_mut()
             .resource::<Events<space_shared::toast::ToastMessage>>();
 
-        let mut iter = events.get_reader();
+        let mut iter = events.get_cursor();
         let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }

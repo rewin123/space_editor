@@ -1,5 +1,5 @@
 use crate::ext::*;
-use bevy::utils::HashMap;
+use bevy::platform::collections::HashMap;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 use super::material::try_image;
@@ -200,7 +200,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[test]
     fn sprite_texture_to_sprite_with_path() {
         let prefab = SpriteTexture {
             texture: String::from("test_asset.png"),
@@ -369,7 +368,7 @@ mod tests {
         app.update();
         let mut query = app.world_mut().query::<&Sprite>();
 
-        let sprite = query.single(&app.world());
+        let sprite = query.single(&app.world()).unwrap();
         if let Some(texture_atlas) = sprite.texture_atlas.as_ref() {
             assert_eq!(texture_atlas.index, 0);
         } else {

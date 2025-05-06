@@ -8,7 +8,7 @@ pub mod tab_viewer;
 
 use std::fmt::Display;
 
-use bevy::{ecs::world::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{ecs::world::CommandQueue, platform::collections::HashMap, prelude::*, window::PrimaryWindow};
 
 use bevy_egui::{egui, EguiContext};
 
@@ -250,6 +250,7 @@ impl EditorUiAppExt for App {
     fn editor_tab<T, N: TabName>(
         &mut self,
         tab_name: N,
+        //tab_systems: impl IntoSystemConfigs<T>,
         tab_systems: impl IntoSystemConfigs<T>,
     ) -> &mut Self {
         let tab_name_holder = TabNameHolder::new(tab_name);

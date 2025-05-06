@@ -2,7 +2,7 @@ use std::any::TypeId;
 
 use bevy::{
     ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, reflect::TypeRegistryArc,
-    scene::serde::SceneDeserializer, utils::HashSet,
+    scene::serde::SceneDeserializer,
 };
 use serde::de::DeserializeSeed;
 #[cfg(feature = "editor")]

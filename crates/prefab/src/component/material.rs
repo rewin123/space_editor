@@ -1,7 +1,7 @@
 use std::fs;
 
 use crate::ext::*;
-use bevy::sprite::AlphaMode2d;
+use bevy::{math::Affine2, sprite::AlphaMode2d};
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
@@ -125,6 +125,7 @@ impl ColorMaterialPrefab {
             color: self.color,
             texture,
             alpha_mode: AlphaMode2d::Opaque,
+            uv_transform: Affine2::default(),
         }
     }
 }
@@ -242,7 +243,7 @@ mod tests {
         .add_systems(
             Update,
             |server: Res<AssetServer>, query: Query<&MaterialPrefab>| {
-                let material = query.single();
+                let material = query.single().unwrap();
                 let material = material.to_material(&server);
                 assert_eq!(material.base_color, Color::linear_rgb(1.0, 1.0, 1.0));
                 assert_eq!(material.emissive, Color::BLACK.into());

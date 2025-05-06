@@ -1,15 +1,7 @@
 use bevy::{
-    core_pipeline::{
-        core_3d::{Camera3dDepthTextureUsage, ScreenSpaceTransmissionQuality},
-        tonemapping::{DebandDither, Tonemapping},
-    },
-    pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
+    core_pipeline::core_3d::{Camera3dDepthTextureUsage, ScreenSpaceTransmissionQuality},
     prelude::*,
-    render::{
-        camera::{CameraMainTextureUsages, CameraRenderGraph, Exposure},
-        primitives::{CascadesFrusta, CubemapFrusta, Frustum},
-        view::{ColorGrading, VisibleEntities},
-    },
+    render::camera::CameraRenderGraph,
 };
 use bevy_scene_hook::HookPlugin;
 use space_shared::toast::ToastMessage;
@@ -62,8 +54,8 @@ impl Plugin for BasePrefabPlugin {
                 .chain(),
         );
 
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
+        app.add_systems(Update, ApplyDeferred.in_set(PrefabSet::RelationApply));
+        app.add_systems(Update, ApplyDeferred.in_set(PrefabSet::PrefabChangeApply));
 
         app.register_type::<EntityLink>();
 
@@ -265,14 +257,14 @@ fn camera_render_graph_creation(
 pub fn add_global_transform(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &mut Transform, Option<&Parent>),
+        (Entity, &mut Transform, Option<&ChildOf>),
         (With<Transform>, Without<GlobalTransform>),
     >,
     globals: Query<&GlobalTransform>,
 ) {
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
-            if let Ok(parent_global) = globals.get(parent.get()) {
+            if let Ok(parent_global) = globals.get(parent.parent()) {
                 commands.entity(e).insert(parent_global.mul_transform(*tr));
             } else {
                 commands.entity(e).insert(GlobalTransform::from(*tr));
@@ -332,7 +324,7 @@ fn sync_asset_mesh(
     }
 
     for e in deleted.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
+        if let Ok(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Mesh3d>();
             info!("Removed mesh handle for {:?}", e);
         }
@@ -352,7 +344,7 @@ fn sync_asset_material(
     }
 
     for e in deleted.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
+        if let Ok(mut cmd) = commands.get_entity(e) {
             cmd.remove::<MeshMaterial3d<StandardMaterial>>();
         }
     }
@@ -430,7 +422,7 @@ mod test {
 
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn(ViewVisibility::default());
-            commands.spawn(VisibilityBundle::default());
+            commands.spawn(Visibility::default());
             commands.spawn((ViewVisibility::default(), InheritedVisibility::VISIBLE));
         })
         .add_systems(Update, remove_computed_visibility);
@@ -451,8 +443,14 @@ mod test {
             commands.spawn(GlobalTransform::default());
             commands.spawn(Transform::default());
             let child = commands.spawn(Transform::default()).id();
-            commands.spawn(TransformBundle::default()).add_child(child);
-            commands.spawn(TransformBundle::default());
+            commands.spawn((
+                Transform::default(),
+                Visibility::default(),
+            )).add_child(child);
+            commands.spawn((
+                Transform::default(),
+                Visibility::default(),
+            ));
         })
         .add_systems(Update, (add_global_transform, remove_global_transform));
 

@@ -32,7 +32,7 @@ pub fn spawn_scene(
         if let Some(children) = children {
             for e in children {
                 if auto_children.contains(*e) {
-                    commands.entity(*e).despawn_recursive();
+                    commands.entity(*e).despawn();
                 }
             }
         }
@@ -57,10 +57,13 @@ pub fn spawn_scene(
             }));
 
         if visibility.is_none() {
-            commands.entity(e).insert(VisibilityBundle::default());
+            commands.entity(e).insert(Visibility::default());
         }
         if transform.is_none() {
-            commands.entity(e).insert(TransformBundle::default());
+            commands.entity(e).insert((
+                Transform::default(),
+                Visibility::default(),
+            ));
         }
     }
 }
@@ -89,7 +92,7 @@ fn recursive_path(
             let mut child_path = path.clone();
             child_path.push(i);
 
-            recursive_path(commands, q_children, *child_entity, child_path);
+            recursive_path(commands, q_children, child_entity.entity(), child_path);
         }
     }
 }
@@ -150,7 +153,7 @@ pub fn editor_remove_mesh(
     mut query: RemovedComponents<MeshPrimitive3dPrefab>,
 ) {
     for e in query.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
+        if let Ok(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Mesh3d>();
             info!("Removed mesh handle for {:?}", e);
         }
@@ -163,7 +166,7 @@ pub fn editor_remove_mesh_2d(
     mut query: RemovedComponents<MeshPrimitive2dPrefab>,
 ) {
     for e in query.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
+        if let Ok(mut cmd) = commands.get_entity(e) {
             cmd.remove::<Mesh2d>();
             info!("Removed mesh handle for {:?}", e);
         }
@@ -244,7 +247,7 @@ pub fn spawn_player_start(
     for (e, prefab) in query.iter() {
         let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
         #[cfg(feature = "editor")]
-        toast.send(ToastMessage::new(
+        toast.write(ToastMessage::new(
             &msg,
             space_shared::toast::ToastKind::Info,
         ));
@@ -354,7 +357,7 @@ mod tests {
         let mut query = app
             .world_mut()
             .query_filtered::<Entity, With<MeshPrimitive2dPrefab>>();
-        let entity = query.single(&app.world_mut());
+        let entity = query.single(&app.world_mut()).unwrap();
         app.world_mut()
             .entity_mut(entity)
             .remove::<MeshPrimitive2dPrefab>();
@@ -383,7 +386,7 @@ mod tests {
         let mut query = app
             .world_mut()
             .query_filtered::<Entity, With<MeshPrimitive3dPrefab>>();
-        let entity = query.single(&app.world_mut());
+        let entity = query.single(&app.world_mut()).unwrap();
         app.world_mut()
             .entity_mut(entity)
             .remove::<MeshPrimitive3dPrefab>();
@@ -435,7 +438,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<ToastMessage>>();
-        let mut man_events = events.get_reader();
+        let mut man_events = events.get_cursor();
         let mut events = man_events.read(events);
         let event = events.next().unwrap();
 
@@ -458,22 +461,35 @@ mod tests {
         app.add_plugins(MinimalPlugins)
             .add_systems(Startup, |mut commands: Commands| {
                 let child_1 = commands
-                    .spawn(TransformBundle::default())
+                    .spawn((
+                        Transform::default(),
+                        Visibility::default(),
+                    ))
                     .with_children(|c| {
-                        c.spawn(TransformBundle::default());
+                        c.spawn((
+                            Transform::default(),
+                            Visibility::default(),
+                        ));
                     })
                     .id();
                 let child_2 = commands
-                    .spawn(TransformBundle::default())
+                    .spawn((
+                        Transform::default(),
+                        Visibility::default(),
+                    ))
                     .with_children(|c| {
-                        c.spawn(TransformBundle::default());
+                        c.spawn((
+                            Transform::default(),
+                            Visibility::default(),
+                        ));
                     })
                     .id();
 
                 commands
                     .spawn((
                         GltfPrefab::default(),
-                        TransformBundle::default(),
+                        Transform::default(),
+                        Visibility::default(),
                         WantChildPath,
                     ))
                     .add_child(child_1)
@@ -485,7 +501,7 @@ mod tests {
 
         let mut parent_query = app.world_mut().query_filtered::<Entity, (
             Without<WantChildPath>,
-            Without<Parent>,
+            Without<ChildOf>,
             With<Children>,
         )>();
         assert_eq!(parent_query.iter(&app.world_mut()).count(), 1);
@@ -521,7 +537,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&Sprite)>();
+        let mut query = app.world_mut().query::<&Sprite>();
 
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
@@ -554,7 +570,7 @@ mod tests {
             .world_mut()
             .query::<(&SceneRoot, &SceneAutoRoot, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(
             s.0.path::<String>("Scene0").unwrap().to_string(),
@@ -562,7 +578,7 @@ mod tests {
         );
 
         let mut query = app.world_mut().query::<(Entity, &DespawnTestChild)>();
-        assert!(query.get_single(&app.world_mut()).is_err());
+        assert!(query.single(&app.world_mut()).is_err());
     }
 
     #[test]
@@ -580,7 +596,7 @@ mod tests {
                     scene: String::from("Scene0"),
                 },
                 Visibility::Hidden,
-                TransformBundle::IDENTITY,
+                Transform::default(),
             ));
         })
         .add_systems(Update, spawn_scene);
@@ -591,7 +607,7 @@ mod tests {
             .world_mut()
             .query::<(&SceneRoot, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.1, Visibility::Hidden);
         assert_eq!(s.2, &Transform::IDENTITY);

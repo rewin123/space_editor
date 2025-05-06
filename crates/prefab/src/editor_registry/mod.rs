@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
 use bevy::{
-    ecs::system::{EntityCommand, EntityCommands},
-    prelude::*,
-    reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc, Typed},
-    utils::{HashMap, HashSet},
+    ecs::{component::Mutable, system::{EntityCommand, EntityCommands}}, platform::collections::{HashMap, HashSet}, prelude::*, reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc, Typed}
 };
 
 use space_shared::*;
@@ -231,7 +228,7 @@ impl EditorRegistry {
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
+        T: Component<Mutability = Mutable> + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self;
@@ -243,7 +240,7 @@ pub trait EditorRegistryExt {
     ) -> &mut Self;
 
     fn editor_clone_registry<
-        T: Component + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
+        T: Component<Mutability = Mutable> + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self;
@@ -264,7 +261,7 @@ pub trait EditorRegistryExt {
     #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
-        T: Component
+        T: Component<Mutability = Mutable>
             + Reflect
             + FromReflect
             + Default
@@ -284,7 +281,7 @@ pub trait EditorRegistryExt {
 
 impl EditorRegistryExt for App {
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
+        T: Component<Mutability = Mutable> + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self {
@@ -307,7 +304,7 @@ impl EditorRegistryExt for App {
     }
 
     fn editor_clone_registry<
-        T: Component + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
+        T: Component<Mutability = Mutable> + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self {
@@ -346,7 +343,7 @@ impl EditorRegistryExt for App {
     #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
-        T: Component
+        T: Component<Mutability = Mutable>
             + Reflect
             + FromReflect
             + Default
@@ -455,7 +452,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &TestRelation)>();
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.0, &Name::from("value"));
     }
@@ -476,7 +473,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &TestRelation)>();
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.0, &Name::from("value"));
     }
@@ -540,7 +537,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<AnEvent>>();
-        let mut events_reader = events.get_reader();
+        let mut events_reader = events.get_cursor();
         let an_event = events_reader.read(events).next().unwrap();
 
         // Check the event has been sent
@@ -556,7 +553,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<AnEvent>>();
-        let mut events_reader = events.get_reader();
+        let mut events_reader = events.get_cursor();
         let an_event = events_reader.read(events).next().unwrap();
 
         assert_eq!(an_event.val, 17);
@@ -586,7 +583,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &Named)>();
-        let s = query.single(app.world());
+        let s = query.single(app.world()).unwrap();
         assert_eq!(s.1.name, "value");
     }
 
@@ -617,7 +614,7 @@ mod tests {
         let name = "name";
         let e = app
             .world_mut()
-            .spawn((Name::new(name), VisibilityBundle::default()))
+            .spawn((Name::new(name), Visibility::default()))
             .id();
 
         {
@@ -651,7 +648,7 @@ mod tests {
         let name = "name";
         let e = app
             .world_mut()
-            .spawn((Name::new(name), VisibilityBundle::default()))
+            .spawn((Name::new(name), Visibility::default()))
             .id();
 
         let mut command_queue = CommandQueue::default();

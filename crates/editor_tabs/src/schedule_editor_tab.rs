@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use bevy_egui::egui;
 
 use crate::{tab_name::TabNameHolder, EditorTab};

@@ -21,7 +21,7 @@ pub use player_start::*;
 /// NOT USED. Planned to be used in future for auto structs
 pub mod path;
 
-use bevy::{prelude::*, reflect::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*, reflect::*};
 
 /// External dependencies
 pub mod ext {
