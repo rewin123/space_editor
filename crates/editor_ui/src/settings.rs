@@ -1,8 +1,7 @@
 use std::fmt::Display;
 
 use bevy::{
-    prelude::*,
-    utils::{HashMap, HashSet},
+    platform::collections::{HashMap, HashSet}, prelude::*
 };
 use bevy_egui::*;
 use space_editor_core::hotkeys::AllHotkeys;

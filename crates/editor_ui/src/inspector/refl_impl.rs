@@ -2,7 +2,7 @@ use std::any::{Any, TypeId};
 
 use bevy::{
     prelude::{AppTypeRegistry, ResMut},
-    reflect::{PartialReflect, Reflect},
+    reflect::PartialReflect,
 };
 use bevy_egui::egui;
 use bevy_inspector_egui::reflect_inspector::ProjectorReflect;

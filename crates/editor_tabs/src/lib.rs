@@ -8,7 +8,7 @@ pub mod tab_viewer;
 
 use std::fmt::Display;
 
-use bevy::{ecs::world::CommandQueue, platform::collections::HashMap, prelude::*, window::PrimaryWindow};
+use bevy::{ecs::{schedule::{graph::GraphInfo, Chain, Schedulable}, system::ScheduleSystem, world::CommandQueue}, platform::collections::HashMap, prelude::*, window::PrimaryWindow};
 
 use bevy_egui::{egui, EguiContext};
 
@@ -196,10 +196,13 @@ pub trait EditorUiAppExt {
     fn editor_tab_by_trait<T>(&mut self, tab: T) -> &mut Self
     where
         T: EditorTab + Resource + Send + Sync + 'static;
-    fn editor_tab<T, N: TabName>(
+    fn editor_tab<
+        Marker, 
+        N: TabName
+    >(
         &mut self,
         tab_name: N,
-        tab_systems: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoScheduleConfigs<ScheduleSystem, Marker>,
     ) -> &mut Self;
 }
 
@@ -247,11 +250,11 @@ impl EditorUiAppExt for App {
         self
     }
 
-    fn editor_tab<T, N: TabName>(
+    fn editor_tab<Marker, N: TabName>(
         &mut self,
         tab_name: N,
         //tab_systems: impl IntoSystemConfigs<T>,
-        tab_systems: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoScheduleConfigs<ScheduleSystem, Marker>,
     ) -> &mut Self {
         let tab_name_holder = TabNameHolder::new(tab_name);
 

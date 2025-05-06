@@ -49,15 +49,22 @@ impl CloneComponent {
         Self {
             func: Arc::new(move |cmds, src| {
                 if let Some(c) = src.get::<T>() {
-                    let cloned = c.clone_value();
-                    <T as FromReflect>::from_reflect(&*cloned).map_or_else(
-                        || {
+                    let cloned_result = c.reflect_clone();
+                    match cloned_result {
+                        Ok(cloned) => {
+                            <T as FromReflect>::from_reflect(&*cloned).map_or_else(
+                                || {
+                                    error!("Failed to clone component");
+                                },
+                                |taken| {
+                                    cmds.insert(taken);
+                                },
+                            );
+                        },
+                        Err(e) => {
                             error!("Failed to clone component");
-                        },
-                        |taken| {
-                            cmds.insert(taken);
-                        },
-                    );
+                        }
+                    }
                 }
             }),
         }
@@ -71,8 +78,12 @@ pub struct AddDefaultComponent {
 }
 
 impl EntityCommand for AddDefaultComponent {
-    fn apply(self, id: Entity, world: &mut World) {
-        (self.func)(id, world);
+    fn apply(self, mut entity_world: EntityWorldMut) {
+        let id = entity_world.id();
+        let func = self.func;
+        entity_world.world_scope(move |world: &mut World| {
+            func(id, world);
+        })
     }
 }
 

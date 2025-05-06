@@ -1,11 +1,10 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::{
     egui::{self, RichText, Widget},
-    render_systems::ExtractedEguiSettings,
     EguiContextSettings,
 };
 use space_undo::UndoRedo;
-use transform_gizmo_egui::GizmoMode;
+use transform_gizmo_bevy::GizmoMode;
 
 use space_shared::*;
 
@@ -129,11 +128,11 @@ pub fn reset_camera_viewport(
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
     mut game_view_tab: ResMut<GameViewTab>,
 ) {
-    let Ok(mut cam) = cameras.get_single_mut() else {
+    let Ok(mut cam) = cameras.single_mut() else {
         return;
     };
 
-    let Ok(_window) = primary_window.get_single() else {
+    let Ok(_window) = primary_window.single() else {
         return;
     };
 
@@ -156,11 +155,11 @@ pub fn set_camera_viewport(
     mut egui_settings: Query<&mut EguiContextSettings>,
     mut cameras: Query<&mut Camera, With<EditorCameraMarker>>,
 ) {
-    let Ok(mut cam) = cameras.get_single_mut() else {
+    let Ok(mut cam) = cameras.single_mut() else {
         return;
     };
 
-    let Ok((entity, window)) = primary_window.get_single() else {
+    let Ok((entity, window)) = primary_window.single() else {
         return;
     };
 

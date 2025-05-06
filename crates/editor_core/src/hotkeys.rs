@@ -1,9 +1,9 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
+use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 use bevy::reflect::{GetTypeRegistration, Typed};
-use bevy::utils::HashMap;
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::AppPersistenceExt;

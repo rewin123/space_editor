@@ -44,14 +44,14 @@ impl Plugin for BottomMenuPlugin {
             bottom_menu
                 .before(EditorLoadSet)
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
         app.add_systems(
             Update,
             top_menu
                 .before(EditorLoadSet)
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
         app.add_systems(Update, in_game_menu.in_set(EditorSet::Game));
         app.add_event::<MenuLoadEvent>();
@@ -167,7 +167,7 @@ pub fn bottom_menu(
     egui::TopBottomPanel::bottom("bottom_menu")
         .min_height(&sizing.icon.to_size().max(sizing.text) + 4.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16, 8);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 2.);
@@ -182,9 +182,9 @@ pub fn bottom_menu(
                     .clicked()
                 {
                     for (entity, _, _, _parent) in query.iter() {
-                        commands.entity(entity).despawn_recursive();
+                        commands.entity(entity).despawn();
 
-                        changes.send(NewChange {
+                        changes.write(NewChange {
                             change: Arc::new(RemovedEntity { entity }),
                         });
                     }
@@ -199,7 +199,7 @@ pub fn bottom_menu(
                     .clicked()
                 {
                     let id = commands.spawn_empty().insert(PrefabMarker).id();
-                    changes.send(NewChange {
+                    changes.write(NewChange {
                         change: Arc::new(AddedEntity { entity: id }),
                     });
                 }
@@ -233,9 +233,9 @@ pub fn bottom_menu(
                 if state.show_spawnable_bundles {
                     egui::Window::new("Bundles")
                         .frame(
-                            egui::Frame::none()
-                                .inner_margin(Margin::symmetric(8., 4.))
-                                .rounding(3.)
+                            egui::Frame::new()
+                                .inner_margin(Margin::symmetric(8, 4))
+                                .corner_radius(3.)
                                 .stroke(stroke_default_color())
                                 .fill(SPECIAL_BG_COLOR),
                         )
@@ -259,13 +259,13 @@ pub fn bottom_menu(
                                             let button = egui::Button::new(name).ui(ui);
                                             if button.clicked() {
                                                 let entity = dyn_bundle.spawn(&mut commands);
-                                                if let Ok(pan_cam) = q_pan_cam.get_single() {
+                                                if let Ok(pan_cam) = q_pan_cam.single() {
                                                     commands.entity(entity).insert((
                                                         Transform::from_translation(pan_cam.focus),
                                                         Visibility::default(),
                                                     ));
                                                 }
-                                                changes.send(NewChange {
+                                                changes.write(NewChange {
                                                     change: Arc::new(AddedEntity { entity }),
                                                 });
                                             }
@@ -311,7 +311,7 @@ pub fn top_menu(
     egui::TopBottomPanel::top("top_menu_bar")
         .min_height(&sizing.icon.to_size() + 8.)
         .show(ctx, |ui| {
-            ui.style_mut().spacing.menu_margin = Margin::symmetric(16., 8.);
+            ui.style_mut().spacing.menu_margin = Margin::symmetric(16, 8);
             egui::menu::bar(ui, |ui| {
                 let stl = ui.style_mut();
                 stl.spacing.button_padding = egui::Vec2::new(8., 4.);
@@ -339,7 +339,7 @@ pub fn top_menu(
                                 //remove .scn.ron
                                 path = path.replace(".scn.ron", "");
                                 menu_state.path = path;
-                                editor_events.send(EditorEvent::Load(EditorPrefabPath::File(
+                                editor_events.write(EditorEvent::Load(EditorPrefabPath::File(
                                     format!("{}.scn.ron", menu_state.path.clone()),
                                 )));
                             }
@@ -384,7 +384,7 @@ pub fn top_menu(
                             if path.ends_with(".scn.ron") {
                                 let path = path.replace(".scn.ron", "");
                                 println!("{path}");
-                                editor_events.send(EditorEvent::Save(EditorPrefabPath::File(
+                                editor_events.write(EditorEvent::Save(EditorPrefabPath::File(
                                     format!("{}.scn.ron", path),
                                 )));
                             }
@@ -432,7 +432,7 @@ pub fn top_menu(
                                 //remove .scn.ron
                                 path = path.replace(".scn.ron", "");
                                 menu_state.path = path;
-                                editor_events.send(EditorEvent::Load(EditorPrefabPath::File(
+                                editor_events.write(EditorEvent::Load(EditorPrefabPath::File(
                                     format!("{}.scn.ron", menu_state.path.clone()),
                                 )));
                             }
@@ -479,7 +479,7 @@ pub fn top_menu(
                             if path.starts_with("assets/") {
                                 path = path.replace("assets/", "");
 
-                                editor_events.send(EditorEvent::LoadGltfAsPrefab(path));
+                                editor_events.write(EditorEvent::LoadGltfAsPrefab(path));
                             }
                         }
                     } else {
@@ -532,7 +532,8 @@ pub fn top_menu(
                                     commands.spawn((PrefabBundle::new(&path), PrefabMarker));
                                 } else if path.ends_with(".gltf") || path.ends_with(".glb") {
                                     commands.spawn((
-                                        SpatialBundle::default(),
+                                        Visibility::default(),
+                                        Transform::default(),
                                         GltfPrefab {
                                             path,
                                             scene: "Scene0".into(),
@@ -558,7 +559,7 @@ pub fn top_menu(
                             color: STROKE_COLOR,
                         });
                 if ui.add(play_button).clicked() {
-                    editor_events.send(EditorEvent::StartGame);
+                    editor_events.write(EditorEvent::StartGame);
                 }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::RIGHT), |ui| {
@@ -572,7 +573,7 @@ pub fn top_menu(
                             .show(ctx, |ui| {
                                 ui.vertical_centered_justified(|ui| {
                                     if ui.add(egui::Button::new("Clear all 🗑")).clicked() {
-                                        clear_toast.send(ClearToastMessage::all());
+                                        clear_toast.write(ClearToastMessage::all());
                                     };
                                 });
                                 egui::Grid::new("error_console_log").show(ui, |ui| {
@@ -582,7 +583,7 @@ pub fn top_menu(
                                         ui.label(RichText::new("ERROR").color(ERROR_COLOR));
                                         ui.label(error);
                                         if ui.button("🗙").clicked() {
-                                            clear_toast.send(ClearToastMessage::error(index));
+                                            clear_toast.write(ClearToastMessage::error(index));
                                         }
                                         ui.end_row();
                                     }
@@ -592,7 +593,7 @@ pub fn top_menu(
                                         ui.label(RichText::new("WARN ").color(WARN_COLOR));
                                         ui.label(warning);
                                         if ui.button("🗙").clicked() {
-                                            clear_toast.send(ClearToastMessage::warn(index));
+                                            clear_toast.write(ClearToastMessage::warn(index));
                                         }
                                         ui.end_row();
                                     }
@@ -643,7 +644,7 @@ pub fn top_menu(
 
     for event in events.read() {
         menu_state.path.clone_from(&event.path);
-        editor_events.send(EditorEvent::Load(EditorPrefabPath::File(format!(
+        editor_events.write(EditorEvent::Load(EditorPrefabPath::File(format!(
             "{}.scn.ron",
             menu_state.path.clone()
         ))));

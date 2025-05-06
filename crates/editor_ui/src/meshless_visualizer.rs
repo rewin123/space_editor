@@ -1,6 +1,6 @@
 use anyhow::anyhow;
 use bevy::{
-    math::primitives as math_shapes, prelude::*, render::view::RenderLayers, utils::HashMap,
+    math::primitives as math_shapes, prelude::*, render::view::RenderLayers,
 };
 use bevy_asset_loader::{
     asset_collection::AssetCollection,

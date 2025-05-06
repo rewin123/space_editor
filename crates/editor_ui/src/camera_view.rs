@@ -334,7 +334,7 @@ fn set_camera_viewport(
         return;
     };
 
-    let Ok(_) = primary_window.get_single() else {
+    let Ok(_) = primary_window.single() else {
         return;
     };
 
@@ -352,7 +352,7 @@ fn set_camera_viewport(
     let Some(target_handle) = ui_state.target_image.clone() else {
         return;
     };
-    real_cam.target = RenderTarget::Image(target_handle.clone());
+    real_cam.target = RenderTarget::Image(target_handle.clone().into());
 
     *real_cam_local_transform = camera_transform.compute_transform();
 

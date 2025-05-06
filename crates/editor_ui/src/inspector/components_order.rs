@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 
 // Cannot implement Reflect as BTree doesn't implement Reflect
 #[derive(Reflect, Resource, Default, Clone)]

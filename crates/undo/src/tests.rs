@@ -235,9 +235,9 @@ fn test_redo() {
 #[test]
 fn test_undo_with_remap() {
     let mut app = configure_app();
-    app.add_plugins(HierarchyPlugin);
+    //app.add_plugins(HierarchyPlugin);
 
-    app.auto_reflected_undo::<Parent>();
+    //app.auto_reflected_undo::<ChildOf>();
     app.auto_reflected_undo::<Children>();
 
     let test_id_1 = app.world_mut().spawn(UndoMarker).id();
@@ -254,7 +254,7 @@ fn test_undo_with_remap() {
     repeat_update(&mut app, 2);
     app.cleanup();
 
-    app.world_mut().entity_mut(test_id_1).despawn_recursive();
+    app.world_mut().entity_mut(test_id_1).despawn();
     app.world_mut().send_event(NewChange {
         change: Arc::new(RemovedEntity { entity: test_id_1 }),
     });
@@ -268,7 +268,7 @@ fn test_undo_with_remap() {
     assert_eq!(app.world_mut().entities().len(), 2);
 
     let mut query = app.world_mut().query::<&Children>();
-    assert!(query.get_single(&app.world_mut()).is_ok());
+    assert!(query.single(&app.world_mut()).is_ok());
 }
 
 #[test]

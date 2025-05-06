@@ -100,7 +100,7 @@ fn load_prefab(
                     commands.entity(*child).despawn();
                 }
             }
-            commands.entity(e).clear_children();
+            commands.entity(e).remove::<Children>();
         }
 
         let scene: Handle<DynamicScene> = assets.load(&l.path);

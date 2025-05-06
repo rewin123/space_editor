@@ -163,7 +163,7 @@ impl Plugin for EditorUiCore {
             .resource_mut::<MainScheduleOrder>()
             .insert_after(StateTransition, AfterStateTransition);
 
-        app.add_systems(Startup, (set_start_state, apply_deferred).chain());
+        app.add_systems(Startup, (set_start_state, ApplyDeferred).chain());
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);

@@ -184,7 +184,9 @@ impl PluginGroup for EditorPluginGroup {
             .add(EditorSetsPlugin)
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
-            .add(bevy_egui::EguiPlugin)
+            .add(bevy_egui::EguiPlugin {
+                enable_multipass_for_primary_context: true,
+            })
             //.add(EventListenerPlugin::<selection::SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
         res = EditorUiPlugin::default().add_plugins_to_group(res);
@@ -292,11 +294,11 @@ fn save_prefab_before_play(
     mut editor_events: EventWriter<space_shared::EditorEvent>,
     mut toast: EventWriter<ToastMessage>,
 ) {
-    toast.send(ToastMessage::new(
+    toast.write(ToastMessage::new(
         "Preparing prefab to save for playmode",
         space_shared::toast::ToastKind::Info,
     ));
-    editor_events.send(space_shared::EditorEvent::Save(
+    editor_events.write(space_shared::EditorEvent::Save(
         space_shared::EditorPrefabPath::MemoryCache,
     ));
 }
@@ -407,7 +409,7 @@ pub fn game_mode_changed(
 ) {
     if mode.is_changed() {
         for editor_camera in editor_camera_query.iter() {
-            commands.entity(editor_camera).despawn_recursive();
+            commands.entity(editor_camera).despawn();
         }
 
         if mode.is_3d() {
@@ -424,6 +426,7 @@ pub fn game_mode_changed(
                 Name::from("Editor Camera"),
                 //PickableBundle::default(),
                 RayCastPickable,
+                //Pickable::default(),
                 all_render_layers(),
             ));
         } else {

@@ -24,7 +24,7 @@ impl MapEntities for ChildrenPrefab {
         self.0 = self
             .0
             .iter()
-            .map(|e| entity_mapper.map_entity(*e))
+            .map(|e| entity_mapper.get_mapped(*e))
             .collect();
     }
 }

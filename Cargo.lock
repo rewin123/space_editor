@@ -1237,6 +1237,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_gltf"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa25b809ee024ef2682bafc1ca22ca8275552edb549dc6f69a030fdffd976c63"
+dependencies = [
+ "base64 0.22.1",
+ "bevy_app 0.16.0",
+ "bevy_asset 0.16.0",
+ "bevy_color 0.16.1",
+ "bevy_core_pipeline 0.16.0",
+ "bevy_ecs 0.16.0",
+ "bevy_image 0.16.0",
+ "bevy_math 0.16.0",
+ "bevy_mesh 0.16.0",
+ "bevy_pbr 0.16.0",
+ "bevy_platform",
+ "bevy_reflect 0.16.0",
+ "bevy_render 0.16.0",
+ "bevy_scene 0.16.0",
+ "bevy_tasks 0.16.0",
+ "bevy_transform 0.16.0",
+ "bevy_utils 0.16.0",
+ "fixedbitset 0.5.7",
+ "gltf",
+ "itertools 0.14.0",
+ "percent-encoding",
+ "serde",
+ "serde_json",
+ "smallvec",
+ "thiserror 2.0.12",
+ "tracing",
+]
+
+[[package]]
 name = "bevy_hierarchy"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1368,7 +1402,7 @@ dependencies = [
  "bevy_ecs 0.15.1",
  "bevy_gilrs",
  "bevy_gizmos 0.15.1",
- "bevy_gltf",
+ "bevy_gltf 0.15.1",
  "bevy_hierarchy",
  "bevy_image 0.15.1",
  "bevy_input 0.15.1",
@@ -1407,6 +1441,7 @@ dependencies = [
  "bevy_diagnostic 0.16.0",
  "bevy_ecs 0.16.0",
  "bevy_gizmos 0.16.0",
+ "bevy_gltf 0.16.0",
  "bevy_image 0.16.0",
  "bevy_input 0.16.0",
  "bevy_input_focus",

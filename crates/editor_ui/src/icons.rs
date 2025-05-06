@@ -1,4 +1,3 @@
-use bevy::utils::info;
 use bevy_egui::egui;
 use egui_dock::egui::WidgetText;
 

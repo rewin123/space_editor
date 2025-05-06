@@ -1,8 +1,7 @@
 use std::any::TypeId;
 
 use bevy::{
-    ecs::world::unsafe_world_cell::UnsafeWorldCell, prelude::*, reflect::TypeRegistryArc,
-    scene::serde::SceneDeserializer,
+    ecs::world::unsafe_world_cell::UnsafeWorldCell, platform::collections::HashSet, prelude::*, reflect::TypeRegistryArc, scene::serde::SceneDeserializer
 };
 use serde::de::DeserializeSeed;
 #[cfg(feature = "editor")]
@@ -23,7 +22,7 @@ impl Plugin for SceneUnpackPlugin {
         app.add_systems(
             OnEnter(SaveState::Save),
             (
-                (prepare_auto_scene, apply_deferred)
+                (prepare_auto_scene, ApplyDeferred)
                     .chain()
                     .before(crate::prelude::serialize_scene),
                 clear_after_save.after(crate::prelude::serialize_scene),
@@ -33,9 +32,9 @@ impl Plugin for SceneUnpackPlugin {
             PostUpdate,
             (
                 decompress_scene,
-                apply_deferred,
+                ApplyDeferred,
                 apply_compressed_scenes,
-                apply_deferred,
+                ApplyDeferred,
             )
                 .chain(),
         );
@@ -126,12 +125,12 @@ unsafe fn recursive_extract<'w>(
     scene: DynamicSceneBuilder<'w>,
     entity: Entity,
 ) -> DynamicSceneBuilder<'w> {
-    if cell.get_entity(entity).is_some() {
+    if cell.get_entity(entity).is_ok() {
         let mut scene = scene.extract_entity(entity);
 
         if let Some(children) = cell.world().entity(entity).get::<Children>() {
             for child_entity in children.iter() {
-                scene = recursive_extract(cell, scene, *child_entity);
+                scene = recursive_extract(cell, scene, child_entity.entity());
             }
         }
         scene
@@ -155,7 +154,7 @@ fn decompress_scene(
         };
         let Ok(mut deserializer) = ron::de::Deserializer::from_str(root.0.as_str()) else {
             #[cfg(feature = "editor")]
-            toast.send(ToastMessage::new(
+            toast.write(ToastMessage::new(
                 "Failed create Deserializer for sub scene",
                 space_shared::toast::ToastKind::Error,
             ));
@@ -163,7 +162,7 @@ fn decompress_scene(
         };
         let Ok(dyn_scene) = scene_deserializer.deserialize(&mut deserializer) else {
             #[cfg(feature = "editor")]
-            toast.send(ToastMessage::new(
+            toast.write(ToastMessage::new(
                 "Failed to deserialize sub scene",
                 space_shared::toast::ToastKind::Error,
             ));
@@ -172,7 +171,7 @@ fn decompress_scene(
 
         let Ok(scene) = Scene::from_dynamic_scene(&dyn_scene, &type_registry) else {
             #[cfg(feature = "editor")]
-            toast.send(ToastMessage::new(
+            toast.write(ToastMessage::new(
                 "Decompress scene does not exist",
                 space_shared::toast::ToastKind::Error,
             ));
@@ -204,8 +203,8 @@ fn apply_compressed_scenes(
             let sub_entities = child_tree.get(entity).unwrap();
             if let Some(children) = sub_entities.1 {
                 for child in children.iter() {
-                    stack.push(*child);
-                    all_sub_entities.insert(*child);
+                    stack.push(child.entity());
+                    all_sub_entities.insert(child.entity());
                 }
             }
         }
@@ -242,7 +241,7 @@ fn apply_compressed_scenes(
                     }
                 }
 
-                if let Some(mut cmds) = commands.get_entity(target_entity) {
+                if let Ok(mut cmds) = commands.get_entity(target_entity) {
                     if all_sub_entities.contains(&target_entity) {
                         all_sub_entities.remove(&target_entity);
                     }
@@ -259,7 +258,7 @@ fn apply_compressed_scenes(
 
         //Destroy not stored entity
         for entity in all_sub_entities.iter() {
-            commands.entity(*entity).despawn_recursive();
+            commands.entity(*entity).despawn();
         }
 
         commands.entity(root_entity).remove::<DecompressedScene>();
@@ -318,7 +317,7 @@ mod tests {
 
         let events = app.world().resource::<Events<ToastMessage>>();
 
-        let mut iter = events.get_reader();
+        let mut iter = events.get_cursor();
         let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Failed to deserialize sub scene"));
     }

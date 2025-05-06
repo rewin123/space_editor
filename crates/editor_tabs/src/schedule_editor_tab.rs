@@ -1,5 +1,5 @@
 use bevy::{platform::collections::HashMap, prelude::*};
-use bevy_egui::egui;
+use bevy_egui::egui::{self, UiBuilder};
 
 use crate::{tab_name::TabNameHolder, EditorTab};
 
@@ -13,7 +13,10 @@ pub struct ScheduleEditorTab {
 
 impl EditorTab for ScheduleEditorTab {
     fn ui(&mut self, ui: &mut egui::Ui, _: &mut Commands, world: &mut World) {
-        let inner_ui = ui.child_ui(ui.max_rect(), *ui.layout(), None);
+        let ui_builder = UiBuilder::new()
+            .max_rect(ui.max_rect())
+            .layout(*ui.layout());
+        let inner_ui = ui.new_child(ui_builder);
         world.insert_non_send_resource(EditorUiRef(inner_ui));
 
         self.schedule.run(world);
