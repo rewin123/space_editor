@@ -52,11 +52,11 @@ fn recursive_add_markers(
     q_meshes: Query<Entity, With<Mesh3d>>,
     mut commands: Commands,
 ) {
-    if q_meshes.contains(trigger.entity()) {
-        commands.entity(trigger.entity()).insert(RayCastPickable);
+    if q_meshes.contains(trigger.target()) {
+        commands.entity(trigger.target()).insert(RayCastPickable);
     }
 
-    if let Ok(children) = q_children.get(trigger.entity()) {
+    if let Ok(children) = q_children.get(trigger.target()) {
         for child in children.iter() {
             commands.trigger_targets(AddMarkersEvent, *child);
         }
