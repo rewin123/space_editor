@@ -2,7 +2,7 @@ use crate::{
     schedule_editor_tab::ScheduleEditorTabStorage, tab_name::TabNameHolder, to_label,
     CollectedStyle, EditorTab, EditorUiReg,
 };
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use bevy_egui::egui;
 use convert_case::{Case, Casing};
 

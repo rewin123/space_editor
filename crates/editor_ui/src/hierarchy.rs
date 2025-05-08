@@ -1,7 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 use std::sync::Arc;
 
-use bevy::{ecs::query::QueryFilter, prelude::*, utils::HashMap};
+use bevy::{ecs::query::QueryFilter, platform::collections::HashMap, prelude::*};
 use bevy_egui::{
     egui::{collapsing_header::CollapsingState, TextEdit},
     *,
@@ -55,7 +55,7 @@ pub type HierarchyQueryIter<'a> = (
     Entity,
     Option<&'a Name>,
     Option<&'a Children>,
-    Option<&'a Parent>,
+    Option<&'a ChildOf>,
 );
 
 /// System to show hierarchy
@@ -134,7 +134,7 @@ type DrawIter<'a> = (
     Entity,
     Option<&'a Name>,
     Option<&'a Children>,
-    Option<&'a Parent>,
+    Option<&'a ChildOf>,
 );
 
 fn draw_entity<F: QueryFilter>(
@@ -158,7 +158,7 @@ fn draw_entity<F: QueryFilter>(
 
     let is_selected = selected.contains(entity);
 
-    if children.is_some_and(|children| children.iter().any(|child| query.get(*child).is_ok())) {
+    if children.is_some_and(|children| children.iter().any(|child| query.get(child.entity()).is_ok())) {
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
@@ -176,7 +176,7 @@ fn draw_entity<F: QueryFilter>(
             if is_auto_child {
                 response.context_menu(|ui| {
                     if ui.button("Delete").clicked() {
-                        commands.entity(entity).despawn_recursive();
+                        commands.entity(entity).despawn();
                     }
                     ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or cloned.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
                 });
@@ -218,7 +218,7 @@ fn draw_entity<F: QueryFilter>(
                     commands,
                     ui,
                     query,
-                    *child,
+                    child.entity(),
                     selected,
                     clone_events,
                     changes,
@@ -239,7 +239,7 @@ fn draw_entity<F: QueryFilter>(
         if is_auto_child {
             selectable.context_menu(|ui| {
                 if ui.button("Delete").clicked() {
-                    commands.entity(entity).despawn_recursive();
+                    commands.entity(entity).despawn();
                 }
                 ui.label(crate::egui::RichText::new("⚠ Concrete Bevy entity cannot be reparented or cloned.\nTry \"Unpack gltf as prefab\" for that.").color(WARN_COLOR));
             });
@@ -283,25 +283,25 @@ fn hierarchy_entity_context(
     changes: &mut EventWriter<'_, NewChange>,
     clone_events: &mut EventWriter<'_, CloneEvent>,
     selected: &mut Query<'_, '_, Entity, With<Selected>>,
-    parent: Option<&Parent>,
+    parent: Option<&ChildOf>,
 ) {
     if ui.button("Add child").clicked() {
         let new_id = commands.spawn_empty().insert(PrefabMarker).id();
         commands.entity(entity).add_child(new_id);
-        changes.send(NewChange {
+        changes.write(NewChange {
             change: Arc::new(AddedEntity { entity: new_id }),
         });
         ui.close_menu();
     }
     if ui.button("Delete").clicked() {
-        commands.entity(entity).despawn_recursive();
-        changes.send(NewChange {
+        commands.entity(entity).despawn();
+        changes.write(NewChange {
             change: Arc::new(RemovedEntity { entity }),
         });
         ui.close_menu();
     }
     if ui.button("Clone").clicked() {
-        clone_events.send(CloneEvent { id: entity });
+        clone_events.write(CloneEvent { id: entity });
         ui.close_menu();
     }
     if !selected.is_empty() && !selected.contains(entity) && ui.button("Attach to").clicked() {
@@ -310,7 +310,7 @@ fn hierarchy_entity_context(
         }
     }
     if parent.is_some() && ui.button("Detach").clicked() {
-        commands.entity(entity).remove_parent();
+        commands.entity(entity).remove::<ChildOf>();
     }
 }
 
@@ -336,11 +336,11 @@ fn clone_enitites(
 
                     editor_registry.clone_entity_flat(&mut cmds, &entity);
 
-                    if let Some(parent) = entity.get::<Parent>() {
-                        if let Some(new_parent) = map.get(&parent.get()) {
+                    if let Some(parent) = entity.get::<ChildOf>() {
+                        if let Some(new_parent) = map.get(&parent.parent()) {
                             commands.entity(*new_parent).add_child(dst_id);
                         } else {
-                            commands.entity(parent.get()).add_child(dst_id);
+                            commands.entity(parent.parent()).add_child(dst_id);
                         }
                     }
 
@@ -363,7 +363,7 @@ fn detect_cloned_entities(
 ) {
     for entity in query.iter() {
         commands.entity(entity).remove::<ClonedEntity>();
-        changes.send(NewChange {
+        changes.write(NewChange {
             change: Arc::new(AddedEntity { entity }),
         });
     }

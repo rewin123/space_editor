@@ -8,7 +8,7 @@ pub mod tab_viewer;
 
 use std::fmt::Display;
 
-use bevy::{ecs::world::CommandQueue, prelude::*, utils::HashMap, window::PrimaryWindow};
+use bevy::{ecs::{schedule::{graph::GraphInfo, Chain, Schedulable}, system::ScheduleSystem, world::CommandQueue}, platform::collections::HashMap, prelude::*, window::PrimaryWindow};
 
 use bevy_egui::{egui, EguiContext};
 
@@ -37,10 +37,13 @@ pub mod prelude {
 /// This system use to show all egui editor ui on primary window
 /// Will be useful in some specific cases to ad new system before/after this system
 pub fn show_editor_ui(world: &mut World) {
+    // info!("show_editor_ui");
+
     let Ok(egui_context) = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
         .get_single(world)
     else {
+        info!("show_editor_ui: no egui context");
         return;
     };
     let mut egui_context = egui_context.clone();
@@ -57,6 +60,8 @@ pub fn show_editor_ui(world: &mut World) {
         world.resource_scope::<EditorUi, _>(|world, mut editor_ui| {
             editor_ui.ui(world, ctx);
         });
+    } else {
+        info!("show_editor_ui: no editor ui");
     }
 }
 
@@ -99,14 +104,19 @@ impl EditorUi {
                     tabs,
                     active: _,
                     scroll: _,
+                    collapsed: _,
                 } => visible.extend(tabs.clone()),
                 egui_dock::Node::Vertical {
                     rect: _,
                     fraction: _,
+                    collapsed_leaf_count: _,
+                    fully_collapsed: _,
                 } => {}
                 egui_dock::Node::Horizontal {
                     rect: _,
                     fraction: _,
+                    collapsed_leaf_count: _,
+                    fully_collapsed: _,
                 } => {}
             }
         }
@@ -186,10 +196,13 @@ pub trait EditorUiAppExt {
     fn editor_tab_by_trait<T>(&mut self, tab: T) -> &mut Self
     where
         T: EditorTab + Resource + Send + Sync + 'static;
-    fn editor_tab<T, N: TabName>(
+    fn editor_tab<
+        Marker, 
+        N: TabName
+    >(
         &mut self,
         tab_name: N,
-        tab_systems: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoScheduleConfigs<ScheduleSystem, Marker>,
     ) -> &mut Self;
 }
 
@@ -237,10 +250,11 @@ impl EditorUiAppExt for App {
         self
     }
 
-    fn editor_tab<T, N: TabName>(
+    fn editor_tab<Marker, N: TabName>(
         &mut self,
         tab_name: N,
-        tab_systems: impl IntoSystemConfigs<T>,
+        //tab_systems: impl IntoSystemConfigs<T>,
+        tab_systems: impl IntoScheduleConfigs<ScheduleSystem, Marker>,
     ) -> &mut Self {
         let tab_name_holder = TabNameHolder::new(tab_name);
 

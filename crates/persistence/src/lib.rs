@@ -2,15 +2,14 @@
 
 #[cfg(test)]
 mod tests;
+use std::io::Write;
+
 // This part of code is used for saving and loading settings and window state
 use bevy::{
-    prelude::*,
-    reflect::{
+    platform::collections::HashMap, prelude::*, reflect::{
         serde::{ReflectDeserializer, ReflectSerializer},
         GetTypeRegistration,
-    },
-    utils::HashMap,
-    window::WindowCloseRequested,
+    }, window::WindowCloseRequested
 };
 use ron::ser::PrettyConfig;
 use serde::de::DeserializeSeed;
@@ -62,7 +61,7 @@ fn persistence_save_on_close(
     mut close_events: EventReader<WindowCloseRequested>,
 ) {
     if settings.save_on_close && close_events.read().next().is_some() {
-        events.send(PersistenceEvent::Save);
+        events.write(PersistenceEvent::Save);
     }
 }
 
@@ -71,7 +70,7 @@ fn persistence_startup_load(
     settings: Res<PersistenceSettings>,
 ) {
     if settings.load_on_startup {
-        events.send(PersistenceEvent::Load);
+        events.write(PersistenceEvent::Load);
     }
 }
 
@@ -83,7 +82,7 @@ fn persistence_start(
     for event in events.read() {
         match event {
             PersistenceEvent::Save => {
-                broadcast.send(PersistenceResourceBroadcastEvent::Pack);
+                broadcast.write(PersistenceResourceBroadcastEvent::Pack);
                 persistence.mode = PersistenceMode::Saving;
                 persistence.save_counter = 0;
             }
@@ -102,7 +101,7 @@ fn persistence_start(
                     }
                 }
 
-                broadcast.send(PersistenceResourceBroadcastEvent::Unpack);
+                broadcast.write(PersistenceResourceBroadcastEvent::Unpack);
                 persistence.mode = PersistenceMode::Loading;
                 persistence.load_counter = 0;
             }
@@ -124,13 +123,49 @@ fn persistence_end(mut persistence: ResMut<PersistenceRegistry>) {
 
             match &persistence.source {
                 PersistenceDataSource::File(path) => {
-                    let mut file = std::fs::File::create(path).unwrap();
-                    ron::ser::to_writer_pretty(
-                        &mut file,
+                    //let mut file = std::fs::File::create(path).unwrap();
+                    //ron::ser::to_writer_pretty(
+                    //    &mut file,
+                    //    &persistence.data,
+                    //    PrettyConfig::default(),
+                    //)
+                    //.unwrap();
+
+                    // 1. Serialize data to a RON string
+                    let ron_string = match ron::ser::to_string_pretty(
                         &persistence.data,
-                        PrettyConfig::default(),
-                    )
-                    .unwrap();
+                        PrettyConfig::default(), // Use your desired PrettyConfig
+                    ) {
+                        Ok(s) => s,
+                        Err(e) => {
+                            error!(
+                                "Persistence saving error: Failed to serialize data to RON for path {:?}: {}",
+                                path, e
+                            );
+                            return; // Or handle the error as appropriate
+                        }
+                    };
+
+                     // 2. Write the RON string to the file
+                     match std::fs::File::create(path) {
+                        Ok(mut file_handle) => {
+                            if let Err(e) = file_handle.write_all(ron_string.as_bytes()) {
+                                error!(
+                                    "Persistence saving error: Failed to write serialized data to file {:?}: {}",
+                                    path, e
+                                );
+                            } else {
+                                info!("Persistence: Successfully saved data to {:?}", path);
+                            }
+                        }
+                        Err(e) => {
+                            error!(
+                                "Persistence saving error: Failed to create file {:?}: {}",
+                                path, e
+                            );
+                        }
+                    }
+
                 }
                 PersistenceDataSource::Memory => {
                     //do nothing
@@ -354,7 +389,7 @@ fn persistence_resource_system<
                 (pipeline.load_fn)(resource.as_mut(), converted);
                 resource.set_changed();
 
-                persistence_loaded.send(PersistenceLoaded::<T>::default());
+                persistence_loaded.write(PersistenceLoaded::<T>::default());
                 persistence.load_counter += 1;
             }
         }

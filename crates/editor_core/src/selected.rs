@@ -6,7 +6,7 @@ use bevy::pbr::wireframe::{Wireframe, WireframePlugin};
 use space_shared::{EditorSet, EditorState};
 
 #[cfg(feature = "bevy_mod_outline")]
-use bevy_mod_outline::{OutlineBundle, OutlinePlugin, OutlineVolume};
+use bevy_mod_outline::{OutlinePlugin, OutlineVolume};
 
 /// A marker for editor selected entities
 #[derive(Component, Default, Clone)]
@@ -65,27 +65,34 @@ fn selected_entity_wireframe_update(
     del_wireframe: Query<Entity, (With<OutlineVolume>, Without<Selected>)>,
     need_wireframe: Query<Entity, (Without<OutlineVolume>, With<Selected>)>,
 ) {
+    use bevy_mod_outline::OutlineMode;
+
     for e in del_wireframe.iter() {
-        cmds.entity(e).remove::<OutlineBundle>();
+        cmds.entity(e)
+            .remove::<OutlineVolume>()
+            .remove::<OutlineMode>();
     }
 
     for e in need_wireframe.iter() {
-        cmds.entity(e).insert(OutlineBundle {
-            outline: OutlineVolume {
+        cmds.entity(e).insert((
+            OutlineVolume {
                 visible: true,
                 colour: Color::srgb(1.0, 1.0, 0.0),
                 width: 2.0,
             },
-            mode: bevy_mod_outline::OutlineMode::RealVertex,
-            ..Default::default()
-        });
+            OutlineMode::ExtrudeReal,
+        ));
     }
 }
 
 #[cfg(feature = "bevy_mod_outline")]
 fn clear_wireframes(mut cmds: Commands, del_wireframe: Query<Entity, With<OutlineVolume>>) {
+    use bevy_mod_outline::OutlineMode;
+
     for e in del_wireframe.iter() {
-        cmds.entity(e).remove::<OutlineBundle>();
+        cmds.entity(e)
+            .remove::<OutlineVolume>()
+            .remove::<OutlineMode>();
     }
 }
 

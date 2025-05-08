@@ -80,17 +80,17 @@ pub fn change_camera_in_play(
             cam.is_active = true;
         });
 
-        let Ok(window) = primary_window.get_single() else {
+        let Ok(window) = primary_window.single() else {
             error!("Failed to get Primary Window");
-            toast.send(ToastMessage::new(
+            toast.write(ToastMessage::new(
                 "Failed to get Primary Window",
                 space_shared::toast::ToastKind::Error,
             ));
             return;
         };
-        let Ok(mut cam) = play_cameras.get_single_mut() else {
+        let Ok(mut cam) = play_cameras.single_mut() else {
             error!("No play camera found");
-            toast.send(ToastMessage::new(
+            toast.write(ToastMessage::new(
                 "No play camera found",
                 space_shared::toast::ToastKind::Error,
             ));
@@ -103,7 +103,7 @@ pub fn change_camera_in_play(
         });
     } else {
         error!("No play camera found");
-        toast.send(ToastMessage::new(
+        toast.write(ToastMessage::new(
             "No play camera found",
             space_shared::toast::ToastKind::Error,
         ));
@@ -192,8 +192,7 @@ pub fn draw_camera_gizmo(
         let rect_transform = transform.mul_transform(rect_transform);
 
         gizmos.rect(
-            rect_transform.translation,
-            rect_transform.rotation,
+            Isometry3d::new(rect_transform.translation, rect_transform.rotation),
             Vec2::splat(scale * 2.0),
             pink,
         );

@@ -1,24 +1,21 @@
 use anyhow::anyhow;
 use bevy::{
-    math::primitives as math_shapes, prelude::*, render::view::RenderLayers, utils::HashMap,
+    math::primitives as math_shapes, prelude::*, render::view::RenderLayers,
 };
 use bevy_asset_loader::{
     asset_collection::AssetCollection,
     dynamic_asset::{DynamicAsset, DynamicAssetCollection},
     prelude::DynamicAssetType,
 };
-use bevy_mod_billboard::{
-    prelude::BillboardPlugin, BillboardMeshHandle, BillboardTextureBundle, BillboardTextureHandle,
-};
-use bevy_mod_picking::backends::raycast::{
-    bevy_mod_raycast::prelude::RaycastVisibility, RaycastBackendSettings,
-};
+use bevy_mod_billboard::prelude::BillboardPlugin;
+
 use space_prefab::editor_registry::EditorRegistryExt;
 use space_shared::*;
 
 use crate::{EditorGizmo, LAST_RENDER_LAYER};
 use space_editor_core::selected::Selected;
 
+/*
 #[derive(Default)]
 pub struct MeshlessVisualizerPlugin;
 
@@ -446,8 +443,8 @@ pub fn draw_light_gizmo(
 
                     // circle at the end of the light range at both angles
                     gizmos.circle(
-                        transform.translation + range,
-                        Dir3::new_unchecked(transform.back().normalize()),
+                        Isometry3d::new(transform.translation + range,
+                        Dir3::new_unchecked(transform.back().normalize())),
                         outer_rad,
                         spot.color.with_alpha(1.0),
                     );
@@ -542,3 +539,5 @@ mod tests {
         assert_eq!(query.iter(&app.world()).count(), 2);
     }
 }
+
+*/

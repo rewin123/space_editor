@@ -1,9 +1,9 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
 
+use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
-use bevy::reflect::GetTypeRegistration;
-use bevy::utils::HashMap;
+use bevy::reflect::{GetTypeRegistration, Typed};
 
 #[cfg(feature = "persistence_editor")]
 use space_persistence::AppPersistenceExt;
@@ -102,11 +102,11 @@ impl<T: Hotkey> UntypedHotkeySet for HotkeySet<T> {
 }
 
 pub trait HotkeyAppExt {
-    fn editor_hotkey<T: Hotkey>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self;
+    fn editor_hotkey<T: Hotkey + Typed>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self;
 }
 
 impl HotkeyAppExt for App {
-    fn editor_hotkey<T: Hotkey>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self {
+    fn editor_hotkey<T: Hotkey + Typed>(&mut self, key: T, binding: Vec<KeyCode>) -> &mut Self {
         if !self.world().contains_resource::<AllHotkeys>() {
             self.insert_resource(AllHotkeys::default());
         }

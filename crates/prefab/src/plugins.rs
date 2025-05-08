@@ -1,15 +1,7 @@
 use bevy::{
-    core_pipeline::{
-        core_3d::{Camera3dDepthTextureUsage, ScreenSpaceTransmissionQuality},
-        tonemapping::{DebandDither, Tonemapping},
-    },
-    pbr::{CascadeShadowConfig, Cascades, CascadesVisibleEntities, CubemapVisibleEntities},
+    core_pipeline::core_3d::{Camera3dDepthTextureUsage, ScreenSpaceTransmissionQuality},
     prelude::*,
-    render::{
-        camera::{CameraMainTextureUsages, CameraRenderGraph, Exposure},
-        primitives::{CascadesFrusta, CubemapFrusta, Frustum},
-        view::{ColorGrading, VisibleEntities},
-    },
+    render::camera::CameraRenderGraph,
 };
 use bevy_scene_hook::HookPlugin;
 use space_shared::toast::ToastMessage;
@@ -62,8 +54,8 @@ impl Plugin for BasePrefabPlugin {
                 .chain(),
         );
 
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::RelationApply));
-        app.add_systems(Update, apply_deferred.in_set(PrefabSet::PrefabChangeApply));
+        app.add_systems(Update, ApplyDeferred.in_set(PrefabSet::RelationApply));
+        app.add_systems(Update, ApplyDeferred.in_set(PrefabSet::PrefabChangeApply));
 
         app.register_type::<EntityLink>();
 
@@ -80,13 +72,13 @@ impl Plugin for BasePrefabPlugin {
 
         app.editor_registry::<Sprite>();
         app.editor_registry::<SpriteTexture>();
-        app.editor_relation::<SpriteTexture, Transform>();
-        app.editor_relation::<SpriteTexture, Visibility>();
+        //app.editor_relation::<SpriteTexture, Transform>();
+        //app.editor_relation::<SpriteTexture, Visibility>();
 
         // Spritesheet bundle
         app.editor_registry::<SpritesheetTexture>();
-        app.editor_relation::<SpritesheetTexture, Transform>();
-        app.editor_relation::<SpritesheetTexture, Visibility>();
+        //app.editor_relation::<SpritesheetTexture, Transform>();
+        //app.editor_relation::<SpritesheetTexture, Visibility>();
         app.editor_registry::<AnimationIndicesSpriteSheet>();
         app.editor_registry::<AnimationClipName>();
         app.editor_registry::<AvailableAnimationClips>();
@@ -95,14 +87,14 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<TextureAtlasPrefab>();
 
         app.editor_registry::<MeshPrimitive3dPrefab>();
-        app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
-        app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
-        app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, Transform>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, Visibility>();
+        //app.editor_relation::<MeshPrimitive3dPrefab, MaterialPrefab>();
 
         app.editor_registry::<MeshPrimitive2dPrefab>();
-        app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
-        app.editor_relation::<MeshPrimitive2dPrefab, Visibility>();
-        app.editor_relation::<MeshPrimitive2dPrefab, ColorMaterialPrefab>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, Transform>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, Visibility>();
+        //app.editor_relation::<MeshPrimitive2dPrefab, ColorMaterialPrefab>();
 
         //shape registration
         app.register_type::<SpherePrefab>();
@@ -142,58 +134,58 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Camera3d>();
         app.editor_registry::<Camera2d>();
         app.editor_registry::<Projection>();
-        app.editor_registry::<OrthographicProjection>();
+        //app.editor_registry::<OrthographicProjection>();
         app.editor_registry::<PlaymodeCamera>();
 
         app.register_type::<Camera3dDepthTextureUsage>();
         app.register_type::<ScreenSpaceTransmissionQuality>();
 
-        app.editor_relation::<Camera2d, Camera>();
-        app.editor_relation::<Camera2d, OrthographicProjection>();
-        app.editor_relation::<Camera3d, Camera>();
-        app.editor_relation::<Camera3d, Projection>();
-        app.editor_relation::<Camera3d, ColorGrading>();
-        app.editor_relation::<Camera3d, Exposure>();
-        app.editor_relation::<Camera, VisibleEntities>();
-        app.editor_relation::<Camera, Frustum>();
-        app.editor_relation::<Camera, Transform>();
-        app.editor_relation::<Camera, Tonemapping>();
-        app.editor_relation::<Camera, DebandDither>();
-        app.editor_relation::<Camera, CameraMainTextureUsages>();
+        //app.editor_relation::<Camera2d, Camera>();
+        //app.editor_relation::<Camera2d, OrthographicProjection>();
+        //app.editor_relation::<Camera3d, Camera>();
+        //app.editor_relation::<Camera3d, Projection>();
+        //app.editor_relation::<Camera3d, ColorGrading>();
+        //app.editor_relation::<Camera3d, Exposure>();
+        //app.editor_relation::<Camera, VisibleEntities>();
+        //app.editor_relation::<Camera, Frustum>();
+        //app.editor_relation::<Camera, Transform>();
+        //app.editor_relation::<Camera, Tonemapping>();
+        //app.editor_relation::<Camera, DebandDither>();
+        //app.editor_relation::<Camera, CameraMainTextureUsages>();
 
         app.add_systems(Update, camera_render_graph_creation);
 
         app.editor_registry::<PlayerStart>();
-        app.editor_relation::<PlayerStart, Transform>();
-        app.editor_relation::<PlayerStart, GlobalTransform>();
-        app.editor_relation::<PlayerStart, Visibility>();
-        app.editor_relation::<PlayerStart, ViewVisibility>();
-        app.editor_relation::<PlayerStart, InheritedVisibility>();
+        //app.editor_relation::<PlayerStart, Transform>();
+        //app.editor_relation::<PlayerStart, GlobalTransform>();
+        //app.editor_relation::<PlayerStart, Visibility>();
+        //app.editor_relation::<PlayerStart, ViewVisibility>();
+        //app.editor_relation::<PlayerStart, InheritedVisibility>();
 
-        app.editor_relation::<Transform, GlobalTransform>();
+        //app.editor_relation::<Transform, GlobalTransform>();
 
         //Light
         app.editor_registry::<LightAreaToggle>();
 
         app.editor_registry::<PointLight>();
-        app.editor_relation::<PointLight, CubemapVisibleEntities>();
-        app.editor_relation::<PointLight, CubemapFrusta>();
-        app.editor_relation::<PointLight, Transform>();
-        app.editor_relation::<PointLight, Visibility>();
+        //app.editor_relation::<PointLight, CubemapVisibleEntities>();
+        //app.editor_relation::<PointLight, CubemapFrusta>();
+        //app.editor_relation::<PointLight, Transform>();
+        //app.editor_relation::<PointLight, Visibility>();
 
         app.editor_registry::<DirectionalLight>();
-        app.editor_relation::<DirectionalLight, CascadesFrusta>();
-        app.editor_relation::<DirectionalLight, Cascades>();
-        app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
-        app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
-        app.editor_relation::<DirectionalLight, Transform>();
-        app.editor_relation::<DirectionalLight, Visibility>();
+        //app.editor_relation::<DirectionalLight, CascadesFrusta>();
+        //app.editor_relation::<DirectionalLight, Cascades>();
+        //app.editor_relation::<DirectionalLight, CascadeShadowConfig>();
+        //app.editor_relation::<DirectionalLight, CascadesVisibleEntities>();
+        //app.editor_relation::<DirectionalLight, Transform>();
+        //app.editor_relation::<DirectionalLight, Visibility>();
 
         app.editor_registry::<SpotLight>();
-        app.editor_relation::<SpotLight, VisibleEntities>();
-        app.editor_relation::<SpotLight, Frustum>();
-        app.editor_relation::<SpotLight, Transform>();
-        app.editor_relation::<SpotLight, Visibility>();
+        //app.editor_relation::<SpotLight, VisibleEntities>();
+        //app.editor_relation::<SpotLight, Frustum>();
+        //app.editor_relation::<SpotLight, Transform>();
+        //app.editor_relation::<SpotLight, Visibility>();
 
         app.editor_registry::<PlaymodeLight>();
 
@@ -217,7 +209,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.add_systems(
             Update,
-            (sync_mesh, sync_material).in_set(PrefabSet::DetectPrefabChange),
+            (sync_3d_mesh, sync_3d_material).in_set(PrefabSet::DetectPrefabChange),
         );
         app.add_systems(
             Update,
@@ -265,14 +257,14 @@ fn camera_render_graph_creation(
 pub fn add_global_transform(
     mut commands: Commands,
     mut query: Query<
-        (Entity, &mut Transform, Option<&Parent>),
+        (Entity, &mut Transform, Option<&ChildOf>),
         (With<Transform>, Without<GlobalTransform>),
     >,
     globals: Query<&GlobalTransform>,
 ) {
     for (e, mut tr, parent) in query.iter_mut() {
         if let Some(parent) = parent {
-            if let Ok(parent_global) = globals.get(parent.get()) {
+            if let Ok(parent_global) = globals.get(parent.parent()) {
                 commands.entity(e).insert(parent_global.mul_transform(*tr));
             } else {
                 commands.entity(e).insert(GlobalTransform::from(*tr));
@@ -326,12 +318,14 @@ fn sync_asset_mesh(
     assets: Res<AssetServer>,
 ) {
     for (e, mesh) in changed.iter() {
-        commands.entity(e).insert(assets.load::<Mesh>(&mesh.path));
+        commands
+            .entity(e)
+            .insert(Mesh3d(assets.load::<Mesh>(&mesh.path)));
     }
 
     for e in deleted.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>();
+        if let Ok(mut cmd) = commands.get_entity(e) {
+            cmd.remove::<Mesh3d>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -344,14 +338,14 @@ fn sync_asset_material(
     assets: Res<AssetServer>,
 ) {
     for (e, material) in changed.iter() {
-        commands
-            .entity(e)
-            .insert(assets.load::<StandardMaterial>(&material.path));
+        commands.entity(e).insert(MeshMaterial3d(
+            assets.load::<StandardMaterial>(&material.path),
+        ));
     }
 
     for e in deleted.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<StandardMaterial>>();
+        if let Ok(mut cmd) = commands.get_entity(e) {
+            cmd.remove::<MeshMaterial3d<StandardMaterial>>();
         }
     }
 }
@@ -428,7 +422,7 @@ mod test {
 
         app.add_systems(Startup, |mut commands: Commands| {
             commands.spawn(ViewVisibility::default());
-            commands.spawn(VisibilityBundle::default());
+            commands.spawn(Visibility::default());
             commands.spawn((ViewVisibility::default(), InheritedVisibility::VISIBLE));
         })
         .add_systems(Update, remove_computed_visibility);
@@ -449,8 +443,14 @@ mod test {
             commands.spawn(GlobalTransform::default());
             commands.spawn(Transform::default());
             let child = commands.spawn(Transform::default()).id();
-            commands.spawn(TransformBundle::default()).add_child(child);
-            commands.spawn(TransformBundle::default());
+            commands.spawn((
+                Transform::default(),
+                Visibility::default(),
+            )).add_child(child);
+            commands.spawn((
+                Transform::default(),
+                Visibility::default(),
+            ));
         })
         .add_systems(Update, (add_global_transform, remove_global_transform));
 

@@ -1,4 +1,4 @@
-use bevy::{asset::ReflectAsset, prelude::*, utils::HashMap};
+use bevy::{asset::ReflectAsset, platform::collections::HashMap, prelude::*};
 
 use bevy_egui::*;
 

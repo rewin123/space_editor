@@ -7,11 +7,7 @@ pub mod runtime_assets;
 use std::any::TypeId;
 
 use bevy::{
-    ecs::{change_detection::MutUntyped, world::CommandQueue},
-    prelude::*,
-    ptr::PtrMut,
-    reflect::ReflectFromPtr,
-    utils::HashMap,
+    ecs::{change_detection::MutUntyped, world::CommandQueue}, platform::collections::HashMap, prelude::*, ptr::PtrMut, reflect::ReflectFromPtr
 };
 
 use bevy_egui::{egui::TextEdit, *};
@@ -76,7 +72,7 @@ impl EditorTab for InspectorTab {
         let sizing = world.get_resource::<Sizing>().cloned().unwrap_or_default();
         let selected_entity = world
             .query_filtered::<Entity, With<Selected>>()
-            .get_single(world);
+            .single(world);
 
         let Ok(selected_entity) = selected_entity else {
             return;
@@ -159,7 +155,7 @@ impl EditorTab for InspectorTab {
             (add_component_width - add_component_pixel_count - 16. - sizing.icon.to_size()) / 2.;
 
         let components_area = egui::ScrollArea::vertical().show(ui, |ui| {
-            if let Some(e) = cell.get_entity(selected_entity) {
+            if let Ok(e) = cell.get_entity(selected_entity) {
                 let mut name;
                 if let Some(name_struct) = unsafe { e.get::<Name>() } {
                     name = name_struct.as_str().to_string();
@@ -196,7 +192,7 @@ impl EditorTab for InspectorTab {
                 egui::Grid::new(format!("{e_id}")).show(ui, |ui| {
                     for (c_id, t_id, name, _) in &components_id {
                         if name.to_lowercase().contains(&lower_filter) {
-                            if let Some(data) = unsafe { e.get_mut_by_id(*c_id) } {
+                            if let Ok(data) = unsafe { e.get_mut_by_id(*c_id) } {
                                 let mut is_editor_component = false;
                                 let registration;
                                 if let Some(reg) = editor_registry.get(*t_id) {
@@ -211,7 +207,8 @@ impl EditorTab for InspectorTab {
                                 {
                                     let (ptr, mut set_changed) = mut_untyped_split(data);
 
-                                    let value = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                                    let value_reflect = unsafe { reflect_from_ptr.from_ptr_mut()(ptr) };
+                                    let value = value_reflect.as_partial_reflect_mut();
 
                                     if is_editor_component {
                                         if !editor_registry_resource
@@ -380,7 +377,7 @@ impl InspectorTab {
         e: bevy::ecs::world::unsafe_world_cell::UnsafeEntityCell<'_>,
         name: &String,
         env: &mut InspectorUi<'_, '_>,
-        value: &mut dyn Reflect,
+        value: &mut dyn PartialReflect,
         set_changed: &mut impl FnMut(),
     ) {
         ui.push_id(format!("{:?}-{}", &e.id(), &name), |ui| {
@@ -392,6 +389,7 @@ impl InspectorTab {
                         if env.ui_for_reflect_with_options(value, ui, ui.id(), &()) {
                             (set_changed)();
                         }
+                        //ui.label("show component function error");
                     });
                 });
             if header.header_response.clicked() {
@@ -451,7 +449,9 @@ fn execute_inspect_command(
         match c {
             InspectCommand::AddComponent(e, id) => {
                 info!("inspector adding component {:?} to entity {:?}", id, e);
-                commands.entity(*e).add(registration.get_spawn_command(id));
+                commands
+                    .entity(*e)
+                    .queue(registration.get_spawn_command(id));
             }
             InspectCommand::RemoveComponent(e, id) => {
                 registration.remove_by_id(&mut commands.entity(*e), id);

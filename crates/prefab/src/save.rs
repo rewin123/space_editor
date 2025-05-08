@@ -1,8 +1,5 @@
 use bevy::{
-    ecs::{entity::MapEntities, reflect::ReflectMapEntities},
-    prelude::*,
-    tasks::IoTaskPool,
-    utils::HashSet,
+    ecs::{entity::MapEntities, reflect::ReflectMapEntities}, platform::collections::HashSet, prelude::*, tasks::IoTaskPool
 };
 use space_shared::{EditorPrefabPath, PrefabMarker, PrefabMemoryCache};
 use std::{any::TypeId, fs, io::Write};
@@ -27,7 +24,7 @@ impl MapEntities for ChildrenPrefab {
         self.0 = self
             .0
             .iter()
-            .map(|e| entity_mapper.map_entity(*e))
+            .map(|e| entity_mapper.get_mapped(*e))
             .collect();
     }
 }
@@ -53,7 +50,7 @@ impl Plugin for SavePrefabPlugin {
             OnEnter(SaveState::Save),
             (
                 prepare_children,
-                apply_deferred,
+                ApplyDeferred,
                 serialize_scene,
                 delete_prepared_children,
             )
@@ -139,7 +136,7 @@ pub fn serialize_scene(world: &mut World) {
     let mut builder = DynamicSceneBuilder::from_world(world);
     builder = builder
         .allow_all()
-        .with_filter(SceneFilter::Allowlist(HashSet::from_iter(
+        .with_resource_filter(SceneFilter::Allowlist(HashSet::from_iter(
             allow_types.iter().cloned(),
         )))
         .extract_entities(entities.iter().copied());
@@ -338,7 +335,7 @@ mod tests {
         world.spawn(PrefabMarker).add_child(child);
 
         let mut query = world.query::<&Children>();
-        let children = query.single(&world);
+        let children = query.single(&world).unwrap();
         let prefab = ChildrenPrefab::from_children(children);
 
         assert_eq!(prefab.0.len(), 1);
@@ -369,7 +366,7 @@ mod tests {
             .world_mut()
             .resource::<Events<space_shared::toast::ToastMessage>>();
 
-        let mut iter = events.get_reader();
+        let mut iter = events.get_cursor();
         let iter = iter.read(events);
         iter.for_each(|e| assert_eq!(e.text, "Saving empty scene"));
     }

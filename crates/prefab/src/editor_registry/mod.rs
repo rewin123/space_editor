@@ -1,11 +1,9 @@
 use std::sync::Arc;
 
 use bevy::{
-    ecs::system::{EntityCommand, EntityCommands},
-    prelude::*,
-    reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc},
-    utils::{HashMap, HashSet},
+    ecs::{component::Mutable, system::{EntityCommand, EntityCommands}}, platform::collections::{HashMap, HashSet}, prelude::*, reflect::{GetTypeRegistration, TypeRegistration, TypeRegistryArc, Typed}
 };
+
 use space_shared::*;
 
 use space_undo::AppAutoUndo;
@@ -51,15 +49,22 @@ impl CloneComponent {
         Self {
             func: Arc::new(move |cmds, src| {
                 if let Some(c) = src.get::<T>() {
-                    let cloned = c.clone_value();
-                    <T as FromReflect>::from_reflect(&*cloned).map_or_else(
-                        || {
+                    let cloned_result = c.reflect_clone();
+                    match cloned_result {
+                        Ok(cloned) => {
+                            <T as FromReflect>::from_reflect(&*cloned).map_or_else(
+                                || {
+                                    error!("Failed to clone component");
+                                },
+                                |taken| {
+                                    cmds.insert(taken);
+                                },
+                            );
+                        },
+                        Err(e) => {
                             error!("Failed to clone component");
-                        },
-                        |taken| {
-                            cmds.insert(taken);
-                        },
-                    );
+                        }
+                    }
                 }
             }),
         }
@@ -73,8 +78,12 @@ pub struct AddDefaultComponent {
 }
 
 impl EntityCommand for AddDefaultComponent {
-    fn apply(self, id: Entity, world: &mut World) {
-        (self.func)(id, world);
+    fn apply(self, mut entity_world: EntityWorldMut) {
+        let id = entity_world.id();
+        let func = self.func;
+        entity_world.world_scope(move |world: &mut World| {
+            func(id, world);
+        })
     }
 }
 
@@ -145,7 +154,7 @@ impl EditorRegistry {
     >(
         &mut self,
     ) {
-        info!("Registering component: {}", std::any::type_name::<T>());
+        debug!("Registering component: {}", std::any::type_name::<T>());
         // self.registry.write().register::<T>();
         self.registry
             .write()
@@ -230,7 +239,7 @@ impl EditorRegistry {
 pub trait EditorRegistryExt {
     /// register new component in editor UI and prefab systems
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
+        T: Component<Mutability = Mutable> + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self;
@@ -242,7 +251,7 @@ pub trait EditorRegistryExt {
     ) -> &mut Self;
 
     fn editor_clone_registry<
-        T: Component + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
+        T: Component<Mutability = Mutable> + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self;
@@ -263,14 +272,15 @@ pub trait EditorRegistryExt {
     #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
-        T: Component
+        T: Component<Mutability = Mutable>
             + Reflect
             + FromReflect
             + Default
             + Clone
             + 'static
             + GetTypeRegistration
-            + TypePath;
+            + TypePath
+            + Typed;
 
     /// register new event in editor UI
     fn editor_registry_event<
@@ -282,7 +292,7 @@ pub trait EditorRegistryExt {
 
 impl EditorRegistryExt for App {
     fn editor_registry<
-        T: Component + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
+        T: Component<Mutability = Mutable> + Default + Send + 'static + GetTypeRegistration + Reflect + FromReflect,
     >(
         &mut self,
     ) -> &mut Self {
@@ -298,14 +308,14 @@ impl EditorRegistryExt for App {
             }
         };
 
-        self.world_mut().init_component::<T>();
+        self.world_mut().register_component::<T>();
         self.register_type::<T>();
         self.auto_reflected_undo::<T>();
         self
     }
 
     fn editor_clone_registry<
-        T: Component + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
+        T: Component<Mutability = Mutable> + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
     >(
         &mut self,
     ) -> &mut Self {
@@ -344,14 +354,15 @@ impl EditorRegistryExt for App {
     #[cfg(not(tarpaulin_include))]
     fn editor_auto_struct<T>(&mut self) -> &mut Self
     where
-        T: Component
+        T: Component<Mutability = Mutable>
             + Reflect
             + FromReflect
             + Default
             + Clone
             + 'static
             + GetTypeRegistration
-            + TypePath,
+            + TypePath
+            + Typed,
     {
         self.editor_silent_registry::<AutoStruct<T>>();
         self.editor_registry::<T>();
@@ -452,7 +463,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &TestRelation)>();
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.0, &Name::from("value"));
     }
@@ -473,7 +484,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &TestRelation)>();
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.0, &Name::from("value"));
     }
@@ -537,7 +548,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<AnEvent>>();
-        let mut events_reader = events.get_reader();
+        let mut events_reader = events.get_cursor();
         let an_event = events_reader.read(events).next().unwrap();
 
         // Check the event has been sent
@@ -553,7 +564,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<AnEvent>>();
-        let mut events_reader = events.get_reader();
+        let mut events_reader = events.get_cursor();
         let an_event = events_reader.read(events).next().unwrap();
 
         assert_eq!(an_event.val, 17);
@@ -583,7 +594,7 @@ mod tests {
         app.update();
 
         let mut query = app.world_mut().query::<(&Name, &Named)>();
-        let s = query.single(app.world());
+        let s = query.single(app.world()).unwrap();
         assert_eq!(s.1.name, "value");
     }
 
@@ -614,7 +625,7 @@ mod tests {
         let name = "name";
         let e = app
             .world_mut()
-            .spawn((Name::new(name), VisibilityBundle::default()))
+            .spawn((Name::new(name), Visibility::default()))
             .id();
 
         {
@@ -648,7 +659,7 @@ mod tests {
         let name = "name";
         let e = app
             .world_mut()
-            .spawn((Name::new(name), VisibilityBundle::default()))
+            .spawn((Name::new(name), Visibility::default()))
             .id();
 
         let mut command_queue = CommandQueue::default();

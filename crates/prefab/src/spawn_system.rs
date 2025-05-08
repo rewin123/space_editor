@@ -1,4 +1,4 @@
-use bevy::{prelude::*, sprite::Mesh2dHandle};
+use bevy::{prelude::*, sprite::Anchor};
 use bevy_scene_hook::SceneHook;
 #[cfg(feature = "editor")]
 use space_shared::toast::ToastMessage;
@@ -32,7 +32,7 @@ pub fn spawn_scene(
         if let Some(children) = children {
             for e in children {
                 if auto_children.contains(*e) {
-                    commands.entity(*e).despawn_recursive();
+                    commands.entity(*e).despawn();
                 }
             }
         }
@@ -43,7 +43,9 @@ pub fn spawn_scene(
 
         commands
             .entity(e)
-            .insert(asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)))
+            .insert(SceneRoot(
+                asset_server.load::<Scene>(format!("{}#{}", &prefab.path, &prefab.scene)),
+            ))
             .insert(SceneHook::new(move |e, cmd| {
                 if e.contains::<SceneAutoRoot>() {
                     cmd.insert(WantChildPath);
@@ -55,10 +57,13 @@ pub fn spawn_scene(
             }));
 
         if visibility.is_none() {
-            commands.entity(e).insert(VisibilityBundle::default());
+            commands.entity(e).insert(Visibility::default());
         }
         if transform.is_none() {
-            commands.entity(e).insert(TransformBundle::default());
+            commands.entity(e).insert((
+                Transform::default(),
+                Visibility::default(),
+            ));
         }
     }
 }
@@ -87,25 +92,25 @@ fn recursive_path(
             let mut child_path = path.clone();
             child_path.push(i);
 
-            recursive_path(commands, q_children, *child_entity, child_path);
+            recursive_path(commands, q_children, child_entity.entity(), child_path);
         }
     }
 }
 
 /// System to sync [`Mesh`] and [`MeshPrimitivePrefab`]
-pub fn sync_mesh(
+pub fn sync_3d_mesh(
     mut commands: Commands,
     query: Query<(Entity, &MeshPrimitive3dPrefab), Changed<MeshPrimitive3dPrefab>>,
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (e, prefab) in query.iter() {
         let mesh = meshes.add(prefab.to_mesh());
-        commands.entity(e).insert(mesh);
+        commands.entity(e).insert(Mesh3d(mesh));
     }
 }
 
 /// System to sync [`StandardMaterial`] and [`MaterialPrefab`]
-pub fn sync_material(
+pub fn sync_3d_material(
     mut commands: Commands,
     query: Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -113,7 +118,7 @@ pub fn sync_material(
 ) {
     for (e, prefab) in query.iter() {
         let mat = materials.add(prefab.to_material(&asset_server));
-        commands.entity(e).insert(mat);
+        commands.entity(e).insert(MeshMaterial3d(mat));
     }
 }
 
@@ -124,7 +129,7 @@ pub fn sync_2d_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
 ) {
     for (e, prefab) in query.iter() {
-        let mesh = bevy::sprite::Mesh2dHandle(meshes.add(prefab.to_mesh()));
+        let mesh = Mesh2d(meshes.add(prefab.to_mesh()));
         commands.entity(e).insert(mesh);
     }
 }
@@ -138,7 +143,7 @@ pub fn sync_2d_material(
 ) {
     for (e, prefab) in query.iter() {
         let mat = materials.add(prefab.to_material(&asset_server));
-        commands.entity(e).insert(mat);
+        commands.entity(e).insert(MeshMaterial2d(mat));
     }
 }
 
@@ -148,8 +153,8 @@ pub fn editor_remove_mesh(
     mut query: RemovedComponents<MeshPrimitive3dPrefab>,
 ) {
     for e in query.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>();
+        if let Ok(mut cmd) = commands.get_entity(e) {
+            cmd.remove::<Mesh3d>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -161,8 +166,8 @@ pub fn editor_remove_mesh_2d(
     mut query: RemovedComponents<MeshPrimitive2dPrefab>,
 ) {
     for e in query.read() {
-        if let Some(mut cmd) = commands.get_entity(e) {
-            cmd.remove::<Handle<Mesh>>().remove::<Mesh2dHandle>();
+        if let Ok(mut cmd) = commands.get_entity(e) {
+            cmd.remove::<Mesh2d>();
             info!("Removed mesh handle for {:?}", e);
         }
     }
@@ -209,16 +214,23 @@ pub fn sync_spritesheet(
             if let Some(clip) = clips.clips.get(&clip_name.name) {
                 commands
                     .entity(e)
-                    .insert(SpriteBundle {
-                        texture: texture_atlas.clone().texture.unwrap_or_default(),
-                        transform: Transform::from_scale(Vec3::splat(6.0)),
-                        ..default()
+                    .insert(Sprite {
+                        image: texture_atlas.texture.clone().unwrap_or_default(), // Set the texture image
+                        texture_atlas: Some(TextureAtlas {
+                            layout: atlas.clone(),
+                            index: clip.first,
+                        }),
+                        custom_size: Some(Vec2::splat(6.0)), // Scale the sprite
+                        color: Color::WHITE,                 // Default color or adjust as needed
+                        flip_x: false,
+                        flip_y: false,
+                        rect: None,             // Optional: Define a sub-region if needed
+                        anchor: Anchor::Center, // Default anchor or adjust
+                        image_mode: SpriteImageMode::default(), // Default or customized mode
                     })
-                    .insert(TextureAtlas {
-                        layout: atlas,
-                        index: clip.first,
-                    });
-            };
+                    .insert(Transform::default())
+                    .insert(Visibility::default());
+            }
         }
     }
 }
@@ -235,16 +247,15 @@ pub fn spawn_player_start(
     for (e, prefab) in query.iter() {
         let msg = format!("Spawning player start: {:?} with \"{}\"", e, &prefab.prefab);
         #[cfg(feature = "editor")]
-        toast.send(ToastMessage::new(
+        toast.write(ToastMessage::new(
             &msg,
             space_shared::toast::ToastKind::Info,
         ));
         info!(msg);
         let child = commands
-            .spawn(DynamicSceneBundle {
-                scene: asset_server.load(prefab.prefab.to_string()),
-                ..default()
-            })
+            .spawn(DynamicSceneRoot(
+                asset_server.load(prefab.prefab.to_string()),
+            ))
             .id();
         commands.entity(e).add_child(child);
     }
@@ -263,13 +274,11 @@ mod tests {
                 commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
             })
             .init_resource::<Assets<Mesh>>()
-            .add_systems(Update, sync_mesh);
+            .add_systems(Update, sync_3d_mesh);
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -282,13 +291,13 @@ mod tests {
             })
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
-            .add_systems(Update, sync_material);
+            .add_systems(Update, sync_3d_material);
 
         app.update();
 
         let mut query = app
             .world_mut()
-            .query::<(&MaterialPrefab, &Handle<StandardMaterial>)>();
+            .query::<(&MaterialPrefab, &MeshMaterial3d<StandardMaterial>)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -304,9 +313,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -327,7 +334,7 @@ mod tests {
 
         let mut query = app
             .world_mut()
-            .query::<(&ColorMaterialPrefab, &Handle<ColorMaterial>)>();
+            .query::<(&ColorMaterialPrefab, &MeshMaterial2d<ColorMaterial>)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 
@@ -344,23 +351,19 @@ mod tests {
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive2dPrefab, &Mesh2dHandle)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive2dPrefab, &Mesh2d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
             .world_mut()
             .query_filtered::<Entity, With<MeshPrimitive2dPrefab>>();
-        let entity = query.single(&app.world_mut());
+        let entity = query.single(&app.world_mut()).unwrap();
         app.world_mut()
             .entity_mut(entity)
             .remove::<MeshPrimitive2dPrefab>();
 
         app.update();
-        let mut query = app
-            .world_mut()
-            .query_filtered::<Entity, With<Mesh2dHandle>>();
+        let mut query = app.world_mut().query_filtered::<Entity, With<Mesh2d>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -372,28 +375,24 @@ mod tests {
                 commands.spawn(MeshPrimitive3dPrefab::Cube(3.));
             })
             .init_resource::<Assets<Mesh>>()
-            .add_systems(Update, sync_mesh)
+            .add_systems(Update, sync_3d_mesh)
             .add_systems(Update, editor_remove_mesh);
 
         app.update();
 
-        let mut query = app
-            .world_mut()
-            .query::<(&MeshPrimitive3dPrefab, &Handle<Mesh>)>();
+        let mut query = app.world_mut().query::<(&MeshPrimitive3dPrefab, &Mesh3d)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
 
         let mut query = app
             .world_mut()
             .query_filtered::<Entity, With<MeshPrimitive3dPrefab>>();
-        let entity = query.single(&app.world_mut());
+        let entity = query.single(&app.world_mut()).unwrap();
         app.world_mut()
             .entity_mut(entity)
             .remove::<MeshPrimitive3dPrefab>();
 
         app.update();
-        let mut query = app
-            .world_mut()
-            .query_filtered::<Entity, With<Handle<Mesh>>>();
+        let mut query = app.world_mut().query_filtered::<Entity, With<Mesh3d>>();
         assert_eq!(query.iter(&app.world_mut()).count(), 0);
     }
 
@@ -439,7 +438,7 @@ mod tests {
         app.update();
 
         let events = app.world_mut().resource::<Events<ToastMessage>>();
-        let mut man_events = events.get_reader();
+        let mut man_events = events.get_cursor();
         let mut events = man_events.read(events);
         let event = events.next().unwrap();
 
@@ -462,22 +461,35 @@ mod tests {
         app.add_plugins(MinimalPlugins)
             .add_systems(Startup, |mut commands: Commands| {
                 let child_1 = commands
-                    .spawn(TransformBundle::default())
+                    .spawn((
+                        Transform::default(),
+                        Visibility::default(),
+                    ))
                     .with_children(|c| {
-                        c.spawn(TransformBundle::default());
+                        c.spawn((
+                            Transform::default(),
+                            Visibility::default(),
+                        ));
                     })
                     .id();
                 let child_2 = commands
-                    .spawn(TransformBundle::default())
+                    .spawn((
+                        Transform::default(),
+                        Visibility::default(),
+                    ))
                     .with_children(|c| {
-                        c.spawn(TransformBundle::default());
+                        c.spawn((
+                            Transform::default(),
+                            Visibility::default(),
+                        ));
                     })
                     .id();
 
                 commands
                     .spawn((
                         GltfPrefab::default(),
-                        TransformBundle::default(),
+                        Transform::default(),
+                        Visibility::default(),
                         WantChildPath,
                     ))
                     .add_child(child_1)
@@ -489,7 +501,7 @@ mod tests {
 
         let mut parent_query = app.world_mut().query_filtered::<Entity, (
             Without<WantChildPath>,
-            Without<Parent>,
+            Without<ChildOf>,
             With<Children>,
         )>();
         assert_eq!(parent_query.iter(&app.world_mut()).count(), 1);
@@ -525,7 +537,7 @@ mod tests {
 
         app.update();
 
-        let mut query = app.world_mut().query::<(&TextureAtlas, &Sprite)>();
+        let mut query = app.world_mut().query::<&Sprite>();
 
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
@@ -556,17 +568,17 @@ mod tests {
 
         let mut query = app
             .world_mut()
-            .query::<(&Handle<Scene>, &SceneAutoRoot, &Visibility, &Transform)>();
+            .query::<(&SceneRoot, &SceneAutoRoot, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(
-            s.0.path().unwrap().to_string(),
+            s.0.path::<String>("Scene0").unwrap().to_string(),
             "low_poly_fighter_2.gltf#Scene0"
         );
 
         let mut query = app.world_mut().query::<(Entity, &DespawnTestChild)>();
-        assert!(query.get_single(&app.world_mut()).is_err());
+        assert!(query.single(&app.world_mut()).is_err());
     }
 
     #[test]
@@ -584,7 +596,7 @@ mod tests {
                     scene: String::from("Scene0"),
                 },
                 Visibility::Hidden,
-                TransformBundle::IDENTITY,
+                Transform::default(),
             ));
         })
         .add_systems(Update, spawn_scene);
@@ -593,9 +605,9 @@ mod tests {
 
         let mut query = app
             .world_mut()
-            .query::<(&Handle<Scene>, &Visibility, &Transform)>();
+            .query::<(&SceneRoot, &Visibility, &Transform)>();
 
-        let s = query.single(&app.world());
+        let s = query.single(&app.world()).unwrap();
 
         assert_eq!(s.1, Visibility::Hidden);
         assert_eq!(s.2, &Transform::IDENTITY);

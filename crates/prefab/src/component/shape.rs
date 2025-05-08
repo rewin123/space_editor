@@ -417,7 +417,7 @@ impl PlaneMultiPointPrefab {
 pub struct RegularPolygonPrefab {
     pub circumcircle_radius: f32,
     #[inspector(min = 3)]
-    pub sides: usize,
+    pub sides: u32,
 }
 
 impl Default for RegularPolygonPrefab {
