@@ -1,9 +1,5 @@
 use bevy::{
-    asset::{AssetPath, LoadState},
-    ecs::world::CommandQueue,
-    gltf::{Gltf, GltfMesh, GltfNode},
-    prelude::*,
-    utils::HashMap,
+    asset::{AssetPath, LoadState}, ecs::world::CommandQueue, gltf::{Gltf, GltfMesh, GltfNode}, platform::collections::HashMap, prelude::*
 };
 
 use space_prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab};
@@ -64,8 +60,9 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() && assets.get_load_state(&queue.0[0]) == Some(LoadState::Loaded) {
-        events.send(GltfLoaded(queue.0.remove(0)));
+    if !queue.0.is_empty() && matches!(assets.get_load_state(&queue.0[0]), Some(LoadState::Loaded))
+    {
+        events.write(GltfLoaded(queue.0.remove(0)));
     }
 }
 
@@ -74,6 +71,7 @@ struct UnpackContext<'a> {
     mesh_map: &'a HashMap<Handle<GltfMesh>, usize>,
     gltf_meshs: &'a Assets<GltfMesh>,
     gltf_path: &'a AssetPath<'a>,
+    gltf_nodes: &'a Assets<GltfNode>,
 }
 
 fn unpack_gltf(world: &mut World) {
@@ -81,7 +79,7 @@ fn unpack_gltf(world: &mut World) {
         let Some(mut events) = world.get_resource_mut::<Events<GltfLoaded>>() else {
             return;
         };
-        let mut reader = events.get_reader();
+        let mut reader = events.get_cursor();
         let loaded = reader.read(&events).cloned().collect::<Vec<GltfLoaded>>();
         events.clear();
         loaded
@@ -151,17 +149,15 @@ fn unpack_gltf(world: &mut World) {
             //find roots nodes
             let mut roots = vec![];
             for e in scene.world.iter_entities() {
-                if !e.contains::<Parent>() && e.contains::<Children>() {
+                if !e.contains::<ChildOf>() && e.contains::<Children>() {
                     let Some(children) = e.get::<Children>() else {
                         continue;
                     };
                     for child in children.iter() {
-                        if let Some(name) = scene.world.entity(*child).get::<Name>() {
+                        if let Some(name) = scene.world.entity(child.entity()).get::<Name>() {
                             info!("Name: {:?}", &name);
                             if let Some(node_handle) = gltf.named_nodes.get(name.as_str()) {
-                                if let Some(node) = gltf_nodes.get(node_handle) {
-                                    roots.push(node.clone());
-                                }
+                                roots.push(node_handle.clone())
                             }
                         }
                     }
@@ -175,6 +171,7 @@ fn unpack_gltf(world: &mut World) {
                 mesh_map: &mesh_map,
                 gltf_meshs,
                 gltf_path: &gltf_path,
+                gltf_nodes: &gltf_nodes,
             };
 
             for root in roots.iter() {
@@ -190,16 +187,23 @@ fn unpack_gltf(world: &mut World) {
 
 fn spawn_node(
     commands: &mut Commands,
-    node: &GltfNode,
+    node_handle: &Handle<GltfNode>,
     _gltf: &Gltf,
     ctx: &UnpackContext<'_>,
 ) -> Entity {
+    
+    let gltf_nodes = ctx.gltf_nodes;
+
+    let Some(node) = gltf_nodes.get(node_handle) else {
+        error!("Failed to get GltfNode for handle: {:?}", node_handle);
+        return commands.spawn_empty().id();
+    };
+
+
     let id = commands
         .spawn((
-            SpatialBundle {
-                transform: node.transform,
-                ..default()
-            },
+            node.transform,
+            Visibility::default(),
             PrefabMarker,
         ))
         .id();
@@ -231,7 +235,8 @@ fn spawn_node(
                 commands.entity(id).with_children(|parent| {
                     for idx in 0..mesh.primitives.len() {
                         let mut id = parent.spawn((
-                            SpatialBundle::default(),
+                            Transform::default(),
+                            Visibility::default(),
                             AssetMesh {
                                 path: format!(
                                     "{}#Mesh{}/Primitive{}",

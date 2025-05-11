@@ -27,7 +27,7 @@ fn update_storage(mut storage: ResMut<BackgroundTaskStorage>, assets: Res<AssetS
         match &storage.tasks[0] {
             BackgroundTask::AssetLoading(_path, handle) => {
                 let load_state = assets.get_load_state(handle.id());
-                if load_state == Some(LoadState::Loaded)
+                if matches!(load_state, Some(LoadState::Loaded))
                     || load_state.is_none()
                     || matches!(load_state, Some(LoadState::Failed(_)))
                 {

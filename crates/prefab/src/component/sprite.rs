@@ -1,5 +1,5 @@
 use crate::ext::*;
-use bevy::utils::HashMap;
+use bevy::platform::collections::HashMap;
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 use super::material::try_image;
@@ -12,13 +12,17 @@ pub struct SpriteTexture {
 }
 
 impl SpriteTexture {
-    /// Convert [`SpriteTexture`] to [`SpriteBundle`]
-    pub fn to_sprite(&self, asset_server: &AssetServer) -> Option<SpriteBundle> {
-        let texture = try_image(&self.texture, asset_server)?;
-        Some(SpriteBundle {
-            texture,
-            ..default()
-        })
+    /// Convert [`SpriteTexture`] to a setup with a [`Sprite`]
+    pub fn to_sprite(&self, asset_server: &AssetServer) -> Option<(Sprite, Transform, Visibility)> {
+        let texture_handle = asset_server.load(&self.texture);
+        Some((
+            Sprite {
+                image: texture_handle,
+                ..default()
+            },
+            Transform::default(),
+            Visibility::default(),
+        ))
     }
 }
 
@@ -170,18 +174,20 @@ pub fn animate_sprite(
         &AnimationIndicesSpriteSheet,
         &AnimationClipName,
         &mut AnimationTimerSpriteSheet,
-        &mut TextureAtlas,
+        &mut Sprite,
     )>,
 ) {
-    for (sheet_indices, name, mut timer, mut atlas) in &mut query {
+    for (sheet_indices, name, mut timer, mut sprite) in &mut query {
         timer.tick(time.delta());
         if timer.just_finished() {
             if let Some(indices) = sheet_indices.clips.get(&name.name) {
-                atlas.index = if atlas.index == indices.last {
-                    indices.first
-                } else {
-                    atlas.index + 1
-                };
+                if let Some(ref mut atlas) = sprite.texture_atlas {
+                    atlas.index = if atlas.index == indices.last {
+                        indices.first
+                    } else {
+                        atlas.index + 1
+                    };
+                }
             }
         }
     }
@@ -207,11 +213,18 @@ mod tests {
         ));
         let server = app.world().resource::<AssetServer>();
 
+        // Load the image and obtain its handle
+        let image_handle: Handle<Image> = server.load(&prefab.texture);
+
         let sprite = prefab.to_sprite(server);
 
         assert!(sprite.is_some());
-        let id = sprite.unwrap().texture.id();
-        assert!(server.get_id_handle(id).is_some());
+        // Extract the `image` handle from the sprite
+        let sprite = sprite.unwrap();
+        let sprite_image_handle = sprite.0.image;
+
+        // Assert that the handles are the same
+        assert_eq!(image_handle, sprite_image_handle);
     }
 
     #[test]
@@ -331,12 +344,19 @@ mod tests {
 
     #[test]
     fn animate_sprite_over_time() {
-        let setup = |mut commands: Commands| {
+        let setup = |mut commands: Commands, asset_server: Res<AssetServer>| {
+            let atlas_handle = asset_server.load("icons/GameraGizmo.png");
             commands.spawn((
                 AnimationIndicesSpriteSheet::default(),
                 AnimationClipName::default(),
                 AnimationTimerSpriteSheet::default(),
-                TextureAtlas::default(),
+                Sprite {
+                    texture_atlas: Some(TextureAtlas {
+                        layout: atlas_handle.clone(),
+                        index: 0,
+                    }),
+                    ..Default::default()
+                },
             ));
         };
         let mut app = App::new();
@@ -346,10 +366,13 @@ mod tests {
             .add_systems(Update, animate_sprite);
 
         app.update();
-        let mut query = app.world_mut().query::<&TextureAtlas>();
+        let mut query = app.world_mut().query::<&Sprite>();
 
-        let atlas = query.single(&app.world());
-
-        assert_eq!(atlas.index, 0);
+        let sprite = query.single(&app.world()).unwrap();
+        if let Some(texture_atlas) = sprite.texture_atlas.as_ref() {
+            assert_eq!(texture_atlas.index, 0);
+        } else {
+            panic!("TextureAtlas not set on sprite!");
+        }
     }
 }

@@ -1,4 +1,5 @@
-use bevy::{prelude::*, utils::HashMap};
+use bevy::platform::collections::HashMap;
+use bevy::prelude::*;
 
 use bevy_egui::*;
 

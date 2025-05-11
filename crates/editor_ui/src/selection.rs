@@ -1,101 +1,135 @@
 use crate::*;
-use bevy::prelude::*;
+use bevy::{color::palettes::tailwind::{PINK_100, RED_500}, picking::pointer::PointerInteraction, prelude::*};
 
-pub struct EditorPickingPlugin;
 
-impl Plugin for EditorPickingPlugin {
-    #[cfg(not(tarpaulin_include))]
-    fn build(&self, app: &mut App) {
-        app.add_plugins(bevy_mod_picking::DefaultPickingPlugins);
 
-        if let Some(mut raycast_backend) =
-            app.world_mut()
-                .get_resource_mut::<bevy_mod_picking::backends::raycast::RaycastBackendSettings>()
-        {
-            raycast_backend.require_markers = true;
+#[cfg(not(tarpaulin_include))]
+pub fn plugin(app: &mut App) {
+    app.add_plugins(MeshPickingPlugin);
+
+
+    app.add_systems(
+        Update,
+        (delete_selected, reemit_pointer_click, auto_add_markers)
+    );
+
+    app.add_systems(
+        Update,
+        draw_mesh_intersections.run_if(in_state(EditorState::Editor))
+    );
+
+    app.add_event::<AddMarkersEvent>();
+
+    app.add_observer(select_listener);
+    app.add_observer(recursive_add_markers);
+
+    app.insert_resource(MeshPickingSettings {
+        require_markers: true,
+        ray_cast_visibility: RayCastVisibility::VisibleInView
+    });
+}
+
+fn auto_add_markers(
+    mut commands: Commands,
+    q_prefabs: Query<Entity, (With<PrefabMarker>, Without<MeshPickingCamera>)>,
+    q_cameras: Query<Entity, (With<Camera3d>, Without<MeshPickingCamera>)>,
+) {
+    for entity in q_prefabs.iter() {
+        commands.trigger_targets(AddMarkersEvent, entity);
+    }
+
+    for entity in q_cameras.iter() {
+        commands.entity(entity).insert(MeshPickingCamera);
+    }
+}
+
+#[derive(Event, Clone)]
+struct AddMarkersEvent;
+
+fn recursive_add_markers(
+    trigger: Trigger<AddMarkersEvent>,
+    q_children: Query<&Children>,
+    q_meshes: Query<Entity, With<Mesh3d>>,
+    mut commands: Commands,
+) {
+    if q_meshes.contains(trigger.target()) {
+        commands.entity(trigger.target()).insert(Pickable {
+            should_block_lower: true,
+            is_hoverable: true,
+        });
+    }
+
+    if let Ok(children) = q_children.get(trigger.target()) {
+        for child in children.iter() {
+            commands.trigger_targets(AddMarkersEvent, child.entity());
         }
-
-        app.add_systems(
-            PostUpdate,
-            (auto_add_picking, select_listener.after(UiSystemSet))
-                .run_if(in_state(EditorState::Editor)),
-        );
-        app.add_systems(PostUpdate, auto_add_picking_dummy);
     }
 }
 
-pub fn auto_add_picking(
-    mut commands: Commands,
-    query: Query<Entity, (With<PrefabMarker>, Without<Pickable>)>,
-) {
-    for e in query.iter() {
-        commands.entity(e).insert((
-            PickableBundle::default(),
-            On::<Pointer<Down>>::send_event::<SelectEvent>(),
-            RaycastPickable,
-        ));
+/// From bevy examples
+/// A system that draws hit indicators for every pointer.
+fn draw_mesh_intersections(pointers: Query<&PointerInteraction>, mut gizmos: Gizmos) {
+    for (point, normal) in pointers
+        .iter()
+        .filter_map(|interaction| interaction.get_nearest_hit())
+        .filter_map(|(_entity, hit)| hit.position.zip(hit.normal))
+    {
+        gizmos.sphere(point, 0.05, RED_500);
+        gizmos.arrow(point, point + normal.normalize() * 0.5, PINK_100);
     }
 }
 
-//Auto add picking for each child to propagate picking event up to prefab entity
-pub fn auto_add_picking_dummy(
+/// Reemits the pointer click event to the entity that is being clicked on
+/// Its not a good solution, but it works for now
+fn reemit_pointer_click(
+    pointers: Query<&PointerInteraction>,
     mut commands: Commands,
-    query: Query<(Entity, &Handle<Mesh>), AutoAddQueryFilter>,
-    meshs: Res<Assets<Mesh>>,
+    q_meshes: Query<Entity, With<Mesh3d>>,
 ) {
-    for (e, mesh) in query.iter() {
-        //Only meshed entity need to be pickable
-        if let Some(mesh) = meshs.get(mesh) {
-            if mesh.primitive_topology() == PrimitiveTopology::TriangleList {
-                commands
-                    .entity(e)
-                    .insert((PickableBundle::default(), RaycastPickable));
+    for pointer in pointers.iter() {
+        if let Some((e, _)) = pointer.get_nearest_hit() {
+            if q_meshes.contains(*e) {
+                commands.trigger_targets(SelectEvent, *e);
             }
         }
     }
 }
 
 pub fn select_listener(
+    mut trigger: Trigger<SelectEvent>,
     mut commands: Commands,
     query: Query<Entity, With<Selected>>,
     // may need to be optimized a bit so that there is less overlap
     prefabs: Query<Entity, With<PrefabMarker>>,
-    parents: Query<&Parent>,
-    mut events: EventReader<SelectEvent>,
+    parents: Query<&ChildOf>,
     pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
+
     if !pan_orbit_state.0 {
-        events.clear();
+        trigger.propagate(false);
         return;
     }
 
-    let mut stack = events.read().cloned().collect::<Vec<_>>();
+    info!("Select Event: {:?}", trigger.target());
 
-    while let Some(event) = stack.pop() {
-        info!("Select Event: {:?}", event.e);
-
-        if let Ok(entity) = prefabs.get(event.e) {
-            match event.event.button {
-                PointerButton::Primary => {
-                    commands.entity(entity).insert(Selected);
-                    if !keyboard.pressed(KeyCode::ShiftLeft) {
-                        for e in query.iter() {
-                            commands.entity(e).remove::<Selected>();
-                        }
-                    }
-                }
-                PointerButton::Secondary => { /*Show context menu?*/ }
-                PointerButton::Middle => {}
+    if let Ok(entity) = prefabs.get(trigger.target()) {
+        commands.entity(entity).insert(Selected);
+        if !keyboard.pressed(KeyCode::ShiftLeft) {
+            for e in query.iter() {
+                commands.entity(e).remove::<Selected>();
             }
-        } else if let Ok(parent) = parents.get(event.e) {
-            stack.push(SelectEvent {
-                e: parent.get(),
-                event: event.event.clone(),
-            });
         }
+    } else if let Ok(parent) = parents.get(trigger.target()) {
+        // Just stupid propagation (Need to make it with Event trait)
+        commands.trigger_targets(SelectEvent, parent.parent()); 
     }
 }
+
+
+/// This event used for selecting entities
+#[derive(Event, Clone)]
+pub struct SelectEvent;
 
 pub fn delete_selected(
     mut commands: Commands,
@@ -109,24 +143,8 @@ pub fn delete_selected(
     if ctrl && shift && delete {
         for entity in query.iter() {
             info!("Delete Entity: {entity:?}");
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
     }
 }
 
-impl From<ListenerInput<Pointer<Down>>> for SelectEvent {
-    fn from(value: ListenerInput<Pointer<Down>>) -> Self {
-        Self {
-            e: value.target(),
-            event: value,
-        }
-    }
-}
-
-/// This event used for selecting entities
-#[derive(Event, Clone, EntityEvent)]
-pub struct SelectEvent {
-    #[target]
-    e: Entity,
-    event: ListenerInput<Pointer<Down>>,
-}

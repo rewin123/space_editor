@@ -3,7 +3,7 @@ use space_editor_tabs::prelude::*;
 
 use crate::{colors::*, sizing::Sizing};
 use bevy_egui::egui::FontFamily::{Monospace, Proportional};
-use bevy_egui::egui::{FontId, Rounding, TextStyle as ETextStyle};
+use bevy_egui::egui::{CornerRadius, FontId, TextStyle as ETextStyle};
 
 #[derive(Resource, Default)]
 pub struct EditorStyle {}
@@ -18,15 +18,15 @@ impl TabStyle for EditorStyle {
         stl.spacing.icon_spacing = 4.;
         stl.spacing.icon_width = 16.;
         stl.spacing.menu_margin = bevy_egui::egui::Margin {
-            left: 8.,
-            right: 8.,
-            top: 4.,
-            bottom: 8.,
+            left: 8,
+            right: 8,
+            top: 4,
+            bottom: 8,
         };
         stl.visuals.error_fg_color = ERROR_COLOR;
         stl.visuals.hyperlink_color = HYPERLINK_COLOR;
         stl.visuals.warn_fg_color = WARN_COLOR;
-        stl.visuals.menu_rounding = Rounding::same(0.5);
+        stl.visuals.menu_corner_radius = CornerRadius::same(1);
         stl.text_styles = [
             (ETextStyle::Small, FontId::new(10.0, Proportional)),
             (ETextStyle::Body, FontId::new(12., Proportional)),

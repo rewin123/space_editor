@@ -81,7 +81,8 @@ fn system_tab(mut commands: Commands, mut ui: NonSendMut<EditorUiRef>) {
     // SpatialBundle and Name components
     if ui.button("Add").clicked() {
         commands.spawn((
-            SpatialBundle::default(),
+            Transform::default(),
+            Visibility::default(),
             PrefabMarker,
             Name::new("New Entity".to_string()),
         ));

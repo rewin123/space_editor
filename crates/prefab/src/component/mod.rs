@@ -21,7 +21,7 @@ pub use player_start::*;
 /// NOT USED. Planned to be used in future for auto structs
 pub mod path;
 
-use bevy::{prelude::*, reflect::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*, reflect::*};
 
 /// External dependencies
 pub mod ext {
@@ -77,7 +77,7 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
                 let Some(field) = s.field_at(idx) else {
                     continue;
                 };
-                if let Some(handle) = field.downcast_ref::<Handle<Image>>() {
+                if let Some(handle) = field.try_downcast_ref::<Handle<Image>>() {
                     if let Some(path) = handle.path() {
                         let path = path.path().to_str().unwrap_or("./assets").to_string();
                         paths.insert(field_name.to_string(), path);
@@ -100,9 +100,9 @@ impl<T: Reflect + FromReflect + Default + Clone> AutoStruct<T> {
                 for (field_name, path) in self.asset_paths.iter() {
                     if let Some(field) = s.field_mut(field_name) {
                         #[allow(clippy::option_if_let_else)]
-                        if let Some(handle) = field.downcast_mut::<Handle<Image>>() {
+                        if let Some(handle) = field.try_downcast_mut::<Handle<Image>>() {
                             *handle = assets.load(path);
-                        } else if let Some(handle) = field.downcast_mut::<Handle<Mesh>>() {
+                        } else if let Some(handle) = field.try_downcast_mut::<Handle<Mesh>>() {
                             *handle = assets.load(path);
                         }
                     }

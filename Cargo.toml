@@ -32,8 +32,8 @@ name = "plugin_test"
 path = "external/editor_as_plugin/src/main.rs"
 
 [workspace.package]
-version = "0.6.0"
-edition = "2021"
+version = "0.8.0"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 authors = ["rewin <rewin1996@gmail.com>", "Julia Naomi <jnboeira@outlook.com>"]
 keywords = ["gamedev", "editor", "bevy"]
@@ -42,42 +42,69 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = "0.14.2"
+bevy = { version = "0.16.0", default-features = false, features = [
+    "bevy_gltf",
+    "bevy_log",
+    "bevy_window",
+    "bevy_state",
+    "bevy_sprite",
+    "reflect_documentation",
+    "reflect_functions",
+    "bevy_gizmos",
+    "bevy_picking",
+    "bevy_mesh_picking_backend",
+] }
 
 # Editor Crates
-space_prefab = { version = "0.6.0", path = "crates/prefab" }
-space_shared = { version = "0.6.0", path = "crates/shared" }
-space_undo = { version = "0.6.0", path = "crates/undo" }
-space_persistence = { version = "0.6.0", path = "crates/persistence"}
-space_editor_core = { version = "0.6.0", path = "crates/editor_core", features = ["persistence_editor"] }
-space_editor_ui = { version = "0.6.0", path = "crates/editor_ui", features = ["persistence_editor"] }
-space_editor_tabs = { version = "0.6.0", path = "crates/editor_tabs" }
+space_prefab = { version = "0.8.0", path = "crates/prefab" }
+space_shared = { version = "0.8.0", path = "crates/shared" }
+space_undo = { version = "0.8.0", path = "crates/undo" }
+space_persistence = { version = "0.8.0", path = "crates/persistence"}
+space_editor_core = { version = "0.8.0", path = "crates/editor_core", features = ["persistence_editor"] }
+space_editor_ui = { version = "0.8.0", path = "crates/editor_ui", features = ["persistence_editor"] }
+space_editor_tabs = { version = "0.8.0", path = "crates/editor_tabs" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_asset_loader = "0.21"
-bevy_debug_grid = "0.6"
-bevy_egui = "0.29"
-bevy-inspector-egui = { version = "0.25", features = [
+bevy_egui = "0.34"
+egui_extras = { version = "0.31.1", features = ["all_loaders"] }
+pretty-type-name = "1"
+rand = "0.9.1"
+ron = "0.10.1"
+serde = "1.0"
+convert_case = "0.8.0"
+image = "0.25.6"
+egui_dock = "0.16.0"
+egui_file = "0.22.1"
+egui-toast = "0.17.0"
+
+bevy-scene-hook = {git = "https://github.com/MiniMinerX/bevy-scene-hook.git", branch= "dev-0.16"}
+bevy_debug_grid = { git = "https://github.com/MiniMinerX/bevy_debug_grid.git", branch = "dev-0.16"}
+bevy-inspector-egui = {version = "0.31.0", features = [
     "bevy_pbr",
     "highlight_changes",
-] }
-bevy_mod_billboard = { version = "0.7.0" }
-bevy_mod_picking = { version = "0.20.1", default-features = false, features = ["backend_raycast",  "selection",] }
-bevy_panorbit_camera = { version = "0.19", default-features = false }
-bevy-scene-hook = {git = "https://github.com/stargazing-dino/bevy-scene-hook.git", branch= "update-14.0"}
-convert_case = "0.6"
-egui_dock = "0.13"
-egui_extras = { version = "0.28.1", features = ["all_loaders"] }
-egui_file = "0.18"
-transform-gizmo-egui = "0.3.0"
-transform-gizmo-bevy = "0.3.0"
-egui-toast = "0.14.0"
-image = {version = "0.25.1", feature = ["png"] }
-pretty-type-name = "1"
-rand = "*"
-ron = "0.8"
-serde = "1"
+]}
+#bevy-inspector-egui = { branch = "space_edit", git = "https://github.com/MiniMinerX/bevy-inspector-egui.git", features = [
+#    "bevy_pbr",
+#    "highlight_changes",
+#] }
+bevy_mod_billboard = { branch = "dev-0.16", git = "https://github.com/MiniMinerX/bevy_mod_billboard.git"}
+bevy_asset_loader = "0.23.0-rc.3"
+bevy_panorbit_camera = "0.26"
+# bevy_panorbit_camera = { branch = "reflect_component", git = "https://github.com/MiniMinerX/bevy_panorbit_camera.git"}
+bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", branch = "bevy-0.16"}
+
+# below has not been updated to bevy 0.16
+
+transform-gizmo-bevy = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-bevy"}
+transform-gizmo-egui = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-egui"}
+
+
+#transform-gizmo-egui = {git = "https://github.com/MiniMinerX/transform-gizmo.git"}
+#transform-gizmo-bevy = { git = "https://github.com/MiniMinerX/transform-gizmo.git"}
+
+
+
 
 # Community Modules
 game_app = { version = "0.1.0", path = "game" }
@@ -127,9 +154,11 @@ workspace = true
 opt-level = 1
 overflow-checks = false 
 incremental = true # works well when target/ is stored
+prefer-dynamic = true  # prefer dynamic linking for faster builds
 
 [profile.dev.package."*"]
 opt-level = 3
+prefer-dynamic = true
 
 [profile.release-fast]
 inherits = "release"

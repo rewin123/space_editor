@@ -34,10 +34,10 @@ pub fn initialize_mouse_context(
     mut pointer_ctx: ResMut<PointerContextCheck>,
     window_q: Query<Entity, With<PrimaryWindow>>,
 ) {
-    if let Ok(window_id) = window_q.get_single() {
+    if let Ok(window_id) = window_q.single() {
         pointer_ctx.primary_window = Some(window_id);
     } else {
-        toast.send(ToastMessage::new(
+        toast.write(ToastMessage::new(
             "Could not get Primary Window",
             ToastKind::Error,
         ));

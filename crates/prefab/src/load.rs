@@ -90,30 +90,30 @@ fn load_prefab(
                 .insert((Transform::default(), GlobalTransform::default()));
         }
         if vis.is_none() {
-            commands.entity(e).insert(VisibilityBundle::default());
+            commands.entity(e).insert(Visibility::default());
         }
 
         //remove old scene
         if let Some(children) = children {
             for child in children {
                 if auto_children.contains(*child) {
-                    commands.entity(*child).despawn_recursive();
+                    commands.entity(*child).despawn();
                 }
             }
-            commands.entity(e).clear_children();
+            commands.entity(e).remove::<Children>();
         }
 
         let scene: Handle<DynamicScene> = assets.load(&l.path);
 
         let id = commands
-            .spawn(DynamicSceneBundle { scene, ..default() })
+            .spawn(DynamicSceneRoot(scene))
             .insert(SceneHook::new(move |_e, cmd| {
                 cmd.insert(PrefabAutoChild);
             }))
             .insert(PrefabAutoChild)
             .id();
 
-        commands.entity(e).push_children(&[id]);
+        commands.entity(e).add_children(&[id]);
     }
 }
 

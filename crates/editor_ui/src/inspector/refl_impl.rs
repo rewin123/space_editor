@@ -2,9 +2,10 @@ use std::any::{Any, TypeId};
 
 use bevy::{
     prelude::{AppTypeRegistry, ResMut},
-    reflect::Reflect,
+    reflect::PartialReflect,
 };
 use bevy_egui::egui;
+use bevy_inspector_egui::reflect_inspector::ProjectorReflect;
 use space_shared::ext::bevy_inspector_egui::{
     inspector_egui_impls::InspectorEguiImpl, reflect_inspector::InspectorUi,
 };
@@ -12,6 +13,7 @@ use space_shared::ext::bevy_inspector_egui::{
 use space_prefab::component::EntityLink;
 
 /// Method from `bevy_inspector_egui` to make dummy reflection ui
+/*
 pub fn many_unimplemented<T: Any>(
     _ui: &mut egui::Ui,
     _options: &dyn Any,
@@ -20,6 +22,19 @@ pub fn many_unimplemented<T: Any>(
     _values: &mut [&mut dyn Reflect],
     _projector: &dyn Fn(&mut dyn Reflect) -> &mut dyn Reflect,
 ) -> bool {
+    false
+}
+*/
+
+pub fn many_unimplemented<T: Any>(
+    ui: &mut egui::Ui,
+    _options: &dyn Any,
+    _id: egui::Id,
+    _env: InspectorUi<'_, '_>,
+    _values: &mut [&mut dyn PartialReflect],
+    _projector: &dyn ProjectorReflect,
+) -> bool {
+    //no_multiedit(ui, &pretty_type_name::<T>());
     false
 }
 

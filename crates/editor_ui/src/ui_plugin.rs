@@ -1,7 +1,8 @@
 use crate::tools::gizmo::*;
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
-use meshless_visualizer::draw_light_gizmo;
+use bevy::gizmos::config::GizmoConfigGroup;
+//use meshless_visualizer::draw_light_gizmo;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
 
@@ -36,9 +37,11 @@ pub struct EditorGizmo;
 impl FlatPluginList for EditorUiPlugin {
     #[cfg(not(tarpaulin_include))]
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
+        use bevy_egui::EguiPlugin;
+
         let mut res = group
             .add(SelectedPlugin)
-            .add(MeshlessVisualizerPlugin)
+            //.add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
             .add(GameViewPlugin)
             .add(menu_toolbars::BottomMenuPlugin)
@@ -49,6 +52,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
             .add(settings::SettingsWindowPlugin);
+        
 
         if self.use_standard_layout {
             res = res.add(DefaultEditorLayoutPlugin);
@@ -103,6 +107,8 @@ impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         use bevy::app::MainScheduleOrder;
 
+        info!("EditorUiCore build");
+
         app.init_state::<ShowEditorUi>();
         app.init_resource::<EditorUi>();
 
@@ -110,7 +116,7 @@ impl Plugin for EditorUiCore {
             Update,
             UiSystemSet
                 .in_set(EditorSet::Editor)
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
@@ -161,12 +167,13 @@ impl Plugin for EditorUiCore {
             .resource_mut::<MainScheduleOrder>()
             .insert_after(StateTransition, AfterStateTransition);
 
-        app.add_systems(Startup, (set_start_state, apply_deferred).chain());
+        app.add_systems(Startup, (set_start_state, ApplyDeferred).chain());
 
         //play systems
         app.add_systems(OnEnter(EditorState::GamePrepare), save_prefab_before_play);
         // clean up meshless children on entering the game state
-        app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
+
+        //app.add_systems(OnEnter(EditorState::GamePrepare), clean_meshless);
         app.add_systems(
             OnEnter(SaveState::Idle),
             to_game_after_save.run_if(in_state(EditorState::GamePrepare)),
@@ -183,10 +190,10 @@ impl Plugin for EditorUiCore {
             Update,
             (
                 draw_camera_gizmo,
-                draw_light_gizmo,
-                selection::delete_selected,
+                //draw_light_gizmo,
+                //selection::delete_selected,
             )
-                .run_if(in_state(EditorState::Editor).and_then(in_state(ShowEditorUi::Show))),
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
 
         if self.disable_no_editor_cams {
@@ -198,7 +205,7 @@ impl Plugin for EditorUiCore {
             app.add_systems(OnEnter(EditorState::Editor), change_camera_in_editor);
         }
 
-        app.add_event::<selection::SelectEvent>();
+        //app.add_event::<selection::SelectEvent>();
 
         app.init_resource::<BundleReg>();
     }
@@ -210,7 +217,7 @@ pub fn ui_camera_block(
     mut state: ResMut<EditorCameraEnabled>,
     game_view: Res<GameViewTab>,
 ) {
-    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
+    let Ok(mut ctx_ref) = ctxs.single_mut() else {
         return;
     };
     let ctx = ctx_ref.get_mut();
