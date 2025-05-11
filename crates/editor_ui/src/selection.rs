@@ -31,15 +31,15 @@ pub fn plugin(app: &mut App) {
 
 fn auto_add_markers(
     mut commands: Commands,
-    q_prefabs: Query<Entity, (With<PrefabMarker>, Without<RayCastPickable>)>,
-    q_cameras: Query<Entity, (With<Camera3d>, Without<RayCastPickable>)>,
+    q_prefabs: Query<Entity, (With<PrefabMarker>, Without<MeshPickingCamera>)>,
+    q_cameras: Query<Entity, (With<Camera3d>, Without<MeshPickingCamera>)>,
 ) {
     for entity in q_prefabs.iter() {
         commands.trigger_targets(AddMarkersEvent, entity);
     }
 
     for entity in q_cameras.iter() {
-        commands.entity(entity).insert(RayCastPickable);
+        commands.entity(entity).insert(MeshPickingCamera);
     }
 }
 
@@ -53,12 +53,15 @@ fn recursive_add_markers(
     mut commands: Commands,
 ) {
     if q_meshes.contains(trigger.target()) {
-        commands.entity(trigger.target()).insert(RayCastPickable);
+        commands.entity(trigger.target()).insert(Pickable {
+            should_block_lower: true,
+            is_hoverable: true,
+        });
     }
 
     if let Ok(children) = q_children.get(trigger.target()) {
         for child in children.iter() {
-            commands.trigger_targets(AddMarkersEvent, *child);
+            commands.trigger_targets(AddMarkersEvent, child.entity());
         }
     }
 }
@@ -98,7 +101,7 @@ pub fn select_listener(
     query: Query<Entity, With<Selected>>,
     // may need to be optimized a bit so that there is less overlap
     prefabs: Query<Entity, With<PrefabMarker>>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<ButtonInput<KeyCode>>,
 ) {
@@ -108,18 +111,18 @@ pub fn select_listener(
         return;
     }
 
-    info!("Select Event: {:?}", trigger.entity());
+    info!("Select Event: {:?}", trigger.target());
 
-    if let Ok(entity) = prefabs.get(trigger.entity()) {
+    if let Ok(entity) = prefabs.get(trigger.target()) {
         commands.entity(entity).insert(Selected);
         if !keyboard.pressed(KeyCode::ShiftLeft) {
             for e in query.iter() {
                 commands.entity(e).remove::<Selected>();
             }
         }
-    } else if let Ok(parent) = parents.get(trigger.entity()) {
+    } else if let Ok(parent) = parents.get(trigger.target()) {
         // Just stupid propagation (Need to make it with Event trait)
-        commands.trigger_targets(SelectEvent, parent.get()); 
+        commands.trigger_targets(SelectEvent, parent.parent()); 
     }
 }
 
@@ -140,7 +143,7 @@ pub fn delete_selected(
     if ctrl && shift && delete {
         for entity in query.iter() {
             info!("Delete Entity: {entity:?}");
-            commands.entity(entity).despawn_recursive();
+            commands.entity(entity).despawn();
         }
     }
 }

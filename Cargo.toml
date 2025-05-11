@@ -50,6 +50,9 @@ bevy = { version = "0.16.0", default-features = false, features = [
     "bevy_sprite",
     "reflect_documentation",
     "reflect_functions",
+    "bevy_gizmos",
+    "bevy_picking",
+    "bevy_mesh_picking_backend",
 ] }
 
 # Editor Crates
@@ -93,7 +96,9 @@ bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", br
 
 # below has not been updated to bevy 0.16
 
-transform-gizmo-bevy = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16"}
+transform-gizmo-bevy = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-bevy"}
+transform-gizmo-egui = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-egui"}
+
 
 #transform-gizmo-egui = {git = "https://github.com/MiniMinerX/transform-gizmo.git"}
 #transform-gizmo-bevy = { git = "https://github.com/MiniMinerX/transform-gizmo.git"}

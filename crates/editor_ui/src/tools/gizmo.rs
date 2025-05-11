@@ -2,7 +2,8 @@ use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use space_editor_core::prelude::*;
 use space_shared::*;
-use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoExt, GizmoMode};
+use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoMode};
+use transform_gizmo_egui::GizmoExt;
 
 use crate::EditorGizmo;
 use crate::{colors::*, sizing::Sizing};
@@ -194,7 +195,7 @@ impl EditorTool for GizmoTool {
         if del {
             let mut query = world.query_filtered::<Entity, With<Selected>>();
             for e in query.iter(world) {
-                commands.entity(e).despawn_recursive();
+                commands.entity(e).despawn();
             }
             return;
         }
@@ -202,7 +203,7 @@ impl EditorTool for GizmoTool {
         let (cam_transform, cam_proj) = {
             let mut cam_query =
                 world.query_filtered::<(&GlobalTransform, &Projection), With<EditorCameraMarker>>();
-            let Ok((ref_tr, ref_cam)) = cam_query.get_single(world) else {
+            let Ok((ref_tr, ref_cam)) = cam_query.single(world) else {
                 return;
             };
             (*ref_tr, ref_cam.clone())
@@ -220,7 +221,7 @@ impl EditorTool for GizmoTool {
         if multiple_pressed {
             let mut mean_transform = Transform::IDENTITY;
             for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
+                let Ok(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
                 let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
@@ -243,7 +244,7 @@ impl EditorTool for GizmoTool {
 
             let mut loc_transform = vec![];
             for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
+                let Ok(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
                 let Some(global_transform) = (unsafe { ecell.get::<GlobalTransform>() }) else {
@@ -330,8 +331,8 @@ impl EditorTool for GizmoTool {
 
                     let new_global = global_mean.mul_transform(loc_transform[idx]);
 
-                    if let Some(parent) = unsafe { ecell.get::<Parent>() } {
-                        if let Ok(parent) = cell.get_entity(parent.get()) {
+                    if let Some(parent) = unsafe { ecell.get::<ChildOf>() } {
+                        if let Ok(parent) = cell.get_entity(parent.parent()) {
                             if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() }
                             {
                                 *transform = new_global.reparented_to(parent_global);
@@ -349,7 +350,7 @@ impl EditorTool for GizmoTool {
             }
 
             for e in &selected {
-                let Some(ecell) = cell.get_entity(*e) else {
+                let Ok(ecell) = cell.get_entity(*e) else {
                     continue;
                 };
                 let Some(mut transform) = (unsafe { ecell.get_mut::<Transform>() }) else {
@@ -396,7 +397,7 @@ impl EditorTool for GizmoTool {
                 };
 
                 if let Some(parent) = unsafe { ecell.get::<ChildOf>() } {
-                    if let Ok(parent) = cell.get_entity(parent.get()) {
+                    if let Ok(parent) = cell.get_entity(parent.parent()) {
                         if let Some(parent_global) = unsafe { parent.get::<GlobalTransform>() } {
                             if let Some(global) = unsafe { ecell.get::<GlobalTransform>() } {
                                 self.gizmo.update_config(gizmo_config);

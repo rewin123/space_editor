@@ -185,7 +185,7 @@ impl PluginGroup for EditorPluginGroup {
             .add(EditorDefaultBundlesPlugin)
             .add(EditorDefaultCameraPlugin)
             .add(bevy_egui::EguiPlugin {
-                enable_multipass_for_primary_context: true,
+                enable_multipass_for_primary_context: false,
             })
             //.add(EventListenerPlugin::<selection::SelectEvent>::default())
             .add(DefaultInspectorConfigPlugin);
@@ -397,7 +397,7 @@ pub fn simple_editor_setup(mut commands: Commands) {
         EditorCameraMarker,
         Name::from("Editor Camera"),
         //PickableBundle::default(),
-        RayCastPickable,
+        MeshPickingCamera,
         all_render_layers(),
     ));
 }
@@ -425,7 +425,7 @@ pub fn game_mode_changed(
                 EditorCameraMarker,
                 Name::from("Editor Camera"),
                 //PickableBundle::default(),
-                RayCastPickable,
+                MeshPickingCamera,
                 //Pickable::default(),
                 all_render_layers(),
             ));
@@ -439,7 +439,7 @@ pub fn game_mode_changed(
                 EditorCameraMarker,
                 Name::from("Editor 2D Camera"),
                 //PickableBundle::default(),
-                RayCastPickable,
+                MeshPickingCamera,
                 all_render_layers(),
             ));
         }

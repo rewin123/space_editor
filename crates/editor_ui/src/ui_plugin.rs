@@ -1,6 +1,7 @@
 use crate::tools::gizmo::*;
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
+use bevy::gizmos::config::GizmoConfigGroup;
 //use meshless_visualizer::draw_light_gizmo;
 
 use self::{change_chain::ChangeChainViewPlugin, editor_tab_name::EditorTabName};
@@ -36,6 +37,8 @@ pub struct EditorGizmo;
 impl FlatPluginList for EditorUiPlugin {
     #[cfg(not(tarpaulin_include))]
     fn add_plugins_to_group(&self, group: PluginGroupBuilder) -> PluginGroupBuilder {
+        use bevy_egui::EguiPlugin;
+
         let mut res = group
             .add(SelectedPlugin)
             //.add(MeshlessVisualizerPlugin)
@@ -49,6 +52,7 @@ impl FlatPluginList for EditorUiPlugin {
             .add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
             .add(settings::SettingsWindowPlugin);
+        
 
         if self.use_standard_layout {
             res = res.add(DefaultEditorLayoutPlugin);
@@ -213,7 +217,7 @@ pub fn ui_camera_block(
     mut state: ResMut<EditorCameraEnabled>,
     game_view: Res<GameViewTab>,
 ) {
-    let Ok(mut ctx_ref) = ctxs.get_single_mut() else {
+    let Ok(mut ctx_ref) = ctxs.single_mut() else {
         return;
     };
     let ctx = ctx_ref.get_mut();

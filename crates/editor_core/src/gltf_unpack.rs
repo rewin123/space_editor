@@ -191,14 +191,14 @@ fn spawn_node(
     _gltf: &Gltf,
     ctx: &UnpackContext<'_>,
 ) -> Entity {
+    
     let gltf_nodes = ctx.gltf_nodes;
-    let node = match gltf_nodes.get(node_handle) {
-        Some(node) => node,
-        None => {
-            error!("Failed to get GltfNode for handle: {:?}", node_handle);
-            return commands.spawn_empty().id();
-        }
+
+    let Some(node) = gltf_nodes.get(node_handle) else {
+        error!("Failed to get GltfNode for handle: {:?}", node_handle);
+        return commands.spawn_empty().id();
     };
+
 
     let id = commands
         .spawn((
