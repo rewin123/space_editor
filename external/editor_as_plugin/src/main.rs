@@ -26,7 +26,7 @@ fn main() {
             MeshPrimitive3dPrefab::Cube(1.2),
             Name::new("Cube".to_string()),
             Transform::default(),
-            VisibilityBundle::default(),
+            Visibility::default(),
         ));
     })
     .run();
