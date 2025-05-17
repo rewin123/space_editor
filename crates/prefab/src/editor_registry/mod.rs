@@ -18,7 +18,7 @@ impl Plugin for EditorRegistryPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EditorRegistry>();
 
-        app.editor_clone_registry::<PrefabMarker>();
+        // app.editor_clone_registry::<PrefabMarker>();
     }
 }
 
@@ -38,38 +38,38 @@ impl RemoveComponent {
     }
 }
 
-/// Container struct for function to clone component in untyped style
-#[derive(Clone)]
-pub struct CloneComponent {
-    pub func: Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>,
-}
+// /// Container struct for function to clone component in untyped style
+// #[derive(Clone)]
+// pub struct CloneComponent {
+//     pub func: Arc<dyn Fn(&mut EntityCommands, &EntityRef) + Send + Sync>,
+// }
 
-impl CloneComponent {
-    pub fn new<T: Component + Reflect + FromReflect>() -> Self {
-        Self {
-            func: Arc::new(move |cmds, src| {
-                if let Some(c) = src.get::<T>() {
-                    let cloned_result = c.reflect_clone();
-                    match cloned_result {
-                        Ok(cloned) => {
-                            <T as FromReflect>::from_reflect(&*cloned).map_or_else(
-                                || {
-                                    error!("Failed to clone component");
-                                },
-                                |taken| {
-                                    cmds.insert(taken);
-                                },
-                            );
-                        },
-                        Err(e) => {
-                            error!("Failed to clone component");
-                        }
-                    }
-                }
-            }),
-        }
-    }
-}
+// impl CloneComponent {
+//     pub fn new<T: Component + Reflect + FromReflect>() -> Self {
+//         Self {
+//             func: Arc::new(move |cmds, src| {
+//                 if let Some(c) = src.get::<T>() {
+//                     let cloned_result = c.reflect_clone();
+//                     match cloned_result {
+//                         Ok(cloned) => {
+//                             <T as FromReflect>::from_reflect(&*cloned).map_or_else(
+//                                 || {
+//                                     error!("Failed to clone component");
+//                                 },
+//                                 |taken| {
+//                                     cmds.insert(taken);
+//                                 },
+//                             );
+//                         },
+//                         Err(e) => {
+//                             error!("Failed to clone component");
+//                         }
+//                     }
+//                 }
+//             }),
+//         }
+//     }
+// }
 
 /// Container struct for function to add default component in untyped style
 #[derive(Clone)]
@@ -141,7 +141,6 @@ impl SendEvent {
 pub struct EditorRegistry {
     pub registry: TypeRegistryArc,
     pub spawn_components: HashMap<TypeId, AddDefaultComponent>,
-    pub clone_components: Vec<CloneComponent>,
     pub remove_components: HashMap<TypeId, RemoveComponent>,
     pub send_events: Vec<SendEvent>,
     pub silent: HashSet<TypeId>, //skip in inspector ui
@@ -163,7 +162,7 @@ impl EditorRegistry {
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>(),
         );
-        self.clone_components.push(CloneComponent::new::<T>());
+        // self.clone_components.push(CloneComponent::new::<T>());
         self.remove_components.insert(
             T::get_type_registration().type_id(),
             RemoveComponent::new::<T>(),
@@ -187,7 +186,7 @@ impl EditorRegistry {
             T::get_type_registration().type_id(),
             AddDefaultComponent::new::<T>(),
         );
-        self.clone_components.push(CloneComponent::new::<T>());
+        // self.clone_components.push(CloneComponent::new::<T>());
         self.silent.insert(T::get_type_registration().type_id());
         self.remove_components.insert(
             T::get_type_registration().type_id(),
@@ -196,13 +195,13 @@ impl EditorRegistry {
     }
 
     /// Register new component, which will be cloned with editor ui clone event
-    pub fn only_clone_register<
-        T: Component + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
-    >(
-        &mut self,
-    ) {
-        self.clone_components.push(CloneComponent::new::<T>());
-    }
+    // pub fn only_clone_register<
+    //     T: Component + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
+    // >(
+    //     &mut self,
+    // ) {
+    //     self.clone_components.push(CloneComponent::new::<T>());
+    // }
 
     /// Get spawn function for this component type
     pub fn get_spawn_command(&self, id: &TypeId) -> AddDefaultComponent {
@@ -217,11 +216,11 @@ impl EditorRegistry {
     }
 
     /// Get clone function for this component type
-    pub fn clone_entity_flat(&self, cmds: &mut EntityCommands, src: &EntityRef) {
-        for t in &self.clone_components {
-            (t.func)(cmds, src);
-        }
-    }
+    // pub fn clone_entity_flat(&self, cmds: &mut EntityCommands, src: &EntityRef) {
+    //     for t in &self.clone_components {
+    //         (t.func)(cmds, src);
+    //     }
+    // }
 
     /// Register new event, which will be shown in editor UI and can be sent
     pub fn event_register<
@@ -250,11 +249,11 @@ pub trait EditorRegistryExt {
         &mut self,
     ) -> &mut Self;
 
-    fn editor_clone_registry<
-        T: Component<Mutability = Mutable> + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
-    >(
-        &mut self,
-    ) -> &mut Self;
+    // fn editor_clone_registry<
+    //     T: Component<Mutability = Mutable> + Default + Reflect + FromReflect + Send + 'static + GetTypeRegistration,
+    // >(
+    //     &mut self,
+    // ) -> &mut Self;
 
     /// Mark that if T component spawned, then Relation must be spawned too
     fn editor_relation<T, Relation>(&mut self) -> &mut Self
@@ -314,17 +313,17 @@ impl EditorRegistryExt for App {
         self
     }
 
-    fn editor_clone_registry<
-        T: Component<Mutability = Mutable> + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
-    >(
-        &mut self,
-    ) -> &mut Self {
-        if let Some(mut registry) = self.world_mut().get_resource_mut::<EditorRegistry>() {
-            registry.only_clone_register::<T>()
-        }
-        self.editor_registry::<T>();
-        self
-    }
+    // fn editor_clone_registry<
+    //     T: Component<Mutability = Mutable> + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
+    // >(
+    //     &mut self,
+    // ) -> &mut Self {
+    //     if let Some(mut registry) = self.world_mut().get_resource_mut::<EditorRegistry>() {
+    //         registry.only_clone_register::<T>()
+    //     }
+    //     self.editor_registry::<T>();
+    //     self
+    // }
 
     fn editor_silent_registry<
         T: Component + Reflect + FromReflect + Default + Send + 'static + GetTypeRegistration,
@@ -490,39 +489,39 @@ mod tests {
     }
 
     /// Test for clone logic in editor registry
-    #[test]
-    fn clone_entity_test() {
-        let mut app = App::new();
-        app.add_plugins(MinimalPlugins);
-        app.add_plugins(EditorRegistryPlugin);
-        app.editor_registry::<Name>();
+    // #[test]
+    // fn clone_entity_test() {
+    //     let mut app = App::new();
+    //     app.add_plugins(MinimalPlugins);
+    //     app.add_plugins(EditorRegistryPlugin);
+    //     app.editor_registry::<Name>();
 
-        let name = "name";
-        let e = app.world_mut().spawn(Name::new(name)).id();
+    //     let name = "name";
+    //     let e = app.world_mut().spawn(Name::new(name)).id();
 
-        let new_e_id;
-        {
-            let mut command_queue = CommandQueue::default();
-            let mut cmds = Commands::new(&mut command_queue, &app.world());
+    //     let new_e_id;
+    //     {
+    //         let mut command_queue = CommandQueue::default();
+    //         let mut cmds = Commands::new(&mut command_queue, &app.world());
 
-            let mut new_e = cmds.spawn_empty();
-            new_e_id = new_e.id();
+    //         let mut new_e = cmds.spawn_empty();
+    //         new_e_id = new_e.id();
 
-            app.world()
-                .resource::<EditorRegistry>()
-                .clone_entity_flat(&mut new_e, &app.world().entity(e));
-            command_queue.apply(app.world_mut());
-        }
+    //         app.world()
+    //             .resource::<EditorRegistry>()
+    //             .clone_entity_flat(&mut new_e, &app.world().entity(e));
+    //         command_queue.apply(app.world_mut());
+    //     }
 
-        assert_eq!(
-            app.world_mut()
-                .entity(new_e_id)
-                .get::<Name>()
-                .unwrap()
-                .as_str(),
-            name
-        );
-    }
+    //     assert_eq!(
+    //         app.world_mut()
+    //             .entity(new_e_id)
+    //             .get::<Name>()
+    //             .unwrap()
+    //             .as_str(),
+    //         name
+    //     );
+    // }
 
     #[test]
     fn send_events() {

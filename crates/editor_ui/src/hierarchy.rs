@@ -331,10 +331,10 @@ fn clone_enitites(
             map.insert(src_id, dst_id);
             if let Ok(entity) = query.get(src_id) {
                 if entity.contains::<PrefabMarker>() {
-                    let mut cmds = commands.entity(dst_id);
-                    cmds.insert(ClonedEntity);
+                    let mut cmds = commands.entity(dst_id).insert(ClonedEntity);
+                    commands.entity(src_id).clone_with(dst_id, |_| {});
 
-                    editor_registry.clone_entity_flat(&mut cmds, &entity);
+                    // editor_registry.clone_entity_flat(&mut cmds, &entity);
 
                     if let Some(parent) = entity.get::<ChildOf>() {
                         if let Some(new_parent) = map.get(&parent.parent()) {

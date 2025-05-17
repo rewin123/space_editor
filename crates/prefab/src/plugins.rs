@@ -230,7 +230,7 @@ impl Plugin for BasePrefabPlugin {
 
         app.add_plugins(SavePrefabPlugin);
         app.add_plugins(LoadPlugin);
-        app.add_plugins(crate::sub_scene::SceneUnpackPlugin);
+        // app.add_plugins(crate::sub_scene::SceneUnpackPlugin);
     }
 }
 
