@@ -6,6 +6,15 @@ pub struct EditorDefaultCameraPlugin;
 impl Plugin for EditorDefaultCameraPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+        use crate::ui_picking::UpdateNonUIAreas;
+
+        app.configure_sets(
+            Update,
+            SetCameraViewport
+                .in_set(UiSystemSet)
+                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
+        );
+
         app.add_systems(
             Update,
             reset_editor_camera_state
@@ -28,8 +37,16 @@ impl Plugin for EditorDefaultCameraPlugin {
         );
         app.add_systems(OnEnter(EditorState::GamePrepare), reset_play_camera_state);
         app.add_systems(OnEnter(EditorState::Editor), reset_editor_camera_state);
+
+        
+        app.add_systems(Update, ui_camera_block.after(UpdateNonUIAreas).in_set(EditorSet::Editor));
     }
 }
+
+
+/// Preffer to set camera viewport in this system set
+#[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
+pub struct SetCameraViewport;
 
 /// Resource, which contains state for editor camera (default or any)
 #[derive(Resource, Default)]
@@ -196,5 +213,34 @@ pub fn draw_camera_gizmo(
             Vec2::splat(scale * 2.0),
             pink,
         );
+    }
+}
+
+
+
+
+
+/// System to block camera control if egui is using mouse
+pub fn ui_camera_block(
+    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
+    mut state: ResMut<EditorCameraEnabled>,
+    non_ui_areas: Res<ui_picking::NonUIAreas>,
+) {
+    let Ok(mut ctx_ref) = ctxs.single_mut() else {
+        return;
+    };
+    let ctx = ctx_ref.get_mut();
+    if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
+        let Some(pos) = ctx.pointer_latest_pos() else {
+            return;
+        };
+
+        for area in non_ui_areas.areas.iter() {
+            if area.contains(pos) {
+                return;
+            }
+        }
+
+        *state = EditorCameraEnabled(false);
     }
 }

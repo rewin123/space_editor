@@ -15,9 +15,6 @@ pub mod change_chain;
 /// This module contains UI logic for debug panels (like WorldInspector)
 pub mod debug_panels;
 
-/// This module contains Game view tab logic
-pub mod game_view;
-
 /// This module contains Hierarchy tab logic
 pub mod hierarchy;
 
@@ -29,12 +26,6 @@ pub mod meshless_visualizer;
 
 /// This module contains Settings tab logic
 pub mod settings;
-
-/// This module contains traits and methods to register tools in game view tab
-pub mod tool;
-
-/// This module contains IMPLEMENTATIONS for existed tools (like Gizmo manipulation tool)
-pub mod tools;
 
 /// This module contains methods for bundle registration
 pub mod ui_registration;
@@ -61,6 +52,8 @@ pub mod sizing;
 
 pub mod icons;
 
+pub mod ui_picking;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};
@@ -79,8 +72,6 @@ use bevy_egui::{egui, EguiContext};
 
 use space_editor_tabs::prelude::*;
 
-use game_view::{has_window_changed, GameViewPlugin};
-
 /*
 use prelude::{
     clean_meshless, reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
@@ -89,7 +80,7 @@ use prelude::{
 */
 
 use prelude::{
-    reset_camera_viewport, set_camera_viewport, GameModeSettings, GameViewTab,
+    GameModeSettings,
     SpaceHierarchyPlugin, SpaceInspectorPlugin,
 };
 
@@ -125,13 +116,11 @@ pub mod prelude {
         asset_inspector::*,
         change_chain::*,
         debug_panels::*,
-        game_view::*,
         hierarchy::*,
         inspector::*,
         menu_toolbars::*,
         meshless_visualizer::*,
         settings::*,
-        tool::*, //tools::*,
         ui_registration::*,
     };
 

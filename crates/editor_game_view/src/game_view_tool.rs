@@ -1,8 +1,9 @@
 use bevy::prelude::*;
 
-use crate::prelude::GameViewTab;
+use crate::GameViewTab;
 
-pub trait EditorTool {
+
+pub trait GameViewTool {
     fn ui(&mut self, ui: &mut bevy_egui::egui::Ui, commands: &mut Commands, world: &mut World);
     fn name(&self) -> &str;
 }
@@ -26,13 +27,13 @@ impl ToolName {
 pub trait ToolExt {
     fn editor_tool<T>(&mut self, tool: T)
     where
-        T: EditorTool + Send + Sync + 'static;
+        T: GameViewTool + Send + Sync + 'static;
 }
 
 impl ToolExt for App {
     fn editor_tool<T>(&mut self, tool: T)
     where
-        T: EditorTool + Send + Sync + 'static,
+        T: GameViewTool + Send + Sync + 'static,
     {
         if let Some(mut game_view) = self.world_mut().get_resource_mut::<GameViewTab>() {
             game_view.tools.push(Box::new(tool));

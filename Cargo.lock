@@ -5267,6 +5267,7 @@ dependencies = [
  "backtrace-on-stack-overflow",
  "bevy",
  "game_app",
+ "space_editor_game_view",
  "space_editor_ui",
  "space_prefab",
  "workspace-hakari",
@@ -5285,6 +5286,33 @@ dependencies = [
  "space_prefab",
  "space_shared",
  "space_undo",
+ "workspace-hakari",
+]
+
+[[package]]
+name = "space_editor_game_view"
+version = "0.8.0"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bevy-inspector-egui",
+ "bevy_asset_loader",
+ "bevy_debug_grid",
+ "bevy_egui",
+ "bevy_mod_billboard",
+ "bevy_panorbit_camera",
+ "egui_dock",
+ "pretty-type-name",
+ "serde",
+ "space_editor_core",
+ "space_editor_tabs",
+ "space_editor_ui",
+ "space_persistence",
+ "space_prefab",
+ "space_shared",
+ "space_undo",
+ "transform-gizmo-bevy",
+ "transform-gizmo-egui",
  "workspace-hakari",
 ]
 

@@ -1,24 +1,23 @@
 use bevy::{prelude::*, render::camera::CameraProjection};
 use bevy_egui::egui::{self, Key};
 use space_editor_core::prelude::*;
+use space_editor_ui::{icons::*, EditorGizmo};
+use space_editor_ui::prelude::CloneEvent;
+use space_editor_ui::{colors::*, sizing::Sizing};
 use space_shared::*;
 use transform_gizmo_bevy::{EnumSet, Gizmo, GizmoMode};
 use transform_gizmo_egui::GizmoExt;
+use crate::*;
+use crate::game_view_tool::*;
 
-use crate::EditorGizmo;
-use crate::{colors::*, sizing::Sizing};
-use crate::{
-    game_view::GameViewTab,
-    icons::{rotation_icon, scale_icon, translate_icon},
-    prelude::{CloneEvent, EditorTool},
-    tool::ToolExt,
-};
 
 pub struct GizmoToolPlugin;
 
 impl Plugin for GizmoToolPlugin {
     #[cfg(not(tarpaulin_include))]
     fn build(&self, app: &mut App) {
+
+
         app.editor_tool(GizmoTool::default());
 
         if let Some(mut game_view_tab) = app.world_mut().get_resource_mut::<GameViewTab>() {
@@ -130,7 +129,7 @@ fn gizmo_to_bevy_transform(transform: &transform_gizmo_bevy::math::Transform) ->
     }
 }
 
-impl EditorTool for GizmoTool {
+impl GameViewTool for GizmoTool {
     fn name(&self) -> &str {
         "Gizmo"
     }
@@ -463,7 +462,7 @@ impl EditorTool for GizmoTool {
 
         if disable_pan_orbit {
             unsafe {
-                cell.get_resource_mut::<crate::EditorCameraEnabled>()
+                cell.get_resource_mut::<space_editor_ui::prelude::EditorCameraEnabled>()
                     .unwrap()
                     .0 = false
             };

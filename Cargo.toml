@@ -63,6 +63,7 @@ space_persistence = { version = "0.8.0", path = "crates/persistence"}
 space_editor_core = { version = "0.8.0", path = "crates/editor_core", features = ["persistence_editor"] }
 space_editor_ui = { version = "0.8.0", path = "crates/editor_ui", features = ["persistence_editor"] }
 space_editor_tabs = { version = "0.8.0", path = "crates/editor_tabs" }
+space_editor_game_view = { version = "0.8.0", path = "crates/editor_game_view" }
 
 # Crates inner libraries
 anyhow = "1.0"
@@ -114,6 +115,9 @@ bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
 game_app.workspace = true
+
+# Tabs
+space_editor_game_view.workspace = true
 
 # Modules for external crates
 workspace-hakari = { version = "0.1", path = "workspace-hakari" }

@@ -1,0 +1,39 @@
+[package]
+name = "space_editor_game_view"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[dependencies]
+bevy.workspace = true
+
+space_editor_core.workspace = true
+space_prefab.workspace = true
+space_undo.workspace = true
+space_persistence.workspace = true
+space_shared.workspace = true
+space_editor_tabs.workspace = true
+space_editor_ui.workspace = true
+
+serde.workspace = true
+pretty-type-name.workspace = true
+bevy_egui.workspace = true
+# transform-gizmo-egui.workspace = true
+transform-gizmo-bevy.workspace = true
+transform-gizmo-egui.workspace = true
+egui_dock.workspace = true
+bevy_debug_grid.workspace = true
+bevy-inspector-egui.workspace = true
+bevy_asset_loader.workspace = true
+bevy_panorbit_camera.workspace = true
+bevy_mod_billboard.workspace = true
+anyhow.workspace = true
+workspace-hakari = { version = "0.1", path = "../../workspace-hakari" }
+
+[lints]
+workspace = true

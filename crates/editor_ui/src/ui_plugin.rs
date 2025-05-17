@@ -1,4 +1,3 @@
-use crate::tools::gizmo::*;
 use crate::*;
 use bevy::{ecs::schedule::ScheduleLabel, prelude::*};
 use bevy::gizmos::config::GizmoConfigGroup;
@@ -43,13 +42,11 @@ impl FlatPluginList for EditorUiPlugin {
             .add(SelectedPlugin)
             //.add(MeshlessVisualizerPlugin)
             .add(EditorUiCore::default())
-            .add(GameViewPlugin)
             .add(menu_toolbars::BottomMenuPlugin)
             .add(MouseCheck)
             .add(CameraViewTabPlugin)
             .add(SpaceHierarchyPlugin::default())
             .add(SpaceInspectorPlugin)
-            .add(GizmoToolPlugin)
             .add(ChangeChainViewPlugin)
             .add(settings::SettingsWindowPlugin);
         
@@ -120,32 +117,22 @@ impl Plugin for EditorUiCore {
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
-        app.add_systems(
-            Update,
-            (
-                show_editor_ui
-                    .before(update_pan_orbit)
-                    .before(ui_camera_block)
-                    .after(menu_toolbars::top_menu)
-                    .after(menu_toolbars::bottom_menu),
-                set_camera_viewport,
-            )
-                .in_set(UiSystemSet)
-                .before(PanOrbitCameraSystemSet),
-        );
+        // app.add_systems(
+        //     Update,
+        //     (
+        //         show_editor_ui
+        //             .before(update_pan_orbit)
+        //             .before(ui_camera_block)
+        //             .after(menu_toolbars::top_menu)
+        //             .after(menu_toolbars::bottom_menu),
+        //         set_camera_viewport,
+        //     )
+        //         .in_set(UiSystemSet)
+        //         .before(PanOrbitCameraSystemSet),
+        // );
 
-        app.add_systems(
-            PostUpdate,
-            set_camera_viewport
-                .run_if(has_window_changed)
-                .in_set(UiSystemSet),
-        );
-        app.add_systems(
-            Update,
-            reset_camera_viewport.run_if(in_state(EditorState::Game)),
-        );
-        app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
-        app.editor_tab_by_trait(GameViewTab::default());
+        app.add_plugins(crate::ui_picking::UiPickingPlugin);
+
 
         app.editor_tab_by_trait(self::debug_panels::DebugWorldInspector {});
 
@@ -183,7 +170,7 @@ impl Plugin for EditorUiCore {
 
         app.add_systems(
             OnEnter(EditorState::Editor),
-            (clear_and_load_on_start, set_camera_viewport),
+            clear_and_load_on_start,
         );
 
         app.add_systems(
@@ -208,30 +195,5 @@ impl Plugin for EditorUiCore {
         //app.add_event::<selection::SelectEvent>();
 
         app.init_resource::<BundleReg>();
-    }
-}
-
-/// System to block camera control if egui is using mouse
-pub fn ui_camera_block(
-    mut ctxs: Query<&mut EguiContext, With<PrimaryWindow>>,
-    mut state: ResMut<EditorCameraEnabled>,
-    game_view: Res<GameViewTab>,
-) {
-    let Ok(mut ctx_ref) = ctxs.single_mut() else {
-        return;
-    };
-    let ctx = ctx_ref.get_mut();
-    if ctx.is_using_pointer() || ctx.is_pointer_over_area() {
-        let Some(pos) = ctx.pointer_latest_pos() else {
-            return;
-        };
-        if let Some(area) = game_view.viewport_rect {
-            if area.contains(pos) {
-            } else {
-                *state = EditorCameraEnabled(false);
-            }
-        } else {
-            *state = EditorCameraEnabled(false);
-        }
     }
 }

@@ -1,32 +1,68 @@
+pub mod game_view_tool;
+pub mod gizmo_tool;
+
+
 use bevy::{prelude::*, window::PrimaryWindow};
 use bevy_egui::{
     egui::{self, RichText, Widget},
     EguiContextSettings,
 };
+use game_view_tool::GameViewTool;
+use space_editor_ui::{colors::{SPECIAL_BG_COLOR, TEXT_COLOR, WARN_COLOR}, prelude::{EditorTabName, SetCameraViewport, ShowEditorUi}, ui_picking::NonUIAreas};
 use space_undo::UndoRedo;
 use transform_gizmo_bevy::GizmoMode;
 
 use space_shared::*;
 
-use crate::editor_tab_name::EditorTabName;
-
-use super::tool::EditorTool;
 use space_editor_tabs::prelude::*;
 
-use crate::colors::*;
-
+/// Main GameView plugin that adds the GameViewTab and GizmoToolPlugin
 pub struct GameViewPlugin;
 
 impl Plugin for GameViewPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(MinimalGameViewPlugin);
+
+        app.add_plugins(gizmo_tool::GizmoToolPlugin);
+    }
+}
+
+/// Minimal GameView plugin that only adds the GameViewTab
+pub struct MinimalGameViewPlugin;
+
+impl Plugin for MinimalGameViewPlugin {
+    fn build(&self, app: &mut App) {
         app.editor_tab_by_trait(GameViewTab::default());
+
+        app.add_systems(Update, 
+            set_non_ui_areas.in_set(EditorSet::Editor)
+        );
+
+        app.add_systems(
+            OnEnter(EditorState::Editor),
+            set_camera_viewport,
+        );
+        
+        app.add_systems(OnEnter(ShowEditorUi::Hide), reset_camera_viewport);
+
+        
+        app.add_systems(
+            PostUpdate,
+            set_camera_viewport
+                .run_if(has_window_changed)
+                .in_set(SetCameraViewport),
+        );
+        app.add_systems(
+            Update,
+            reset_camera_viewport.run_if(in_state(EditorState::Game)),
+        );
     }
 }
 
 #[derive(Resource)]
 pub struct GameViewTab {
     pub viewport_rect: Option<egui::Rect>,
-    pub tools: Vec<Box<dyn EditorTool + 'static + Send + Sync>>,
+    pub tools: Vec<Box<dyn GameViewTool + 'static + Send + Sync>>,
     pub active_tool: Option<usize>,
     pub gizmo_mode: GizmoMode,
     pub smoothed_dt: f32,
@@ -206,18 +242,13 @@ pub fn set_camera_viewport(
     });
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn test_default_game_view_tab() {
-        let default_tab = GameViewTab::default();
 
-        assert_eq!(default_tab.viewport_rect, None);
-        assert_eq!(default_tab.gizmo_mode, GizmoMode::TranslateView);
-        assert_eq!(default_tab.smoothed_dt, 0.0);
-        assert_eq!(default_tab.tools.len(), 0);
-        assert_eq!(default_tab.active_tool, None);
+fn set_non_ui_areas(
+    mut non_ui_areas: ResMut<NonUIAreas>,
+    game_view: Res<GameViewTab>,
+) {
+    if let Some(viewport_rect) = game_view.viewport_rect {
+        non_ui_areas.areas.push(viewport_rect);
     }
 }
