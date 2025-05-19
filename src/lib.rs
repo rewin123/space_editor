@@ -19,6 +19,8 @@ impl bevy::app::Plugin for SpaceEditorPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_plugins(space_editor_ui::EditorPlugin);
         app.add_plugins(AllEditorTabsPlugin);
+
+        app.add_plugins(DefaultEditorLayoutPlugin);
     }
 }
 

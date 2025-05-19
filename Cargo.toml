@@ -67,14 +67,16 @@ space_editor_game_view = { version = "0.8.0", path = "crates/editor_game_view" }
 
 # Crates inner libraries
 anyhow = "1.0"
-bevy_egui = "0.34"
-egui_extras = { version = "0.31.1", features = ["all_loaders"] }
 pretty-type-name = "1"
 rand = "0.9.1"
 ron = "0.10.1"
 serde = "1.0"
 convert_case = "0.8.0"
 image = "0.25.6"
+
+# Egui crates
+bevy_egui = "0.34"
+egui_extras = { version = "0.31.1", features = ["all_loaders"] }
 egui_dock = "0.16.0"
 egui_file = "0.22.1"
 egui-toast = "0.17.0"

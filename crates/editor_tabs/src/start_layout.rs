@@ -33,6 +33,10 @@ pub struct DoublePanelGroup {
 impl StartLayout for DoublePanelGroup {
     fn build(&self) -> egui_dock::DockState<TabNameHolder> {
         let mut state = egui_dock::DockState::new(self.main_panel.clone());
+        
+        if self.bottom_panel.len() == 0 && self.top_panel.len() == 0 {
+            return state;
+        }
 
         let [_game, panels] = state.main_surface_mut().split_left(
             egui_dock::NodeIndex::root(),

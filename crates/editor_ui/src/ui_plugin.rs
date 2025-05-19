@@ -51,9 +51,9 @@ impl FlatPluginList for EditorUiPlugin {
             .add(settings::SettingsWindowPlugin);
         
 
-        if self.use_standard_layout {
-            res = res.add(DefaultEditorLayoutPlugin);
-        }
+        // if self.use_standard_layout {
+        //     res = res.add(DefaultEditorLayoutPlugin);
+        // }
 
         res
     }
@@ -76,11 +76,11 @@ impl Plugin for DefaultEditorLayoutPlugin {
         app.init_layout_group::<DoublePanelGroup, _>();
 
         app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::Main, EditorTabName::GameView);
-        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopLeft, EditorTabName::Hierarchy);
-        app.layout_push::<DoublePanelGroup, _, _>(
-            DoublePanel::BottomLeft,
-            EditorTabName::Inspector,
-        );
+        // app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopLeft, EditorTabName::Hierarchy);
+        // app.layout_push::<DoublePanelGroup, _, _>(
+        //     DoublePanel::BottomLeft,
+        //     EditorTabName::Inspector,
+        // );
     }
 }
 
@@ -117,19 +117,20 @@ impl Plugin for EditorUiCore {
         );
 
         app.init_resource::<ScheduleEditorTabStorage>();
-        // app.add_systems(
-        //     Update,
-        //     (
-        //         show_editor_ui
-        //             .before(update_pan_orbit)
-        //             .before(ui_camera_block)
-        //             .after(menu_toolbars::top_menu)
-        //             .after(menu_toolbars::bottom_menu),
-        //         set_camera_viewport,
-        //     )
-        //         .in_set(UiSystemSet)
-        //         .before(PanOrbitCameraSystemSet),
-        // );
+        app.add_plugins(crate::startup_systems::StartupSystems);
+
+
+        app.add_systems(
+            Update,
+            (
+                show_editor_ui
+                    .before(update_pan_orbit)
+                    // .before(ui_camera_block)
+                    // .after(menu_toolbars::top_menu)
+                    // .after(menu_toolbars::bottom_menu),
+            )
+                .in_set(UiSystemSet),
+        );
 
         app.add_plugins(crate::ui_picking::UiPickingPlugin);
 

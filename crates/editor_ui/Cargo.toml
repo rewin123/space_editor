@@ -25,11 +25,14 @@ space_editor_tabs.workspace = true
 
 serde.workspace = true
 pretty-type-name.workspace = true
-bevy_egui.workspace = true
 # transform-gizmo-egui.workspace = true
 transform-gizmo-bevy.workspace = true
 transform-gizmo-egui.workspace = true
+
+bevy_egui.workspace = true
 egui_dock.workspace = true
+egui_extras.workspace = true
+
 bevy_debug_grid.workspace = true
 bevy-inspector-egui.workspace = true
 bevy_asset_loader.workspace = true

@@ -5341,6 +5341,7 @@ dependencies = [
  "bevy_mod_billboard",
  "bevy_panorbit_camera",
  "egui_dock",
+ "egui_extras",
  "pretty-type-name",
  "serde",
  "space_editor_core",

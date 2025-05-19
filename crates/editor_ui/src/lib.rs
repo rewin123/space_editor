@@ -54,6 +54,8 @@ pub mod icons;
 
 pub mod ui_picking;
 
+pub mod startup_systems;
+
 use bevy_debug_grid::{Grid, GridAxis, SubGrid, TrackedGrid};
 
 use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin, PanOrbitCameraSystemSet};

@@ -11,6 +11,8 @@ impl Plugin for EditorDefaultCameraPlugin {
         app.configure_sets(
             Update,
             SetCameraViewport
+                .after(reset_editor_camera_state)
+                .before(update_pan_orbit)
                 .in_set(UiSystemSet)
                 .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
         );
