@@ -76,11 +76,11 @@ impl Plugin for DefaultEditorLayoutPlugin {
         app.init_layout_group::<DoublePanelGroup, _>();
 
         app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::Main, EditorTabName::GameView);
-        // app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopLeft, EditorTabName::Hierarchy);
-        // app.layout_push::<DoublePanelGroup, _, _>(
-        //     DoublePanel::BottomLeft,
-        //     EditorTabName::Inspector,
-        // );
+        app.layout_push::<DoublePanelGroup, _, _>(DoublePanel::TopLeft, EditorTabName::Hierarchy);
+        app.layout_push::<DoublePanelGroup, _, _>(
+            DoublePanel::BottomLeft,
+            EditorTabName::Inspector,
+        );
     }
 }
 

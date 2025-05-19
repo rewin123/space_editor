@@ -67,7 +67,7 @@ impl Plugin for BasePrefabPlugin {
         app.editor_registry::<Visibility>();
 
         app.editor_registry::<GltfPrefab>();
-        app.editor_registry::<MaterialPrefab>();
+        app.editor_registry::<Mesh3dMaterialPrefab>();
         app.editor_registry::<ColorMaterialPrefab>();
 
         app.editor_registry::<Sprite>();

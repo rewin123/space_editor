@@ -112,7 +112,7 @@ pub fn sync_3d_mesh(
 /// System to sync [`StandardMaterial`] and [`MaterialPrefab`]
 pub fn sync_3d_material(
     mut commands: Commands,
-    query: Query<(Entity, &MaterialPrefab), Changed<MaterialPrefab>>,
+    query: Query<(Entity, &Mesh3dMaterialPrefab), Changed<Mesh3dMaterialPrefab>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
@@ -287,7 +287,7 @@ mod tests {
         let mut app = App::new();
         app.add_plugins((MinimalPlugins, AssetPlugin::default()))
             .add_systems(Startup, |mut commands: Commands| {
-                commands.spawn((MeshPrimitive3dPrefab::Cube(3.), MaterialPrefab::default()));
+                commands.spawn((MeshPrimitive3dPrefab::Cube(3.), Mesh3dMaterialPrefab::default()));
             })
             .init_resource::<Assets<Mesh>>()
             .init_resource::<Assets<StandardMaterial>>()
@@ -297,7 +297,7 @@ mod tests {
 
         let mut query = app
             .world_mut()
-            .query::<(&MaterialPrefab, &MeshMaterial3d<StandardMaterial>)>();
+            .query::<(&Mesh3dMaterialPrefab, &MeshMaterial3d<StandardMaterial>)>();
         assert_eq!(query.iter(&app.world_mut()).count(), 1);
     }
 

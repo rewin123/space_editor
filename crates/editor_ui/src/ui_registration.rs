@@ -132,6 +132,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Cube(1.0),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Cube".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -143,6 +144,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Box(BoxPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Box".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -154,6 +156,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Sphere(SpherePrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("UVSphere".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -165,6 +168,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Quad(QuadPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Rectagle".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -176,6 +180,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Capsule(CapsulePrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Capsule"),
             Transform::default(),
             Visibility::default(),
@@ -187,6 +192,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Circle(CirclePrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Circle".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -198,6 +204,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Cylinder(CylinderPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Cylinder".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -209,6 +216,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Plane(Plane3dPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Plane".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -220,6 +228,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::PlaneMultipoint(PlaneMultiPointPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Plane Multipoint".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -231,6 +240,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::RegularPolygon(RegularPolygonPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Regular Polygon".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -242,6 +252,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive3dPrefab::Torus(TorusPrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("Torus".to_string()),
             Transform::default(),
             Visibility::default(),
@@ -278,6 +289,7 @@ pub fn register_mesh_editor_bundles(app: &mut App) {
         (
             PrefabMarker,
             MeshPrimitive2dPrefab::Ellipse(EllipsePrefab::default()),
+            Mesh3dMaterialPrefab::default(),
             Name::new("2D Ellipse".to_string()),
             Transform::default(),
             Visibility::default(),

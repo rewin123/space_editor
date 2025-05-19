@@ -2,7 +2,7 @@ use bevy::{
     asset::{AssetPath, LoadState}, ecs::world::CommandQueue, gltf::{Gltf, GltfMesh, GltfNode}, platform::collections::HashMap, prelude::*
 };
 
-use space_prefab::component::{AssetMaterial, AssetMesh, MaterialPrefab};
+use space_prefab::component::{AssetMaterial, AssetMesh, Mesh3dMaterialPrefab};
 use space_shared::PrefabMarker;
 
 use super::{BackgroundTask, BackgroundTaskStorage};
@@ -226,10 +226,10 @@ fn spawn_node(
                             path: format!("{}#Material{}", ctx.gltf_path.path().display(), idx),
                         });
                     } else {
-                        commands.entity(id).insert(MaterialPrefab::default());
+                        commands.entity(id).insert(Mesh3dMaterialPrefab::default());
                     }
                 } else {
-                    commands.entity(id).insert(MaterialPrefab::default());
+                    commands.entity(id).insert(Mesh3dMaterialPrefab::default());
                 }
             } else {
                 commands.entity(id).with_children(|parent| {
@@ -258,10 +258,10 @@ fn spawn_node(
                                     ),
                                 });
                             } else {
-                                id.insert(MaterialPrefab::default());
+                                id.insert(Mesh3dMaterialPrefab::default());
                             }
                         } else {
-                            id.insert(MaterialPrefab::default());
+                            id.insert(Mesh3dMaterialPrefab::default());
                         }
                     }
                 });

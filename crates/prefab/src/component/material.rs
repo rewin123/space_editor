@@ -7,7 +7,7 @@ use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorO
 /// Prefab component that store parameters and asset paths for creating [`StandardMaterial`]
 #[derive(Component, Reflect, Clone, InspectorOptions)]
 #[reflect(Default, Component, InspectorOptions)]
-pub struct MaterialPrefab {
+pub struct Mesh3dMaterialPrefab {
     pub base_color: Color,
     pub base_color_texture: String,
     pub emissive: Color,
@@ -32,7 +32,7 @@ pub struct MaterialPrefab {
     pub max_parallax_layer_count: f32,
 }
 
-impl Default for MaterialPrefab {
+impl Default for Mesh3dMaterialPrefab {
     fn default() -> Self {
         Self {
             base_color: Color::linear_rgb(1.0, 1.0, 1.0),
@@ -64,7 +64,7 @@ impl Default for MaterialPrefab {
     }
 }
 
-impl MaterialPrefab {
+impl Mesh3dMaterialPrefab {
     /// Convert [`MaterialPrefab`] to [`StandardMaterial`]
     pub fn to_material(&self, asset_server: &AssetServer) -> StandardMaterial {
         let base_color_texture = try_image(&self.base_color_texture, asset_server);
@@ -238,11 +238,11 @@ mod tests {
         ));
 
         app.add_systems(Startup, |mut commands: Commands| {
-            commands.spawn(MaterialPrefab::default());
+            commands.spawn(Mesh3dMaterialPrefab::default());
         })
         .add_systems(
             Update,
-            |server: Res<AssetServer>, query: Query<&MaterialPrefab>| {
+            |server: Res<AssetServer>, query: Query<&Mesh3dMaterialPrefab>| {
                 let material = query.single().unwrap();
                 let material = material.to_material(&server);
                 assert_eq!(material.base_color, Color::linear_rgb(1.0, 1.0, 1.0));
