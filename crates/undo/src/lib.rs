@@ -821,7 +821,7 @@ fn apply_for_every_typed_field<D: Reflect>(
             }
             bevy::reflect::ReflectMut::Set(_s) => {}
             bevy::reflect::ReflectMut::Opaque(_s) => {}
-            bevy::reflect::ReflectMut::Function(_s) => {},
+            // bevy::reflect::ReflectMut::Function(_s) => {},
             //bevy::reflect::ReflectMut::Value(_v) => {
             //do nothing. Value was checked before
             //}

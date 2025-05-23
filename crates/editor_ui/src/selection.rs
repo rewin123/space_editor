@@ -5,7 +5,11 @@ use bevy::{color::palettes::tailwind::{PINK_100, RED_500}, picking::pointer::Poi
 
 #[cfg(not(tarpaulin_include))]
 pub fn plugin(app: &mut App) {
-    app.add_plugins(MeshPickingPlugin);
+    if !app.is_plugin_added::<MeshPickingPlugin>() {
+        app.add_plugins(MeshPickingPlugin);
+    }
+
+    app.add_observer(on_pointer_click);
 
 
     app.add_systems(
@@ -24,8 +28,8 @@ pub fn plugin(app: &mut App) {
     app.add_observer(recursive_add_markers);
 
     app.insert_resource(MeshPickingSettings {
-        require_markers: true,
-        ray_cast_visibility: RayCastVisibility::VisibleInView
+        require_markers: false,
+        ray_cast_visibility: RayCastVisibility::Any
     });
 }
 
@@ -145,6 +149,19 @@ pub fn delete_selected(
             info!("Delete Entity: {entity:?}");
             commands.entity(entity).despawn();
         }
+    }
+}
+
+
+pub fn on_pointer_click(
+    mut trigger: Trigger<Pointer<Pressed>>,
+    mut commands: Commands,
+    q_meshes: Query<Entity, With<Mesh3d>>,
+) {
+    info!("Pointer Click: {:?}", trigger.target());
+
+    if q_meshes.contains(trigger.target()) {
+        commands.trigger_targets(SelectEvent, trigger.target());
     }
 }
 

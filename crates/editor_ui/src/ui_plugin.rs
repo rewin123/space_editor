@@ -104,6 +104,10 @@ impl Plugin for EditorUiCore {
     fn build(&self, app: &mut App) {
         use bevy::app::MainScheduleOrder;
 
+        if !app.is_plugin_added::<MeshPickingPlugin>() {
+            app.add_plugins(MeshPickingPlugin);
+        }
+
         info!("EditorUiCore build");
 
         app.init_state::<ShowEditorUi>();
