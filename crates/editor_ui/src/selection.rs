@@ -1,5 +1,6 @@
 use crate::*;
 use bevy::{color::palettes::tailwind::{PINK_100, RED_500}, picking::pointer::PointerInteraction, prelude::*};
+use transform_gizmo_bevy::GizmoTarget;
 
 
 
@@ -9,12 +10,12 @@ pub fn plugin(app: &mut App) {
         app.add_plugins(MeshPickingPlugin);
     }
 
-    app.add_observer(on_pointer_click);
+    //app.add_observer(on_pointer_click);
 
 
     app.add_systems(
         Update,
-        (delete_selected, reemit_pointer_click, auto_add_markers)
+        (delete_selected, reemit_pointer_click)// auto_add_markers)
     );
 
     app.add_systems(
@@ -24,12 +25,12 @@ pub fn plugin(app: &mut App) {
 
     app.add_event::<AddMarkersEvent>();
 
-    app.add_observer(select_listener);
-    app.add_observer(recursive_add_markers);
+    //app.add_observer(select_listener);
+    //app.add_observer(recursive_add_markers);
 
     app.insert_resource(MeshPickingSettings {
-        require_markers: false,
-        ray_cast_visibility: RayCastVisibility::Any
+        require_markers: true,
+        ray_cast_visibility: RayCastVisibility::VisibleInView
     });
 }
 
@@ -119,7 +120,11 @@ pub fn select_listener(
     parents: Query<&ChildOf>,
     pan_orbit_state: ResMut<EditorCameraEnabled>,
     keyboard: Res<ButtonInput<KeyCode>>,
+    gizmo_query: Query<&GizmoTarget>,
 ) {
+    if gizmo_query.iter().any(|gizmo| gizmo.is_active()) {
+        return;
+    }
 
     if !pan_orbit_state.0 {
         trigger.propagate(false);
@@ -140,6 +145,8 @@ pub fn select_listener(
         commands.trigger_targets(SelectEvent, parent.parent()); 
     }
 }
+
+
 
 
 /// This event used for selecting entities

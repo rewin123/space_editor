@@ -15,3 +15,4 @@ editor.ron
 .idea/*
 crates/prefab/test*.ron
 **/.DS_Store
+assets/models/TrackATest1_sp.glb

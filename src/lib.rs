@@ -4,6 +4,8 @@
 pub mod prelude {
     pub use crate::SpaceEditorPlugin;
     pub use space_editor_ui::prelude::*;
+    // Game editor tab egui editing
+    pub use space_editor_game_view::GameViewTab;
 }
 
 pub use space_editor_ui;

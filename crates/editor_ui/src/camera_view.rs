@@ -123,7 +123,7 @@ impl EditorTab for CameraViewTab {
         let mut camera_query = world.query_filtered::<Entity, (
             With<Camera>,
             With<PlaymodeCamera>,
-            Without<EditorCameraMarker>,
+            //Without<EditorCameraMarker>,
         )>();
 
         if camera_query.iter(world).count() == 1 {
@@ -267,7 +267,7 @@ impl EditorTab for CameraViewTab {
 
 fn clean_camera_view_tab(
     mut ui_state: ResMut<CameraViewTab>,
-    mut cameras: Query<(&mut Camera, &mut GlobalTransform), Without<EditorCameraMarker>>,
+    mut cameras: Query<(&mut Camera, &mut GlobalTransform) /*, Without<EditorCameraMarker> */ >,
 ) {
     let Some(real_cam_entity) = ui_state.real_camera else {
         return;
@@ -296,7 +296,7 @@ fn set_camera_viewport(
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     mut cameras: Query<
         (&mut Camera, &mut GlobalTransform, &mut Transform),
-        Without<EditorCameraMarker>,
+        //Without<EditorCameraMarker>,
     >,
     mut ctxs: EguiContexts,
     images: Res<Assets<Image>>,

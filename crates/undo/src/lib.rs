@@ -26,6 +26,7 @@ impl Plugin for UndoPlugin {
         app.add_event::<NewChange>();
         app.add_event::<UndoRedo>();
 
+        /*
         app.configure_sets(
             PostUpdate,
             (UndoSet::PerType, UndoSet::UpdateAll, UndoSet::Remapping)
@@ -44,6 +45,7 @@ impl Plugin for UndoPlugin {
                 .chain()
                 .in_set(UndoSet::UpdateAll),
         );
+        */
     }
 }
 
@@ -821,10 +823,8 @@ fn apply_for_every_typed_field<D: Reflect>(
             }
             bevy::reflect::ReflectMut::Set(_s) => {}
             bevy::reflect::ReflectMut::Opaque(_s) => {}
-            // bevy::reflect::ReflectMut::Function(_s) => {},
-            //bevy::reflect::ReflectMut::Value(_v) => {
-            //do nothing. Value was checked before
-            //}
+            bevy::reflect::ReflectMut::Function(_s) => {},
+            //bevy::reflect::ReflectMut::Value(_v) => {}
         }
     }
 }

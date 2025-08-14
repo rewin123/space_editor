@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{platform::collections::HashSet, prelude::*};
 use bevy_scene_hook::SceneHook;
 use space_shared::PrefabMarker;
 
@@ -48,15 +48,15 @@ impl Plugin for LoadPlugin {
 
         app.add_systems(
             Update,
-            load_prefab.after(bevy_scene_hook::Systems::SceneHookRunner),
+            (
+                conflict_resolve,
+                load_prefab,
+                ApplyDeferred,
+                auto_children,
+            )
+                .chain()
+                .after(bevy_scene_hook::Systems::SceneHookRunner),
         );
-        app.add_systems(
-            Update,
-            conflict_resolve
-                .after(bevy_scene_hook::Systems::SceneHookRunner)
-                .before(load_prefab),
-        );
-        app.add_systems(Update, auto_children);
     }
 }
 
@@ -102,18 +102,20 @@ fn load_prefab(
             }
             commands.entity(e).remove::<Children>();
         }
-
+  
         let scene: Handle<DynamicScene> = assets.load(&l.path);
 
         let id = commands
             .spawn(DynamicSceneRoot(scene))
             .insert(SceneHook::new(move |_e, cmd| {
-                cmd.insert(PrefabAutoChild);
+                cmd.insert((PrefabAutoChild));
             }))
             .insert(PrefabAutoChild)
             .id();
 
         commands.entity(e).add_children(&[id]);
+        
+        
     }
 }
 
@@ -126,6 +128,7 @@ fn conflict_resolve(
     }
 }
 
+  
 fn auto_children(
     mut commands: Commands,
     query: Query<(Entity, &ChildrenPrefab)>,
@@ -133,14 +136,19 @@ fn auto_children(
 ) {
     for (e, children) in query.iter() {
         let mut cmds = commands.entity(e);
-        for child in children.0.iter() {
+        for child in children.entities.iter() {
+            println!("Adding child: {:?}", child);
             if existing_entity.contains(*child) {
                 cmds.add_child(*child);
+            } else {
+                println!("nonexistent entity");
             }
         }
         cmds.remove::<ChildrenPrefab>();
     }
 }
+
+
 
 #[cfg(test)]
 mod test {

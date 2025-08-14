@@ -11,10 +11,14 @@ use super::{BackgroundTask, BackgroundTaskStorage};
 /// Event to handle GLTF path
 pub struct EditorUnpackGltf {
     pub path: String,
+    pub parent: Option<Entity>,
 }
 
 #[derive(Event, Clone)]
-struct GltfLoaded(Handle<Gltf>);
+struct GltfLoaded {
+    handle: Handle<Gltf>,
+    parent: Option<Entity>,
+}
 
 pub struct UnpackGltfPlugin;
 
@@ -34,8 +38,8 @@ impl Plugin for UnpackGltfPlugin {
 #[reflect(Component)]
 struct GltfHolder(Handle<Gltf>);
 
-#[derive(Resource, Default)]
-struct GltfSceneQueue(Vec<Handle<Gltf>>);
+#[derive(Resource, Default)]  // Handle then parent
+struct GltfSceneQueue(Vec<(Handle<Gltf>, Option<Entity>)>);
 
 fn unpack_gltf_event(
     mut events: EventReader<EditorUnpackGltf>,
@@ -49,7 +53,7 @@ fn unpack_gltf_event(
             event.path.clone(),
             handle.clone().untyped(),
         ));
-        queue.0.push(handle);
+        queue.0.push((handle, event.parent));
     }
     events.clear();
 }
@@ -60,9 +64,11 @@ fn queue_push(
     mut events: EventWriter<GltfLoaded>,
     assets: Res<AssetServer>,
 ) {
-    if !queue.0.is_empty() && matches!(assets.get_load_state(&queue.0[0]), Some(LoadState::Loaded))
-    {
-        events.write(GltfLoaded(queue.0.remove(0)));
+    if let Some((handle, parent)) = queue.0.first().cloned() {
+        if matches!(assets.get_load_state(&handle), Some(LoadState::Loaded)) {
+            events.write(GltfLoaded { handle, parent });
+            queue.0.remove(0);
+        }
     }
 }
 
@@ -86,8 +92,8 @@ fn unpack_gltf(world: &mut World) {
     };
 
     let mut command_queue = CommandQueue::default();
-    for gltf in loaded_scenes.iter() {
-        let handle: Handle<Gltf> = gltf.0.clone();
+    for gltf_loaded in loaded_scenes.iter() {
+        let handle: Handle<Gltf> = gltf_loaded.handle.clone();
         let gltf_path = if let Some(path) = handle.path() {
             path.clone()
         } else {
@@ -97,7 +103,7 @@ fn unpack_gltf(world: &mut World) {
 
         let Some(gltf) = world
             .get_resource::<Assets<Gltf>>()
-            .and_then(|gltfs| gltfs.get(&gltf.0))
+            .and_then(|gltfs| gltfs.get(&gltf_loaded.handle))
         else {
             world.send_event(space_shared::toast::ToastMessage::new(
                 "Gltf asset not found or empty",
@@ -175,7 +181,11 @@ fn unpack_gltf(world: &mut World) {
             };
 
             for root in roots.iter() {
-                spawn_node(&mut commands, root, gltf, &ctx);
+                let entity = spawn_node(&mut commands, root, gltf, &ctx);
+                
+                if let Some(parent) = gltf_loaded.parent {
+                    commands.entity(parent).add_child(entity);
+                }
             }
         }
 

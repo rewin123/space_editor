@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use bevy::{ecs::query::QueryFilter, platform::collections::HashMap, prelude::*};
 use bevy_egui::{
-    egui::{collapsing_header::CollapsingState, TextEdit},
+    egui::{collapsing_header::CollapsingState, TextEdit, TextStyle},
     *,
 };
 use space_editor_core::prelude::*;
@@ -70,12 +70,6 @@ pub fn show_hierarchy(
     mut state: ResMut<HierarchyTabState>,
     auto_children: Query<(), With<SceneAutoChild>>,
 ) {
-    let mut all: Vec<_> = if state.show_editor_entities {
-        all_entities.iter().collect()
-    } else {
-        query.iter().collect()
-    };
-    all.sort_by_key(|a| a.0);
     let ui = &mut ui.0;
     ui.horizontal(|ui| {
         let button_size = ui
@@ -95,41 +89,58 @@ pub fn show_hierarchy(
     ui.spacing();
     let lower_filter = state.entity_filter.to_lowercase();
 
-    egui::ScrollArea::vertical().show(ui, |ui| {
-        for (entity, _name, _children, parent) in all.iter().filter(|(_, name, _, _)| {
+    // Collect and filter entities once
+    let filtered_entities: Vec<_> = if state.show_editor_entities {
+        all_entities.iter().filter(|(_, name, _, parent)| {
+            parent.is_none() && // Only root entities
             name.map(|n| n.to_lowercase())
                 .unwrap_or_else(|| "entity".to_string())
                 .contains(&lower_filter)
-        }) {
-            if parent.is_none() {
-                if state.show_editor_entities {
-                    draw_entity::<()>(
-                        &mut commands,
-                        ui,
-                        &all_entities,
-                        *entity,
-                        &mut selected,
-                        &mut clone_events,
-                        &mut changes,
-                        &auto_children,
-                    );
-                } else {
-                    draw_entity::<With<PrefabMarker>>(
-                        &mut commands,
-                        ui,
-                        &query,
-                        *entity,
-                        &mut selected,
-                        &mut clone_events,
-                        &mut changes,
-                        &auto_children,
-                    );
+        }).collect()
+    } else {
+        query.iter().filter(|(_, name, _, parent)| {
+            parent.is_none() && // Only root entities
+            name.map(|n| n.to_lowercase())
+                .unwrap_or_else(|| "entity".to_string())
+                .contains(&lower_filter)
+        }).collect()
+    };
+    // Use virtual scrolling for performance
+    let text_style = TextStyle::Body;
+    let row_height = ui.text_style_height(&text_style);
+
+    egui::ScrollArea::vertical()
+        .auto_shrink(false)
+        .show_rows(ui, row_height, filtered_entities.len(), |ui, row_range| {
+            for row in row_range {
+                if let Some((entity, _name, _children, _parent)) = filtered_entities.get(row) {
+                    if state.show_editor_entities {
+                        draw_entity::<()>(
+                            &mut commands,
+                            ui,
+                            &all_entities,
+                            *entity,
+                            &mut selected,
+                            &mut clone_events,
+                            &mut changes,
+                            &auto_children,
+                        );
+                    } else {
+                        draw_entity::<With<PrefabMarker>>(
+                            &mut commands,
+                            ui,
+                            &query,
+                            *entity,
+                            &mut selected,
+                            &mut clone_events,
+                            &mut changes,
+                            &auto_children,
+                        );
+                    }
                 }
             }
-        }
-    });
+        });
 }
-
 type DrawIter<'a> = (
     Entity,
     Option<&'a Name>,
@@ -162,7 +173,7 @@ fn draw_entity<F: QueryFilter>(
         CollapsingState::load_with_default_open(
             ui.ctx(),
             ui.make_persistent_id(entity_name.clone()),
-            true,
+            false,
         )
         .show_header(ui, |ui| {
             let mut entity_name = egui::RichText::new(entity_name.clone());

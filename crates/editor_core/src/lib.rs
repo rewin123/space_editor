@@ -51,8 +51,8 @@ impl Plugin for EditorCore {
         app.add_systems(Update, editor_event_listener);
 
         //app.auto_reflected_undo::<ChildOf>();
-        app.auto_reflected_undo::<Children>();
-        app.auto_undo::<PrefabMarker>();
+        //app.auto_reflected_undo::<Children>();
+        //app.auto_undo::<PrefabMarker>();
     }
 }
 
@@ -100,8 +100,11 @@ fn editor_event_listener(
             EditorEvent::StartGame => {
                 start_game_state.set(EditorState::GamePrepare);
             }
-            EditorEvent::LoadGltfAsPrefab(path) => {
-                gltf_events.write(gltf_unpack::EditorUnpackGltf { path: path.clone() });
+            EditorEvent::LoadGltfAsPrefab{path, parent} => {
+                gltf_events.write(gltf_unpack::EditorUnpackGltf { 
+                    path: path.clone(),
+                    parent: *parent,
+                });
             }
         }
     }

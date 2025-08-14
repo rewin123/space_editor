@@ -178,15 +178,15 @@ impl Plugin for EditorUiCore {
             clear_and_load_on_start,
         );
 
-        app.add_systems(
-            Update,
-            (
-                draw_camera_gizmo,
+        //app.add_systems(
+        //    Update,
+        //    (
+                //draw_camera_gizmo,
                 //draw_light_gizmo,
                 //selection::delete_selected,
-            )
-                .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
-        );
+        //    )
+        //        .run_if(in_state(EditorState::Editor).and(in_state(ShowEditorUi::Show))),
+        //);
 
         if self.disable_no_editor_cams {
             app.add_systems(

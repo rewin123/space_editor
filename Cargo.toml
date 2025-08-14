@@ -42,7 +42,18 @@ repository = "https://github.com/rewin123/space_editor"
 homepage = "https://github.com/rewin123/space_editor"
 
 [workspace.dependencies]
-bevy = { version = "0.16.0"}
+bevy = { version = "0.16.0", features = [
+    "bevy_gltf",
+    "bevy_log",
+    "bevy_window",
+    "bevy_state",
+    "bevy_sprite",
+    "reflect_documentation",
+    "reflect_functions",
+    "bevy_gizmos",
+    "bevy_picking",
+    "bevy_mesh_picking_backend",
+] }
 
 # Editor Crates
 space_prefab = { version = "0.8.0", path = "crates/prefab" }
@@ -83,13 +94,14 @@ bevy-inspector-egui = {version = "0.31.0", features = [
 bevy_mod_billboard = { branch = "dev-0.16", git = "https://github.com/MiniMinerX/bevy_mod_billboard.git"}
 bevy_asset_loader = "0.23.0-rc.3"
 bevy_panorbit_camera = "0.26"
-# bevy_panorbit_camera = { branch = "reflect_component", git = "https://github.com/MiniMinerX/bevy_panorbit_camera.git"}
+# bevy_panorbit_camera = { branch = "dev-0.16-reflect-cam-2", git = "https://github.com/MiniMinerX/bevy_panorbit_camera.git"}
+
 bevy_mod_outline = {git = "https://github.com/komadori/bevy_mod_outline.git", branch = "bevy-0.16"}
 
 # below has not been updated to bevy 0.16
 
-transform-gizmo-bevy = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-bevy"}
-transform-gizmo-egui = {git = "https://github.com/jakobhellermann/transform-gizmo.git", branch = "bevy-0.16", package = "transform-gizmo-egui"}
+transform-gizmo-bevy = {git = "https://github.com/MiniMinerX/transform-gizmo", branch = "dev-0.16-3"}
+transform-gizmo-egui = {git = "https://github.com/MiniMinerX/transform-gizmo", branch = "dev-0.16-3"}
 
 
 #transform-gizmo-egui = {git = "https://github.com/MiniMinerX/transform-gizmo.git"}
@@ -106,6 +118,7 @@ bevy.workspace = true
 space_editor_ui.workspace = true
 space_prefab.workspace = true
 game_app.workspace = true
+transform-gizmo-bevy.workspace = true
 
 # Tabs
 space_editor_game_view.workspace = true

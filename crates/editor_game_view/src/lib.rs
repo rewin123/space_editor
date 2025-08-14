@@ -214,27 +214,39 @@ pub fn set_camera_viewport(
     local.0 = Some(viewport_rect);
 
     let scale_factor = window.scale_factor();
-    debug!(
-        "Window scale factor: {} egui scale factor: {}",
-        scale_factor, context_settings.scale_factor
-    );
 
     let mut viewport_pos = viewport_rect.left_top().to_vec2() * scale_factor;
     let mut viewport_size = viewport_rect.size() * scale_factor;
 
+    // Ensure position is non-negative
     viewport_pos.x = viewport_pos.x.max(0.0);
     viewport_pos.y = viewport_pos.y.max(0.0);
 
-    viewport_size.x = viewport_size
-        .x
-        .min(window.width().mul_add(scale_factor, -viewport_pos.x));
-    viewport_size.y = viewport_size
-        .y
-        .min(window.height().mul_add(scale_factor, -viewport_pos.y));
+    // Calculate maximum allowed size based on window dimensions and position
+    let window_width = window.width() * scale_factor;
+    let window_height = window.height() * scale_factor;
+    
+    // IMPORTANT: Ensure viewport fits WITHIN the render target
+    // Subtract 1 pixel to ensure it's contained, not equal
+    let max_width = (window_width - viewport_pos.x - 1.0).max(0.0);
+    let max_height = (window_height - viewport_pos.y - 1.0).max(0.0);
+    
+    viewport_size.x = viewport_size.x.min(max_width);
+    viewport_size.y = viewport_size.y.min(max_height);
 
-    if (viewport_size.x <= 0.0) || (viewport_size.y <= 0.0) {
+    // Ensure minimum size of 1x1
+    if viewport_size.x < 1.0 || viewport_size.y < 1.0 {
         return;
     }
+
+    // Additional safety check: ensure the viewport is fully contained
+    if viewport_pos.x + viewport_size.x >= window_width ||
+       viewport_pos.y + viewport_size.y >= window_height {
+        // Adjust size to fit
+        viewport_size.x = (window_width - viewport_pos.x - 1.0).max(1.0);
+        viewport_size.y = (window_height - viewport_pos.y - 1.0).max(1.0);
+    }
+
     cam.viewport = Some(bevy::render::camera::Viewport {
         physical_position: UVec2::new(viewport_pos.x as u32, viewport_pos.y as u32),
         physical_size: UVec2::new(viewport_size.x as u32, viewport_size.y as u32),

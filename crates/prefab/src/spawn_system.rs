@@ -85,7 +85,7 @@ fn recursive_path(
     entity: Entity,
     path: Vec<usize>,
 ) {
-    // commands.entity(entity).insert(ChildPath(path.clone()));
+    //commands.entity(entity).insert(ChildPath(path.clone()));
 
     if let Ok(children) = q_children.get(entity) {
         for (i, child_entity) in children.iter().enumerate() {

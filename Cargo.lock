@@ -5270,6 +5270,7 @@ dependencies = [
  "space_editor_game_view",
  "space_editor_ui",
  "space_prefab",
+ "transform-gizmo-bevy",
  "workspace-hakari",
 ]
 
@@ -5821,8 +5822,8 @@ dependencies = [
 
 [[package]]
 name = "transform-gizmo"
-version = "0.5.0"
-source = "git+https://github.com/jakobhellermann/transform-gizmo.git?branch=bevy-0.16#a1fbba9c06f8817f4cf041104dadf55c801c9fcc"
+version = "0.6.0"
+source = "git+https://github.com/MiniMinerX/transform-gizmo?branch=dev-0.16-3#55559e6dfcf02a54e4a06c2d9ff873fbcbd2f5cd"
 dependencies = [
  "ahash",
  "ecolor",
@@ -5836,8 +5837,8 @@ dependencies = [
 
 [[package]]
 name = "transform-gizmo-bevy"
-version = "0.5.0"
-source = "git+https://github.com/jakobhellermann/transform-gizmo.git?branch=bevy-0.16#a1fbba9c06f8817f4cf041104dadf55c801c9fcc"
+version = "0.6.0"
+source = "git+https://github.com/MiniMinerX/transform-gizmo?branch=dev-0.16-3#55559e6dfcf02a54e4a06c2d9ff873fbcbd2f5cd"
 dependencies = [
  "bevy_app",
  "bevy_asset",
@@ -5863,8 +5864,8 @@ dependencies = [
 
 [[package]]
 name = "transform-gizmo-egui"
-version = "0.5.0"
-source = "git+https://github.com/jakobhellermann/transform-gizmo.git?branch=bevy-0.16#a1fbba9c06f8817f4cf041104dadf55c801c9fcc"
+version = "0.6.0"
+source = "git+https://github.com/MiniMinerX/transform-gizmo?branch=dev-0.16-3#55559e6dfcf02a54e4a06c2d9ff873fbcbd2f5cd"
 dependencies = [
  "egui",
  "transform-gizmo",

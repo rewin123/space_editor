@@ -81,18 +81,20 @@ pub fn update_pan_orbit(
     }
 }
 
-type PlayModeCameraFilter = (Without<EditorCameraMarker>, With<PlaymodeCamera>);
-type EditorModeCameraFilter = (With<EditorCameraMarker>, Without<PlaymodeCamera>);
+//type PlayModeCameraFilter = (Without<EditorCameraMarker>, With<PlaymodeCamera>);
+//type EditorModeCameraFilter = (With<EditorCameraMarker>, Without<PlaymodeCamera>);
 
 /// System to change camera from editor camera to game play camera (if exist)
 pub fn change_camera_in_play(
-    mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
-    mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
+    //mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
+    //mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
+    mut editor_only_cameras: Query<&mut Camera, (With<EditorCameraMarker>, Without<PlaymodeCamera>)>,
+    mut play_cameras: Query<&mut Camera, With<PlaymodeCamera>>,
     primary_window: Query<&mut Window, With<PrimaryWindow>>,
     mut toast: EventWriter<ToastMessage>,
 ) {
     if !play_cameras.is_empty() {
-        editor_cameras.iter_mut().for_each(|mut cam| {
+        editor_only_cameras.iter_mut().for_each(|mut cam| {
             cam.is_active = false;
         });
         play_cameras.iter_mut().for_each(|mut cam| {
@@ -131,14 +133,14 @@ pub fn change_camera_in_play(
 
 /// System to change camera from game camera to editor camera (if exist)
 pub fn change_camera_in_editor(
-    mut editor_cameras: Query<&mut Camera, EditorModeCameraFilter>,
-    mut play_cameras: Query<&mut Camera, PlayModeCameraFilter>,
+    mut editor_cameras: Query<&mut Camera, With<EditorCameraMarker>>,
+    mut play_only_cameras: Query<&mut Camera, (With<PlaymodeCamera>, Without<EditorCameraMarker>)>,
 ) {
     for mut ecam in editor_cameras.iter_mut() {
         ecam.is_active = true;
     }
 
-    for mut play_cam in play_cameras.iter_mut() {
+    for mut play_cam in play_only_cameras.iter_mut() {
         play_cam.is_active = false;
     }
 }
@@ -164,7 +166,7 @@ pub fn draw_camera_gizmo(
         (&GlobalTransform, &Projection),
         (
             With<Camera>,
-            Without<EditorCameraMarker>,
+            //Without<EditorCameraMarker>,
             Without<DisableCameraSkip>,
             Without<NotShowCamera>,
         ),
@@ -173,11 +175,14 @@ pub fn draw_camera_gizmo(
     for (transform, _projection) in cameras.iter() {
         let pink = Color::srgb(1.0, 0.41, 0.71);
 
+        let scale = 0.4;
+        let scale2 = 0.4 / 1.5;
+        
         let transform = transform.compute_transform();
-        let cuboid_transform = transform.with_scale(Vec3::new(1.0, 1.0, 2.0));
+        let cuboid_transform = transform.with_scale(Vec3::new(1.0 * scale2, 1.0 * scale2, 2.0 * scale2));
         gizmos.cuboid(cuboid_transform, pink);
 
-        let scale = 1.5;
+        
 
         gizmos.line(
             transform.translation,

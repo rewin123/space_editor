@@ -479,7 +479,10 @@ pub fn top_menu(
                             if path.starts_with("assets/") {
                                 path = path.replace("assets/", "");
 
-                                editor_events.write(EditorEvent::LoadGltfAsPrefab(path));
+                                editor_events.write(EditorEvent::LoadGltfAsPrefab{
+                                    path: path,
+                                    parent: None,
+                                });
                             }
                         }
                     } else {

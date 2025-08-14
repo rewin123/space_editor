@@ -139,6 +139,8 @@ pub mod prelude {
     pub use crate::EditorPlugin;
 
     pub use crate::editor_tab_name::*;
+
+
 }
 
 /// External dependencies for editor crate
